@@ -98,7 +98,7 @@
 .ol-nav--boxed .ol-nav__link:hover,
 .ol-nav--boxed .ol-nav__link:focus-visible {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
 }
 
 .ol-nav--boxed .ol-nav__link--active {

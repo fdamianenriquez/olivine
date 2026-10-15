@@ -56,6 +56,7 @@
   --motion-press: 1px;
   --underline-weight: 1px;
   --underline-offset: 4px;
+  --z-raised: 1;
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-overlay: 300;
