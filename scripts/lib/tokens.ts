@@ -20,6 +20,9 @@ export interface FontFace {
 export interface TypeStyle {
   name: string;
   fontSize: string;
+  /** Smallest size of a fluid style; with fontSizeFluid, sizes become clamp(min, fluid, fontSize). */
+  fontSizeMin?: string;
+  fontSizeFluid?: string;
   lineHeight: number;
   fontWeight: number;
   letterSpacing?: string;
@@ -47,8 +50,10 @@ export interface TokenFile {
   radius: TokenGroup;
   stroke: TokenGroup;
   control: TokenGroup;
+  layout: TokenGroup;
   shadow: TokenGroup<string | Themed>;
   texture: TokenGroup;
+  marker: TokenGroup;
   zIndex: TokenGroup;
 }
 
@@ -57,7 +62,16 @@ export const TOKENS_PATH = "src/tokens/tokens.json";
 export const VENDOR_FONTS_PATH = "src/tokens/vendor-fonts.json";
 
 /** Token groups that hold a single value per token (not per theme). */
-const SCALAR_GROUPS = ["spacing", "radius", "stroke", "control", "texture", "zIndex"] as const;
+const SCALAR_GROUPS = [
+  "spacing",
+  "radius",
+  "stroke",
+  "control",
+  "layout",
+  "texture",
+  "marker",
+  "zIndex",
+] as const;
 
 export function readTokens(path = TOKENS_PATH): TokenFile {
   return JSON.parse(readFileSync(path, "utf8")) as TokenFile;
@@ -111,7 +125,12 @@ function scalarEntries(tokens: TokenFile): [string, string | number][] {
   const type = tokens.type.groups.flatMap((group) =>
     group.styles.flatMap((style): [string, string | number][] => [
       [`text-${style.name}-family`, `var(--font-${group.family})`],
-      [`text-${style.name}-size`, style.fontSize],
+      [
+        `text-${style.name}-size`,
+        style.fontSizeMin && style.fontSizeFluid
+          ? `clamp(${style.fontSizeMin}, ${style.fontSizeFluid}, ${style.fontSize})`
+          : style.fontSize,
+      ],
       [`text-${style.name}-leading`, style.lineHeight],
       [`text-${style.name}-weight`, style.fontWeight],
       [`text-${style.name}-tracking`, style.letterSpacing ?? "0"],
@@ -189,6 +208,8 @@ export function tokensTs(tokens: TokenFile): string {
           {
             family: group.family,
             fontSize: style.fontSize,
+            ...(style.fontSizeMin && { fontSizeMin: style.fontSizeMin }),
+            ...(style.fontSizeFluid && { fontSizeFluid: style.fontSizeFluid }),
             lineHeight: style.lineHeight,
             fontWeight: style.fontWeight,
             letterSpacing: style.letterSpacing ?? "0",
@@ -200,8 +221,10 @@ export function tokensTs(tokens: TokenFile): string {
     radius: record(tokens.radius.tokens),
     stroke: record(tokens.stroke.tokens),
     control: record(tokens.control.tokens),
+    layout: record(tokens.layout.tokens),
     shadow: record(tokens.shadow.tokens),
     texture: record(tokens.texture.tokens),
+    marker: record(tokens.marker.tokens),
     zIndex: record(tokens.zIndex.tokens),
   };
 
@@ -218,6 +241,7 @@ export type SpaceToken = keyof Tokens["space"];
 export type RadiusToken = keyof Tokens["radius"];
 export type StrokeToken = keyof Tokens["stroke"];
 export type ControlToken = keyof Tokens["control"];
+export type LayoutToken = keyof Tokens["layout"];
 export type ShadowToken = keyof Tokens["shadow"];
 export type ZIndexToken = keyof Tokens["zIndex"];
 `;
