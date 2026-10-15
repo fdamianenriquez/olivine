@@ -30,6 +30,7 @@
 @import "../components/FileInput/FileInput.css";
 
 /* Navigation and content */
+@import "../components/Navbar/Navbar.css";
 @import "../components/Nav/Nav.css";
 @import "../components/Tabs/Tabs.css";
 @import "../components/Breadcrumb/Breadcrumb.css";
