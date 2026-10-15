@@ -1,0 +1,109 @@
+.ol-selectwrap {
+  position: relative;
+  display: block;
+}
+
+.ol-select {
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 var(--space-12) 0 var(--space-4);
+  font: inherit;
+  font-size: var(--text-body-size);
+  color: var(--ink);
+  background-color: transparent;
+
+  /* The divider before the arrow cell. */
+  background-image: linear-gradient(var(--rule), var(--rule));
+  background-size: var(--stroke-hair) 100%;
+  background-repeat: no-repeat;
+  background-position: calc(100% - var(--control-m)) 0;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  appearance: none;
+  cursor: pointer;
+}
+
+.ol-selectwrap::after {
+  content: "↓";
+  content: "↓" / ""; /* decorative: empty alternative text for assistive tech */
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: var(--control-m);
+  font-family: var(--font-mono);
+  font-size: var(--glyph-s);
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.ol-select:hover {
+  background-color: var(--paper-2);
+}
+
+.ol-select:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background-color: transparent;
+}
+
+.ol-select--s {
+  height: var(--control-s);
+  padding: 0 var(--space-12) 0 var(--space-3);
+  font-size: var(--text-body-s-size);
+  background-position: calc(100% - var(--control-s)) 0;
+}
+
+.ol-selectwrap--s::after {
+  width: var(--control-s);
+}
+
+.ol-select[aria-invalid="true"] {
+  border-color: var(--beni);
+}
+
+.ol-select:disabled {
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+.ol-selectwrap:has(.ol-select:disabled)::after {
+  color: var(--ink-3);
+}
+
+/* Backgrounds are dropped here, so the divider becomes a real border on the arrow cell. */
+@media (forced-colors: active) {
+  .ol-select {
+    border-color: CanvasText;
+    background-color: Field;
+    background-image: none;
+    color: FieldText;
+  }
+
+  .ol-selectwrap::after {
+    inset-block: 0;
+    border-left: var(--stroke-hair) solid CanvasText;
+    color: FieldText;
+  }
+
+  .ol-select:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-select[aria-invalid="true"] {
+    border-color: Mark;
+  }
+
+  .ol-select:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
+
+  .ol-selectwrap:has(.ol-select:disabled)::after {
+    color: GrayText;
+    border-left-color: GrayText;
+  }
+}
