@@ -44,6 +44,18 @@
   white-space: nowrap;
 }
 
+/* Portalled layers keep the type and theme of the app but paint nothing themselves. */
+.ol-portal {
+  background: transparent;
+}
+
+/* Elements positioned by useFloating. */
+.ol-floating {
+  position: fixed;
+  top: var(--ol-float-y, 0);
+  left: var(--ol-float-x, 0);
+}
+
 /* The system voice: mono, uppercase via CSS. */
 .ol-label {
   font-family: var(--text-label-family);
