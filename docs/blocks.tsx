@@ -86,6 +86,9 @@ type ScaleGroup =
   | "shadow"
   | "texture"
   | "marker"
+  | "glyph"
+  | "motion"
+  | "underline"
   | "zIndex";
 
 const PREVIEWS: Partial<Record<ScaleGroup, (name: string) => ReactNode>> = {

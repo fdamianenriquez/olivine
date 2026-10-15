@@ -192,6 +192,13 @@ export const tokens = {
       fontWeight: 400,
       letterSpacing: "0.06em",
     },
+    "label-l": {
+      family: "mono",
+      fontSize: "12px",
+      lineHeight: 1.3,
+      fontWeight: 400,
+      letterSpacing: "0.06em",
+    },
     mono: {
       family: "mono",
       fontSize: "12.5px",
@@ -233,6 +240,7 @@ export const tokens = {
     "control-s": "32px",
     "control-m": "44px",
     "control-l": "56px",
+    "control-area": "120px",
   },
   layout: {
     "container-max": "1280px",
@@ -261,6 +269,32 @@ export const tokens = {
   },
   marker: {
     "dot-size": "7px",
+    "dot-size-s": "6px",
+    "mark-size": "10px",
+    "knob-size": "16px",
+    "check-size": "20px",
+    "badge-height": "22px",
+    "thumb-width": "12px",
+    "thumb-height": "20px",
+    "switch-width": "48px",
+    "switch-height": "24px",
+  },
+  glyph: {
+    "glyph-s": "13px",
+    "glyph-m": "14px",
+    "glyph-l": "16px",
+  },
+  motion: {
+    "motion-fast": "80ms steps(2)",
+    "motion-base": "120ms steps(3)",
+    "motion-slow": "160ms steps(4)",
+    "motion-spin": "800ms steps(8)",
+    "motion-nudge": "3px",
+    "motion-press": "1px",
+  },
+  underline: {
+    "underline-weight": "1px",
+    "underline-offset": "4px",
   },
   zIndex: {
     "z-dropdown": "100",
