@@ -56,6 +56,9 @@ export interface TokenFile {
   shadow: TokenGroup<string | Themed>;
   texture: TokenGroup;
   marker: TokenGroup;
+  glyph: TokenGroup;
+  motion: TokenGroup;
+  underline: TokenGroup;
   zIndex: TokenGroup;
 }
 
@@ -72,6 +75,9 @@ const SCALAR_GROUPS = [
   "layout",
   "texture",
   "marker",
+  "glyph",
+  "motion",
+  "underline",
   "zIndex",
 ] as const;
 
@@ -235,6 +241,9 @@ export function tokensTs(tokens: TokenFile): string {
     shadow: record(tokens.shadow.tokens),
     texture: record(tokens.texture.tokens),
     marker: record(tokens.marker.tokens),
+    glyph: record(tokens.glyph.tokens),
+    motion: record(tokens.motion.tokens),
+    underline: record(tokens.underline.tokens),
     zIndex: record(tokens.zIndex.tokens),
   };
 
