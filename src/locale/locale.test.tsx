@@ -37,6 +37,15 @@ describe("makeLabels", () => {
     expect(locales.ja.slideOf(2, 5)).toBe("5枚中2枚目");
   });
 
+  it("formats pages and slides in every language", () => {
+    expect([locales.en.page(2), locales.en.goToSlide(3)]).toEqual(["Page 2", "Go to slide 3"]);
+    expect([locales.es.goToSlide(3), locales.es.slideOf(1, 4)]).toEqual([
+      "Ir a la diapositiva 3",
+      "1 de 4",
+    ]);
+    expect([locales.ja.page(2), locales.ja.goToSlide(3)]).toEqual(["2ページ", "スライド3へ"]);
+  });
+
   it("every dictionary has the same keys", () => {
     const keys = Object.keys(locales.en).sort();
     expect(Object.keys(locales.es).sort()).toEqual(keys);
