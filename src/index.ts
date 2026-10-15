@@ -10,6 +10,7 @@ export { Input, type InputProps } from "./components/Input";
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
 export { Radio, type RadioProps } from "./components/Radio";
+export { Range, type RangeProps } from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
