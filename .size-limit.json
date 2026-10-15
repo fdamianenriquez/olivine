@@ -1,0 +1,16 @@
+[
+  {
+    "name": "JS (ESM, all exports)",
+    "path": "dist/index.js",
+    "import": "*",
+    "gzip": true,
+    "limit": "30 kB"
+  },
+  {
+    "name": "CSS (styles.css)",
+    "path": "dist/olivine.css",
+    "rolldown": false,
+    "gzip": true,
+    "limit": "12 kB"
+  }
+]
