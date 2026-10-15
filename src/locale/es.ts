@@ -32,5 +32,6 @@ export const es: OlivineLabels = {
   pause: "Pausar",
   trendUp: "en aumento",
   trendDown: "en descenso",
+  figure: "Fig.",
   tags: { info: "Info", success: "Listo", warning: "Aviso", danger: "Error", neutral: "Nota" },
 };
