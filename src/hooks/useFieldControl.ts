@@ -11,6 +11,8 @@ export interface FieldContextValue {
   /**
    * Lets one control take the field's id. The first control to call it owns the id; others
    * (e.g. a second input inside an InputGroup) still get the description and validity.
+   * The claim lasts for the Field's lifetime: if the owning control is rendered conditionally,
+   * give the intended control an explicit `id` instead.
    */
   claim: (owner: string) => boolean;
 }
