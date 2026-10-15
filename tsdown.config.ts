@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: { index: "src/index.ts", tokens: "src/tokens/index.ts" },
   format: ["esm", "cjs"],
   platform: "neutral",
   target: "es2020",
@@ -10,6 +10,7 @@ export default defineConfig({
   tsconfig: "tsconfig.build.json",
   sourcemap: false,
   clean: true,
-  // Every component is a client component under React Server Components.
-  outputOptions: { banner: '"use client";' },
+  // Components are client components under React Server Components; tokens are plain data
+  // and stay importable from server code.
+  outputOptions: { banner: (chunk) => (chunk.name === "index" ? '"use client";' : "") },
 });

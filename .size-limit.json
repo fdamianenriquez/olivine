@@ -7,10 +7,24 @@
     "limit": "30 kB"
   },
   {
-    "name": "CSS (styles.css)",
+    "name": "CSS (styles.css: tokens, fonts, components)",
     "path": "dist/olivine.css",
     "rolldown": false,
     "gzip": true,
     "limit": "12 kB"
+  },
+  {
+    "name": "CSS (fonts-jp.css, opt-in)",
+    "path": "dist/fonts-jp.css",
+    "rolldown": false,
+    "gzip": true,
+    "limit": "30 kB"
+  },
+  {
+    "name": "JS (tokens)",
+    "path": "dist/tokens.js",
+    "import": "*",
+    "gzip": true,
+    "limit": "2 kB"
   }
 ]

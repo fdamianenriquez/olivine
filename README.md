@@ -32,6 +32,27 @@ export function App() {
 }
 ```
 
+### Themes
+
+Olivine has two themes: `washi` (cream, the default) and `sumi` (ebony). Set `data-theme` on
+`<html>` or any element; `auto` follows the system setting.
+
+```html
+<html data-theme="auto"></html>
+```
+
+### Stylesheets
+
+| Import                   | Contains                                                  |
+| ------------------------ | --------------------------------------------------------- |
+| `olivine/styles.css`     | Tokens, fonts, base styles, components and utilities      |
+| `olivine/tokens.css`     | Design tokens as CSS custom properties, both themes       |
+| `olivine/fonts.css`      | `@font-face` rules for the self-hosted fonts              |
+| `olivine/fonts-jp.css`   | Opt-in Zen Old Mincho for kanji (loaded by unicode slice) |
+| `olivine/components.css` | Base styles, components and utilities only                |
+
+Typed token values are available from `olivine/tokens`.
+
 ## Documentation
 
 Component docs and guidelines: https://fdamianenriquez.github.io/olivine/

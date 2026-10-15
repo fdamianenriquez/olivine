@@ -1,0 +1,38 @@
+import { Meta, Unstyled } from "@storybook/addon-docs/blocks";
+
+import { ColorSwatches } from "./blocks";
+
+<Meta title="Foundations/Colour" />
+
+# Colour
+
+The palette comes from an olive Fender Telecaster: an **olive** body, a **maple** neck, and the
+cream of a tweed amp. Two themes: `washi` (cream, default) and `sumi` (ebony). Every text pair
+holds at least 4.5:1 in both — `pnpm contrast` checks it in CI.
+
+- `paper` is the ground; `paper-2` for sunken areas; `paper-3` only for things that float,
+  always with a hairline `rule` border and `shadow-block`.
+- `ink` for text and solid fills; **`rule` for every structural line**. `ink-2` for secondary
+  text. `ink-3` only for disabled states.
+- `line-soft` only for inner dividers inside an ink frame.
+- **`olivo` is the brand colour and the one accent:** focus ring, active markers, the `accent`
+  button, progress fill, an accent figure. One olive emphasis per view. On `paper-2` it holds
+  4.2:1 — marks, figures 24px+ and bold labels only.
+- **`maple` is a fill, never text.** It only appears as a block with `ink` text on it
+  (`on-maple`). Never a border that carries meaning, never a status.
+- Status colours — `ai` (info), `matsu` (success), `kitsune` (warning), `beni` (danger) — tint
+  frames, tags and text only, and always carry a word or glyph.
+
+<Unstyled>
+  <ColorSwatches />
+</Unstyled>
+
+## Themes
+
+Set `data-theme` on `<html>` (or any element) to `washi`, `sumi` or `auto`. `auto` — or the
+`.ol-auto-theme` class — follows the system's `prefers-color-scheme`. Without an attribute the
+page is `washi`.
+
+```html
+<html data-theme="auto"></html>
+```

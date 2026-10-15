@@ -1,0 +1,76 @@
+/* Olivine base: the .ol root, focus ring, selection, the label voice, motion and forced colours. */
+
+.ol,
+.ol *,
+.ol *::before,
+.ol *::after {
+  box-sizing: border-box;
+}
+
+/* True hairlines on high-density screens; 1px elsewhere so shared borders still overlap exactly. */
+@media (resolution >= 2dppx) {
+  :root {
+    --stroke-hair: 0.5px;
+  }
+}
+
+.ol {
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ol ::selection {
+  background: var(--maple);
+  color: var(--on-maple);
+}
+
+.ol :focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+/* Visually hidden, still announced. */
+.ol-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The system voice: mono, uppercase via CSS. */
+.ol-label {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol *,
+  .ol *::before,
+  .ol *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Windows High Contrast and other forced-colour modes: keep the ring and the lines visible. */
+@media (forced-colors: active) {
+  .ol :focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol ::selection {
+    background: Highlight;
+    color: HighlightText;
+  }
+}

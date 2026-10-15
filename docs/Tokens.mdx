@@ -1,0 +1,78 @@
+import { Meta, Unstyled } from "@storybook/addon-docs/blocks";
+
+import { TokenTable } from "./blocks";
+
+<Meta title="Foundations/Tokens" />
+
+# Tokens
+
+Every value in Olivine comes from a token. They are CSS custom properties in
+`olivine/tokens.css` (also part of `olivine/styles.css`) and typed values in `olivine/tokens`:
+
+```ts
+import { tokens, type ColorToken } from "olivine/tokens";
+
+tokens.color.olivo.washi; // "#6a6a45"
+tokens.space["space-6"]; // "24px"
+```
+
+| Entry point              | Contains                                                |
+| ------------------------ | ------------------------------------------------------- |
+| `olivine/styles.css`     | Tokens, fonts, base styles, components and utilities    |
+| `olivine/tokens.css`     | Custom properties only, both themes                     |
+| `olivine/fonts.css`      | `@font-face` rules only                                 |
+| `olivine/fonts-jp.css`   | Opt-in Zen Old Mincho for kanji                         |
+| `olivine/components.css` | Base styles, components and utilities — no tokens/fonts |
+| `olivine/tokens`         | Typed token values for JavaScript                       |
+
+Colour tokens are on the [Colour](?path=/docs/foundations-colour--docs) page and type styles on
+[Type](?path=/docs/foundations-type--docs).
+
+## Space
+
+4px base. The large steps are the point: leave `space-16` and up empty around anything
+important.
+
+<Unstyled>
+  <TokenTable group="spacing" />
+</Unstyled>
+
+## Controls
+
+<Unstyled>
+  <TokenTable group="control" />
+</Unstyled>
+
+## Lines
+
+`stroke-hair` renders as a true 0.5px hairline on high-density screens and 1px elsewhere.
+
+<Unstyled>
+  <TokenTable group="stroke" />
+</Unstyled>
+
+## Radius
+
+<Unstyled>
+  <TokenTable group="radius" />
+</Unstyled>
+
+## Shadow
+
+Values shown for `washi`; `sumi` uses the same offsets in its own ink.
+
+<Unstyled>
+  <TokenTable group="shadow" />
+</Unstyled>
+
+## Texture
+
+<Unstyled>
+  <TokenTable group="texture" />
+</Unstyled>
+
+## Layers
+
+<Unstyled>
+  <TokenTable group="zIndex" />
+</Unstyled>
