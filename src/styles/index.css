@@ -2,6 +2,7 @@
 @import "./base.css";
 
 /* Foundations */
+@import "../components/Text/Text.css";
 @import "../components/Grid/Grid.css";
 
 /* Internal */

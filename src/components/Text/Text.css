@@ -1,0 +1,150 @@
+/* Text: one rule per type style, all values from the --text-\3c style>-* tokens. */
+.ol-text {
+  margin: 0;
+}
+
+.ol-text--display-xl {
+  font-family: var(--text-display-xl-family);
+  font-size: var(--text-display-xl-size);
+  line-height: var(--text-display-xl-leading);
+  font-weight: var(--text-display-xl-weight);
+  letter-spacing: var(--text-display-xl-tracking);
+}
+
+.ol-text--display-l {
+  font-family: var(--text-display-l-family);
+  font-size: var(--text-display-l-size);
+  line-height: var(--text-display-l-leading);
+  font-weight: var(--text-display-l-weight);
+  letter-spacing: var(--text-display-l-tracking);
+}
+
+.ol-text--display-m {
+  font-family: var(--text-display-m-family);
+  font-size: var(--text-display-m-size);
+  line-height: var(--text-display-m-leading);
+  font-weight: var(--text-display-m-weight);
+  letter-spacing: var(--text-display-m-tracking);
+}
+
+.ol-text--h1 {
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-leading);
+  font-weight: var(--text-h1-weight);
+  letter-spacing: var(--text-h1-tracking);
+}
+
+.ol-text--h2 {
+  font-family: var(--text-h2-family);
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-leading);
+  font-weight: var(--text-h2-weight);
+  letter-spacing: var(--text-h2-tracking);
+}
+
+.ol-text--h3 {
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-leading);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-text--figure-xl {
+  font-family: var(--text-figure-xl-family);
+  font-size: var(--text-figure-xl-size);
+  line-height: var(--text-figure-xl-leading);
+  font-weight: var(--text-figure-xl-weight);
+  letter-spacing: var(--text-figure-xl-tracking);
+}
+
+.ol-text--figure-l {
+  font-family: var(--text-figure-l-family);
+  font-size: var(--text-figure-l-size);
+  line-height: var(--text-figure-l-leading);
+  font-weight: var(--text-figure-l-weight);
+  letter-spacing: var(--text-figure-l-tracking);
+}
+
+.ol-text--figure-m {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  line-height: var(--text-figure-m-leading);
+  font-weight: var(--text-figure-m-weight);
+  letter-spacing: var(--text-figure-m-tracking);
+}
+
+.ol-text--body-l {
+  font-family: var(--text-body-l-family);
+  font-size: var(--text-body-l-size);
+  line-height: var(--text-body-l-leading);
+  font-weight: var(--text-body-l-weight);
+  letter-spacing: var(--text-body-l-tracking);
+}
+
+.ol-text--body {
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+  font-weight: var(--text-body-weight);
+  letter-spacing: var(--text-body-tracking);
+}
+
+.ol-text--body-s {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+}
+
+.ol-text--mono {
+  font-family: var(--text-mono-family);
+  font-size: var(--text-mono-size);
+  line-height: var(--text-mono-leading);
+  font-weight: var(--text-mono-weight);
+  letter-spacing: var(--text-mono-tracking);
+}
+
+.ol-text--kanji {
+  font-family: var(--text-kanji-family);
+  font-size: var(--text-kanji-size);
+  line-height: var(--text-kanji-leading);
+  font-weight: var(--text-kanji-weight);
+  letter-spacing: var(--text-kanji-tracking);
+}
+
+.ol-text--display-xl,
+.ol-text--display-l,
+.ol-text--display-m,
+.ol-text--h1,
+.ol-text--h2,
+.ol-text--h3 {
+  text-wrap: balance;
+}
+
+.ol-text--figure-xl,
+.ol-text--figure-l,
+.ol-text--figure-m {
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-text i,
+.ol-text em {
+  font-style: italic;
+}
+
+.ol-text--muted {
+  color: var(--ink-2);
+}
+
+.ol-text--accent {
+  color: var(--olivo);
+}
+
+.ol-text--vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: var(--text-kanji-tracking-vertical);
+}
