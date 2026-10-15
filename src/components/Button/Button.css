@@ -1,0 +1,187 @@
+.ol-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  height: var(--control-m);
+  padding: 0 var(--space-4);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.ol-btn:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-btn:active {
+  transform: translate(var(--motion-press), var(--motion-press));
+}
+
+.ol-btn--solid {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-btn--solid:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-btn--accent {
+  background: var(--olivo);
+  border-color: var(--olivo);
+  color: var(--on-olivo);
+}
+
+.ol-btn--accent:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-btn--ghost {
+  border-color: transparent;
+}
+
+.ol-btn--ghost:hover {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.ol-btn--danger {
+  color: var(--beni);
+  border-color: var(--beni);
+}
+
+.ol-btn--danger:hover {
+  background: var(--beni);
+  color: var(--on-status);
+}
+
+.ol-btn--s {
+  height: var(--control-s);
+  padding: 0 var(--space-3);
+}
+
+.ol-btn--l {
+  height: var(--control-l);
+  padding: 0 var(--space-6);
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  line-height: var(--text-label-l-leading);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+}
+
+.ol-btn--block {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.ol-btn--icon {
+  width: var(--control-m);
+  padding: 0;
+}
+
+.ol-btn--icon.ol-btn--s {
+  width: var(--control-s);
+}
+
+.ol-btn[disabled],
+.ol-btn[aria-disabled="true"] {
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ol-btn__br {
+  color: inherit;
+  opacity: 0.55;
+}
+
+.ol-btn__arrow {
+  font-family: var(--font-mono);
+  font-size: var(--glyph-m);
+  line-height: 1;
+  transition: transform var(--motion-base);
+}
+
+.ol-btn:hover .ol-btn__arrow {
+  transform: translateX(var(--motion-nudge));
+}
+
+.ol-btn[disabled]:hover .ol-btn__arrow,
+.ol-btn[aria-disabled="true"]:hover .ol-btn__arrow {
+  transform: none;
+}
+
+.ol-btn__spin {
+  width: var(--mark-size);
+  height: var(--mark-size);
+  border: var(--stroke-hair) solid currentcolor;
+  animation: ol-btn-spin var(--motion-spin) infinite;
+}
+
+@keyframes ol-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ink-filled states rely on background colour, which forced colours removes. */
+@media (forced-colors: active) {
+  .ol-btn {
+    border-color: ButtonText;
+    color: ButtonText;
+  }
+
+  .ol-btn:hover,
+  .ol-btn--solid,
+  .ol-btn--accent {
+    background: ButtonText;
+    color: ButtonFace;
+    forced-color-adjust: none;
+  }
+
+  .ol-btn--solid:hover,
+  .ol-btn--accent:hover {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .ol-btn--ghost {
+    border-color: ButtonFace;
+  }
+
+  .ol-btn--ghost:hover {
+    background: ButtonFace;
+    color: ButtonText;
+    border-color: ButtonText;
+  }
+
+  .ol-btn[disabled],
+  .ol-btn[aria-disabled="true"] {
+    background: ButtonFace;
+    color: GrayText;
+    border-color: GrayText;
+  }
+}
