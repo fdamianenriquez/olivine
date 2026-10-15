@@ -80,8 +80,14 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
+      # No local setup action here: size-limit-action checks out the base branch to compare.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      # Reports the size diff as a PR comment; budgets are enforced by `pnpm size` in `build`.
       - uses: andresz1/size-limit-action@v1
+        continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           package_manager: pnpm
@@ -89,8 +95,8 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm audit --audit-level moderate
+      # Only what consumers install; dev-dependency advisories are handled by Dependabot alerts.
+      - run: pnpm audit --prod --audit-level moderate
