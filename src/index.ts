@@ -41,6 +41,13 @@ export { Root, type RootProps } from "./components/Root";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
 export { Stack, type StackProps } from "./components/Stack";
+export {
+  Stat,
+  type StatProps,
+  type StatSize,
+  type StatTrend,
+  type StatUnit,
+} from "./components/Stat";
 export { Switch, type SwitchProps } from "./components/Switch";
 export {
   Table,

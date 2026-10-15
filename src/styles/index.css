@@ -37,6 +37,7 @@
 @import "../components/Dropdown/Dropdown.css";
 @import "../components/Table/Table.css";
 @import "../components/Accordion/Accordion.css";
+@import "../components/Stat/Stat.css";
 
 /* Utilities */
 @import "./utilities.css";
