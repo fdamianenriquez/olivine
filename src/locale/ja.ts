@@ -1,0 +1,28 @@
+import type { OlivineLabels } from "./types";
+
+export const ja: OlivineLabels = {
+  close: "閉じる",
+  dismiss: "閉じる",
+  loading: "読み込み中",
+  menu: "メニュー",
+  menuClose: "閉じる",
+  breadcrumb: "パンくずリスト",
+  pagination: "ページ送り",
+  prevPage: "前のページ",
+  nextPage: "次のページ",
+  page: (n) => `${String(n)}ページ`,
+  carousel: "カルーセル",
+  slide: "スライド",
+  prevSlide: "前のスライド",
+  nextSlide: "次のスライド",
+  goToSlide: (n) => `スライド${String(n)}へ`,
+  slideOf: (current, total) => `${String(total)}枚中${String(current)}枚目`,
+  switchOn: "オン",
+  switchOff: "オフ",
+  fileLabel: "ファイルをドロップまたは選択",
+  fileBrowse: "選択",
+  fileEmpty: "未選択",
+  now: "今",
+  sort: "並べ替え",
+  tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
+};
