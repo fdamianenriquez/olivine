@@ -12,7 +12,7 @@ const entry = readFileSync("src/index.ts", "utf8");
 const styles = readFileSync("src/styles/index.css", "utf8");
 
 describe("public entry", () => {
-  it.each(components.filter((name) => name !== "Carousel"))("exports %s", (name) => {
+  it.each(components)("exports %s", (name) => {
     expect(entry).toContain(`from "./components/${name}"`);
     expect(olivine).toHaveProperty(name);
   });
