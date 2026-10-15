@@ -1,0 +1,42 @@
+/*
+ * Spans cascade upward: each breakpoint reads its own custom property and falls back
+ * through the smaller ones. Below md the cell spans the whole row.
+ */
+.ol-col {
+  min-width: 0;
+  grid-column: span var(--ol-span-base, var(--ol-cols, 12));
+}
+
+/* --bp-sm */
+@media (width >= 480px) {
+  .ol-col {
+    grid-column: span var(--ol-span-sm, var(--ol-span-base, var(--ol-cols, 12)));
+  }
+}
+
+/* --bp-md */
+@media (width >= 720px) {
+  .ol-col {
+    grid-column: var(--ol-start, auto) / span
+      var(--ol-span-md, var(--ol-span-sm, var(--ol-span-base, 1)));
+  }
+}
+
+/* --bp-lg */
+@media (width >= 1024px) {
+  .ol-col {
+    grid-column: var(--ol-start, auto) / span
+      var(--ol-span-lg, var(--ol-span-md, var(--ol-span-sm, var(--ol-span-base, 1))));
+  }
+}
+
+/* --bp-xl */
+@media (width >= 1280px) {
+  .ol-col {
+    grid-column: var(--ol-start, auto) / span
+      var(
+        --ol-span-xl,
+        var(--ol-span-lg, var(--ol-span-md, var(--ol-span-sm, var(--ol-span-base, 1))))
+      );
+  }
+}
