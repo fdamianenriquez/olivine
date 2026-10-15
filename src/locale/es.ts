@@ -25,5 +25,10 @@ export const es: OlivineLabels = {
   newTab: "se abre en una pestaña nueva",
   now: "Ahora",
   sort: "Ordenar",
+  sortedAscending: "orden ascendente",
+  sortedDescending: "orden descendente",
+  currentPage: "página actual",
+  play: "Reproducir",
+  pause: "Pausar",
   tags: { info: "Info", success: "Listo", warning: "Aviso", danger: "Error", neutral: "Nota" },
 };

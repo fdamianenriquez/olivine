@@ -120,6 +120,13 @@ export const tokens = {
       fontWeight: 400,
       letterSpacing: "-0.03em",
     },
+    brand: {
+      family: "serif",
+      fontSize: "30px",
+      lineHeight: 1,
+      fontWeight: 400,
+      letterSpacing: "-0.03em",
+    },
     h1: {
       family: "serif",
       fontSize: "36px",
@@ -164,6 +171,13 @@ export const tokens = {
       fontWeight: 900,
       letterSpacing: "0",
     },
+    "figure-s": {
+      family: "figure",
+      fontSize: "18px",
+      lineHeight: 1,
+      fontWeight: 900,
+      letterSpacing: "0",
+    },
     "body-l": {
       family: "sans",
       fontSize: "18px",
@@ -175,6 +189,13 @@ export const tokens = {
       family: "sans",
       fontSize: "15px",
       lineHeight: 1.55,
+      fontWeight: 400,
+      letterSpacing: "0",
+    },
+    ui: {
+      family: "sans",
+      fontSize: "14px",
+      lineHeight: 1.45,
       fontWeight: 400,
       letterSpacing: "0",
     },
@@ -213,6 +234,13 @@ export const tokens = {
       fontWeight: 500,
       letterSpacing: "0.12em",
     },
+    "kanji-s": {
+      family: "jp",
+      fontSize: "20px",
+      lineHeight: 1,
+      fontWeight: 500,
+      letterSpacing: "0",
+    },
   },
   space: {
     "space-1": "4px",
@@ -242,6 +270,8 @@ export const tokens = {
     "control-l": "56px",
     "control-area": "120px",
     "target-min": "24px",
+    "menu-min-width": "220px",
+    "skeleton-min-height": "80px",
   },
   layout: {
     "container-max": "1280px",
@@ -284,6 +314,7 @@ export const tokens = {
     "glyph-s": "13px",
     "glyph-m": "14px",
     "glyph-l": "16px",
+    "glyph-xl": "18px",
   },
   motion: {
     "motion-fast": "80ms steps(2)",

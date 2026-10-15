@@ -22,6 +22,8 @@
   --control-l: 56px;
   --control-area: 120px;
   --target-min: 24px;
+  --menu-min-width: 220px;
+  --skeleton-min-height: 80px;
   --container-max: 1280px;
   --bp-sm: 480px;
   --bp-md: 720px;
@@ -45,6 +47,7 @@
   --glyph-s: 13px;
   --glyph-m: 14px;
   --glyph-l: 16px;
+  --glyph-xl: 18px;
   --motion-fast: 80ms steps(2);
   --motion-base: 120ms steps(3);
   --motion-slow: 160ms steps(4);
@@ -80,6 +83,11 @@
   --text-display-m-leading: 0.95;
   --text-display-m-weight: 400;
   --text-display-m-tracking: -0.03em;
+  --text-brand-family: var(--font-serif);
+  --text-brand-size: 30px;
+  --text-brand-leading: 1;
+  --text-brand-weight: 400;
+  --text-brand-tracking: -0.03em;
   --text-h1-family: var(--font-serif);
   --text-h1-size: 36px;
   --text-h1-leading: 1.08;
@@ -110,6 +118,11 @@
   --text-figure-m-leading: 1;
   --text-figure-m-weight: 900;
   --text-figure-m-tracking: 0;
+  --text-figure-s-family: var(--font-figure);
+  --text-figure-s-size: 18px;
+  --text-figure-s-leading: 1;
+  --text-figure-s-weight: 900;
+  --text-figure-s-tracking: 0;
   --text-body-l-family: var(--font-sans);
   --text-body-l-size: 18px;
   --text-body-l-leading: 1.6;
@@ -120,6 +133,11 @@
   --text-body-leading: 1.55;
   --text-body-weight: 400;
   --text-body-tracking: 0;
+  --text-ui-family: var(--font-sans);
+  --text-ui-size: 14px;
+  --text-ui-leading: 1.45;
+  --text-ui-weight: 400;
+  --text-ui-tracking: 0;
   --text-body-s-family: var(--font-sans);
   --text-body-s-size: 13px;
   --text-body-s-leading: 1.5;
@@ -146,6 +164,11 @@
   --text-kanji-weight: 500;
   --text-kanji-tracking: 0.12em;
   --text-kanji-tracking-vertical: 0.2em;
+  --text-kanji-s-family: var(--font-jp);
+  --text-kanji-s-size: 20px;
+  --text-kanji-s-leading: 1;
+  --text-kanji-s-weight: 500;
+  --text-kanji-s-tracking: 0;
 }
 
 /* washi (cream) is the default theme; "auto" starts light and follows the system below. */
