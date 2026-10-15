@@ -30,6 +30,7 @@
 @import "../components/FileInput/FileInput.css";
 
 /* Navigation and content */
+@import "../components/Table/Table.css";
 @import "../components/Accordion/Accordion.css";
 
 /* Utilities */
