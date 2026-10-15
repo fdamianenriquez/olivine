@@ -1,0 +1,159 @@
+.ol-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+  counter-reset: ol-list;
+}
+
+.ol-list--boxed {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-list > li {
+  display: block;
+}
+
+.ol-list--numbered > li {
+  counter-increment: ol-list;
+}
+
+.ol-list__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--target-min);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  background: none;
+  color: var(--ink);
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  text-align: start;
+  text-decoration: none;
+}
+
+.ol-list--flush .ol-list__item {
+  padding-inline: 0;
+}
+
+.ol-list--numbered .ol-list__item::before {
+  content: counter(ol-list, decimal-leading-zero);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+  color: var(--ink);
+}
+
+.ol-list__body {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.ol-list__title {
+  display: block;
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-leading);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-list__desc {
+  display: block;
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+  color: var(--ink-2);
+}
+
+.ol-list__meta {
+  grid-column: 3;
+  justify-self: end;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.ol-list__item--action {
+  cursor: pointer;
+}
+
+.ol-list__item--action:hover,
+.ol-list__item--action:focus-visible {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-list__item--action:hover .ol-list__desc,
+.ol-list__item--action:hover .ol-list__meta,
+.ol-list__item--action:hover::before,
+.ol-list__item--action:focus-visible .ol-list__desc,
+.ol-list__item--action:focus-visible .ol-list__meta,
+.ol-list__item--action:focus-visible::before {
+  color: var(--on-ink);
+}
+
+.ol-list__item--active {
+  box-shadow: inset var(--stroke-bold) 0 0 var(--olivo);
+}
+
+.ol-list__item[aria-disabled="true"],
+.ol-list__item:disabled,
+.ol-list__item[data-disabled] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-list__item[data-disabled] .ol-list__desc,
+.ol-list__item[data-disabled] .ol-list__meta,
+.ol-list__item[data-disabled]::before {
+  color: inherit;
+}
+
+.ol-list--boxed > li:last-child > .ol-list__item {
+  border-bottom: 0;
+}
+
+@media (forced-colors: active) {
+  /* Box-shadow is dropped in forced colours: draw the edge with a border instead. */
+  .ol-list__item--active {
+    box-shadow: none;
+    border-inline-start: var(--stroke-bold) solid Highlight;
+  }
+
+  .ol-list__item--action:hover,
+  .ol-list__item--action:focus-visible {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .ol-list__item--action:hover .ol-list__desc,
+  .ol-list__item--action:hover .ol-list__meta,
+  .ol-list__item--action:hover::before,
+  .ol-list__item--action:focus-visible .ol-list__desc,
+  .ol-list__item--action:focus-visible .ol-list__meta,
+  .ol-list__item--action:focus-visible::before {
+    color: HighlightText;
+  }
+
+  .ol-list__item[aria-disabled="true"],
+  .ol-list__item:disabled,
+  .ol-list__item[data-disabled] {
+    color: GrayText;
+  }
+}
