@@ -1,0 +1,62 @@
+.ol-textarea {
+  display: block;
+  width: 100%;
+  min-height: var(--control-area);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-l-leading);
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  appearance: none;
+  resize: vertical;
+}
+
+.ol-textarea::placeholder {
+  color: var(--ink-2);
+}
+
+.ol-textarea:hover {
+  background: var(--paper-2);
+}
+
+.ol-textarea:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background: transparent;
+}
+
+.ol-textarea[aria-invalid="true"] {
+  border-color: var(--beni);
+}
+
+.ol-textarea:disabled {
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* System colours keep the frame, focus ring and disabled state visible. */
+@media (forced-colors: active) {
+  .ol-textarea {
+    border-color: CanvasText;
+    background: Field;
+    color: FieldText;
+  }
+
+  .ol-textarea:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-textarea[aria-invalid="true"] {
+    border-color: Mark;
+  }
+
+  .ol-textarea:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}

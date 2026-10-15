@@ -9,6 +9,7 @@ export { Root, type RootProps } from "./components/Root";
 export { Sheet, type SheetProps } from "./components/Sheet";
 export { Stack, type StackProps } from "./components/Stack";
 export { Text, type TextProps, type TextVariant } from "./components/Text";
+export { Textarea, type TextareaProps } from "./components/Textarea";
 export {
   type LabelOverrides,
   type LocaleName,
