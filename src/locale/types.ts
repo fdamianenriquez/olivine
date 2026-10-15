@@ -29,6 +29,8 @@ export interface OlivineLabels {
   currentPage: string;
   play: string;
   pause: string;
+  trendUp: string;
+  trendDown: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
 }
 
