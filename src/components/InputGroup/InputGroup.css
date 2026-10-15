@@ -1,0 +1,61 @@
+.ol-inputgroup {
+  display: flex;
+  align-items: stretch;
+}
+
+.ol-inputgroup > * {
+  border-radius: var(--radius-0);
+}
+
+/* Neighbours share one hairline. */
+.ol-inputgroup > * + * {
+  margin-left: calc(var(--stroke-hair) * -1);
+}
+
+.ol-inputgroup > .ol-input,
+.ol-inputgroup > .ol-selectwrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.ol-inputgroup > .ol-btn {
+  flex: none;
+}
+
+/* The active child sits above its siblings so its ring and border stay whole. */
+.ol-inputgroup > .ol-input,
+.ol-inputgroup > .ol-selectwrap,
+.ol-inputgroup > .ol-btn {
+  position: relative;
+}
+
+.ol-inputgroup > .ol-input:hover,
+.ol-inputgroup > .ol-input:focus-visible,
+.ol-inputgroup > .ol-selectwrap:hover,
+.ol-inputgroup > .ol-selectwrap:focus-within,
+.ol-inputgroup > .ol-btn:hover,
+.ol-inputgroup > .ol-btn:focus-visible {
+  z-index: 1;
+}
+
+.ol-inputgroup__text {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: 0 var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+  white-space: nowrap;
+  background: var(--paper-2);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+@media (forced-colors: active) {
+  .ol-inputgroup__text {
+    color: CanvasText;
+    background: Canvas;
+    border-color: CanvasText;
+  }
+}

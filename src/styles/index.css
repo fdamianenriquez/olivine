@@ -25,6 +25,7 @@
 @import "../components/Checkbox/Checkbox.css";
 @import "../components/Switch/Switch.css";
 @import "../components/Range/Range.css";
+@import "../components/InputGroup/InputGroup.css";
 
 /* Utilities */
 @import "./utilities.css";
