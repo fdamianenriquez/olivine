@@ -39,6 +39,7 @@ export {
   type TableSort,
   type TableSortDirection,
 } from "./components/Table";
+export { Tabs, type TabsProps, TabsTab, type TabsTabProps } from "./components/Tabs";
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export {
