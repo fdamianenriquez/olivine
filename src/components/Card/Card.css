@@ -1,0 +1,137 @@
+.ol-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-card--interactive {
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    box-shadow var(--motion-fast),
+    transform var(--motion-fast);
+}
+
+.ol-card--interactive:hover {
+  box-shadow: var(--shadow-press);
+  transform: translate(calc(var(--motion-nudge) * -1), calc(var(--motion-nudge) * -1));
+}
+
+.ol-card--interactive:active {
+  box-shadow: none;
+  transform: none;
+}
+
+.ol-card--flat {
+  border-width: var(--stroke-hair) 0 0 0;
+}
+
+.ol-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-card__index,
+.ol-card__meta {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.ol-card__media {
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-2);
+}
+
+.ol-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.ol-card--flat .ol-card__body {
+  padding: var(--space-4) 0;
+}
+
+.ol-card__title {
+  margin: 0;
+  font-family: var(--text-h2-family);
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-leading);
+  font-weight: var(--text-h2-weight);
+  letter-spacing: var(--text-h2-tracking);
+}
+
+.ol-card__text {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.ol-card__foot {
+  position: relative;
+  z-index: var(--z-raised);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+/* The title link is stretched over the whole card; foot controls sit above it. */
+.ol-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ol-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* Keep the ring on the card edge, not on the small title text (only where :has() works). */
+@supports selector(:has(*)) {
+  .ol-card__link:focus-visible {
+    outline: none;
+  }
+}
+
+.ol-card:has(.ol-card__link:focus-visible) {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+@media (forced-colors: active) {
+  .ol-card {
+    border-color: CanvasText;
+  }
+
+  /* Shadows are removed in forced colors, so the lift is shown by the border instead. */
+  .ol-card--interactive:hover {
+    border-color: Highlight;
+    outline: var(--stroke-bold) solid Highlight;
+  }
+
+  .ol-card--interactive:active {
+    outline: none;
+  }
+
+  .ol-card:has(.ol-card__link:focus-visible) {
+    outline-color: Highlight;
+  }
+}
