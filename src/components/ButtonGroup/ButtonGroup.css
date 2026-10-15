@@ -1,0 +1,37 @@
+.ol-btngroup {
+  display: inline-flex;
+}
+
+.ol-btngroup > .ol-btn + .ol-btn {
+  margin-left: calc(var(--stroke-hair) * -1);
+}
+
+.ol-btngroup--v {
+  flex-direction: column;
+}
+
+.ol-btngroup--v > .ol-btn + .ol-btn {
+  margin-left: 0;
+  margin-top: calc(var(--stroke-hair) * -1);
+}
+
+/* Raise the hovered or focused button so its whole border and focus ring stay visible. */
+.ol-btngroup > .ol-btn:hover,
+.ol-btngroup > .ol-btn:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+.ol-btngroup > .ol-btn[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+@media (forced-colors: active) {
+  .ol-btngroup > .ol-btn[aria-pressed="true"] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: ButtonText;
+    forced-color-adjust: none;
+  }
+}
