@@ -6,6 +6,7 @@ import "./preview.css";
 
 import type { Preview } from "@storybook/react-vite";
 
+import { Root } from "../src";
 import { theme } from "./theme";
 
 const preview: Preview = {
@@ -49,15 +50,13 @@ const preview: Preview = {
         document.documentElement.lang = locale;
       }
       return (
-        <div
-          className={
-            viewMode === "story" ? "ol ol-sb-canvas ol-sb-canvas--fill" : "ol ol-sb-canvas"
-          }
+        <Root
+          locale={locale}
           data-theme={themeName}
-          lang={locale}
+          className={viewMode === "story" ? "ol-sb-canvas ol-sb-canvas--fill" : "ol-sb-canvas"}
         >
           <Story />
-        </div>
+        </Root>
       );
     },
   ],
