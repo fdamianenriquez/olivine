@@ -22,6 +22,7 @@ export const ja: OlivineLabels = {
   fileLabel: "ファイルをドロップまたは選択",
   fileBrowse: "選択",
   fileEmpty: "未選択",
+  newTab: "新しいタブで開きます",
   now: "今",
   sort: "並べ替え",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },

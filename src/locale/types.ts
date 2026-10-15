@@ -22,6 +22,7 @@ export interface OlivineLabels {
   fileBrowse: string;
   fileEmpty: string;
   now: string;
+  newTab: string;
   sort: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
 }

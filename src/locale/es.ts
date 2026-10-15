@@ -22,6 +22,7 @@ export const es: OlivineLabels = {
   fileLabel: "Arrastra archivos o búscalos",
   fileBrowse: "Buscar",
   fileEmpty: "Ningún archivo seleccionado",
+  newTab: "se abre en una pestaña nueva",
   now: "Ahora",
   sort: "Ordenar",
   tags: { info: "Info", success: "Listo", warning: "Aviso", danger: "Error", neutral: "Nota" },

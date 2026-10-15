@@ -22,6 +22,7 @@ export const en: OlivineLabels = {
   fileLabel: "Drop files or browse",
   fileBrowse: "Browse",
   fileEmpty: "No file selected",
+  newTab: "opens in a new tab",
   now: "Now",
   sort: "Sort",
   tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
