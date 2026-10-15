@@ -241,6 +241,7 @@ export const tokens = {
     "control-m": "44px",
     "control-l": "56px",
     "control-area": "120px",
+    "target-min": "24px",
   },
   layout: {
     "container-max": "1280px",

@@ -21,6 +21,7 @@
   --control-m: 44px;
   --control-l: 56px;
   --control-area: 120px;
+  --target-min: 24px;
   --container-max: 1280px;
   --bp-sm: 480px;
   --bp-md: 720px;
