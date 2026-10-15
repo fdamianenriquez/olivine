@@ -1,3 +1,4 @@
+export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
 export { Container, type ContainerProps } from "./components/Container";
 export { Grid, type GridGap, type GridProps } from "./components/Grid";
 export { Label, type LabelProps } from "./components/Label";
