@@ -7,6 +7,7 @@
 @import "../components/Container/Container.css";
 @import "../components/Grid/Grid.css";
 @import "../components/Col/Col.css";
+@import "../components/Ratio/Ratio.css";
 
 /* Internal */
 @import "../components/Scaffold/Scaffold.css";
