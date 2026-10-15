@@ -1,4 +1,9 @@
 /* Base, every component stylesheet in a fixed order, then utilities. Built into dist/components.css. */
 @import "./base.css";
+
+/* Foundations */
+@import "../components/Grid/Grid.css";
+
+/* Internal */
 @import "../components/Scaffold/Scaffold.css";
 @import "./utilities.css";

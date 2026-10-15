@@ -1,0 +1,25 @@
+.ol-grid {
+  /* Spans set by a parent Col must not leak into nested grids. */
+  --ol-span-base: initial;
+  --ol-span-sm: initial;
+  --ol-span-md: initial;
+  --ol-span-lg: initial;
+  --ol-span-xl: initial;
+  --ol-start: initial;
+
+  display: grid;
+  grid-template-columns: repeat(var(--ol-cols, 12), minmax(0, 1fr));
+  gap: var(--ol-gap, var(--space-6));
+}
+
+.ol-grid--ruled {
+  gap: 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-grid--ruled > .ol-col {
+  border-right: var(--stroke-hair) solid var(--rule);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  padding: var(--space-4);
+}
