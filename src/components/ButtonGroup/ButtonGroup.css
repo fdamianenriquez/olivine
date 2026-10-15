@@ -19,7 +19,7 @@
 .ol-btngroup > .ol-btn:hover,
 .ol-btngroup > .ol-btn:focus-visible {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
 }
 
 .ol-btngroup > .ol-btn[aria-pressed="true"] {

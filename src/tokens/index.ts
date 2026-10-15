@@ -329,6 +329,7 @@ export const tokens = {
     "underline-offset": "4px",
   },
   zIndex: {
+    "z-raised": "1",
     "z-dropdown": "100",
     "z-sticky": "200",
     "z-overlay": "300",
