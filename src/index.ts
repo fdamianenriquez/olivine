@@ -1,3 +1,4 @@
+export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
 export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
 export { Container, type ContainerProps } from "./components/Container";
 export { Divider, type DividerProps } from "./components/Divider";

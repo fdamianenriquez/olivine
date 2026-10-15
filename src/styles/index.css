@@ -13,6 +13,7 @@
 @import "../components/Sheet/Sheet.css";
 
 /* Actions */
+@import "../components/Badge/Badge.css";
 
 /* Forms */
 @import "../components/Input/Input.css";
