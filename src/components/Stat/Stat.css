@@ -1,0 +1,46 @@
+/* Stat: a figure in Sprat Condensed with a mono label and change line. */
+.ol-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ol-stat__fig {
+  font-family: var(--text-figure-l-family);
+  font-weight: var(--text-figure-l-weight);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-figure-l-size);
+  line-height: var(--text-figure-l-leading);
+  letter-spacing: var(--text-figure-l-tracking);
+}
+
+/* No 40px figure token exists: derived from figure-l (64px x 0.625). */
+.ol-stat--m .ol-stat__fig {
+  font-size: calc(var(--text-figure-l-size) * 0.625);
+}
+
+.ol-stat--xl .ol-stat__fig {
+  font-size: var(--text-figure-xl-size);
+  line-height: var(--text-figure-xl-leading);
+  letter-spacing: var(--text-figure-xl-tracking);
+}
+
+.ol-stat__unit {
+  font-size: 0.45em;
+  margin-inline-start: 0.04em;
+}
+
+.ol-stat__delta {
+  color: var(--ink-2);
+}
+
+.ol-stat--accent .ol-stat__fig {
+  color: var(--olivo);
+}
+
+@media (forced-colors: active) {
+  .ol-stat--accent .ol-stat__fig {
+    color: CanvasText;
+  }
+}
