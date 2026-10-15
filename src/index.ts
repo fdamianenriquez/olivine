@@ -7,6 +7,12 @@ export { Container, type ContainerProps } from "./components/Container";
 export { Divider, type DividerProps } from "./components/Divider";
 export { Grid, type GridGap, type GridProps } from "./components/Grid";
 export { Input, type InputProps } from "./components/Input";
+export {
+  InputGroup,
+  type InputGroupProps,
+  InputGroupText,
+  type InputGroupTextProps,
+} from "./components/InputGroup";
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
 export { Radio, type RadioProps } from "./components/Radio";
