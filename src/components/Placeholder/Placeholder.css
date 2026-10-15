@@ -1,0 +1,70 @@
+/* Placeholder: skeleton bars and blocks. The sweep fades a soft overlay in and out with
+   opacity, so the fill itself never repaints. */
+.ol-ph {
+  position: relative;
+  display: block;
+  width: var(--ol-ph-width, 100%);
+}
+
+.ol-ph__bar {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.ol-ph--text .ol-ph__bar {
+  height: var(--ol-ph-height, 0.8em);
+  margin-block: calc((var(--text-body-leading) * 1em - 0.8em) / 2);
+}
+
+.ol-ph--text .ol-ph__bar--last {
+  width: 60%;
+}
+
+.ol-ph--block {
+  height: var(--ol-ph-height, 100%);
+  min-height: var(--skeleton-min-height);
+}
+
+.ol-ph--block .ol-ph__bar {
+  height: 100%;
+  min-height: inherit;
+}
+
+.ol-ph--wave .ol-ph__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--line-soft);
+  opacity: 0;
+  animation: ol-ph-sweep var(--motion-sweep) infinite;
+}
+
+@keyframes ol-ph-sweep {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-ph--wave .ol-ph__bar::after {
+    animation: none;
+  }
+}
+
+/* Backgrounds are dropped in forced-colours mode: draw each bar as an outline. */
+@media (forced-colors: active) {
+  .ol-ph__bar {
+    border: var(--stroke-hair) solid CanvasText;
+  }
+
+  .ol-ph--wave .ol-ph__bar::after {
+    display: none;
+  }
+}
