@@ -1,0 +1,16 @@
+.ol-stack {
+  /* Alignment set by a parent Stack must not leak into nested Stacks. */
+  --ol-align: initial;
+  --ol-justify: initial;
+
+  display: flex;
+  flex-direction: column;
+  align-items: var(--ol-align, stretch);
+  justify-content: var(--ol-justify, normal);
+  gap: var(--ol-gap, var(--space-4));
+}
+
+.ol-stack--h {
+  flex-flow: row wrap;
+  align-items: var(--ol-align, center);
+}
