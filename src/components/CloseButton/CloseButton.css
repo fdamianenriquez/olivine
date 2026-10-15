@@ -1,0 +1,50 @@
+.ol-close {
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-s);
+  height: var(--control-s);
+  padding: 0;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--glyph-l);
+  line-height: 1;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.ol-close:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-close[disabled] {
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* Ink-filled hover relies on background colour, which forced colours removes. */
+@media (forced-colors: active) {
+  .ol-close {
+    border-color: ButtonText;
+    color: ButtonText;
+  }
+
+  .ol-close:hover {
+    background: ButtonText;
+    color: ButtonFace;
+    forced-color-adjust: none;
+  }
+
+  .ol-close[disabled] {
+    background: ButtonFace;
+    color: GrayText;
+    border-color: GrayText;
+  }
+}
