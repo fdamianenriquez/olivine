@@ -15,6 +15,7 @@
 /* Actions */
 @import "../components/Button/Button.css";
 @import "../components/CloseButton/CloseButton.css";
+@import "../components/Link/Link.css";
 @import "../components/Badge/Badge.css";
 
 /* Forms */

@@ -1,0 +1,44 @@
+.ol-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: var(--underline-weight);
+  text-underline-offset: var(--underline-offset);
+}
+
+.ol-link:hover {
+  color: var(--olivo);
+}
+
+.ol-link--plain {
+  text-decoration: none;
+  background-image: linear-gradient(currentcolor, currentcolor);
+  background-size: 0 var(--underline-weight);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--motion-slow);
+}
+
+.ol-link--plain:hover,
+.ol-link--plain:focus-visible {
+  background-size: 100% var(--underline-weight);
+  color: var(--ink);
+}
+
+.ol-link__arrow {
+  font-family: var(--font-mono);
+  margin-left: 0.25em;
+}
+
+@media (forced-colors: active) {
+  .ol-link--plain {
+    background-image: none;
+    transition: none;
+  }
+
+  .ol-link--plain:hover,
+  .ol-link--plain:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-weight);
+    text-underline-offset: var(--underline-offset);
+  }
+}
