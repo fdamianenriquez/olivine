@@ -1,0 +1,79 @@
+.ol-input {
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 var(--space-4);
+  font: inherit;
+  font-size: var(--text-body-size);
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  appearance: none;
+}
+
+.ol-input::placeholder {
+  color: var(--ink-2);
+}
+
+.ol-input:hover {
+  background: var(--paper-2);
+}
+
+.ol-input:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background: transparent;
+}
+
+.ol-input--s {
+  height: var(--control-s);
+  padding: 0 var(--space-3);
+  font-size: var(--text-body-s-size);
+}
+
+.ol-input--l {
+  height: var(--control-l);
+  font-size: var(--text-body-l-size);
+}
+
+.ol-input--line {
+  border-width: 0 0 var(--stroke-hair) 0;
+  padding-inline: 0;
+}
+
+.ol-input--line:hover {
+  background: transparent;
+}
+
+.ol-input[aria-invalid="true"] {
+  border-color: var(--beni);
+}
+
+.ol-input:disabled {
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* System colours keep the frame, focus ring and disabled state visible. */
+@media (forced-colors: active) {
+  .ol-input {
+    border-color: CanvasText;
+    background: Field;
+    color: FieldText;
+  }
+
+  .ol-input:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-input[aria-invalid="true"] {
+    border-color: Mark;
+  }
+
+  .ol-input:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}
