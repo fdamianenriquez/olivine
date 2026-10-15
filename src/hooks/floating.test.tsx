@@ -71,7 +71,7 @@ describe("Portal", () => {
   function Island() {
     const anchor = useRef<HTMLSpanElement>(null);
     return (
-      <div data-theme="sumi">
+      <div data-theme="sumi" lang="ja">
         <span ref={anchor}>anchor</span>
         <Portal anchor={anchor}>
           <p>floated</p>
@@ -80,11 +80,12 @@ describe("Portal", () => {
     );
   }
 
-  it("renders into body inside an .ol layer that keeps the anchor's theme", () => {
+  it("renders into body inside an .ol layer that keeps the anchor's theme and lang", () => {
     render(<Island />);
     const layer = screen.getByText("floated").parentElement;
     expect(layer).toHaveClass("ol", "ol-portal");
     expect(layer).toHaveAttribute("data-theme", "sumi");
+    expect(layer).toHaveAttribute("lang", "ja");
     expect(layer?.parentElement).toBe(document.body);
   });
 });
