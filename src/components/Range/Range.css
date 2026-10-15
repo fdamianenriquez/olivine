@@ -1,0 +1,126 @@
+.ol-range {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ol-range input {
+  appearance: none;
+  width: 100%;
+
+  /* Taller than the thumb so the whole row is a 24px target (WCAG 2.5.8). */
+  height: var(--target-min);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ol-range input::-webkit-slider-runnable-track {
+  height: var(--stroke-hair);
+  background: var(--rule);
+}
+
+.ol-range input::-moz-range-track {
+  height: var(--stroke-hair);
+  background: var(--rule);
+}
+
+.ol-range input::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--thumb-width);
+  height: var(--thumb-height);
+  margin-top: calc((var(--stroke-hair) - var(--thumb-height)) / 2);
+  background: var(--ink);
+  border: 0;
+  border-radius: var(--radius-0);
+}
+
+.ol-range input::-moz-range-thumb {
+  width: var(--thumb-width);
+  height: var(--thumb-height);
+  background: var(--ink);
+  border: 0;
+  border-radius: var(--radius-0);
+}
+
+.ol-range input:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+.ol-range input:focus-visible::-webkit-slider-thumb {
+  background: var(--olivo);
+}
+
+.ol-range input:focus-visible::-moz-range-thumb {
+  background: var(--olivo);
+}
+
+.ol-range input:disabled {
+  cursor: not-allowed;
+}
+
+.ol-range input:disabled::-webkit-slider-thumb {
+  background: var(--ink-3);
+}
+
+.ol-range input:disabled::-moz-range-thumb {
+  background: var(--ink-3);
+}
+
+.ol-range__scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  color: var(--ink-2);
+}
+
+.ol-range__current {
+  color: var(--ink);
+}
+
+/* System colours keep the track, thumb and focus ring visible. */
+@media (forced-colors: active) {
+  .ol-range input::-webkit-slider-runnable-track {
+    background: CanvasText;
+  }
+
+  .ol-range input::-moz-range-track {
+    background: CanvasText;
+  }
+
+  .ol-range input::-webkit-slider-thumb {
+    background: ButtonText;
+  }
+
+  .ol-range input::-moz-range-thumb {
+    background: ButtonText;
+  }
+
+  .ol-range input:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-range input:focus-visible::-webkit-slider-thumb {
+    background: Highlight;
+  }
+
+  .ol-range input:focus-visible::-moz-range-thumb {
+    background: Highlight;
+  }
+
+  .ol-range input:disabled::-webkit-slider-thumb {
+    background: GrayText;
+  }
+
+  .ol-range input:disabled::-moz-range-thumb {
+    background: GrayText;
+  }
+
+  .ol-range__scale,
+  .ol-range__current {
+    color: CanvasText;
+  }
+}
