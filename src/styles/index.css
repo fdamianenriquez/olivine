@@ -3,6 +3,7 @@
 
 /* Foundations */
 @import "../components/Text/Text.css";
+@import "../components/Label/Label.css";
 @import "../components/Container/Container.css";
 @import "../components/Grid/Grid.css";
 
