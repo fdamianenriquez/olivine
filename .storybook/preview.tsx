@@ -6,7 +6,7 @@ import "./preview.css";
 
 import type { Preview } from "@storybook/react-vite";
 
-import { Root } from "../src";
+import { Root, type RootProps } from "../src";
 import { theme } from "./theme";
 
 const preview: Preview = {
@@ -42,7 +42,7 @@ const preview: Preview = {
   initialGlobals: { theme: "washi", locale: "en" },
   decorators: [
     (Story, { globals, viewMode }) => {
-      const themeName = String(globals.theme);
+      const themeName = String(globals.theme) as NonNullable<RootProps["theme"]>;
       const locale = String(globals.locale);
       // In the canvas the whole page follows the theme; on docs pages only the story frame does.
       if (viewMode === "story") {
@@ -52,7 +52,7 @@ const preview: Preview = {
       return (
         <Root
           locale={locale}
-          data-theme={themeName}
+          theme={themeName}
           className={viewMode === "story" ? "ol-sb-canvas ol-sb-canvas--fill" : "ol-sb-canvas"}
         >
           <Story />

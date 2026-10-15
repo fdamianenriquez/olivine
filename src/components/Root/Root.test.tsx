@@ -30,6 +30,8 @@ describe("Root", () => {
     expect(screen.getByTestId("root")).not.toHaveAttribute("data-theme");
     rerender(<Root data-testid="root" theme="sumi" />);
     expect(screen.getByTestId("root")).toHaveAttribute("data-theme", "sumi");
+    rerender(<Root data-testid="root" theme="auto" />);
+    expect(screen.getByTestId("root")).toHaveAttribute("data-theme", "auto");
   });
 
   it("renders another element with as", () => {
