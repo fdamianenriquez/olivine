@@ -32,6 +32,7 @@
 /* Navigation and content */
 @import "../components/Nav/Nav.css";
 @import "../components/Tabs/Tabs.css";
+@import "../components/Breadcrumb/Breadcrumb.css";
 @import "../components/Dropdown/Dropdown.css";
 @import "../components/Table/Table.css";
 @import "../components/Accordion/Accordion.css";
