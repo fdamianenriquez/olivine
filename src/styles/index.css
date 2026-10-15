@@ -12,6 +12,5 @@
 @import "../components/Ratio/Ratio.css";
 @import "../components/Sheet/Sheet.css";
 
-/* Internal */
-@import "../components/Scaffold/Scaffold.css";
+/* Utilities */
 @import "./utilities.css";
