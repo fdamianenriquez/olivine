@@ -24,6 +24,11 @@ export interface OlivineLabels {
   now: string;
   newTab: string;
   sort: string;
+  sortedAscending: string;
+  sortedDescending: string;
+  currentPage: string;
+  play: string;
+  pause: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
 }
 

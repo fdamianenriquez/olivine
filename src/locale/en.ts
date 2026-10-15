@@ -25,5 +25,10 @@ export const en: OlivineLabels = {
   newTab: "opens in a new tab",
   now: "Now",
   sort: "Sort",
+  sortedAscending: "sorted ascending",
+  sortedDescending: "sorted descending",
+  currentPage: "current page",
+  play: "Play",
+  pause: "Pause",
   tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
 };

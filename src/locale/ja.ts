@@ -25,5 +25,10 @@ export const ja: OlivineLabels = {
   newTab: "新しいタブで開きます",
   now: "今",
   sort: "並べ替え",
+  sortedAscending: "昇順で並べ替え済み",
+  sortedDescending: "降順で並べ替え済み",
+  currentPage: "現在のページ",
+  play: "再生",
+  pause: "一時停止",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
 };
