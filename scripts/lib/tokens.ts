@@ -26,6 +26,8 @@ export interface TypeStyle {
   lineHeight: number;
   fontWeight: number;
   letterSpacing?: string;
+  /** Tracking when the style is set vertically (writing-mode: vertical-rl). */
+  letterSpacingVertical?: string;
   sample: string;
   usage: string;
 }
@@ -134,6 +136,14 @@ function scalarEntries(tokens: TokenFile): [string, string | number][] {
       [`text-${style.name}-leading`, style.lineHeight],
       [`text-${style.name}-weight`, style.fontWeight],
       [`text-${style.name}-tracking`, style.letterSpacing ?? "0"],
+      ...(style.letterSpacingVertical
+        ? [
+            [`text-${style.name}-tracking-vertical`, style.letterSpacingVertical] as [
+              string,
+              string,
+            ],
+          ]
+        : []),
     ]),
   );
   return [...scales, ...flatShadows, ...families, ...type];

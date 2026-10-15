@@ -118,6 +118,7 @@
   --text-kanji-leading: 1.3;
   --text-kanji-weight: 500;
   --text-kanji-tracking: 0.12em;
+  --text-kanji-tracking-vertical: 0.2em;
 }
 
 /* washi (cream) is the default theme; "auto" starts light and follows the system below. */
