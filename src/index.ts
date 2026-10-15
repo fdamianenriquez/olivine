@@ -1,5 +1,6 @@
 export { Accordion, type AccordionItem, type AccordionProps } from "./components/Accordion";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
+export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./components/Breadcrumb";
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";

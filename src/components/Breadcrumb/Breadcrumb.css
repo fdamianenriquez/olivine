@@ -1,0 +1,56 @@
+.ol-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+}
+
+.ol-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink-2);
+}
+
+/* Decorative separator: empty alt text keeps it out of the accessibility tree. */
+.ol-breadcrumb__item + .ol-breadcrumb__item::before {
+  content: "/";
+  content: "/" / ""; /* decorative: empty alternative text for assistive tech */
+  color: var(--ink-3);
+}
+
+.ol-breadcrumb__item[data-current] {
+  color: var(--ink);
+}
+
+.ol-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  color: inherit;
+  text-decoration: none;
+}
+
+.ol-breadcrumb__link:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: var(--underline-weight);
+  text-underline-offset: var(--underline-offset);
+}
+
+@media (forced-colors: active) {
+  .ol-breadcrumb__link {
+    text-decoration: underline;
+    text-decoration-thickness: var(--underline-weight);
+    text-underline-offset: var(--underline-offset);
+  }
+}
