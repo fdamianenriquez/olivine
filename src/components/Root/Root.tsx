@@ -13,8 +13,11 @@ import { forwardRefAs, type PolymorphicProps } from "../../utils/polymorphic";
 
 /** Own props of {@link Root}. */
 export interface RootOwnProps {
-  /** Sets `data-theme`. Omit to inherit from an ancestor or `<html>`. */
-  theme?: "washi" | "sumi";
+  /**
+   * Sets `data-theme`: `washi` (cream), `sumi` (ebony) or `auto` (follows the system's
+   * `prefers-color-scheme`). Omit to inherit from an ancestor or `<html>`.
+   */
+  theme?: "washi" | "sumi" | "auto";
   /**
    * Built-in language (`"en"`, `"es"`, `"ja"`, or a regional tag such as `"es-MX"`) or a full
    * dictionary. Omit it to inherit the parent Root's dictionary (English outside any Root).
