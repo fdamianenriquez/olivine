@@ -35,6 +35,7 @@ export { Link, type LinkProps } from "./components/Link";
 export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
+export { Pagination, type PaginationProps } from "./components/Pagination";
 export { Radio, type RadioProps } from "./components/Radio";
 export { Range, type RangeProps } from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
