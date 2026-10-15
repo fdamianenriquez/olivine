@@ -1,0 +1,71 @@
+.ol-divider {
+  border: 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+  margin: 0;
+  width: 100%;
+}
+
+.ol-divider--heavy {
+  border-top-width: var(--stroke-heavy);
+}
+
+.ol-divider--soft {
+  border-top-color: var(--line-soft);
+}
+
+.ol-divider--labelled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border: 0;
+}
+
+.ol-divider--labelled::after {
+  content: "";
+  flex: 1;
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-divider--labelled.ol-divider--heavy::after {
+  border-top-width: var(--stroke-heavy);
+}
+
+.ol-divider--labelled.ol-divider--soft::after {
+  border-top-color: var(--line-soft);
+}
+
+.ol-divider--v {
+  width: 0;
+  height: auto;
+  align-self: stretch;
+  border-top: 0;
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-divider--v.ol-divider--heavy {
+  border-left-width: var(--stroke-heavy);
+}
+
+.ol-divider--v.ol-divider--soft {
+  border-left-color: var(--line-soft);
+}
+
+/* Borders stay visible in forced-colors mode; make the line colour explicit so the
+   soft weight cannot be remapped to the background. */
+@media (forced-colors: active) {
+  .ol-divider,
+  .ol-divider--heavy,
+  .ol-divider--soft {
+    border-top-color: CanvasText;
+  }
+
+  .ol-divider--labelled::after,
+  .ol-divider--labelled.ol-divider--soft::after {
+    border-top-color: CanvasText;
+  }
+
+  .ol-divider--v,
+  .ol-divider--v.ol-divider--soft {
+    border-left-color: CanvasText;
+  }
+}
