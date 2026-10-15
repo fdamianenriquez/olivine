@@ -32,5 +32,6 @@ export const ja: OlivineLabels = {
   pause: "一時停止",
   trendUp: "増加",
   trendDown: "減少",
+  figure: "図",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
 };
