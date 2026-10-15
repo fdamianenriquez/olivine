@@ -1,0 +1,27 @@
+.ol-sheet {
+  position: relative;
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+}
+
+.ol-sheet__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  justify-content: space-between;
+  padding: calc(var(--space-2) + var(--space-1) / 2) var(--space-4);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sheet__bar b {
+  color: var(--olivo);
+  font-weight: 400;
+}
+
+.ol-sheet__body {
+  padding: var(--space-6);
+}
+
+.ol-sheet--flush .ol-sheet__body {
+  padding: 0;
+}
