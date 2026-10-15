@@ -321,6 +321,7 @@ export const tokens = {
     "motion-base": "120ms steps(3)",
     "motion-slow": "160ms steps(4)",
     "motion-spin": "800ms steps(8)",
+    "motion-sweep": "1400ms steps(2, jump-none)",
     "motion-nudge": "3px",
     "motion-press": "1px",
   },
