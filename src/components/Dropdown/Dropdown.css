@@ -1,0 +1,122 @@
+.ol-dropdown__menu {
+  z-index: var(--z-dropdown);
+  min-width: var(--menu-min-width);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  outline: none;
+}
+
+/* Hidden (but focusable) until the first position is known, so it never flashes at 0,0. */
+.ol-dropdown__menu[data-state="pending"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ol-dropdown__menu > li {
+  display: block;
+}
+
+.ol-dropdown__item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: max(var(--control-s), var(--target-min));
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-ui-leading);
+  font-weight: var(--text-ui-weight);
+  text-align: left;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-0);
+  cursor: pointer;
+}
+
+.ol-dropdown__item:hover,
+.ol-dropdown__item:focus-visible {
+  color: var(--on-ink);
+  background: var(--ink);
+  outline: none;
+}
+
+/* The ink fill already marks focus; an inset ring keeps it visible on any background. */
+.ol-dropdown__item:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-bold) * -1);
+}
+
+.ol-dropdown__item[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: default;
+}
+
+.ol-dropdown__item[aria-disabled="true"]:hover {
+  color: var(--ink-3);
+  background: none;
+}
+
+.ol-dropdown__item--danger {
+  color: var(--beni);
+}
+
+.ol-dropdown__item--danger:hover,
+.ol-dropdown__item--danger:focus-visible {
+  color: var(--on-status);
+  background: var(--beni);
+}
+
+.ol-dropdown__kbd {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  opacity: 0.7;
+}
+
+.ol-dropdown__header {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.ol-dropdown__divider {
+  height: 0;
+  margin: var(--space-1) 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+@media (forced-colors: active) {
+  .ol-dropdown__menu {
+    border-color: CanvasText;
+  }
+
+  .ol-dropdown__item:hover,
+  .ol-dropdown__item:focus-visible {
+    color: HighlightText;
+    background: Highlight;
+    outline-color: HighlightText;
+  }
+
+  .ol-dropdown__item[aria-disabled="true"],
+  .ol-dropdown__item[aria-disabled="true"]:hover {
+    color: GrayText;
+    background: none;
+  }
+
+  .ol-dropdown__divider {
+    border-top-color: CanvasText;
+  }
+}
