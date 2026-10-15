@@ -1,0 +1,36 @@
+.ol-checkgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.ol-checkgroup--inline {
+  flex-flow: row wrap;
+  gap: var(--space-3) var(--space-6);
+}
+
+.ol-checkgroup__legend {
+  padding: 0;
+  margin-bottom: var(--space-3);
+  color: var(--ink);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+}
+
+/* Inline groups: the legend stays on its own line above the row. */
+.ol-checkgroup--inline > .ol-checkgroup__legend {
+  flex: 0 0 100%;
+  margin-bottom: 0;
+}
+
+.ol-checkgroup:disabled > .ol-checkgroup__legend {
+  color: var(--ink-3);
+}
