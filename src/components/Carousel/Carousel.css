@@ -1,0 +1,103 @@
+.ol-carousel {
+  position: relative;
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-carousel__viewport {
+  overflow: hidden;
+}
+
+.ol-carousel__track {
+  display: flex;
+  transform: translateX(calc(var(--ol-index, 0) * -100%));
+  transition: transform var(--motion-slow);
+}
+
+.ol-carousel__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.ol-carousel__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-carousel__count {
+  padding: 0 var(--space-4);
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  line-height: var(--text-figure-m-leading);
+  font-weight: var(--text-figure-m-weight);
+  letter-spacing: var(--text-figure-m-tracking);
+  white-space: nowrap;
+}
+
+.ol-carousel__count b {
+  color: var(--olivo);
+  font-weight: inherit;
+}
+
+.ol-carousel__ticks {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 0 var(--space-4);
+}
+
+/* The target is at least --target-min high; the hairline is drawn in its centre. */
+.ol-carousel__tick {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  cursor: pointer;
+  background: linear-gradient(var(--rule), var(--rule)) center / 100% var(--stroke-hair) no-repeat;
+}
+
+.ol-carousel__tick:hover {
+  background-image: linear-gradient(var(--ink), var(--ink));
+}
+
+.ol-carousel__tick[aria-current="true"] {
+  background-image: linear-gradient(var(--olivo), var(--olivo));
+  background-size: 100% var(--stroke-bold);
+}
+
+.ol-carousel__tick:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+.ol-carousel__nav {
+  display: flex;
+}
+
+.ol-carousel__nav .ol-btn {
+  border-width: 0 0 0 var(--stroke-hair);
+}
+
+.ol-carousel__play.ol-btn {
+  border-width: 0 var(--stroke-hair) 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-carousel__track {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-carousel__tick {
+    background-image: linear-gradient(CanvasText, CanvasText);
+    forced-color-adjust: none;
+  }
+
+  .ol-carousel__tick[aria-current="true"] {
+    background-image: linear-gradient(Highlight, Highlight);
+  }
+}

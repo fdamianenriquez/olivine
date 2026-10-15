@@ -4,6 +4,7 @@ export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./compone
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";
 export { ButtonGroup, type ButtonGroupProps } from "./components/ButtonGroup";
 export { Card, type CardOwnProps, type CardProps } from "./components/Card";
+export { Carousel, type CarouselProps } from "./components/Carousel";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
 export { CheckGroup, type CheckGroupProps } from "./components/CheckGroup";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";
