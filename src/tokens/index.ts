@@ -96,6 +96,8 @@ export const tokens = {
     "display-xl": {
       family: "display",
       fontSize: "132px",
+      fontSizeMin: "64px",
+      fontSizeFluid: "11vw",
       lineHeight: 0.84,
       fontWeight: 400,
       letterSpacing: "-0.035em",
@@ -103,6 +105,8 @@ export const tokens = {
     "display-l": {
       family: "display",
       fontSize: "80px",
+      fontSizeMin: "48px",
+      fontSizeFluid: "7vw",
       lineHeight: 0.88,
       fontWeight: 400,
       letterSpacing: "-0.035em",
@@ -110,6 +114,8 @@ export const tokens = {
     "display-m": {
       family: "display",
       fontSize: "48px",
+      fontSizeMin: "40px",
+      fontSizeFluid: "4.5vw",
       lineHeight: 0.95,
       fontWeight: 400,
       letterSpacing: "-0.03em",
@@ -138,6 +144,8 @@ export const tokens = {
     "figure-xl": {
       family: "figure",
       fontSize: "120px",
+      fontSizeMin: "72px",
+      fontSizeFluid: "10vw",
       lineHeight: 0.84,
       fontWeight: 900,
       letterSpacing: "0",
@@ -226,6 +234,13 @@ export const tokens = {
     "control-m": "44px",
     "control-l": "56px",
   },
+  layout: {
+    "container-max": "1280px",
+    "bp-sm": "480px",
+    "bp-md": "720px",
+    "bp-lg": "1024px",
+    "bp-xl": "1280px",
+  },
   shadow: {
     "shadow-block": {
       washi: "4px 4px 0 0 #1c1912",
@@ -243,6 +258,9 @@ export const tokens = {
     "scanline-pitch": "3px",
     "scanline-weight": "1px",
     "crosshair-size": "14px",
+  },
+  marker: {
+    "dot-size": "7px",
   },
   zIndex: {
     "z-dropdown": "100",
@@ -262,5 +280,6 @@ export type SpaceToken = keyof Tokens["space"];
 export type RadiusToken = keyof Tokens["radius"];
 export type StrokeToken = keyof Tokens["stroke"];
 export type ControlToken = keyof Tokens["control"];
+export type LayoutToken = keyof Tokens["layout"];
 export type ShadowToken = keyof Tokens["shadow"];
 export type ZIndexToken = keyof Tokens["zIndex"];

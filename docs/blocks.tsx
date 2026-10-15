@@ -60,6 +60,7 @@ export function TypeSpecimens() {
               <div className="ol-docs-specimen__meta">
                 <span className="ol-label">{style.name}</span>
                 <span className="ol-label">
+                  {"fontSizeMin" in style ? `${style.fontSizeMin}–` : ""}
                   {style.fontSize} / {style.lineHeight}
                   {"letterSpacing" in style ? ` / ${style.letterSpacing}` : ""}
                 </span>
@@ -76,7 +77,16 @@ export function TypeSpecimens() {
   );
 }
 
-type ScaleGroup = "spacing" | "radius" | "stroke" | "control" | "shadow" | "texture" | "zIndex";
+type ScaleGroup =
+  | "spacing"
+  | "radius"
+  | "stroke"
+  | "control"
+  | "layout"
+  | "shadow"
+  | "texture"
+  | "marker"
+  | "zIndex";
 
 const PREVIEWS: Partial<Record<ScaleGroup, (name: string) => ReactNode>> = {
   spacing: (name) => <span className="ol-docs-bar" style={{ width: `var(--${name})` }} />,
