@@ -1,6 +1,8 @@
 /** @type {import("stylelint").Config} */
 export default {
   extends: ["stylelint-config-standard"],
+  // Generated from tokens.json: the one place literal colours and font names live.
+  ignoreFiles: ["src/styles/tokens.css", "src/styles/fonts.css"],
   rules: {
     "import-notation": "string",
     // Tokens only: colours come from custom properties, never literals.

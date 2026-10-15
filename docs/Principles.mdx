@@ -1,0 +1,53 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Foundations/Principles" />
+
+# Principles
+
+Olivine is built on Japanese minimalism and web brutalism: paper ground, ink lines, square
+boxes, mono labels, and the olive and maple of a Telecaster on cream. _Ma_ is the meaningful
+pause between things — most of every screen should stay empty paper.
+
+1. **Ma before matter.** Default to more space, not more components. Use `space-16`–`space-32`
+   around anything important; a page with one statement and a lot of `paper` is correct.
+2. **Structure is visible, lightly.** Boxes are drawn, not implied: every control, card, table
+   and section is bounded by a hairline in `rule` (`stroke-hair`: 0.5px on high-density screens,
+   1px elsewhere). No soft shadows, no gradients, no rounded corners (`radius-0`).
+3. **One accent, one fill.** `olivo` marks what matters — focus, the active item, the one accent
+   button. `maple` is a warm block, never text. Everything else is `ink` on `paper`.
+4. **Words, numbers, interface.** Words are set in Redaction, numbers in Sprat Condensed, the
+   interface in Ronzino and Martian Mono. See [Type](?path=/docs/foundations-type--docs).
+5. **Numbers are ornament.** Index things: `01 —`, `FIG. 03`, `02 / 05`, zero-padded. Small
+   indexes are mono `ink-2`; at 16px and up they switch to the figure face.
+6. **Motion is stepped.** Transitions run 80–200ms with `steps()` timing — things click into
+   place rather than glide. `prefers-reduced-motion` is respected.
+
+## Content
+
+- Labels are 1–3 words, written in sentence case in code; CSS uppercases them: `Send inquiry`,
+  `Selected works`.
+- Headings state, they don't sell: "Kitchen 04", "Lead times" — not "Discover our amazing
+  kitchens!".
+- Address the reader as _you_; the studio is _we_. No emoji. Glyphs instead: `→` go,
+  `↗` external, `+`/`−` expand, `×` close, `✓` valid, `↑↓` sort.
+- Bilingual pairing is welcome: a Latin title with a kanji caption in `kanji` (Zen Old Mincho).
+  The kanji is decoration with meaning — the Latin text must stand alone for accessibility.
+- Errors are instructions: "Enter a valid address.", not "Invalid input".
+
+## States
+
+- **Hover:** invert — background `ink`, text `on-ink` (outline controls, list rows, menu items).
+- **Focus:** 2px solid `olivo` outline, 2px offset, on every focusable element. Never removed.
+- **Active / selected:** ink fill, or an `olivo` mark (tab top edge, nav underline, list edge).
+- **Disabled:** `ink-3` text and border, no fill, `not-allowed` cursor.
+- **Floating:** `paper-3` + hairline `rule` border + `shadow-block` (hard 4px offset).
+
+## Framing and texture
+
+- **ASCII framing:** the primary action may use brackets — `[ SEND INQUIRY ] →`.
+- **Crosshairs** (`.ol-crosshair`): `+` on two corners. One or two per page.
+- **Marks** (`.ol-mark`): `®` `©` as small olive ornaments on a hero name or a figure.
+- **Halftone** (`.ol-halftone`, `--fade`, `--fine`): dot screens for covers and images. Never
+  behind body text.
+- **Scanlines** (`.ol-scanlines`): only on dark data blocks such as a status panel.
+- No noise overlays, no glow, no gradients.

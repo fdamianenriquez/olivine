@@ -24,6 +24,7 @@
   ],
   "files": [
     "dist",
+    "fonts",
     "LICENSE",
     "README.md"
   ],
@@ -42,22 +43,39 @@
       }
     },
     "./styles.css": "./dist/olivine.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./fonts.css": "./dist/fonts.css",
+    "./fonts-jp.css": "./dist/fonts-jp.css",
+    "./components.css": "./dist/components.css",
+    "./tokens": {
+      "import": {
+        "types": "./dist/tokens.d.ts",
+        "default": "./dist/tokens.js"
+      },
+      "require": {
+        "types": "./dist/tokens.d.cts",
+        "default": "./dist/tokens.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "tsdown && pnpm build:css",
+    "build": "pnpm tokens && tsdown && pnpm build:css",
     "build:css": "tsx scripts/build-css.ts",
+    "tokens": "tsx scripts/build-tokens.ts",
+    "fonts:vendor": "tsx scripts/vendor-fonts.ts && pnpm tokens",
     "lint": "eslint . --max-warnings 0 && stylelint \"src/**/*.css\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints styles.css",
+    "contrast": "tsx scripts/check-contrast.ts",
+    "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints styles.css tokens.css fonts.css fonts-jp.css components.css",
     "size": "size-limit",
     "storybook:build": "storybook build -o storybook-static",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build && pnpm check:package && pnpm size",
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm contrast && pnpm test && pnpm build && pnpm check:package && pnpm size",
     "changeset": "changeset",
     "release": "pnpm check && changeset publish",
     "prepare": "husky"
@@ -81,6 +99,8 @@
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "9.39.5",
+    "@fontsource/martian-mono": "^5.3.0",
+    "@fontsource/zen-old-mincho": "^5.3.1",
     "@size-limit/preset-small-lib": "^14.2.0",
     "@storybook/addon-a11y": "^10.6.2",
     "@storybook/addon-docs": "^10.6.2",
@@ -110,6 +130,7 @@
     "publint": "^0.3.25",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "remark-gfm": "^4.0.1",
     "size-limit": "^14.2.0",
     "storybook": "^10.6.2",
     "stylelint": "^17.16.0",

@@ -1,2 +1,4 @@
-/* Every component stylesheet, imported in a fixed order. Bundled into dist/olivine.css. */
+/* Base, every component stylesheet in a fixed order, then utilities. Built into dist/components.css. */
+@import "./base.css";
 @import "../components/Scaffold/Scaffold.css";
+@import "./utilities.css";

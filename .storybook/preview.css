@@ -1,0 +1,14 @@
+/* Storybook-only styles: the canvas follows the selected theme. Not shipped. */
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-sb-canvas {
+  padding: var(--space-6);
+}
+
+.ol-sb-canvas--fill {
+  min-height: 100vh;
+}

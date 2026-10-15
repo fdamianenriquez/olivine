@@ -1,0 +1,121 @@
+/* Documentation blocks. Storybook only; not shipped. */
+.ol-docs-themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-theme {
+  padding: var(--space-6);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-docs-theme + .ol-docs-theme {
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-theme__title {
+  margin: 0 0 var(--space-4);
+  color: var(--ink-2);
+}
+
+.ol-docs-swatches {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ol-docs-swatch {
+  display: grid;
+  grid-template-columns: var(--control-l) 1fr;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.ol-docs-swatch__chip {
+  height: var(--control-l);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-swatch__name {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+}
+
+.ol-docs-swatch__value {
+  color: var(--ink-2);
+}
+
+.ol-docs-swatch__usage {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+.ol-docs-specimens {
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-specimen {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 3fr;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-specimen__meta {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  color: var(--ink-2);
+}
+
+.ol-docs-specimen__sample {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ol-docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-docs-table th,
+.ol-docs-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--stroke-hair) solid var(--line-soft);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.ol-docs-table th {
+  background: var(--paper-2);
+}
+
+.ol-docs-table code {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+}
+
+.ol-docs-bar {
+  display: block;
+  height: var(--space-3);
+  background: var(--olivo);
+}
+
+.ol-docs-box {
+  display: block;
+  width: var(--control-l);
+  height: var(--control-s);
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-3);
+}
