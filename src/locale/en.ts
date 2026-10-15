@@ -1,0 +1,28 @@
+import type { OlivineLabels } from "./types";
+
+export const en: OlivineLabels = {
+  close: "Close",
+  dismiss: "Dismiss",
+  loading: "Loading",
+  menu: "Menu",
+  menuClose: "Close",
+  breadcrumb: "Breadcrumb",
+  pagination: "Pagination",
+  prevPage: "Previous page",
+  nextPage: "Next page",
+  page: (n) => `Page ${String(n)}`,
+  carousel: "Carousel",
+  slide: "slide",
+  prevSlide: "Previous slide",
+  nextSlide: "Next slide",
+  goToSlide: (n) => `Go to slide ${String(n)}`,
+  slideOf: (current, total) => `${String(current)} of ${String(total)}`,
+  switchOn: "On",
+  switchOff: "Off",
+  fileLabel: "Drop files or browse",
+  fileBrowse: "Browse",
+  fileEmpty: "No file selected",
+  now: "Now",
+  sort: "Sort",
+  tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
+};
