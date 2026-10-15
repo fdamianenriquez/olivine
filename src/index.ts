@@ -14,6 +14,7 @@ export { Root, type RootProps } from "./components/Root";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
 export { Stack, type StackProps } from "./components/Stack";
+export { Switch, type SwitchProps } from "./components/Switch";
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export {
