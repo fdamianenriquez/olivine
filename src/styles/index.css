@@ -27,6 +27,7 @@
 @import "../components/Switch/Switch.css";
 @import "../components/Range/Range.css";
 @import "../components/InputGroup/InputGroup.css";
+@import "../components/FileInput/FileInput.css";
 
 /* Utilities */
 @import "./utilities.css";
