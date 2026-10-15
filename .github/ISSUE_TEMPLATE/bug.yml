@@ -1,0 +1,34 @@
+name: Bug report
+description: Something does not work or does not look as documented.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Olivine version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      placeholder: Button
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code sample or a link to a reproduction.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, OS and React version
+      placeholder: Safari 19, macOS 26, React 19.2
