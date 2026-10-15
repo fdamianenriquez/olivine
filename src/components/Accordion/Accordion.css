@@ -1,0 +1,77 @@
+.ol-accordion {
+  /* Width of the index column, shared by the button grid and the panel indent. */
+  --accordion-index: calc(var(--text-figure-m-size) * 1.25);
+
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-accordion__item {
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-accordion__head {
+  margin: 0;
+}
+
+.ol-accordion__btn {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: var(--accordion-index) 1fr var(--target-min);
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-4) 0;
+  cursor: pointer;
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  font-weight: var(--text-h3-weight);
+  line-height: var(--text-h3-leading);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-accordion__btn:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: 2px;
+}
+
+.ol-accordion__idx {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  font-weight: var(--text-figure-m-weight);
+  line-height: var(--text-figure-m-leading);
+  letter-spacing: var(--text-figure-m-tracking);
+  color: var(--ink-3);
+}
+
+.ol-accordion__sign {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--glyph-xl);
+  text-align: center;
+}
+
+.ol-accordion__btn[aria-expanded="true"] .ol-accordion__idx {
+  color: var(--olivo);
+}
+
+.ol-accordion__panel {
+  padding: 0 0 var(--space-6) calc(var(--accordion-index) + var(--space-4));
+  color: var(--ink-2);
+  max-width: 72ch;
+}
+
+@media (forced-colors: active) {
+  .ol-accordion__btn:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-accordion__idx {
+    color: GrayText;
+  }
+
+  .ol-accordion__btn[aria-expanded="true"] .ol-accordion__idx {
+    color: Highlight;
+  }
+}

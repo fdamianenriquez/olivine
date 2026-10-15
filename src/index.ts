@@ -1,3 +1,4 @@
+export { Accordion, type AccordionItem, type AccordionProps } from "./components/Accordion";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
