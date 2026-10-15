@@ -7,6 +7,7 @@ export { Divider, type DividerProps } from "./components/Divider";
 export { Grid, type GridGap, type GridProps } from "./components/Grid";
 export { Input, type InputProps } from "./components/Input";
 export { Label, type LabelProps } from "./components/Label";
+export { Radio, type RadioProps } from "./components/Radio";
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
