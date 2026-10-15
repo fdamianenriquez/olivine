@@ -32,6 +32,7 @@ export {
 } from "./components/InputGroup";
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
+export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
 export { Radio, type RadioProps } from "./components/Radio";
