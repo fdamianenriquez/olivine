@@ -42,6 +42,7 @@
 @import "../components/Figure/Figure.css";
 @import "../components/Image/Image.css";
 @import "../components/Stat/Stat.css";
+@import "../components/Placeholder/Placeholder.css";
 
 /* Utilities */
 @import "./utilities.css";
