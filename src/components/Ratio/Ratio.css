@@ -1,0 +1,14 @@
+.ol-ratio {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ol-ratio, 16 / 9);
+  overflow: hidden;
+}
+
+.ol-ratio > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
