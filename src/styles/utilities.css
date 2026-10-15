@@ -38,6 +38,7 @@
 .ol-crosshair::before,
 .ol-crosshair::after {
   content: "+";
+  content: "+" / ""; /* decorative: empty alternative text for assistive tech */
   position: absolute;
   z-index: 1;
   padding: 0 calc(var(--space-1) / 2);
