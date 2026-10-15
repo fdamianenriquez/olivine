@@ -19,6 +19,7 @@
 /* Forms */
 @import "../components/Input/Input.css";
 @import "../components/Textarea/Textarea.css";
+@import "../components/Select/Select.css";
 
 /* Utilities */
 @import "./utilities.css";
