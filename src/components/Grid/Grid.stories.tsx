@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { Col } from "../Col";
+import { Label } from "../Label";
+import { Stack } from "../Stack";
+import { Text } from "../Text";
 import { Grid } from "./Grid";
 
 const meta = {
@@ -13,7 +17,7 @@ const meta = {
           "Grid is a 12-column CSS grid; `ruled` swaps gutters for ink lines between cells, the signature brutalist index layout.",
           "",
           "- Do use `ruled` for indexes, specs and contact sheets; plain gutters for content.",
-          "- Children are `Col`; each cell chooses its own span and collapses below the medium breakpoint.",
+          "- Children are `Col`; each cell chooses its own span and spans the full row below the medium breakpoint (720px).",
         ].join("\n"),
       },
     },
@@ -24,44 +28,61 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// Plain cells stand in until the story switches to Col.
-const cell = (n: string) => (
-  <div key={n} style={{ background: "var(--paper-2)", padding: "var(--space-3)" }}>
-    {n}
-  </div>
+const spans = [3, 3, 6];
+
+const content = (
+  <Stack gap={6}>
+    <Grid cols={12} gap={4}>
+      {spans.map((span, i) => (
+        <Col key={i} span={span}>
+          <div style={{ background: "var(--paper-2)", padding: "var(--space-3)" }}>
+            <Label index={i + 1}>Span {span}</Label>
+          </div>
+        </Col>
+      ))}
+    </Grid>
+    <Grid cols={4} ruled>
+      {["静", "間", "無", "空"].map((kanji, i) => (
+        <Col key={kanji}>
+          <Label index={i + 1}>Cell</Label>
+          <Text variant="kanji" as="p" lang="ja" style={{ marginTop: "var(--space-2)" }}>
+            {kanji}
+          </Text>
+        </Col>
+      ))}
+    </Grid>
+  </Stack>
 );
 
 export const Default: Story = {
-  args: { cols: 3, gap: 4, children: ["One", "Two", "Three"].map(cell) },
+  render: () => content,
 };
 
 export const Ruled: Story = {
-  args: {
-    cols: 4,
-    ruled: true,
-    children: ["静", "間", "無", "空"].map((k) => (
-      <div key={k} className="ol-col" style={{ padding: "var(--space-4)" }}>
-        {k}
-      </div>
-    )),
-  },
+  render: () => (
+    <Grid cols={3} ruled>
+      {["Plan", "Section", "Elevation"].map((name, i) => (
+        <Col key={name}>
+          <Label index={i + 1}>{name}</Label>
+        </Col>
+      ))}
+    </Grid>
+  ),
 };
 
 export const Themes: Story = {
   render: () => (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+    <Grid cols={2} gap={1}>
       {(["washi", "sumi"] as const).map((theme) => (
-        <div
+        <Col
           key={theme}
           className="ol"
           data-theme={theme}
           style={{ background: "var(--paper)", padding: "var(--space-6)" }}
         >
-          <Grid cols={3} gap={4}>
-            {["One", "Two", "Three"].map(cell)}
-          </Grid>
-        </div>
+          {content}
+        </Col>
       ))}
-    </div>
+    </Grid>
   ),
 };
