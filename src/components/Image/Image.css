@@ -1,0 +1,27 @@
+.ol-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ol-img--framed {
+  border: var(--stroke-hair) solid var(--rule);
+  padding: var(--space-2);
+  background: var(--paper);
+}
+
+.ol-img--mono {
+  filter: grayscale(1) contrast(1.1);
+  transition: filter var(--motion-base);
+}
+
+.ol-img--mono:hover,
+a:focus-within .ol-img--mono {
+  filter: none;
+}
+
+@media (forced-colors: active) {
+  .ol-img--framed {
+    border-color: CanvasText;
+  }
+}
