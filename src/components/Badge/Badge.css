@@ -1,0 +1,87 @@
+.ol-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--badge-height);
+  padding: 0 var(--space-2);
+  border: var(--stroke-hair) solid currentcolor;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ol-badge--solid {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: var(--ink);
+}
+
+.ol-badge--accent {
+  background: var(--maple);
+  color: var(--on-maple);
+  border-color: var(--maple);
+}
+
+.ol-badge--olivo {
+  background: var(--olivo);
+  color: var(--on-olivo);
+  border-color: var(--olivo);
+}
+
+.ol-badge--info {
+  color: var(--ai);
+}
+
+.ol-badge--success {
+  color: var(--matsu);
+}
+
+.ol-badge--warning {
+  color: var(--kitsune);
+}
+
+.ol-badge--danger {
+  color: var(--beni);
+}
+
+.ol-badge--dot::before {
+  content: "";
+  flex: none;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
+  border-radius: var(--radius-dot);
+  background: currentcolor;
+}
+
+.ol-badge--count {
+  min-width: var(--badge-height);
+  justify-content: center;
+  padding: 0 var(--space-1);
+}
+
+/* Filled tones keep a visible border and text colour when the system palette replaces ours. */
+@media (forced-colors: active) {
+  .ol-badge {
+    border-color: CanvasText;
+    color: CanvasText;
+    background: Canvas;
+  }
+
+  .ol-badge--solid,
+  .ol-badge--accent,
+  .ol-badge--olivo {
+    background: CanvasText;
+    color: Canvas;
+  }
+
+  .ol-badge--dot::before {
+    background: currentcolor;
+  }
+}
