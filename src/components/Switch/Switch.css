@@ -1,0 +1,141 @@
+.ol-switch {
+  --switch-inset: calc((var(--switch-height) - var(--knob-size)) / 2 - var(--stroke-hair));
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-min);
+  cursor: pointer;
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  letter-spacing: var(--text-body-tracking);
+}
+
+.ol-switch input {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: var(--switch-width);
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ol-switch__track {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-switch__track::after {
+  content: "";
+  position: absolute;
+  inset-block-start: var(--switch-inset);
+  inset-inline-start: var(--switch-inset);
+  width: var(--knob-size);
+  height: var(--knob-size);
+  background: var(--ink);
+  transition: transform var(--motion-base);
+}
+
+.ol-switch input:checked + .ol-switch__track {
+  background: var(--ink);
+}
+
+.ol-switch input:checked + .ol-switch__track::after {
+  transform: translateX(calc(var(--switch-width) - var(--switch-height)));
+  background: var(--olivo);
+  border-radius: var(--radius-dot);
+}
+
+.ol-switch input:focus-visible + .ol-switch__track {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+.ol-switch__state {
+  min-width: 3ch;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  line-height: var(--text-label-leading);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.ol-switch:has(input:disabled) {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-switch:has(input:disabled) input {
+  cursor: not-allowed;
+}
+
+.ol-switch input:disabled + .ol-switch__track {
+  border-color: var(--ink-3);
+}
+
+.ol-switch input:disabled + .ol-switch__track::after {
+  background: var(--ink-3);
+}
+
+.ol-switch input:disabled:checked + .ol-switch__track {
+  background: var(--ink-3);
+}
+
+.ol-switch input:disabled:checked + .ol-switch__track::after {
+  background: var(--paper);
+}
+
+.ol-switch:has(input:disabled) .ol-switch__state {
+  color: var(--ink-3);
+}
+
+[dir="rtl"] .ol-switch input:checked + .ol-switch__track::after {
+  transform: translateX(calc(var(--switch-height) - var(--switch-width)));
+}
+
+@media (forced-colors: active) {
+  .ol-switch__track {
+    border-color: ButtonText;
+  }
+
+  .ol-switch__track::after {
+    background: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  .ol-switch input:checked + .ol-switch__track {
+    background: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  .ol-switch input:checked + .ol-switch__track::after {
+    background: Canvas;
+  }
+
+  .ol-switch input:focus-visible + .ol-switch__track {
+    outline-color: Highlight;
+  }
+
+  .ol-switch input:disabled + .ol-switch__track {
+    border-color: GrayText;
+  }
+
+  .ol-switch input:disabled + .ol-switch__track::after,
+  .ol-switch input:disabled:checked + .ol-switch__track {
+    background: GrayText;
+  }
+
+  .ol-switch input:disabled:checked + .ol-switch__track::after {
+    background: Canvas;
+  }
+}
