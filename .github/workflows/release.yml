@@ -25,10 +25,10 @@ jobs:
       # once that PR is merged, runs the full check and publishes to npm.
       - uses: changesets/action@v2
         with:
-          version: pnpm changeset version
-          publish: pnpm release
-          title: "chore: version packages"
-          commit: "chore: version packages"
-          createGithubReleases: true
+          version-script: pnpm changeset version
+          publish-script: pnpm release
+          pr-title: "chore: version packages"
+          commit-message: "chore: version packages"
+          create-github-releases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
