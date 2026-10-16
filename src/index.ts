@@ -82,6 +82,7 @@ export {
   type ToastStackProps,
   useToast,
 } from "./components/ToastStack";
+export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
 export {
   type LabelOverrides,
   type LocaleName,

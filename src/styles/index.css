@@ -52,6 +52,7 @@
 @import "../components/Alert/Alert.css";
 @import "../components/Toast/Toast.css";
 @import "../components/ToastStack/ToastStack.css";
+@import "../components/Tooltip/Tooltip.css";
 @import "../components/Progress/Progress.css";
 @import "../components/Spinner/Spinner.css";
 
