@@ -1,1 +1,1 @@
-export { FileInput, type FileInputProps } from "./FileInput";
+export { FileInput, type FileInputProps, type FileRejection } from "./FileInput";

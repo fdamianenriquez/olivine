@@ -26,7 +26,7 @@ export {
   type FieldProps,
 } from "./components/Field";
 export { Figure, type FigureProps } from "./components/Figure";
-export { FileInput, type FileInputProps } from "./components/FileInput";
+export { FileInput, type FileInputProps, type FileRejection } from "./components/FileInput";
 export { Grid, type GridGap, type GridProps } from "./components/Grid";
 export { Image, type ImageProps } from "./components/Image";
 export { Input, type InputProps } from "./components/Input";

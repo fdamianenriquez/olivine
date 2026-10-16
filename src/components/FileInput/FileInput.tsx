@@ -4,6 +4,44 @@ import { useField, useFieldControl } from "../../hooks/useFieldControl";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 
+/** A file that was refused, with the rule it broke. */
+export interface FileRejection {
+  file: File;
+  reason: "size" | "type";
+}
+
+function matchesAccept(file: File, accept: string): boolean {
+  const entries = accept
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (entries.length === 0) return true;
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  return entries.some((entry) => {
+    if (entry === "*" || entry === "*/*") return true;
+    if (entry.startsWith(".")) return name.endsWith(entry);
+    if (entry.endsWith("/*")) return type.startsWith(entry.slice(0, -1));
+    return type === entry;
+  });
+}
+
+function sortFiles(
+  files: File[],
+  accept: string | undefined,
+  maxSize: number | undefined,
+): { accepted: File[]; rejected: FileRejection[] } {
+  const accepted: File[] = [];
+  const rejected: FileRejection[] = [];
+  for (const file of files) {
+    if (maxSize !== undefined && file.size > maxSize) rejected.push({ file, reason: "size" });
+    else if (accept !== undefined && !matchesAccept(file, accept))
+      rejected.push({ file, reason: "type" });
+    else accepted.push(file);
+  }
+  return { accepted, rejected };
+}
+
 export interface FileInputProps extends Omit<
   React.ComponentPropsWithoutRef<"input">,
   "type" | "children" | "value" | "defaultValue"
@@ -16,10 +54,26 @@ export interface FileInputProps extends Omit<
   browseLabel?: React.ReactNode;
   /** Allows choosing more than one file. */
   multiple?: boolean;
-  /** Comma-separated types the picker offers, as on a native file input. Only a hint to the picker: check `file.type` and `file.size` yourself in `onChange`. */
+  /** Comma-separated types, as on a native file input: MIME types (`image/png`), wildcards (`image/*`) and extensions (`.pdf`), matched case-insensitively. It steers the picker and, together with `onReject`, filters the chosen files. */
   accept?: string;
-  /** Called with the native change event; read the files from `event.target.files`. */
+  /** Largest allowed file size in bytes. Larger files are rejected with reason `"size"`. */
+  maxSize?: number;
+  /**
+   * Called with the native change event, as before. The native `FileList` cannot be filtered, so
+   * `event.target.files` still contains every chosen file, rejected ones included; read the
+   * accepted files from `onFilesChange` instead.
+   */
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  /** Called with only the accepted files after every change or drop (an empty array when the selection is cleared). */
+  onFilesChange?: (accepted: File[]) => void;
+  /**
+   * Called when some chosen files break `maxSize` or `accept`, once per selection and only when
+   * there are rejections. When every chosen file is rejected the native input is cleared right
+   * after `onChange`, so choosing the same file again fires `change` again and a native form
+   * submits no rejected file. The component renders no error text: show a message yourself, for
+   * example through `Field error`.
+   */
+  onReject?: (rejections: FileRejection[]) => void;
   /** Extra class names on the drop zone. */
   className?: string;
 }
@@ -27,11 +81,23 @@ export interface FileInputProps extends Omit<
 /**
  * A dashed drop zone around a native file input; it lists the chosen file names in mono.
  * The input itself covers the zone, so it stays the focusable, clickable control.
- * The component does not validate files: `accept` only steers the picker, so check type and
- * size in `onChange` when it matters.
+ * Files that exceed `maxSize` or miss the `accept` list are left out of the names list and
+ * reported through `onReject`; the component shows no error text, so pair it with `Field error`.
  */
 export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(function FileInput(
-  { label, hint, browseLabel, multiple, accept, onChange, className, ...props },
+  {
+    label,
+    hint,
+    browseLabel,
+    multiple,
+    accept,
+    maxSize,
+    onChange,
+    onFilesChange,
+    onReject,
+    className,
+    ...props
+  },
   ref,
 ) {
   const t = useLabels();
@@ -104,8 +170,18 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(function F
         }
         {...rest}
         onChange={(e) => {
-          setNames(Array.from(e.target.files ?? [], (f) => f.name));
+          const { accepted, rejected } = sortFiles(
+            Array.from(e.target.files ?? []),
+            accept,
+            maxSize,
+          );
+          setNames(accepted.map((f) => f.name));
           onChange?.(e);
+          onFilesChange?.(accepted);
+          if (rejected.length > 0) onReject?.(rejected);
+          // Nothing usable was chosen: clear the native selection so the same file can be
+          // picked again (firing change and onReject again) and a native form submits nothing.
+          if (accepted.length === 0 && rejected.length > 0) e.target.value = "";
         }}
       />
     </div>
