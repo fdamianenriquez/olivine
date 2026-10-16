@@ -33,8 +33,8 @@ const media = (
         placeItems: "center",
         height: "100%",
         background: "var(--maple)",
-        color: "var(--ink)",
-        fontFamily: "var(--font-kanji)",
+        color: "var(--on-maple)",
+        fontFamily: "var(--font-jp)",
         fontSize: "var(--text-h1-size)",
       }}
     >
