@@ -1,0 +1,101 @@
+.ol-scrim--edge {
+  place-items: stretch;
+  padding: 0;
+}
+
+.ol-offcanvas {
+  --ol-offcanvas-width: var(--offcanvas-width);
+
+  position: fixed;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  border: 0 solid var(--rule);
+  background: var(--paper-3);
+  color: var(--ink);
+}
+
+.ol-offcanvas:dir(rtl) {
+  --ol-offcanvas-dir: -1;
+}
+
+.ol-offcanvas:focus-visible {
+  outline-offset: calc(-1 * var(--stroke-bold));
+}
+
+.ol-offcanvas--end,
+.ol-offcanvas--start {
+  inset-block: 0;
+  width: min(var(--ol-offcanvas-width), calc(100% - var(--space-6)));
+}
+
+.ol-offcanvas--end {
+  inset-inline-end: 0;
+  border-inline-start-width: var(--stroke-hair);
+  animation: ol-offcanvas-in-end var(--motion-slow);
+}
+
+.ol-offcanvas--start {
+  inset-inline-start: 0;
+  border-inline-end-width: var(--stroke-hair);
+  animation: ol-offcanvas-in-start var(--motion-slow);
+}
+
+.ol-offcanvas--bottom {
+  inset-inline: 0;
+  inset-block-end: 0;
+  max-height: calc(100dvh - var(--space-12));
+  border-block-start-width: var(--stroke-hair);
+  animation: ol-offcanvas-in-bottom var(--motion-slow);
+}
+
+.ol-offcanvas__head {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-offcanvas__title {
+  min-width: 0;
+}
+
+.ol-offcanvas__body {
+  flex: 1;
+  padding: var(--space-6);
+  overflow: auto;
+}
+
+/* The slide is a transform; the direction factor flips the horizontal offset in RTL. */
+@keyframes ol-offcanvas-in-end {
+  from {
+    transform: translateX(calc(100% * var(--ol-offcanvas-dir)));
+  }
+}
+
+@keyframes ol-offcanvas-in-start {
+  from {
+    transform: translateX(calc(-100% * var(--ol-offcanvas-dir)));
+  }
+}
+
+@keyframes ol-offcanvas-in-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-offcanvas {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-offcanvas,
+  .ol-offcanvas__head {
+    border-color: CanvasText;
+  }
+}
