@@ -1,0 +1,45 @@
+.ol-popover {
+  z-index: var(--z-dropdown);
+  width: var(--popover-width);
+  max-width: calc(100vw - 2 * var(--space-4));
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  text-align: left;
+  outline: none;
+}
+
+/* Hidden (but focusable) until the first position is known, so it never flashes at 0,0. */
+.ol-popover[data-state="pending"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ol-popover__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-leading);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-popover__body {
+  padding: var(--space-4);
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-body-leading);
+  color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .ol-popover {
+    border-color: CanvasText;
+  }
+}
