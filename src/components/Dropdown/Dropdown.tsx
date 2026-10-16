@@ -110,12 +110,11 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
   const menuId = `${generated}-menu`;
 
   const [menu, setMenu] = useState<HTMLUListElement | null>(null);
-  // The portal mounts the menu a render after `open` flips, so position once the node exists.
-  const { reference, floating, style, positioned } = useFloating<
+  const { reference, floating, setReference, setFloating, style, positioned } = useFloating<
     HTMLButtonElement,
     HTMLUListElement
   >({
-    open: open && menu !== null,
+    open,
     placement: `${up ? "top" : "bottom"}-${align}`,
   });
   const [active, setActive] = useState(-1);
@@ -124,18 +123,18 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
 
   const setTrigger = useCallback(
     (node: HTMLButtonElement | null) => {
-      reference.current = node;
+      setReference(node);
       if (typeof ref === "function") ref(node);
       else if (ref) ref.current = node;
     },
-    [reference, ref],
+    [setReference, ref],
   );
   const setMenuNode = useCallback(
     (node: HTMLUListElement | null) => {
-      floating.current = node;
+      setFloating(node);
       setMenu(node);
     },
-    [floating],
+    [setFloating],
   );
 
   const close = useCallback(

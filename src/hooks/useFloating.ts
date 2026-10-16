@@ -1,5 +1,12 @@
 import { autoUpdate, computePosition, flip, offset, type Placement, shift } from "@floating-ui/dom";
-import { type CSSProperties, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { tokens } from "../tokens";
 
@@ -24,6 +31,13 @@ export interface FloatingOptions {
 export interface FloatingResult<R extends HTMLElement, F extends HTMLElement> {
   reference: React.RefObject<R | null>;
   floating: React.RefObject<F | null>;
+  /**
+   * Callback refs that do the same as `reference` and `floating` and also re-run the
+   * positioning when the node mounts later, as it does inside a `Portal`. Prefer these for
+   * content that is not in the DOM on the render where `open` flips.
+   */
+  setReference: (node: R | null) => void;
+  setFloating: (node: F | null) => void;
   /** Custom properties consumed by the `.ol-floating` class (position: fixed). */
   style: CSSProperties;
   /** The placement after flipping, e.g. "top-start". */
@@ -43,11 +57,22 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
 }: FloatingOptions): FloatingResult<R, F> {
   const reference = useRef<R>(null);
   const floating = useRef<F>(null);
+  const [referenceNode, setReferenceNode] = useState<R | null>(null);
+  const [floatingNode, setFloatingNode] = useState<F | null>(null);
   const [state, setState] = useState<{ x: number; y: number; placement: Placement } | null>(null);
 
+  const setReference = useCallback((node: R | null) => {
+    reference.current = node;
+    setReferenceNode(node);
+  }, []);
+  const setFloating = useCallback((node: F | null) => {
+    floating.current = node;
+    setFloatingNode(node);
+  }, []);
+
   useIsomorphicLayoutEffect(() => {
-    const ref = reference.current;
-    const el = floating.current;
+    const ref = referenceNode ?? reference.current;
+    const el = floatingNode ?? floating.current;
     if (!open || !ref || !el) {
       setState(null);
       return;
@@ -61,11 +86,13 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
         setState({ x: result.x, y: result.y, placement: result.placement });
       });
     });
-  }, [open, placement, gap]);
+  }, [open, placement, gap, referenceNode, floatingNode]);
 
   return {
     reference,
     floating,
+    setReference,
+    setFloating,
     style: {
       "--ol-float-x": `${String(state?.x ?? 0)}px`,
       "--ol-float-y": `${String(state?.y ?? 0)}px`,

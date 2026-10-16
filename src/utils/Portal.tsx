@@ -1,12 +1,16 @@
 import { type ReactNode, type RefObject, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { KEEP_ACTIVE_ATTR } from "../hooks/useOverlay";
+
 export interface PortalProps {
   children: ReactNode;
   /** Where to render. Defaults to `document.body`. */
   container?: Element | null | undefined;
   /** An element inside the app whose nearest `data-theme` the portal content should keep. */
   anchor?: RefObject<Element | null> | undefined;
+  /** Keeps the layer reachable while a modal overlay makes the rest of the page inert. */
+  keepActive?: boolean | undefined;
 }
 
 /**
@@ -14,7 +18,7 @@ export interface PortalProps {
  * anchor's theme and language, so floating content looks and reads like the island it came from. Nothing renders
  * on the server or before mount.
  */
-export function Portal({ children, container, anchor }: PortalProps) {
+export function Portal({ children, container, anchor, keepActive }: PortalProps) {
   const [target, setTarget] = useState<Element | null>(null);
   const [theme, setTheme] = useState<string | undefined>(undefined);
   const [lang, setLang] = useState<string | undefined>(undefined);
@@ -30,7 +34,12 @@ export function Portal({ children, container, anchor }: PortalProps) {
 
   if (!target) return null;
   return createPortal(
-    <div className="ol ol-portal" data-theme={theme} lang={lang}>
+    <div
+      className="ol ol-portal"
+      data-theme={theme}
+      lang={lang}
+      {...(keepActive ? { [KEEP_ACTIVE_ATTR]: "" } : null)}
+    >
       {children}
     </div>,
     target,

@@ -271,6 +271,7 @@ export const tokens = {
     "control-area": "120px",
     "target-min": "24px",
     "menu-min-width": "220px",
+    "toast-width": "340px",
     "skeleton-min-height": "80px",
   },
   layout: {
@@ -321,6 +322,9 @@ export const tokens = {
     "motion-base": "120ms steps(3)",
     "motion-slow": "160ms steps(4)",
     "motion-spin": "800ms steps(8)",
+    "motion-turn": "960ms steps(4)",
+    "motion-blink": "900ms steps(1)",
+    "motion-blink-step": "300ms",
     "motion-sweep": "1400ms steps(2, jump-none)",
     "motion-nudge": "3px",
     "motion-press": "1px",
