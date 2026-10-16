@@ -1,10 +1,13 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import { describe, expect, it } from "vitest";
 
 import { runAxe } from "../../test/axe";
 import { Checkbox } from "../Checkbox";
 import { Input } from "../Input";
+import { InputGroup } from "../InputGroup";
+import { Range } from "../Range";
 import { Select } from "../Select";
 import { Switch } from "../Switch";
 import { Textarea } from "../Textarea";
@@ -147,6 +150,112 @@ describe("Field", () => {
     expect(b.id).toBe("");
     expect(screen.getByText("Range")).toHaveAttribute("for", a.id);
     expect(b).toHaveAccessibleDescription("From and to");
+  });
+
+  describe("with an explicit id on the control", () => {
+    it("points the label at the control's own id for Input, Select, Textarea and Range", () => {
+      render(
+        <>
+          <Field label="Name">
+            <Input id="own-name" />
+          </Field>
+          <Field label="Service">
+            <Select id="own-service" options={["A", "B"]} />
+          </Field>
+          <Field label="Notes">
+            <Textarea id="own-notes" />
+          </Field>
+          <Field label="Budget">
+            <Range id="own-budget" min={0} max={10} />
+          </Field>
+        </>,
+      );
+      expect(screen.getByText("Name")).toHaveAttribute("for", "own-name");
+      expect(screen.getByLabelText("Name")).toHaveAttribute("id", "own-name");
+      expect(screen.getByLabelText("Service")).toHaveAttribute("id", "own-service");
+      expect(screen.getByLabelText("Notes")).toHaveAttribute("id", "own-notes");
+      expect(screen.getByLabelText(/Budget/)).toHaveAttribute("id", "own-budget");
+    });
+
+    it("keeps the description, validity and required wiring", () => {
+      render(
+        <Field label="Email" hint="Hint" error="Fix it." required>
+          <Input id="own-email" />
+        </Field>,
+      );
+      const input = screen.getByLabelText(/Email/);
+      expect(input).toHaveAttribute("id", "own-email");
+      expect(input).toHaveAccessibleDescription("Hint Fix it.");
+      expect(input).toBeRequired();
+      expect(input).toHaveAttribute("aria-invalid", "true");
+    });
+
+    it("focuses the control when the label is clicked", async () => {
+      render(
+        <Field label="Name">
+          <Input id="own-name" />
+        </Field>,
+      );
+      await userEvent.click(screen.getByText("Name"));
+      expect(screen.getByLabelText("Name")).toHaveFocus();
+    });
+
+    it("labels the first input of an InputGroup that brings its own id", () => {
+      render(
+        <Field label="Size">
+          <InputGroup>
+            <Input id="own-size" />
+            <Input aria-label="Unit" />
+          </InputGroup>
+        </Field>,
+      );
+      expect(screen.getByText("Size")).toHaveAttribute("for", "own-size");
+      expect(screen.getByLabelText("Size")).toHaveAttribute("id", "own-size");
+    });
+
+    it("lets the first control own the label even when a later one has no id", () => {
+      render(
+        <Field label="Range">
+          <span>
+            <Input id="first" />
+            <Input aria-label="To" data-testid="second" />
+          </span>
+        </Field>,
+      );
+      expect(screen.getByLabelText("Range")).toHaveAttribute("id", "first");
+      expect(screen.getByTestId("second").id).toBe("");
+    });
+
+    it("returns to the field's id when the id is removed", () => {
+      const { rerender } = render(
+        <Field label="Name">
+          <Input id="own-name" />
+        </Field>,
+      );
+      expect(screen.getByLabelText("Name")).toHaveAttribute("id", "own-name");
+      rerender(
+        <Field label="Name">
+          <Input />
+        </Field>,
+      );
+      const input = screen.getByLabelText("Name");
+      expect(input.id).not.toBe("");
+      expect(input.id).not.toBe("own-name");
+    });
+
+    it("has no axe violations", async () => {
+      const { container } = render(
+        <>
+          <Field label="Name" hint="As on your card" required>
+            <Input id="own-name" />
+          </Field>
+          <Field label="Service" error="Choose one.">
+            <Select id="own-service" options={["A", "B"]} />
+          </Field>
+        </>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+    });
   });
 
   it("keeps a persistent polite live region for messages", () => {
