@@ -1,11 +1,24 @@
 # Olivine
 
+[![CI](https://github.com/fdamianenriquez/olivine/actions/workflows/ci.yml/badge.svg)](https://github.com/fdamianenriquez/olivine/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2f3a1a.svg)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/types-included-2f3a1a.svg)](#usage)
+
 Olivine is a React component library drawn in ink on paper: Japanese minimalism and web
 brutalism, fine hairlines, square boxes, mono labels, and an olive-and-maple palette taken
 from a Telecaster on cream. It ships typed components, one stylesheet, design tokens and
 self-hosted fonts, in two themes (`washi` and `sumi`) and three locales (`en`, `es`, `ja`).
 
-> **Status:** under construction. Nothing is published yet.
+> **Status:** pre-release. The components are complete and tested, but nothing is published to
+> npm yet.
+
+- **50 components**: layout, actions, forms, navigation, content, feedback and overlays.
+- **Accessible**: built for WCAG 2.2 AA. Keyboard support, visible focus, correct ARIA, and
+  `axe` checks in every component's tests.
+- **Themed and localised**: cream and ebony themes (or follow the system), and every built-in
+  string goes through a locale you can override.
+- **Light**: plain CSS with BEM classes (`ol-` prefix), no CSS-in-JS, no runtime style
+  injection. The only runtime dependency is `@floating-ui/dom`.
 
 ## Install
 
@@ -19,7 +32,7 @@ React 18 or later is a peer dependency.
 
 ```tsx
 import "olivine/styles.css";
-import { Root, Button } from "olivine";
+import { Button, Root } from "olivine";
 
 export function App() {
   return (
@@ -32,13 +45,26 @@ export function App() {
 }
 ```
 
+Wrap the app in one `Root`. It sets the ground colour, the fonts, the focus ring and the
+language of the built-in labels.
+
 ### Themes
 
 Olivine has two themes: `washi` (cream, the default) and `sumi` (ebony). Set `data-theme` on
-`<html>` or any element; `auto` follows the system setting.
+`<html>` or any element, or pass `theme` to `Root`. `auto` follows the system setting.
 
 ```html
 <html data-theme="auto"></html>
+```
+
+### Locales
+
+`Root` takes `locale="en" | "es" | "ja"`, and `labels` to override single strings:
+
+```tsx
+<Root locale="es" labels={{ close: "Salir" }}>
+  <App />
+</Root>
 ```
 
 ### Stylesheets
@@ -55,11 +81,23 @@ Typed token values are available from `olivine/tokens`.
 
 ## Documentation
 
-Component docs and guidelines: https://fdamianenriquez.github.io/olivine/
+Component docs, guides and a full demo page: https://fdamianenriquez.github.io/olivine/
+
+To run them locally:
+
+```sh
+pnpm install
+pnpm dev
+```
 
 ## Browser support
 
 The last two versions of evergreen browsers (Chrome, Edge, Firefox, Safari).
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Please read the [Code of Conduct](./CODE_OF_CONDUCT.md),
+and report security issues as described in [SECURITY.md](./SECURITY.md).
 
 ## Licence
 
