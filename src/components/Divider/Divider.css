@@ -34,6 +34,11 @@
   border-top-color: var(--line-soft);
 }
 
+/* A heading label keeps the label voice; only the browser heading margins are reset. */
+.ol-divider__heading {
+  margin: 0;
+}
+
 .ol-divider--v {
   width: 0;
   height: auto;
