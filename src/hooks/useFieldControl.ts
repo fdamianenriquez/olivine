@@ -1,5 +1,7 @@
 import { createContext, useContext, useId } from "react";
 
+import { useIsomorphicLayoutEffect } from "./useFloating";
+
 /** What a `Field` tells the control it labels. */
 export interface FieldContextValue {
   /** Id for the labelled control (the label's `htmlFor`). */
@@ -15,6 +17,12 @@ export interface FieldContextValue {
    * give the intended control an explicit `id` instead.
    */
   claim: (owner: string) => boolean;
+  /**
+   * Tells the Field which id the control that owns the field really has, so the label's
+   * `htmlFor` follows an explicit `id`. Pass `undefined` to go back to the field's own id.
+   * Optional so a hand-built context still works; the label then keeps the field's id.
+   */
+  setControlId?: (id: string | undefined) => void;
 }
 
 export const FieldContext = createContext<FieldContextValue | null>(null);
@@ -34,8 +42,20 @@ export interface FieldControlProps {
 export function useFieldControl<P extends FieldControlProps>(props: P): P {
   const field = useContext(FieldContext);
   const owner = useId();
+  // The first control in the field is the one its label points at, whether it brings its own
+  // id or takes the field's.
+  const isOwner = field ? field.claim(owner) : false;
+  const explicitId = props.id;
+  const setControlId = field?.setControlId;
+  useIsomorphicLayoutEffect(() => {
+    if (!isOwner || explicitId === undefined || !setControlId) return;
+    setControlId(explicitId);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [isOwner, explicitId, setControlId]);
   if (!field) return props;
-  const ownsId = props.id === undefined && field.claim(owner);
+  const ownsId = props.id === undefined && isOwner;
   const describedBy =
     [field.describedBy, props["aria-describedby"]].filter(Boolean).join(" ") || undefined;
   return {

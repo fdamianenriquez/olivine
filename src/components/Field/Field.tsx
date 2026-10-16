@@ -28,6 +28,9 @@ export interface FieldProps extends Omit<React.ComponentPropsWithoutRef<"div">, 
   /**
    * Exactly one control. Olivine controls wire themselves; a plain DOM element is cloned
    * with the field's attributes; anything else should use `Field.Control`.
+   * An explicit `id` on an Olivine control is kept and the label follows it. That happens when
+   * the page hydrates, so server-rendered HTML points the label at the field's own id until
+   * then; leave the `id` out to have the label bound from the first render.
    */
   children?: ReactNode;
 }
@@ -90,6 +93,8 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
 ) {
   const id = useId();
   const [claims] = useState(() => ({ owner: null as string | null }));
+  // Set by the owning control when it brings its own `id`, so the label follows it.
+  const [ownId, setControlId] = useState<string | undefined>(undefined);
   const hasHint = hasContent(hint);
   const hasError = hasContent(error);
   const hasValid = !hasError && hasContent(valid);
@@ -108,6 +113,7 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
         claims.owner ??= owner;
         return claims.owner === owner;
       },
+      setControlId,
     }),
     [id, describedBy, hasError, required, claims],
   );
@@ -147,7 +153,7 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
         {(hasLabel || hasContent(aside)) && (
           <div className="ol-field__top">
             {hasLabel && (
-              <label className="ol-field__label" htmlFor={controlId}>
+              <label className="ol-field__label" htmlFor={ownId ?? controlId}>
                 {label}
                 {required && (
                   <span className="ol-field__req" aria-hidden="true">
