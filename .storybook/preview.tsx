@@ -66,7 +66,16 @@ const preview: Preview = {
     controls: { expanded: true },
     docs: { theme },
     options: {
-      storySort: { order: ["Foundations", ["Principles", "Colour", "Type", "Tokens"], "*"] },
+      storySort: {
+        order: [
+          "Demo",
+          "Guides",
+          ["Getting started", "Theming", "Locales", "Accessibility"],
+          "Foundations",
+          ["Principles", "Colour", "Type", "Tokens"],
+          "*",
+        ],
+      },
     },
   },
 };
