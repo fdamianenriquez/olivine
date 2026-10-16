@@ -12,3 +12,8 @@ body {
 .ol-sb-canvas--fill {
   min-height: 100vh;
 }
+
+/* Full-page demos draw to the edge of the frame. */
+.ol-sb-canvas--flush {
+  padding: 0;
+}

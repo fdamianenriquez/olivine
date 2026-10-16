@@ -41,7 +41,7 @@ const preview: Preview = {
   },
   initialGlobals: { theme: "washi", locale: "en" },
   decorators: [
-    (Story, { globals, viewMode }) => {
+    (Story, { globals, viewMode, parameters }) => {
       const themeName = String(globals.theme) as NonNullable<RootProps["theme"]>;
       const locale = String(globals.locale);
       // In the canvas the whole page follows the theme; on docs pages only the story frame does.
@@ -53,7 +53,13 @@ const preview: Preview = {
         <Root
           locale={locale}
           theme={themeName}
-          className={viewMode === "story" ? "ol-sb-canvas ol-sb-canvas--fill" : "ol-sb-canvas"}
+          className={[
+            "ol-sb-canvas",
+            viewMode === "story" && "ol-sb-canvas--fill",
+            parameters.flush === true && "ol-sb-canvas--flush",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           <Story />
         </Root>
