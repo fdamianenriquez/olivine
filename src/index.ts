@@ -1,4 +1,5 @@
 export { Accordion, type AccordionItem, type AccordionProps } from "./components/Accordion";
+export { Alert, type AlertProps, type AlertTone } from "./components/Alert";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./components/Breadcrumb";
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";

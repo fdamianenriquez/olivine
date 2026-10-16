@@ -48,5 +48,8 @@
 @import "../components/Stat/Stat.css";
 @import "../components/Placeholder/Placeholder.css";
 
+/* Feedback and overlays */
+@import "../components/Alert/Alert.css";
+
 /* Utilities */
 @import "./utilities.css";

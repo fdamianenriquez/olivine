@@ -1,0 +1,107 @@
+.ol-alert {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4);
+  border: var(--stroke-hair) solid currentcolor;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.ol-alert__tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-height);
+  padding: 0 var(--space-2);
+  background: currentcolor;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+}
+
+.ol-alert__tag span {
+  color: var(--on-status);
+}
+
+.ol-alert--neutral .ol-alert__tag span {
+  color: var(--on-ink);
+}
+
+.ol-alert__body {
+  min-width: 0;
+  color: var(--ink);
+}
+
+.ol-alert__title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-leading);
+  font-weight: var(--text-h3-weight);
+}
+
+.ol-alert__text {
+  margin: 0;
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+.ol-alert__action {
+  margin-top: var(--space-3);
+}
+
+.ol-alert--info {
+  color: var(--ai);
+}
+
+.ol-alert--success {
+  color: var(--matsu);
+}
+
+.ol-alert--warning {
+  color: var(--kitsune);
+}
+
+.ol-alert--danger {
+  color: var(--beni);
+}
+
+.ol-alert .ol-close {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+/* The tag fill is a background colour; keep it a visible, bordered word. */
+@media (forced-colors: active) {
+  .ol-alert {
+    border-color: CanvasText;
+    color: CanvasText;
+    background: Canvas;
+  }
+
+  .ol-alert__tag {
+    border: var(--stroke-hair) solid CanvasText;
+    background: Canvas;
+  }
+
+  .ol-alert__tag span,
+  .ol-alert--neutral .ol-alert__tag span {
+    color: CanvasText;
+  }
+
+  .ol-alert__body,
+  .ol-alert__text {
+    color: CanvasText;
+  }
+
+  .ol-alert .ol-close {
+    color: ButtonText;
+    border-color: ButtonText;
+  }
+}
