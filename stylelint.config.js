@@ -18,4 +18,16 @@ export default {
       { message: "Use BEM class names with the ol- prefix" },
     ],
   },
+  overrides: [
+    {
+      // Demo code keeps its own sg- prefix and may also use library classes in selectors.
+      files: ["stories/**/*.css"],
+      rules: {
+        "selector-class-pattern": [
+          "^(ol|sg)(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+          { message: "Use BEM class names with the ol- or sg- prefix" },
+        ],
+      },
+    },
+  ],
 };

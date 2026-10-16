@@ -65,7 +65,7 @@
     "build:css": "tsx scripts/build-css.ts",
     "tokens": "tsx scripts/build-tokens.ts",
     "fonts:vendor": "tsx scripts/vendor-fonts.ts && pnpm tokens",
-    "lint": "eslint . --max-warnings 0 && stylelint \"src/**/*.css\"",
+    "lint": "eslint . --max-warnings 0 && stylelint \"{src,stories}/**/*.css\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
