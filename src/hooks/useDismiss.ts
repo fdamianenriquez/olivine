@@ -1,18 +1,21 @@
 import { type RefObject, useEffect } from "react";
 
+import { useLayer } from "./layers";
+
 /**
  * Calls `onDismiss` on Escape and on a pointer press outside every element in `refs`,
- * while `open` is true.
+ * while `open` is true. With several overlays open, only the topmost one answers to Escape.
  */
 export function useDismiss(
   open: boolean,
   onDismiss: (reason: "escape" | "outside") => void,
   refs: RefObject<Element | null>[],
 ): void {
+  const isTop = useLayer(open);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onDismiss("escape");
+      if (event.key === "Escape" && !event.defaultPrevented && isTop()) onDismiss("escape");
     };
     const onPointer = (event: PointerEvent) => {
       const target = event.target as Node | null;
