@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { createRef } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { runAxe } from "../../test/axe";
 import { Divider } from "./Divider";
@@ -58,6 +58,28 @@ describe("Divider", () => {
     expect(screen.queryByText("Works")).toBeNull();
   });
 
+  it("renders the label as a heading when headingLevel is set", () => {
+    render(<Divider label="Selected works" index={2} headingLevel={3} data-testid="d" />);
+    const heading = screen.getByRole("heading", { level: 3, name: "02 Selected works" });
+    expect(heading.tagName).toBe("H3");
+    expect(heading).toHaveClass("ol-label", "ol-divider__heading");
+    expect(within(screen.getByTestId("d")).getByRole("heading")).toBe(heading);
+  });
+
+  it("keeps the marker without a heading by default", () => {
+    render(<Divider label="Selected works" index={2} />);
+    expect(screen.queryByRole("heading")).toBeNull();
+  });
+
+  it("warns and ignores headingLevel without a label", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(<Divider headingLevel={2} data-testid="d" />);
+    expect(screen.getByTestId("d").tagName).toBe("HR");
+    expect(screen.queryByRole("heading")).toBeNull();
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("forwards its ref in both modes", () => {
     const hr = createRef<HTMLElement>();
     const div = createRef<HTMLElement>();
@@ -78,6 +100,7 @@ describe("Divider", () => {
         <Divider weight="heavy" />
         <Divider weight="soft" />
         <Divider label="Selected works" index={2} />
+        <Divider label="Selected works" index={2} headingLevel={2} />
         <div style={{ display: "flex" }}>
           <span>A</span>
           <Divider vertical />

@@ -67,6 +67,15 @@ export const Labelled: Story = {
   ),
 };
 
+export const AsHeading: Story = {
+  render: () => (
+    <Stack gap={4}>
+      <Divider label="Selected works" index={2} headingLevel={2} />
+      <Text>The marker is an h2, so it appears in the document outline.</Text>
+    </Stack>
+  ),
+};
+
 export const Themes: Story = {
   render: () => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
