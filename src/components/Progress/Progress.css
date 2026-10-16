@@ -1,0 +1,119 @@
+/* Progress: bar, ink bar or block segments. The indeterminate sweep moves a transform, not
+   a layout property, and becomes a static hatched bar under reduced motion. */
+.ol-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ol-progress__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.ol-progress__value {
+  color: var(--ink);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-variant-numeric: tabular-nums;
+  margin-inline-start: auto;
+}
+
+.ol-progress__track {
+  --ol-progress-fill: var(--olivo);
+
+  position: relative;
+  overflow: hidden;
+  height: var(--space-3);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-progress--ink .ol-progress__track {
+  --ol-progress-fill: var(--ink);
+}
+
+.ol-progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--ol-progress, 0%);
+  background: var(--ol-progress-fill);
+  transition: width var(--motion-slow);
+}
+
+.ol-progress--segments .ol-progress__track {
+  display: grid;
+  grid-template-columns: repeat(var(--ol-seg, 20), 1fr);
+  gap: var(--space-1);
+  height: var(--space-4);
+  border: 0;
+}
+
+.ol-progress__seg {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-progress__seg--on {
+  background: var(--ink);
+}
+
+.ol-progress__seg--edge {
+  background: var(--maple);
+  border-color: var(--ink);
+}
+
+.ol-progress--indeterminate .ol-progress__fill {
+  width: 30%;
+  transition: none;
+  animation: ol-progress-sweep 1200ms steps(10) infinite;
+}
+
+@keyframes ol-progress-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(334%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-progress__fill {
+    transition: none;
+  }
+
+  .ol-progress--indeterminate .ol-progress__fill {
+    width: 100%;
+    animation: none;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--ol-progress-fill) 0 var(--space-2),
+      transparent var(--space-2) var(--space-4)
+    );
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-progress__fill,
+  .ol-progress__seg--on {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .ol-progress--indeterminate .ol-progress__fill {
+    background: repeating-linear-gradient(
+      90deg,
+      Highlight 0 var(--space-2),
+      transparent var(--space-2) var(--space-4)
+    );
+  }
+
+  .ol-progress__seg--edge {
+    background: Highlight;
+    border-color: CanvasText;
+  }
+}
