@@ -1,0 +1,111 @@
+.ol-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: var(--scrim);
+  animation: ol-scrim-in var(--motion-base);
+}
+
+.ol-modal {
+  --ol-modal-width: var(--modal-width-m);
+
+  display: flex;
+  flex-direction: column;
+  width: min(var(--ol-modal-width), 100%);
+  max-height: calc(100dvh - var(--space-12));
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-3);
+  color: var(--ink);
+  box-shadow: var(--shadow-block);
+  animation: ol-modal-in var(--motion-slow);
+}
+
+.ol-modal:focus-visible {
+  outline-offset: calc(-1 * var(--stroke-bold));
+}
+
+.ol-modal--s {
+  --ol-modal-width: var(--modal-width-s);
+}
+
+.ol-modal--l {
+  --ol-modal-width: var(--modal-width-l);
+}
+
+.ol-modal--full {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.ol-modal__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-modal__index {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--ink-2);
+}
+
+.ol-modal__title {
+  margin: 0;
+  font-family: var(--text-brand-family);
+  font-size: var(--text-brand-size);
+  line-height: 1.1;
+  font-weight: var(--text-brand-weight);
+  letter-spacing: var(--text-h2-tracking);
+}
+
+.ol-modal__body {
+  padding: var(--space-6);
+  overflow: auto;
+  color: var(--ink-2);
+}
+
+.ol-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+@keyframes ol-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ol-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-scrim,
+  .ol-modal {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-modal {
+    border-color: CanvasText;
+  }
+
+  .ol-modal__head,
+  .ol-modal__foot {
+    border-color: CanvasText;
+  }
+}
