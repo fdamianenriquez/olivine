@@ -44,6 +44,7 @@ export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
 export { Pagination, type PaginationProps } from "./components/Pagination";
 export { Placeholder, type PlaceholderProps } from "./components/Placeholder";
+export { Progress, type ProgressProps } from "./components/Progress";
 export { Radio, type RadioProps } from "./components/Radio";
 export { Range, type RangeProps } from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
