@@ -36,6 +36,10 @@ export const Siblings2: Story = { args: { total: 20, defaultPage: 10, siblings: 
 
 export const Small: Story = { args: { total: 4, defaultPage: 1, size: "s" } };
 
+export const WithLinks: Story = {
+  args: { total: 12, defaultPage: 5, getHref: (page: number) => `?page=${String(page)}` },
+};
+
 export const Themes: Story = {
   render: () => (
     <div style={{ display: "flex", gap: "var(--space-6)", flexWrap: "wrap" }}>
