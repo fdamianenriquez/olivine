@@ -40,6 +40,7 @@ export {
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
 export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";
+export { Modal, type ModalProps, type ModalSize } from "./components/Modal";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
 export { Pagination, type PaginationProps } from "./components/Pagination";
