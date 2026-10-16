@@ -1,0 +1,114 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Theming" />
+
+# Theming
+
+Olivine has two themes. `washi` is cream paper with dark ink and is the default. `sumi` is
+ebony with light ink. A third value, `auto`, follows the system setting.
+
+## Choose a theme
+
+Set `data-theme` on `<html>` (or any element), or pass `theme` to `Root`:
+
+```html
+<html data-theme="sumi"></html>
+```
+
+```tsx
+<Root theme="auto">
+  <App />
+</Root>
+```
+
+| Value   | Result                                                                   |
+| ------- | ------------------------------------------------------------------------ |
+| `washi` | Cream theme. Also what you get when no `data-theme` is set.              |
+| `sumi`  | Ebony theme.                                                             |
+| `auto`  | `washi`, switching to `sumi` while `prefers-color-scheme: dark` matches. |
+
+`Root` only writes `data-theme` when you pass `theme`. Without it, `Root` inherits the theme of
+its ancestors, so `<html data-theme>` and a bare `Root` work together.
+
+## Scope a theme to a subtree
+
+Themes are custom properties, so any element can switch them. Nest a `Root` with its own
+`theme` for an inverted island:
+
+```tsx
+<Root theme="washi">
+  <Page />
+  <Root theme="sumi">
+    <Footer />
+  </Root>
+</Root>
+```
+
+Without `locale` or `labels`, the inner `Root` keeps the outer dictionary.
+
+## Overlays keep the theme
+
+Modal, Offcanvas, Tooltip, Popover, Dropdown and the toast stack render in a portal at the end
+of `document.body`, outside your `Root`. Each portal is a `div.ol.ol-portal`. When it mounts it
+looks up the nearest `[data-theme]`, `[lang]` and `[dir]` above the element that opened it and
+copies them. A menu opened inside a `sumi` island is therefore `sumi` as well.
+
+The values are read once, on mount. If the theme of the island changes while the overlay is
+open, the overlay keeps the old one until it is reopened.
+
+## Custom properties and tokens
+
+Every colour, size, space, stroke, motion and z-index value is a custom property on `:root`
+(see `olivine/tokens.css`). Component CSS uses `var(--token)` and no literals. Colours and
+shadows are redefined per theme; the rest are shared.
+
+```css
+.hero {
+  padding: var(--space-16) var(--space-6);
+  border-block-end: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+```
+
+Use tokens in your own CSS so your screens follow the theme. Colour tokens (`paper`, `ink`,
+`rule`, `olivo`, `maple`, status colours) are on the
+[Colour](?path=/docs/foundations-colour--docs) page.
+
+## What you may override
+
+The system is meant to be consistent, so overrides are narrow.
+
+- Do override a token's value for your whole brand, in a stylesheet loaded after Olivine. Shared
+  tokens (space, type, motion) go on `:root`. Colours are defined per theme, so redefine them
+  under the same selectors (`[data-theme="sumi"]`, and `[data-theme="auto"]` inside
+  `prefers-color-scheme: dark`). Keep text pairs at 4.5:1 or better in both themes.
+- Do add your own tokens for your own screens.
+- Do not set literal colours, sizes or radii on Olivine's `ol-` classes. Fix the token instead.
+- Do not use `maple` for text, a border or a status. It is a fill, always with `ink` text.
+- Do not add radii, blurs or soft shadows. Only `shadow-block` (4px) and `shadow-press` (2px)
+  exist.
+- Do not depend on the internal BEM elements (such as `ol-btn__label`). Use props, and
+  `className` on the component root.
+
+## Hairlines
+
+`--stroke-hair` is 1px by default. On screens with a resolution of 2dppx or more the base
+stylesheet sets it to 0.5px, so boundaries stay true hairlines.
+
+## Motion
+
+Transitions use stepped timing (`--motion-fast`, `--motion-base`, `--motion-slow`, between 80
+and 160 ms). Under `prefers-reduced-motion: reduce`, `.ol` and everything inside it get
+`animation-duration` and `transition-duration` of 1ms and a single iteration. The indeterminate
+Progress becomes a static hatched bar. A Carousel with `interval` starts paused when the user
+prefers reduced motion; the play button is always there.
+
+## Forced colours
+
+With `forced-colors: active` (Windows High Contrast), the focus ring uses `Highlight` and text
+selection uses `Highlight` and `HighlightText`. Buttons, inputs, tabs, cards, dividers and the
+other bordered components switch their borders and text to system colours (`ButtonText`,
+`CanvasText`, `GrayText` for disabled). Progress fills use `Highlight` and the Switch uses
+`ButtonText`, so state stays visible. Meaning
+never relies on colour alone, so the interface stays usable.

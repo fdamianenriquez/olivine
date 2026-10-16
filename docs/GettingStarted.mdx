@@ -1,0 +1,123 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Getting started" />
+
+# Getting started
+
+Olivine is a React component library with one stylesheet, typed design tokens and self-hosted
+fonts. It ships two themes (`washi`, `sumi`) and three locales (`en`, `es`, `ja`).
+
+## Install
+
+```sh
+pnpm add olivine
+# or
+npm install olivine
+yarn add olivine
+```
+
+React and React DOM 18 or later are peer dependencies. The package is ESM with a CommonJS
+build, and includes its own types.
+
+## Set up
+
+Import the stylesheet once, at the entry point of your app. Then wrap the app in `Root`.
+
+```tsx
+import "olivine/styles.css";
+
+import { Root } from "olivine";
+import { createRoot } from "react-dom/client";
+
+import { App } from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <Root locale="en">
+    <App />
+  </Root>,
+);
+```
+
+`Root` renders a `div` with the class `ol`. That class sets the paper ground, the ink text, the
+body font and the focus ring. It also provides the language of the built-in labels. Use one
+`Root` for the whole app. See [Theming](?path=/docs/guides-theming--docs) and
+[Locales](?path=/docs/guides-locales--docs).
+
+To theme the whole page, set `data-theme` on `<html>`:
+
+```html
+<html lang="en" data-theme="auto"></html>
+```
+
+## A first screen
+
+```tsx
+import { Button, Field, Input, Stack } from "olivine";
+
+export function Contact() {
+  return (
+    <form>
+      <Stack>
+        <Field label="Email" hint="We reply within two days.">
+          <Input type="email" name="email" autoComplete="email" />
+        </Field>
+        <Button type="submit" variant="accent" brackets arrow>
+          Send inquiry
+        </Button>
+      </Stack>
+    </form>
+  );
+}
+```
+
+`Field` binds the label, hint and error message to the control with `for`, `id` and
+`aria-describedby`. Props you pass to a component always win over the defaults it sets.
+
+## Stylesheets
+
+| Import                   | Contains                                                  |
+| ------------------------ | --------------------------------------------------------- |
+| `olivine/styles.css`     | Tokens, fonts, base styles, components and utilities      |
+| `olivine/tokens.css`     | Design tokens as CSS custom properties, both themes       |
+| `olivine/fonts.css`      | `@font-face` rules for the self-hosted fonts              |
+| `olivine/fonts-jp.css`   | Opt-in Zen Old Mincho for kanji (loaded by unicode slice) |
+| `olivine/components.css` | Base styles, components and utilities only                |
+
+`olivine/styles.css` is `tokens.css`, `fonts.css` and `components.css` in one file. Import the
+parts separately only if you serve your own tokens or fonts. Font URLs are relative to the
+package, so your bundler must resolve files from `node_modules`.
+
+## Japanese fonts
+
+Zen Old Mincho is not part of `olivine/styles.css`. Import it on pages that show kanji:
+
+```ts
+import "olivine/styles.css";
+import "olivine/fonts-jp.css";
+```
+
+The face is split by `unicode-range`, so a page only downloads the slices it uses. Without it,
+kanji fall back to the system mincho. Kanji is decoration: the Latin text must stand on its own.
+
+## Typed tokens
+
+```ts
+import { tokens, type ColorToken } from "olivine/tokens";
+
+tokens.color.olivo.washi; // "#6a6a45"
+tokens.space["space-6"]; // "24px"
+```
+
+The values are the same ones the stylesheet defines. See
+[Tokens](?path=/docs/foundations-tokens--docs).
+
+## Server rendering
+
+Components render on the server. Layers that need the DOM (Modal, Offcanvas, Tooltip, Popover,
+Dropdown menus and the toast stack) render nothing until the client has mounted, so they appear
+after hydration and cannot cause a hydration mismatch. Theme and language of those layers are
+read from the page on mount.
+
+## Browser support
+
+The last two versions of evergreen browsers: Chrome, Edge, Firefox and Safari.
