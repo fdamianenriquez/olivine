@@ -51,19 +51,34 @@ function lockScroll(): () => void {
   };
 }
 
+/** How many open overlays made each body child inert; it is released when the count hits zero. */
+const inertCounts = new Map<Element, number>();
+
 /** Makes every body child except the one holding `node` inert, and returns the undo. */
 function inertSiblings(node: HTMLElement): () => void {
   let top: HTMLElement = node;
   while (top.parentElement && top.parentElement !== document.body) top = top.parentElement;
-  const changed: Element[] = [];
+  const applied: Element[] = [];
   for (const el of Array.from(document.body.children)) {
-    if (el === top || el.hasAttribute("inert") || el.hasAttribute(KEEP_ACTIVE_ATTR)) continue;
+    if (el === top || el.hasAttribute(KEEP_ACTIVE_ATTR)) continue;
     if (["SCRIPT", "STYLE", "TEMPLATE"].includes(el.tagName)) continue;
+    const count = inertCounts.get(el) ?? 0;
+    // Already inert for a reason of the app's own: leave it alone.
+    if (count === 0 && el.hasAttribute("inert")) continue;
+    inertCounts.set(el, count + 1);
     el.setAttribute("inert", "");
-    changed.push(el);
+    applied.push(el);
   }
   return () => {
-    for (const el of changed) el.removeAttribute("inert");
+    for (const el of applied) {
+      const left = (inertCounts.get(el) ?? 1) - 1;
+      if (left > 0) {
+        inertCounts.set(el, left);
+      } else {
+        inertCounts.delete(el);
+        el.removeAttribute("inert");
+      }
+    }
   };
 }
 
@@ -82,6 +97,8 @@ export interface OverlayOptions {
 /**
  * Behaviour shared by modal dialogs: moves focus in and traps Tab, restores focus on close,
  * closes on Escape, makes the rest of the page inert and locks its scroll without layout shift.
+ * Layers that mount in `document.body` after it opened (menus, popovers, tooltips, toasts) are
+ * not made inert, and focus may move into any `Portal` layer.
  * Returns a callback ref for the dialog element; it also works for nodes that mount later, as
  * they do inside a `Portal`. Focus goes to the element marked `data-autofocus`, else the first
  * tabbable one, else the dialog itself.
@@ -114,9 +131,10 @@ export function useOverlay({
     const onKey = (event: KeyboardEvent) => {
       if (!isTop()) return;
       if (event.key === "Escape") {
-        if (event.defaultPrevented) return;
+        if (event.defaultPrevented || event.isComposing) return;
+        if (!close.current) return;
         event.preventDefault();
-        close.current?.();
+        close.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -140,8 +158,12 @@ export function useOverlay({
     };
     const onFocusIn = (event: FocusEvent) => {
       if (!isTop()) return;
-      const next = event.target as Node | null;
-      if (next && !dialog.contains(next)) (tabbables(dialog)[0] ?? dialog).focus();
+      const next = event.target as Element | null;
+      if (!next || dialog.contains(next)) return;
+      // Menus, popovers and toasts opened from inside the dialog live in their own portal
+      // layer; they register as layers only after they take focus, so let them have it.
+      if (next.closest(".ol-portal")) return;
+      (tabbables(dialog)[0] ?? dialog).focus();
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("focusin", onFocusIn);
