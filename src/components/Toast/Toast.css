@@ -1,6 +1,8 @@
 .ol-toast {
   --ol-tone: var(--olivo);
 
+  display: flex;
+  flex-direction: column;
   pointer-events: auto;
   width: var(--toast-width);
   max-width: 100%;
@@ -36,6 +38,7 @@
 }
 
 .ol-toast__head {
+  order: -1;
   display: flex;
   align-items: center;
   justify-content: space-between;

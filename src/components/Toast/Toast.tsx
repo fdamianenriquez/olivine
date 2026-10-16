@@ -4,6 +4,7 @@ import {
   type HTMLAttributes,
   type MouseEvent,
   type ReactNode,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -12,6 +13,7 @@ import {
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { CloseButton } from "../CloseButton";
+import { ToastPauseContext } from "./ToastPauseContext";
 
 export type ToastTone = "accent" | "info" | "success" | "warning" | "danger" | "neutral";
 
@@ -58,7 +60,8 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
   const t = useLabels();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const paused = hovered || focused;
+  const stackPaused = useContext(ToastPauseContext);
+  const paused = stackPaused || hovered || focused;
 
   // Always call the latest onClose without restarting the countdown.
   const onCloseRef = useRef(onClose);
@@ -117,18 +120,19 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
       onBlur={handleBlur}
       {...rest}
     >
-      <div className="ol-toast__head">
-        <span className="ol-toast__meta">
-          {meta === undefined || meta === null || meta === "" || meta === false ? t.now : meta}
-        </span>
-        {onClose && <CloseButton onClick={onClose} label={t.dismiss} />}
-      </div>
+      {/* Body first in the DOM so a live region reads the message before the chrome. */}
       {(Boolean(title) || Boolean(children)) && (
         <div className="ol-toast__body">
           {Boolean(title) && <p className="ol-toast__title">{title}</p>}
           {Boolean(children) && <p className="ol-toast__text">{children}</p>}
         </div>
       )}
+      <div className="ol-toast__head">
+        <span className="ol-toast__meta">
+          {meta === undefined || meta === null || meta === "" || meta === false ? t.now : meta}
+        </span>
+        {onClose && <CloseButton onClick={onClose} label={t.dismiss} />}
+      </div>
       {timed && <div className="ol-toast__timer" aria-hidden="true" />}
     </div>
   );

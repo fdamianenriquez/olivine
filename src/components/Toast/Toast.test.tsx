@@ -1,10 +1,12 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createRef, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runAxe } from "../../test/axe";
 import { Root } from "../Root";
 import { Toast } from "./Toast";
+import { ToastPauseContext } from "./ToastPauseContext";
 
 const noop = vi.fn();
 
@@ -158,6 +160,53 @@ describe("Toast", () => {
       expect(onClose).toHaveBeenCalledTimes(1);
       vi.unstubAllGlobals();
     });
+  });
+
+  it("pauses from the stack context and resumes with the remaining time", async () => {
+    const onClose = vi.fn();
+    const ui = (paused: boolean) => (
+      <ToastPauseContext.Provider value={paused}>
+        <Toast duration={1000} onClose={onClose} data-testid="t" />
+      </ToastPauseContext.Provider>
+    );
+    const { rerender } = render(ui(false));
+    advance(400);
+    rerender(ui(true));
+    expect(screen.getByTestId("t")).toHaveAttribute("data-state", "paused");
+    advance(5000);
+    expect(onClose).not.toHaveBeenCalled();
+    vi.useRealTimers();
+    expect(await runAxe(screen.getByTestId("t"))).toHaveNoViolations();
+    vi.useFakeTimers();
+    rerender(ui(false));
+    expect(screen.getByTestId("t")).toHaveAttribute("data-state", "active");
+    advance(599);
+    expect(onClose).not.toHaveBeenCalled();
+    advance(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the message before the head in the DOM", () => {
+    render(
+      <Toast data-testid="t" title="Saved" onClose={noop}>
+        Body
+      </Toast>,
+    );
+    const root = screen.getByTestId("t");
+    const body = root.querySelector(".ol-toast__body");
+    const head = root.querySelector(".ol-toast__head");
+    expect(body?.compareDocumentPosition(head as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it("dismisses with Enter and Space on the button", async () => {
+    vi.useRealTimers();
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<Toast onClose={onClose} />);
+    screen.getByRole("button", { name: "Dismiss" }).focus();
+    await user.keyboard("{Enter}");
+    await user.keyboard(" ");
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it.each([
