@@ -272,6 +272,12 @@ export const tokens = {
     "target-min": "24px",
     "menu-min-width": "220px",
     "toast-width": "340px",
+    "tooltip-max-width": "220px",
+    "modal-width-s": "400px",
+    "modal-width-m": "560px",
+    "modal-width-l": "840px",
+    "offcanvas-width": "400px",
+    "popover-width": "280px",
     "skeleton-min-height": "80px",
   },
   layout: {
