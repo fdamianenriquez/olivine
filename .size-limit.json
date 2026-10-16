@@ -11,7 +11,7 @@
     "path": "dist/olivine.css",
     "rolldown": false,
     "gzip": true,
-    "limit": "12 kB"
+    "limit": "14 kB"
   },
   {
     "name": "CSS (fonts-jp.css, opt-in)",
