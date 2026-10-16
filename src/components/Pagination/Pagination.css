@@ -37,7 +37,9 @@
 
 /* Raise the hovered or focused cell so its whole border and focus ring stay visible. */
 button.ol-page__item:focus-visible,
-button.ol-page__item:not([aria-disabled="true"]):hover {
+a.ol-page__item:focus-visible,
+button.ol-page__item:not([aria-disabled="true"]):hover,
+a.ol-page__item:not([aria-disabled="true"]):hover {
   position: relative;
   z-index: var(--z-raised);
 }

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -161,5 +161,82 @@ describe("Pagination", () => {
       </Root>,
     );
     expect(await runAxe(container)).toHaveNoViolations();
+  });
+
+  describe("with getHref", () => {
+    const getHref = (p: number) => `/items?page=${String(p)}`;
+
+    it("renders links with hrefs, names and padded figures", () => {
+      render(<Pagination total={5} page={3} getHref={getHref} />);
+      expect(screen.queryByRole("button")).not.toBeInTheDocument();
+      const link = screen.getByRole("link", { name: "Page 4" });
+      expect(link).toHaveAttribute("href", "/items?page=4");
+      expect(link).toHaveClass("ol-page__item");
+      expect(link).toHaveTextContent("04");
+      expect(screen.getByRole("link", { name: "Next page" })).toHaveAttribute(
+        "href",
+        "/items?page=4",
+      );
+      expect(screen.getByRole("link", { name: "Previous page" })).toHaveAttribute(
+        "href",
+        "/items?page=2",
+      );
+    });
+
+    it("marks the current page", () => {
+      render(<Pagination total={5} page={3} getHref={getHref} />);
+      expect(screen.getByRole("link", { name: "Page 3" })).toHaveAttribute("aria-current", "page");
+      expect(screen.getByRole("link", { name: "Page 2" })).not.toHaveAttribute("aria-current");
+    });
+
+    it("makes prev and next non-navigable at the ends", async () => {
+      const onChange = vi.fn();
+      const { rerender } = render(
+        <Pagination total={5} page={1} getHref={getHref} onChange={onChange} />,
+      );
+      const prev = screen.getByRole("link", { name: "Previous page" });
+      expect(prev).not.toHaveAttribute("href");
+      expect(prev).toHaveAttribute("aria-disabled", "true");
+      expect(prev).not.toHaveAttribute("tabindex");
+      await userEvent.click(prev);
+      expect(onChange).not.toHaveBeenCalled();
+      rerender(<Pagination total={5} page={5} getHref={getHref} onChange={onChange} />);
+      const next = screen.getByRole("link", { name: "Next page" });
+      expect(next).not.toHaveAttribute("href");
+      expect(next).toHaveAttribute("aria-disabled", "true");
+      expect(screen.getByRole("link", { name: "Previous page" })).toHaveAttribute("href");
+    });
+
+    it("still calls onChange and does not prevent navigation by itself", () => {
+      const onChange = vi.fn();
+      render(<Pagination total={5} page={3} getHref={getHref} onChange={onChange} />);
+      const link = screen.getByRole("link", { name: "Page 4" });
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      link.addEventListener("click", (e) => {
+        e.preventDefault(); // keep jsdom from navigating
+      });
+      link.dispatchEvent(event);
+      expect(onChange).toHaveBeenCalledWith(4);
+    });
+
+    it("has no axe violations", async () => {
+      const { container } = render(<Pagination total={12} page={1} getHref={getHref} />);
+      expect(await runAxe(container)).toHaveNoViolations();
+      const { container: c2 } = render(<Pagination total={12} page={6} getHref={getHref} />);
+      expect(await runAxe(c2)).toHaveNoViolations();
+    });
+  });
+});
+
+describe("Pagination with getHref and modified clicks", () => {
+  it("does not change the page when a link is opened in a new tab", async () => {
+    const onChange = vi.fn();
+    render(<Pagination total={5} getHref={(p) => `/page/${String(p)}`} onChange={onChange} />);
+    const link = screen.getByRole("link", { name: "Page 2" });
+    fireEvent.click(link, { ctrlKey: true });
+    fireEvent.click(link, { metaKey: true });
+    expect(onChange).not.toHaveBeenCalled();
+    await userEvent.setup().click(link);
+    expect(onChange).toHaveBeenCalledWith(2);
   });
 });
