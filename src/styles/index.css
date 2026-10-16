@@ -51,6 +51,7 @@
 /* Feedback and overlays */
 @import "../components/Alert/Alert.css";
 @import "../components/Progress/Progress.css";
+@import "../components/Spinner/Spinner.css";
 
 /* Utilities */
 @import "./utilities.css";

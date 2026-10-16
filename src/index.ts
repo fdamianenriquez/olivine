@@ -51,6 +51,7 @@ export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
+export { Spinner, type SpinnerProps } from "./components/Spinner";
 export { Stack, type StackProps } from "./components/Stack";
 export {
   Stat,

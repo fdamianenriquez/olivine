@@ -1,0 +1,103 @@
+.ol-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ol-spinner__mark {
+  position: relative;
+  width: var(--glyph-l);
+  height: var(--glyph-l);
+  border: var(--stroke-hair) solid var(--rule);
+  animation: ol-spinner-turn var(--motion-turn) infinite;
+}
+
+.ol-spinner__mark::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--stroke-hair) * -1);
+  left: calc(var(--stroke-hair) * -1);
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
+  background: var(--olivo);
+}
+
+.ol-spinner--l .ol-spinner__mark {
+  width: calc(var(--glyph-l) * 2);
+  height: calc(var(--glyph-l) * 2);
+}
+
+.ol-spinner--l .ol-spinner__mark::after {
+  width: var(--mark-size);
+  height: var(--mark-size);
+}
+
+.ol-spinner__dots {
+  font-family: var(--font-mono);
+  font-size: var(--glyph-s);
+  line-height: 1;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+}
+
+.ol-spinner--l .ol-spinner__dots {
+  font-size: var(--glyph-xl);
+}
+
+.ol-spinner__dots i {
+  font-style: normal;
+  animation: ol-spinner-blink var(--motion-blink) infinite;
+}
+
+.ol-spinner__dots i:nth-child(2) {
+  animation-delay: var(--motion-blink-step);
+}
+
+.ol-spinner__dots i:nth-child(3) {
+  animation-delay: calc(var(--motion-blink-step) * 2);
+}
+
+@keyframes ol-spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ol-spinner-blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Reduced motion: no movement, but the mark stays recognisable. The square keeps its
+   olive corner; the blocks show the middle one emphasised. */
+@media (prefers-reduced-motion: reduce) {
+  .ol-spinner__mark,
+  .ol-spinner__dots i {
+    animation: none !important;
+  }
+
+  .ol-spinner__dots i:not(:nth-child(2)) {
+    opacity: 0.4;
+  }
+}
+
+/* Colour-only parts need system colours when forced colours removes backgrounds. */
+@media (forced-colors: active) {
+  .ol-spinner__mark {
+    border-color: CanvasText;
+  }
+
+  .ol-spinner__mark::after {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .ol-spinner__dots {
+    color: CanvasText;
+  }
+}
