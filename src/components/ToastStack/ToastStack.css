@@ -1,0 +1,39 @@
+.ol-toaststack {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  pointer-events: none;
+}
+
+.ol-toaststack--br {
+  right: 0;
+  bottom: 0;
+}
+
+.ol-toaststack--tr {
+  right: 0;
+  top: 0;
+}
+
+.ol-toaststack--bl {
+  left: 0;
+  bottom: 0;
+}
+
+.ol-toaststack--tc {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.ol-toaststack--static {
+  position: static;
+  padding: 0;
+}
+
+.ol-toaststack > .ol-toast {
+  pointer-events: auto;
+}
