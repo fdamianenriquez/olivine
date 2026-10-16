@@ -1,0 +1,139 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Accessibility" />
+
+# Accessibility
+
+Olivine targets WCAG 2.2 level AA. Text holds at least 4.5:1 against its ground in both
+themes (checked in CI by `pnpm contrast`), every component is tested with axe, and every
+interactive component works from the keyboard.
+
+This page lists what the library does for you and what stays with you.
+
+## What the library guarantees
+
+- **Focus ring.** Every focusable element inside `.ol` gets a 2px `olivo` outline with a 2px
+  offset on `:focus-visible`. In forced-colours mode it becomes `Highlight`. Portal layers carry
+  the `ol` class too, so overlays keep the ring.
+- **Target size.** Controls are at least 32px tall; the minimum target token is 24px.
+- **Colour is never alone.** Statuses carry a word or a glyph: Alert tags, Toast meta lines,
+  Badge text, `✓` for valid fields.
+- **Motion.** Transitions are stepped and short. Under `prefers-reduced-motion` they drop to
+  1ms, and a Carousel does not auto-rotate until the user presses play.
+- **Built-in text is localised.** Accessible names such as "Close" or "Next slide" follow the
+  `Root` locale. See [Locales](?path=/docs/guides-locales--docs).
+
+## Keyboard and roles
+
+| Component | Behaviour                                                                                                                                                                                                      |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tabs      | `tablist`, `tab`, `tabpanel`. Left and Right move and select, wrapping; they are reversed in right-to-left. Home and End jump to the ends. Disabled tabs are skipped. One tab stop in the list.                |
+| Accordion | Header buttons with `aria-expanded` and `aria-controls`; panels are `region`s. Up and Down move between headers, wrapping. Home and End jump to the ends. Enter and Space toggle.                              |
+| Dropdown  | Trigger has `aria-haspopup="menu"` and `aria-expanded`. Enter, Space and the arrows open it. Arrows move, Home and End jump, letters type-ahead. Escape closes. Tab closes and returns focus to the trigger.   |
+| Carousel  | Region named by `label`, with slides as groups. Left and Right change slide. A play and pause button controls auto-rotation. Rotation stops while the pointer or focus is inside. Inactive slides are `inert`. |
+| Popover   | Non-modal `dialog`. Focus moves into the panel on open. Escape closes and returns focus to the trigger. Tabbing past either end returns to the trigger. A press outside closes it.                             |
+| Tooltip   | `role="tooltip"` linked with `aria-describedby`. See below.                                                                                                                                                    |
+| Modal     | `dialog` with `aria-modal`. See below.                                                                                                                                                                         |
+| Offcanvas | Same behaviour as Modal.                                                                                                                                                                                       |
+| Progress  | `progressbar` with `aria-valuemin`, `aria-valuemax` and `aria-valuenow`. Without `value` it is indeterminate and `aria-valuenow` is omitted.                                                                   |
+| Spinner   | `role="status"` with a text alternative ("Loading" by default).                                                                                                                                                |
+
+### Modal and Offcanvas
+
+While open, a dialog:
+
+- moves focus to the element marked `data-autofocus`, else the first tabbable element, else the
+  dialog itself;
+- traps Tab and Shift+Tab inside the dialog;
+- closes on Escape when `onClose` is set, only for the topmost layer;
+- sets `inert` on the other children of `document.body`, and removes it on close;
+- locks page scroll without a layout shift from the scrollbar;
+- restores focus to the element that had it before opening.
+
+Menus, popovers and tooltips opened from inside a dialog render in their own portal and can
+take focus. The scrim click is a pointer convenience; Escape and the close button are the
+keyboard paths.
+
+### Tooltip
+
+Tooltip follows WCAG 1.4.13. It is dismissible (Escape closes it without moving focus),
+hoverable (the pointer can move onto it without closing it) and persistent (it stays until the
+pointer or focus leaves, or you dismiss it). Keyboard focus opens it at once; hover waits
+`openDelay` (300ms). On touch, a long press opens it. Keep tooltips to a few words: never put
+essential information or links in one.
+
+### Toasts
+
+`ToastStack` renders one polite live region (`aria-live="polite"`, `aria-atomic="false"`), even
+when empty, so later additions are announced. `ToastProvider` places it in a portal that
+stays active under a Modal. Auto-dismiss timers pause while the pointer is over the stack,
+focus is inside it, or the page is hidden, and resume with the time that was left.
+
+## What stays with you
+
+- **Name every landmark and dialog.** Give Modal and Offcanvas a `title`, `aria-label` or
+  `aria-labelledby`. Give Popover a `title` or `aria-label`. Give Tabs a `label`. Give
+  Progress a `label` or `aria-label`. Modal, Popover and Tabs warn in development when a name is missing; Offcanvas and Progress do not, so check them yourself.
+- **Label every control.** Wrap inputs in `Field` with a `label`, or give them `aria-label`.
+  Write errors as instructions ("Enter a valid address."), not "Invalid input".
+- **Toasts that need action must stay.** A toast with a link or a button should not vanish.
+  Pass `duration: null` (or `0`) so it remains until dismissed. Only auto-dismiss messages that
+  need no response. The default is 5000 ms.
+- **Do not rely on colour alone.** If you add your own status, pair the colour with a word or
+  glyph. `maple` is a fill, never text and never a status.
+- **Kanji is never the only label.** Pair kanji with Latin text that stands alone. Set `lang` on
+  mixed-language content.
+- **Heading order and page structure.** Components do not choose your heading levels. Keep one
+  `h1` and a logical outline.
+- **Content you pass in.** Alt text on images, link text that makes sense out of context, and
+  captions are yours to write.
+
+```tsx
+const toast = useToast();
+
+toast.show({
+  title: "Upload failed",
+  description: "Check your connection, then try again.",
+  tone: "danger",
+  duration: null,
+});
+```
+
+## Test with axe
+
+Run axe against rendered output in your own tests. In jsdom, styles are not computed, so turn
+the `color-contrast` rule off there and check contrast in a real browser (the Storybook a11y
+panel, or your end-to-end suite).
+
+```ts
+import { render } from "@testing-library/react";
+import axe from "axe-core";
+import { Button, Root } from "olivine";
+import { expect, test } from "vitest";
+
+test("button has no axe violations", async () => {
+  const { container } = render(
+    <Root>
+      <Button>Save</Button>
+    </Root>,
+  );
+  const { violations } = await axe.run(container, {
+    rules: { "color-contrast": { enabled: false } },
+  });
+  expect(violations).toEqual([]);
+});
+```
+
+For overlays, run axe on `document.body`: they render in a portal, outside `container`. Axe does
+not check keyboard flow or focus order; test those with `@testing-library/user-event`.
+
+## Known limits
+
+- While a Modal or Offcanvas is open, the toast layer stays visible and clickable, but Tab is
+  trapped in the dialog, so toasts are reachable by pointer only. Close buttons on toasts
+  cannot be reached from the keyboard until the dialog closes. Announcements still happen.
+- A portal reads the theme, language and direction of its trigger once, on mount. If they
+  change while the layer is open, it keeps the old values until reopened.
+- A Tabs panel is a tab stop only if it holds no focusable content. That check runs when
+  `Tabs` renders, so content that becomes focusable later without a re-render is not noticed.
+- Portal layers render after hydration, so they are absent from server-rendered HTML.

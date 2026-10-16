@@ -1,0 +1,149 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Locales" />
+
+# Locales
+
+Every word a component writes or announces on its own comes from a dictionary. Olivine ships
+three: `en`, `es` and `ja`. Components render no other text. Your headings, labels and
+messages are yours.
+
+## Choose a locale
+
+```tsx
+import { Root } from "olivine";
+
+<Root locale="es">
+  <App />
+</Root>;
+```
+
+`locale` accepts a built-in name (`"en"`, `"es"`, `"ja"`), a regional tag such as `"es-MX"`
+(resolved to `es`), or a full dictionary object. An unknown name falls back to English. Outside
+any `Root`, components use English.
+
+`Root` sets the `lang` attribute when the locale is a built-in name or a regional tag of one
+(`lang="es-MX"` stays as written). A custom dictionary sets no `lang`; add it yourself on
+`Root` or `<html>`. Portal layers copy the nearest `lang` from the element that opened them.
+
+A nested `Root` without `locale` and `labels` inherits the dictionary of its parent.
+
+## Override strings
+
+`labels` takes a partial dictionary and is applied on top of the chosen locale. `tags` merges
+one level deep, so you can change a single tag.
+
+```tsx
+import { type LabelOverrides, Root } from "olivine";
+
+const labels: LabelOverrides = {
+  loading: "Please wait",
+  tags: { danger: "Problem" },
+};
+
+<Root locale="en" labels={labels}>
+  <App />
+</Root>;
+```
+
+Keep `labels` stable (module-level or memoised). A new object on every render re-creates the
+context value.
+
+Strings you pass as props always win over the dictionary. For example `Spinner label`,
+`Toast meta`, `Alert tag` and `Carousel label` replace the built-in text.
+
+## Build a dictionary
+
+`locales` holds the built-in dictionaries. `makeLabels` resolves a locale, applies overrides and
+returns a full `OlivineLabels` object. Use it to make a language Olivine does not ship:
+
+```tsx
+import { makeLabels, Root } from "olivine";
+
+const fr = makeLabels("en", {
+  close: "Fermer",
+  dismiss: "Ignorer",
+  loading: "Chargement",
+  // ...override every key you can
+  tags: { info: "Info", success: "Fait", warning: "Note", danger: "Erreur", neutral: "Mémo" },
+});
+
+<Root locale={fr} lang="fr">
+  <App />
+</Root>;
+```
+
+Keys you leave out stay in English. A custom dictionary sets no `lang`, so pass `lang` to `Root`
+yourself, as above. `OlivineLabels` requires every key when you write the object by hand;
+`makeLabels` or a spread of `locales.en` avoids that. `Root.locales` is the same object as
+`locales`.
+
+## Read labels in your own components
+
+`useLabels()` returns the dictionary of the nearest `Root`, or English outside one. Use it when
+your own component needs a string the library already has:
+
+```tsx
+import { useLabels } from "olivine";
+
+export function SavingNote() {
+  const labels = useLabels();
+  return <p>{labels.loading}</p>;
+}
+```
+
+The dictionary has no place for extra keys. Strings that belong to your app (a "Try again"
+button, a page title) go in your own table, keyed by the locale you give to `Root`.
+
+## Keys
+
+| Key                | English              | Used by                                 |
+| ------------------ | -------------------- | --------------------------------------- |
+| `close`            | Close                | CloseButton (Modal, Popover, Offcanvas) |
+| `dismiss`          | Dismiss              | Alert, Toast close button               |
+| `loading`          | Loading              | Button `loading`, Spinner, Placeholder  |
+| `menu`             | Menu                 | Navbar toggle (closed)                  |
+| `menuClose`        | Close                | Navbar toggle (open)                    |
+| `breadcrumb`       | Breadcrumb           | Breadcrumb landmark                     |
+| `pagination`       | Pagination           | Pagination landmark                     |
+| `prevPage`         | Previous page        | Pagination                              |
+| `nextPage`         | Next page            | Pagination                              |
+| `page(n)`          | Page 3               | Pagination page buttons                 |
+| `carousel`         | Carousel             | Carousel name when `label` is not given |
+| `slide`            | slide                | Carousel role description               |
+| `prevSlide`        | Previous slide       | Carousel                                |
+| `nextSlide`        | Next slide           | Carousel                                |
+| `goToSlide(n)`     | Go to slide 2        | Carousel indicators                     |
+| `slideOf(c, t)`    | 2 of 5               | Carousel slide names                    |
+| `play`             | Play                 | Carousel auto-rotation toggle           |
+| `pause`            | Pause                | Carousel auto-rotation toggle           |
+| `switchOn`         | On                   | Switch                                  |
+| `switchOff`        | Off                  | Switch                                  |
+| `fileLabel`        | Drop files or browse | FileInput                               |
+| `fileBrowse`       | Browse               | FileInput                               |
+| `fileEmpty`        | No file selected     | FileInput                               |
+| `now`              | Now                  | Toast meta line when `meta` is empty    |
+| `newTab`           | opens in a new tab   | Link with an external target            |
+| `sortedAscending`  | sorted ascending     | Table sortable headers                  |
+| `sortedDescending` | sorted descending    | Table sortable headers                  |
+| `trendUp`          | up                   | Stat trend                              |
+| `trendDown`        | down                 | Stat trend                              |
+| `figure`           | Fig.                 | Figure caption prefix                   |
+| `tags.info`        | Info                 | Alert tag                               |
+| `tags.success`     | Done                 | Alert tag                               |
+| `tags.warning`     | Note                 | Alert tag                               |
+| `tags.danger`      | Error                | Alert tag                               |
+| `tags.neutral`     | Memo                 | Alert tag                               |
+| `sort`             | Sort                 | Not read by any component yet           |
+| `currentPage`      | current page         | Not read by any component yet           |
+
+Keys marked `(n)` or `(c, t)` are functions that return a string. Spanish and Japanese
+dictionaries have the same keys. For example `ja` uses `閉じる` for `close`, and `es` uses
+`Cerrar`.
+
+## Writing strings
+
+- Write labels in sentence case; CSS uppercases mono labels.
+- Keep tags to one or two words. The tag always accompanies the colour of an Alert.
+- Do not put kanji alone as a label. Pair it with Latin text, or use the `ja` locale for the
+  whole interface.
