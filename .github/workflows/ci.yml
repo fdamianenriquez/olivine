@@ -20,6 +20,7 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm lint
       - run: pnpm format:check
+      - run: pnpm check:playwright
       - name: Generated token files are up to date
         run: |
           pnpm tokens
@@ -114,3 +115,36 @@ jobs:
       - uses: ./.github/actions/setup
       # Only what consumers install; dev-dependency advisories are handled by Dependabot alerts.
       - run: pnpm audit --prod --audit-level moderate
+
+  ssr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      # Builds the library, packs it and installs the tarball into examples/next-app, then
+      # builds that Next.js app: the checks run against what a consumer installs.
+      - run: pnpm ssr:prepare
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm ssr
+
+  visual:
+    runs-on: ubuntu-latest
+    # The baselines are rendered in this image (see `pnpm visual:update`). Keep its tag equal to
+    # the installed @playwright/test; `pnpm check:playwright` enforces it.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm storybook:build
+      - run: pnpm exec playwright test
+      - name: Upload the report with the diffs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: visual-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
