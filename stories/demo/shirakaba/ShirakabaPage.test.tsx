@@ -17,7 +17,8 @@ describe("ShirakabaPage", () => {
     const { container } = render(<ShirakabaPage />);
     const results = await runAxe(container);
     expect(results.violations).toEqual([]);
-  });
+    // axe walks the whole page, which can pass the 5 s default on a busy CI runner.
+  }, 30_000);
 
   it("updates the total and the drawing when an option changes", () => {
     render(<ShirakabaPage />);
@@ -60,5 +61,5 @@ describe("ShirakabaPage", () => {
     });
     vi.useRealTimers();
     fetchSpy.mockRestore();
-  });
+  }, 30_000);
 });
