@@ -18,9 +18,20 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write # npm trusted publishing (OIDC) and provenance
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
+      # Bootstrap only: npm cannot register a trusted publisher for a package that does not exist
+      # yet, so the first release authenticates with a token. Once `olivine` exists on npm and the
+      # trusted publisher is configured, delete the NPM_TOKEN secret and this step; provenance
+      # comes from the OIDC permission either way.
+      - name: Configure npm token
+        if: env.NPM_TOKEN != ''
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$RUNNER_TEMP/.npmrc"
+          echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/.npmrc" >> "$GITHUB_ENV"
       # Opens or updates the "Version Packages" PR while changesets are pending;
       # once that PR is merged, runs the full check and publishes to npm.
       - uses: changesets/action@v2
