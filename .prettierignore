@@ -3,3 +3,9 @@ coverage
 storybook-static
 pnpm-lock.yaml
 CHANGELOG.md
+playwright-report
+test-results
+tests/visual/__screenshots__
+examples/next-app/.next
+examples/next-app/.pack
+examples/next-app/next-env.d.ts

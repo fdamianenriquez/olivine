@@ -78,7 +78,12 @@
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm contrast && pnpm test && pnpm build && pnpm check:package && pnpm size",
     "changeset": "changeset",
     "release": "pnpm check && changeset publish",
-    "prepare": "husky"
+    "prepare": "husky",
+    "visual": "tsx scripts/visual.ts test",
+    "visual:update": "tsx scripts/visual.ts update",
+    "ssr:prepare": "tsx scripts/ssr-prepare.ts",
+    "ssr": "playwright test -c playwright.ssr.config.ts",
+    "check:playwright": "tsx scripts/check-playwright-image.ts"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -101,6 +106,7 @@
     "@eslint/js": "9.39.5",
     "@fontsource/martian-mono": "^5.3.0",
     "@fontsource/zen-old-mincho": "^5.3.1",
+    "@playwright/test": "^1.64.1",
     "@size-limit/preset-small-lib": "^14.2.0",
     "@storybook/addon-a11y": "^10.6.2",
     "@storybook/addon-docs": "^10.6.2",
