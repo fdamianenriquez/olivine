@@ -9,7 +9,15 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
-  globalIgnores(["dist/", "coverage/", "storybook-static/"]),
+  globalIgnores([
+    "dist/",
+    "coverage/",
+    "storybook-static/",
+    "playwright-report/",
+    "test-results/",
+    // A separate project with its own dependencies; CI builds and tests it on its own.
+    "examples/",
+  ]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -17,7 +25,7 @@ export default defineConfig(
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
-        projectService: { allowDefaultProject: ["*.js"] },
+        projectService: { allowDefaultProject: ["*.js", "scripts/*.mjs"] },
         tsconfigRootDir: import.meta.dirname,
       },
     },

@@ -1,0 +1,6 @@
+.next/
+.pack/
+node_modules/
+next-env.d.ts
+# Holds the integrity of a locally packed tarball, so it is never committed.
+pnpm-lock.yaml

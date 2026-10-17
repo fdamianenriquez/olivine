@@ -22,7 +22,32 @@ Node: see `.nvmrc` (Active LTS). The minimum supported version is in `package.js
 | `pnpm test`                    | Vitest with coverage (includes axe checks)         |
 | `pnpm check:package`           | publint and Are the Types Wrong                    |
 | `pnpm size`                    | size-limit budgets                                 |
-| `pnpm check`                   | Everything above, as CI runs it                    |
+| `pnpm visual`                  | Visual regression against the baselines (Docker)   |
+| `pnpm visual:update`           | Rewrite the visual baselines (Docker)              |
+| `pnpm ssr:prepare` / `ssr`     | Build and check the Next.js example (see below)    |
+| `pnpm check`                   | The checks CI runs, except `visual` and `ssr`      |
+
+## Quality gates
+
+CI runs these jobs, and all of them must pass before a merge:
+
+- **visual**: Playwright takes one screenshot per component and compares it with the baseline in
+  `tests/visual/__screenshots__/`. That is the component's "Themes" story, captured once because it
+  already shows both themes, or its first story in `washi` and `sumi` when it has none. The baselines are rendered in the same
+  Playwright Docker image CI uses, so they match there. Run `pnpm visual` to compare locally.
+  When a change to the look is intended, run `pnpm visual:update`, look at the images that
+  changed in the diff, and commit them with the change. Docker must be running. The first run
+  pulls the image and is slow on Apple Silicon, because the image is x86-64.
+- **ssr**: `examples/next-app` is a Next.js App Router app that server-renders every component
+  and hydrates it. CI builds the library, packs it and installs the tarball, so the check runs
+  against what consumers install. It fails on any hydration warning or console error. Run
+  `pnpm ssr:prepare` and then `pnpm ssr` to reproduce it.
+- **Coverage and size**: `pnpm test` enforces coverage thresholds on `src/` and `pnpm size`
+  enforces the bundle budgets in `.size-limit.json`. If a change legitimately needs more, raise
+  the limit in the same pull request and say why.
+
+When Dependabot updates `@playwright/test`, set the image tag in `.github/workflows/ci.yml` to
+the same version (`pnpm check:playwright` tells you), then run `pnpm visual:update`.
 
 ## Commits and pull requests
 

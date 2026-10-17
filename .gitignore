@@ -8,3 +8,5 @@ storybook-static/
 .env
 .env.*
 .eslintcache
+playwright-report/
+test-results/
