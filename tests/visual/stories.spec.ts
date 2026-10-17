@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 
 interface IndexEntry {
   id: string;
+  title: string;
   type: string;
   name: string;
 }
@@ -12,11 +13,20 @@ interface IndexEntry {
 const index = JSON.parse(readFileSync("storybook-static/index.json", "utf8")) as {
   entries: Record<string, IndexEntry>;
 };
-const stories = Object.values(index.entries).filter((entry) => entry.type === "story");
+const allStories = Object.values(index.entries).filter((entry) => entry.type === "story");
 
 const THEMES = ["washi", "sumi"] as const;
 /** Full-page demos are captured as one desktop viewport rather than as the whole page. */
 const isDemo = (id: string) => id.startsWith("demo-");
+
+/** One story per component: its "Themes" story, or else its first story. */
+const byTitle = new Map<string, IndexEntry[]>();
+for (const story of allStories)
+  byTitle.set(story.title, [...(byTitle.get(story.title) ?? []), story]);
+const stories = [...byTitle.values()].flatMap((group) => {
+  const story = group.find((entry) => /themes/i.test(entry.name)) ?? group[0];
+  return story ? [story] : [];
+});
 
 for (const story of stories) {
   // "Themes" stories already draw both themes side by side: one capture is enough.

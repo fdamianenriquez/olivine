@@ -31,9 +31,9 @@ Node: see `.nvmrc` (Active LTS). The minimum supported version is in `package.js
 
 CI runs these jobs, and all of them must pass before a merge:
 
-- **visual**: Playwright takes a screenshot of every story in the `washi` and `sumi` themes and
-  compares it with the baseline in `tests/visual/__screenshots__/`. Stories named "Themes" are
-  captured once, because they already show both themes. The baselines are rendered in the same
+- **visual**: Playwright takes one screenshot per component and compares it with the baseline in
+  `tests/visual/__screenshots__/`. That is the component's "Themes" story, captured once because it
+  already shows both themes, or its first story in `washi` and `sumi` when it has none. The baselines are rendered in the same
   Playwright Docker image CI uses, so they match there. Run `pnpm visual` to compare locally.
   When a change to the look is intended, run `pnpm visual:update`, look at the images that
   changed in the diff, and commit them with the change. Docker must be running. The first run
