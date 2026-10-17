@@ -1,5 +1,11 @@
 # olivine
 
+## 0.1.1
+
+### Patch Changes
+
+- [#19](https://github.com/fdamianenriquez/olivine/pull/19) [`5bc344f`](https://github.com/fdamianenriquez/olivine/commit/5bc344f1608a5a66b4ce59ffcddcbcf78c472031) Thanks [@fdamianenriquez](https://github.com/fdamianenriquez)! - Publish releases through npm trusted publishing, so each version carries a provenance attestation.
+
 ## 0.1.0
 
 ### Minor Changes
