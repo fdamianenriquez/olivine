@@ -17,6 +17,7 @@ import { useControllable } from "../../hooks/useControllable";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFloating } from "../../hooks/useFloating";
 import { cx } from "../../utils/cx";
+import { getElementRef } from "../../utils/elementRef";
 import { Portal } from "../../utils/Portal";
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
@@ -149,7 +150,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
 
   const child = children as ReactElement<ChildProps>;
   const own = child.props;
-  const childRef = (child as { ref?: Ref<HTMLElement> }).ref ?? own.ref;
+  const childRef = getElementRef<HTMLElement>(child);
   const setTrigger = useCallback(
     (node: HTMLElement | null) => {
       setReference(node);
