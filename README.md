@@ -1,6 +1,7 @@
 # Olivine
 
 [![CI](https://github.com/fdamianenriquez/olivine/actions/workflows/ci.yml/badge.svg)](https://github.com/fdamianenriquez/olivine/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/olivine.svg?color=2f3a1a)](https://www.npmjs.com/package/olivine)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2f3a1a.svg)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/types-included-2f3a1a.svg)](#usage)
 
@@ -8,9 +9,6 @@ Olivine is a React component library drawn in ink on paper: Japanese minimalism 
 brutalism, fine hairlines, square boxes, mono labels, and an olive-and-maple palette taken
 from a Telecaster on cream. It ships typed components, one stylesheet, design tokens and
 self-hosted fonts, in two themes (`washi` and `sumi`) and three locales (`en`, `es`, `ja`).
-
-> **Status:** pre-release. The components are complete and tested, but nothing is published to
-> npm yet.
 
 - **50 components**: layout, actions, forms, navigation, content, feedback and overlays.
 - **Accessible**: built for WCAG 2.2 AA. Keyboard support, visible focus, correct ARIA, and
