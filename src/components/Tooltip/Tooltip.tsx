@@ -78,7 +78,7 @@ interface ChildProps {
 
 function setRef<T>(ref: Ref<T> | undefined, node: T | null) {
   if (typeof ref === "function") ref(node);
-  else if (ref) ref.current = node;
+  else if (ref) (ref as { current: T | null }).current = node;
 }
 
 /**

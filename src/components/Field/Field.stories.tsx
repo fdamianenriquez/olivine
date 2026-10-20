@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { type SubmitEvent, useState } from "react";
+import { type SyntheticEvent, useState } from "react";
 
 import { Button } from "../Button";
 import { Input } from "../Input";
@@ -86,7 +86,7 @@ export const FormExample: Story = {
   render: function Render() {
     const [errors, setErrors] = useState<{ email?: string; message?: string }>({});
     const [sent, setSent] = useState(false);
-    const onSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
       const data = new FormData(e.currentTarget);
       const next: typeof errors = {};

@@ -29,8 +29,8 @@ export interface FloatingOptions {
 }
 
 export interface FloatingResult<R extends HTMLElement, F extends HTMLElement> {
-  reference: React.RefObject<R | null>;
-  floating: React.RefObject<F | null>;
+  reference: { current: R | null };
+  floating: { current: F | null };
   /**
    * Callback refs that do the same as `reference` and `floating` and also re-run the
    * positioning when the node mounts later, as it does inside a `Portal`. Prefer these for
@@ -55,8 +55,8 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
   placement = "bottom-start",
   gap = GAP,
 }: FloatingOptions): FloatingResult<R, F> {
-  const reference = useRef<R>(null);
-  const floating = useRef<F>(null);
+  const reference = useRef<R | null>(null);
+  const floating = useRef<F | null>(null);
   const [referenceNode, setReferenceNode] = useState<R | null>(null);
   const [floatingNode, setFloatingNode] = useState<F | null>(null);
   const [state, setState] = useState<{ x: number; y: number; placement: Placement } | null>(null);

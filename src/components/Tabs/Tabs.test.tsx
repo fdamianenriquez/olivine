@@ -1,25 +1,27 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef, useState } from "react";
+import { createRef, forwardRef, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { runAxe } from "../../test/axe";
 import { Tabs } from "./Tabs";
 
-function Demo(props: Partial<React.ComponentProps<typeof Tabs>>) {
-  return (
-    <Tabs label="Sections" {...props}>
-      <Tabs.Tab label="One">Panel one</Tabs.Tab>
-      <Tabs.Tab label="Two">Panel two</Tabs.Tab>
-      <Tabs.Tab label="Three" disabled>
-        Panel three
-      </Tabs.Tab>
-      <Tabs.Tab label="Four">
-        <button type="button">Inside</button>
-      </Tabs.Tab>
-    </Tabs>
-  );
-}
+const Demo = forwardRef<HTMLDivElement, Partial<React.ComponentProps<typeof Tabs>>>(
+  function Demo(props, ref) {
+    return (
+      <Tabs label="Sections" ref={ref} {...props}>
+        <Tabs.Tab label="One">Panel one</Tabs.Tab>
+        <Tabs.Tab label="Two">Panel two</Tabs.Tab>
+        <Tabs.Tab label="Three" disabled>
+          Panel three
+        </Tabs.Tab>
+        <Tabs.Tab label="Four">
+          <button type="button">Inside</button>
+        </Tabs.Tab>
+      </Tabs>
+    );
+  },
+);
 
 function Bare(props: Omit<React.ComponentProps<typeof Tabs>, "children">) {
   return (
