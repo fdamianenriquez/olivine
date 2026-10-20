@@ -24,7 +24,7 @@ self-hosted fonts, in two themes (`washi` and `sumi`) and three locales (`en`, `
 pnpm add olivine
 ```
 
-React 18 or later is a peer dependency.
+React 18 or 19 is a peer dependency (`react` and `react-dom` `^18.0.0 || ^19.0.0`).
 
 ## Usage
 
