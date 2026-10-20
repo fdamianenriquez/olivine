@@ -10,7 +10,6 @@ import {
   useCallback,
   useId,
   useState,
-  version,
 } from "react";
 
 import { useControllable } from "../../hooks/useControllable";
@@ -18,6 +17,7 @@ import { useDismiss } from "../../hooks/useDismiss";
 import { useFloating, useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { getElementRef } from "../../utils/elementRef";
 import { Portal } from "../../utils/Portal";
 import { CloseButton } from "../CloseButton";
 
@@ -27,7 +27,6 @@ export type PopoverPlacement = "bottom" | "top" | "right";
 /** Props of the element passed as `trigger`. */
 interface TriggerProps {
   onClick?: (event: MouseEvent<HTMLElement>) => void;
-  ref?: Ref<HTMLElement>;
 }
 
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "content"> {
@@ -66,11 +65,6 @@ function isTabbable(el: HTMLElement): boolean {
     getComputedStyle(el).visibility !== "hidden" &&
     getComputedStyle(el).display !== "none"
   );
-}
-
-function readRef(element: ReactElement): Ref<HTMLElement> | undefined {
-  if (Number.parseInt(version, 10) >= 19) return (element.props as TriggerProps).ref;
-  return (element as unknown as { ref?: Ref<HTMLElement> }).ref;
 }
 
 function assign<T>(ref: Ref<T> | undefined, node: T | null) {
@@ -119,7 +113,7 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     positioned,
   } = useFloating<HTMLElement, HTMLDivElement>({ open, placement: `${placement}-start` });
 
-  const triggerRef = readRef(trigger);
+  const triggerRef = getElementRef<HTMLElement>(trigger);
   const setTrigger = useCallback(
     (node: HTMLElement | null) => {
       setReference(node);
