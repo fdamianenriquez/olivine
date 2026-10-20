@@ -43,6 +43,16 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm typecheck
 
+  react-18:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      # The lockfile pins React 19. Swap in React 18 to check the lower end of the peer range.
+      - run: pnpm add --save-dev react@^18.3.1 react-dom@^18.3.1 @types/react@^18.3.0 @types/react-dom@^18.3.0
+      - run: pnpm typecheck
+      - run: pnpm test
+
   test:
     runs-on: ubuntu-latest
     strategy:
