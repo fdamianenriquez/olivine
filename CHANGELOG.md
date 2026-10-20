@@ -1,5 +1,11 @@
 # olivine
 
+## 0.2.0
+
+### Minor Changes
+
+- [#23](https://github.com/fdamianenriquez/olivine/pull/23) [`0461c6c`](https://github.com/fdamianenriquez/olivine/commit/0461c6c82bf1eee224851547da3ab6c38a975f2b) Thanks [@fdamianenriquez](https://github.com/fdamianenriquez)! - Narrow the `react` and `react-dom` peer dependency range from `>=18` to `^18.0.0 || ^19.0.0`. Olivine is tested against React 18.3 and React 19.3; React 20 and later are no longer accepted until they are tested. Apps on React 18 or 19 are not affected. Also make a few internal ref and test types compatible with `@types/react` 18.
+
 ## 0.1.1
 
 ### Patch Changes
