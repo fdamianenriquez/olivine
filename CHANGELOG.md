@@ -1,5 +1,11 @@
 # olivine
 
+## 0.2.1
+
+### Patch Changes
+
+- [#25](https://github.com/fdamianenriquez/olivine/pull/25) [`658b5b4`](https://github.com/fdamianenriquez/olivine/commit/658b5b4618aded0a8e804e5034e572bee9cf9fa3) Thanks [@fdamianenriquez](https://github.com/fdamianenriquez)! - Stop `Tooltip` logging "Accessing element.ref was removed in React 19" in development. It now reads its child's ref the same way `Popover` does, through a shared helper that works on React 18 and 19.
+
 ## 0.2.0
 
 ### Minor Changes
