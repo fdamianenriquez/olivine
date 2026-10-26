@@ -68,6 +68,7 @@
 .ol-progress--indeterminate .ol-progress__fill {
   width: 30%;
   transition: none;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list, function-disallowed-list -- legacy stepped sweep until Progress moves to print blocks (backlog: motion follow-ups) */
   animation: ol-progress-sweep 1200ms steps(10) infinite;
 }
 

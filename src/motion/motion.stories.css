@@ -1,0 +1,525 @@
+/* Storybook-only layout for the Motion section. Not shipped. */
+
+.ol-sb-motion {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: var(--stroke-hair) solid var(--rule);
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__theme {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+  padding: var(--space-8);
+  border-right: var(--stroke-hair) solid var(--rule);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ol-sb-motion__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.ol-sb-motion__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.ol-sb-motion__note {
+  margin: 0;
+  max-width: 60ch;
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+.ol-sb-motion__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--control-s);
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+}
+
+.ol-sb-motion__btn:hover {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-sb-motion__btn--accent {
+  color: var(--on-olivo);
+  background: var(--olivo);
+  border-color: var(--olivo);
+}
+
+.ol-sb-motion__stage {
+  position: relative;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--space-32) * 2);
+  padding: var(--space-6);
+  overflow: hidden;
+  background: var(--paper-2);
+  border: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-sb-motion__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(100%, calc(var(--space-32) * 2.6));
+  padding: var(--space-6);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--rule);
+  border-top: var(--stroke-heavy) solid var(--ink);
+  box-shadow: var(--shadow-block);
+}
+
+.ol-sb-motion__panel p,
+.ol-sb-motion__johakyu p {
+  margin: 0;
+}
+
+.ol-sb-motion__drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(70%, calc(var(--space-32) * 2));
+  padding: var(--space-4);
+  background: var(--paper);
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__anchor {
+  position: relative;
+}
+
+.ol-sb-motion__menu {
+  position: absolute;
+  left: 0;
+  z-index: var(--z-dropdown);
+  min-width: var(--menu-min-width);
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  box-shadow: var(--shadow-block);
+}
+
+.ol-sb-motion__menu[data-side="bottom"] {
+  top: calc(100% + var(--space-1));
+}
+
+.ol-sb-motion__menu[data-side="top"] {
+  bottom: calc(100% + var(--space-1));
+}
+
+.ol-sb-motion__item {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.ol-sb-motion__item:hover,
+.ol-sb-motion__item:focus-visible {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-sb-motion__menu-stage {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--space-32) * 2.4);
+}
+
+.ol-sb-motion__johakyu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.ol-sb-motion__johakyu .ol-johakyu__kyu {
+  align-self: flex-start;
+}
+
+.ol-sb-motion__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ol-sb-motion__enso {
+  width: var(--space-16);
+  height: var(--space-16);
+  color: var(--ink);
+}
+
+.ol-sb-motion__enso .ol-enso__stroke {
+  stroke-width: 3.4;
+}
+
+.ol-sb-motion__enso .ol-enso__echo {
+  stroke-width: 1;
+}
+
+.ol-sb-motion__kanji {
+  width: var(--space-24);
+  height: var(--space-24);
+}
+
+.ol-sb-motion__kanji path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+
+.ol-sb-motion__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.ol-sb-motion__box {
+  display: inline-grid;
+  place-items: center;
+  width: var(--check-size);
+  height: var(--check-size);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__box svg {
+  width: var(--glyph-m);
+  height: var(--glyph-m);
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+}
+
+.ol-sb-motion__link {
+  padding-bottom: var(--space-1);
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__print .ol-sb-motion__paper {
+  fill: var(--paper-2);
+}
+
+.ol-sb-motion__sky {
+  fill: var(--paper-3);
+}
+
+.ol-sb-motion__sun {
+  fill: var(--maple);
+}
+
+.ol-sb-motion__far {
+  fill: var(--olivo);
+  fill-opacity: 0.38;
+}
+
+.ol-sb-motion__mid {
+  fill: var(--olivo);
+}
+
+.ol-sb-motion__ink {
+  fill: var(--ink);
+}
+
+.ol-sb-motion__segs {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.ol-sb-motion__segs span {
+  height: var(--space-3);
+  margin-left: calc(var(--stroke-hair) * -1);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__segs span:first-child {
+  margin-left: 0;
+}
+
+.ol-sb-motion__segs .ol-print-block {
+  background: var(--olivo);
+  border-color: var(--olivo);
+}
+
+.ol-sb-motion__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: calc(var(--space-32) * 3);
+}
+
+.ol-sb-motion__input {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+}
+
+.ol-sb-motion__tag {
+  margin-right: var(--space-2);
+  padding: 0 var(--space-1);
+  color: var(--on-maple);
+  background: var(--maple);
+}
+
+.ol-sb-motion__toast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: start;
+  width: min(100%, calc(var(--space-32) * 3.2));
+  padding: var(--space-4);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--rule);
+  box-shadow: var(--shadow-block);
+  animation: ol-settle var(--dur-s) var(--ease-effect) backwards;
+}
+
+.ol-sb-motion__toast p {
+  margin: 0;
+}
+
+.ol-sb-motion__seal {
+  --ol-hanko-delay: calc(var(--dur-s) + var(--dur-s));
+}
+
+.ol-sb-motion__seal-ring {
+  fill: none;
+  stroke: var(--olivo);
+  stroke-width: 2;
+}
+
+.ol-sb-motion__seal-fill {
+  fill: var(--olivo);
+}
+
+.ol-sb-motion__seal text {
+  font-family: var(--font-jp);
+  font-weight: 700;
+  fill: var(--on-olivo);
+}
+
+.ol-sb-motion__segmented {
+  display: inline-flex;
+}
+
+.ol-sb-motion__segmented .ol-ink-wipe {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-m);
+  padding: 0 var(--space-4);
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  cursor: pointer;
+}
+
+.ol-sb-motion__segmented .ol-ink-wipe + .ol-ink-wipe {
+  margin-left: calc(var(--stroke-hair) * -1);
+}
+
+.ol-sb-motion__segmented .ol-ink-wipe[aria-checked="true"]:not(:has(> .ol-ink-wipe__ink)) {
+  color: var(--on-ink);
+}
+
+.ol-sb-motion__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.ol-sb-motion__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: calc(var(--space-32) + var(--space-4));
+  padding: var(--space-6);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--line-soft);
+  cursor: pointer;
+}
+
+.ol-sb-motion__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: calc(var(--space-32) + var(--space-4));
+  padding: var(--space-6);
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__tabs {
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  scrollbar-width: none;
+}
+
+.ol-sb-motion__tab {
+  flex: none;
+  height: var(--control-m);
+  padding: 0 var(--space-4);
+  font: inherit;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color var(--dur-s) var(--ease-effect);
+}
+
+.ol-sb-motion__tab[aria-selected="true"] {
+  color: var(--ink);
+}
+
+.ol-sb-motion__screen {
+  width: 100%;
+  min-height: calc(var(--space-32) + var(--space-8));
+}
+
+.ol-sb-motion__shishi {
+  width: 100%;
+  max-width: calc(var(--space-32) * 2.6);
+  height: auto;
+}
+
+.ol-sb-motion__page {
+  display: flex;
+  gap: var(--space-6);
+  align-items: center;
+  min-height: calc(var(--space-32) + var(--space-8));
+  padding: var(--space-6);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-sb-motion__page p {
+  margin: 0;
+}
+
+.ol-sb-motion__num {
+  font-family: var(--font-figure);
+  font-size: var(--text-figure-l-size);
+  line-height: 1;
+  color: var(--olivo);
+}
+
+.ol-sb-motion__origami {
+  margin: 0;
+  font-family: var(--text-display-m-family);
+  font-size: var(--text-display-m-size);
+  font-weight: var(--text-display-m-weight);
+  line-height: 1.3;
+}
+
+.ol-sb-motion__tokens {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 2fr);
+  gap: var(--space-3) var(--space-4);
+  align-items: center;
+  margin: 0;
+}
+
+.ol-sb-motion__tokens dt {
+  font-family: var(--font-mono);
+}
+
+.ol-sb-motion__tokens dd {
+  margin: 0;
+}
+
+.ol-sb-motion__track {
+  position: relative;
+  height: var(--space-3);
+  overflow: hidden;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__runner {
+  position: absolute;
+  inset: 0;
+  animation: ol-sb-motion-run calc(var(--dur-xl) * 2) var(--ol-sb-ease) infinite alternate;
+}
+
+.ol-sb-motion__runner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--space-3);
+  height: var(--space-3);
+  background: var(--olivo);
+}
+
+@keyframes ol-sb-motion-run {
+  from {
+    transform: translateX(calc(-100% + var(--space-3)));
+  }
+}
+
+@media (width <= 720px) {
+  .ol-sb-motion,
+  .ol-sb-motion__cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

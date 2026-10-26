@@ -1,5 +1,6 @@
 /* Base, every component stylesheet in a fixed order, then utilities. Built into dist/components.css. */
 @import "./base.css";
+@import "./motion.css";
 
 /* Foundations */
 @import "../components/Text/Text.css";

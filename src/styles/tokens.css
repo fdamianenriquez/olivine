@@ -55,6 +55,15 @@
   --glyph-m: 14px;
   --glyph-l: 16px;
   --glyph-xl: 18px;
+  --ease-move: linear(0, 0.06 30%, 0.35 65%, 1);
+  --ease-effect: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --ease-standard: cubic-bezier(0.27, 1, 0.18, 1);
+  --ease-print: steps(2, jump-end);
+  --dur-s: 150ms;
+  --dur-m: 300ms;
+  --dur-l: 500ms;
+  --dur-xl: 650ms;
+  --stagger: 50ms;
   --motion-fast: 80ms steps(2);
   --motion-base: 120ms steps(3);
   --motion-slow: 160ms steps(4);
@@ -181,6 +190,12 @@
   --text-kanji-s-leading: 1;
   --text-kanji-s-weight: 500;
   --text-kanji-s-tracking: 0;
+}
+
+@supports not (transition-timing-function: linear(0, 0.06 30%, 0.35 65%, 1)) {
+  :root {
+    --ease-move: cubic-bezier(0.6, 0, 0.75, 0.45);
+  }
 }
 
 /* washi (cream) is the default theme; "auto" starts light and follows the system below. */

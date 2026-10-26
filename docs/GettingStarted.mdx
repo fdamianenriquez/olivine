@@ -75,13 +75,14 @@ export function Contact() {
 
 ## Stylesheets
 
-| Import                   | Contains                                                  |
-| ------------------------ | --------------------------------------------------------- |
-| `olivine/styles.css`     | Tokens, fonts, base styles, components and utilities      |
-| `olivine/tokens.css`     | Design tokens as CSS custom properties, both themes       |
-| `olivine/fonts.css`      | `@font-face` rules for the self-hosted fonts              |
-| `olivine/fonts-jp.css`   | Opt-in Zen Old Mincho for kanji (loaded by unicode slice) |
-| `olivine/components.css` | Base styles, components and utilities only                |
+| Import                      | Contains                                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `olivine/styles.css`        | Tokens, fonts, base styles, components and utilities                                           |
+| `olivine/tokens.css`        | Design tokens as CSS custom properties, both themes                                            |
+| `olivine/fonts.css`         | `@font-face` rules for the self-hosted fonts                                                   |
+| `olivine/fonts-jp.css`      | Opt-in Zen Old Mincho for kanji (loaded by unicode slice)                                      |
+| `olivine/components.css`    | Base styles, components and utilities only                                                     |
+| `olivine/motion-extras.css` | Opt-in motion classes (`ol-motion-byobu`, `-noren`, `-kumiko`, `-shishi`, `-sumi`, `-origami`) |
 
 `olivine/styles.css` is `tokens.css`, `fonts.css` and `components.css` in one file. Import the
 parts separately only if you serve your own tokens or fonts. Font URLs are relative to the
@@ -98,6 +99,17 @@ import "olivine/fonts-jp.css";
 
 The face is split by `unicode-range`, so a page only downloads the slices it uses. Without it,
 kanji fall back to the system mincho. Kanji is decoration: the Latin text must stand on its own.
+
+## Opt-in motion
+
+The core motions (jo-ha-kyū, shodō, mokuhanga, kintsugi, hanko, kakejiku, ink wipe) ship in
+`olivine/styles.css`. The opt-in `ol-motion-*` classes live in their own file; import it after
+the main stylesheet when you use them:
+
+```ts
+import "olivine/styles.css";
+import "olivine/motion-extras.css";
+```
 
 ## Typed tokens
 

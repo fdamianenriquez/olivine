@@ -4,6 +4,7 @@
  *   dist/fonts.css       @font-face rules, URLs relative to the package's fonts/
  *   dist/fonts-jp.css    opt-in Zen Old Mincho (kanji), sliced by unicode-range
  *   dist/components.css  base + components + utilities, no tokens or fonts
+ *   dist/motion-extras.css  opt-in ol-motion-* classes (byōbu, noren, kumiko, shishi-odoshi, sumi, origami)
  *   dist/olivine.css     everything above in one file
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -33,6 +34,7 @@ const files = {
   "dist/fonts.css": fontFile(fonts.core),
   "dist/fonts-jp.css": fontFile(fonts.jp),
   "dist/components.css": bundleFile("src/styles/index.css"),
+  "dist/motion-extras.css": bundleFile("src/styles/motion-extras.css"),
 };
 
 const all = {

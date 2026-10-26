@@ -324,6 +324,15 @@ export const tokens = {
     "glyph-xl": "18px",
   },
   motion: {
+    "ease-move": "linear(0, 0.06 30%, 0.35 65%, 1)",
+    "ease-effect": "cubic-bezier(0.34, 0.8, 0.34, 1)",
+    "ease-standard": "cubic-bezier(0.27, 1, 0.18, 1)",
+    "ease-print": "steps(2, jump-end)",
+    "dur-s": "150ms",
+    "dur-m": "300ms",
+    "dur-l": "500ms",
+    "dur-xl": "650ms",
+    stagger: "50ms",
     "motion-fast": "80ms steps(2)",
     "motion-base": "120ms steps(3)",
     "motion-slow": "160ms steps(4)",
@@ -361,3 +370,4 @@ export type ControlToken = keyof Tokens["control"];
 export type LayoutToken = keyof Tokens["layout"];
 export type ShadowToken = keyof Tokens["shadow"];
 export type ZIndexToken = keyof Tokens["zIndex"];
+export type MotionToken = keyof Tokens["motion"];

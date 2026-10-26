@@ -1,0 +1,810 @@
+/*
+ * Olivine motion extras: the opt-in ol-motion-* classes that components do not use by default
+ * (byōbu, noren, kumiko, shishi-odoshi, sumi, origami). Opt-in: import "olivine/motion-extras.css"
+ * after "olivine/styles.css", which it requires (the tokens and the motion core: timing, shared
+ * keyframes and distances such as --ol-motion-perspective). Same rules as motion.css: only
+ * transform, opacity, clip-path and stroke-dashoffset animate, every timing is a token.
+ */
+
+/* Registered so the noren polygon can interpolate them. */
+@property --ol-noren-inner {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@property --ol-noren-outer {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* ---------- Opt-in: byōbu (folding screen) ---------- */
+
+/*
+ * Nested panels: .ol-motion-byobu > .ol-motion-byobu__panel > (.ol-motion-byobu__face +
+ * .ol-motion-byobu__panel > …). Up to 6 panels; set --ol-panels on the root (default 4).
+ * The first child of each face is the picture, sliced across the panels.
+ */
+:where(.ol-motion-byobu) {
+  position: relative;
+  height: calc(var(--space-32) + var(--space-8));
+}
+
+.ol-motion-byobu {
+  --ol-fold: 0deg;
+  --ol-folded: 0;
+
+  perspective: var(--ol-motion-perspective);
+  transform-style: preserve-3d;
+}
+
+.ol-motion-byobu[data-state="folded"] {
+  --ol-fold: 140deg;
+  --ol-folded: 1;
+}
+
+.ol-motion-byobu__panel {
+  --ol-rel: 1;
+  --ol-shade: 0.08;
+
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transform: rotateY(calc(var(--ol-fold) * var(--ol-rel)));
+  transition: transform var(--dur-l) var(--ease-move);
+  transition-delay: calc(var(--ol-i, 0) * var(--stagger));
+}
+
+.ol-motion-byobu > .ol-motion-byobu__panel {
+  --ol-i: 0;
+  --ol-rel: 0.5;
+
+  left: 0;
+  width: calc(100% / var(--ol-panels, 4));
+}
+
+.ol-motion-byobu > * > .ol-motion-byobu__panel {
+  --ol-i: 1;
+  --ol-rel: -1;
+  --ol-shade: 0.3;
+}
+
+.ol-motion-byobu > * > * > .ol-motion-byobu__panel {
+  --ol-i: 2;
+}
+
+.ol-motion-byobu > * > * > * > .ol-motion-byobu__panel {
+  --ol-i: 3;
+  --ol-rel: -1;
+  --ol-shade: 0.3;
+}
+
+.ol-motion-byobu > * > * > * > * > .ol-motion-byobu__panel {
+  --ol-i: 4;
+}
+
+.ol-motion-byobu > * > * > * > * > * > .ol-motion-byobu__panel {
+  --ol-i: 5;
+  --ol-rel: -1;
+  --ol-shade: 0.3;
+}
+
+.ol-motion-byobu__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  margin-left: calc(var(--stroke-hair) * -1);
+  background: var(--paper);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-motion-byobu__face > :first-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: calc(100% * var(--ol-panels, 4));
+  height: 100%;
+  transform: translateX(calc(-100% / var(--ol-panels, 4) * var(--ol-i, 0)));
+}
+
+/* Panels turned away from the light are shaded. */
+.ol-motion-byobu__face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: calc(var(--ol-shade) * var(--ol-folded));
+  transition: opacity var(--dur-l) var(--ease-move);
+  pointer-events: none;
+}
+
+@supports not (transform-style: preserve-3d) {
+  .ol-motion-byobu__panel {
+    transform: none;
+  }
+}
+
+/* ---------- Opt-in: noren (shop curtain) ---------- */
+
+/*
+ * One element, no extra markup (a ul[role=menu] can only hold li): four strips are cut out of
+ * the element with a polygon whose lower edge steps; the two inner strips drop first. It uses
+ * the element's ::before for the strip edges, so the menu must not use ::before itself.
+ * data-side="top" hangs the curtain from the bottom edge (a menu above its trigger).
+ */
+.ol-motion-noren {
+  --ol-noren-o: var(--ol-motion-overhang);
+  --ol-noren-yi: calc(var(--ol-noren-inner) * (100% + var(--ol-noren-o)));
+  --ol-noren-yo: calc(var(--ol-noren-outer) * (100% + var(--ol-noren-o)));
+}
+
+@supports (clip-path: polygon(0 0, 1px 0, 0 1px)) {
+  .ol-motion-noren {
+    clip-path: polygon(
+      calc(var(--ol-noren-o) * -1) calc(var(--ol-noren-o) * -1),
+      calc(100% + var(--ol-noren-o)) calc(var(--ol-noren-o) * -1),
+      calc(100% + var(--ol-noren-o)) var(--ol-noren-yo),
+      75% var(--ol-noren-yo),
+      75% var(--ol-noren-yi),
+      25% var(--ol-noren-yi),
+      25% var(--ol-noren-yo),
+      calc(var(--ol-noren-o) * -1) var(--ol-noren-yo)
+    );
+  }
+
+  .ol-motion-noren[data-side="top"] {
+    clip-path: polygon(
+      calc(var(--ol-noren-o) * -1) calc(100% - var(--ol-noren-yo)),
+      25% calc(100% - var(--ol-noren-yo)),
+      25% calc(100% - var(--ol-noren-yi)),
+      75% calc(100% - var(--ol-noren-yi)),
+      75% calc(100% - var(--ol-noren-yo)),
+      calc(100% + var(--ol-noren-o)) calc(100% - var(--ol-noren-yo)),
+      calc(100% + var(--ol-noren-o)) calc(100% + var(--ol-noren-o)),
+      calc(var(--ol-noren-o) * -1) calc(100% + var(--ol-noren-o))
+    );
+  }
+
+  /*
+   * While the curtain moves its strip edges are drawn, so it reads as cloth strips rather than a
+   * pale block: solid hairline seams between the strips (line-soft) and a rule hairline along the
+   * cut edge of each strip, following the same custom properties as the polygon. The lines exist
+   * only while the motion runs; at rest the element's own border takes over.
+   */
+  :where(.ol-motion-noren) {
+    position: relative;
+  }
+
+  .ol-motion-noren::before {
+    --ol-noren-ei: calc(
+      min(var(--ol-noren-inner) * (100% + var(--ol-noren-o)), 100%) - var(--stroke-hair) * 2
+    );
+    --ol-noren-eo: calc(
+      min(var(--ol-noren-outer) * (100% + var(--ol-noren-o)), 100%) - var(--stroke-hair) * 2
+    );
+
+    content: "";
+    position: absolute;
+
+    /* Over the border box (a hairline-bordered menu), so the percentages match the polygon's. */
+    inset: calc(var(--stroke-hair) * -1);
+    opacity: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--rule), var(--rule)) 50% var(--ol-noren-ei) / 50% var(--stroke-hair)
+        no-repeat,
+      linear-gradient(to right, var(--rule) 25%, transparent 25% 75%, var(--rule) 75%) 0
+        var(--ol-noren-eo) / 100% var(--stroke-hair) no-repeat,
+      linear-gradient(var(--line-soft), var(--line-soft)) 25% 0 / var(--stroke-hair) 100% no-repeat,
+      linear-gradient(var(--line-soft), var(--line-soft)) 50% 0 / var(--stroke-hair) 100% no-repeat,
+      linear-gradient(var(--line-soft), var(--line-soft)) 75% 0 / var(--stroke-hair) 100% no-repeat;
+    background-origin: border-box;
+  }
+
+  .ol-motion-noren[data-side="top"]::before {
+    --ol-noren-ei: calc(
+      100% - min(var(--ol-noren-inner) * (100% + var(--ol-noren-o)), 100%) + var(--stroke-hair) * 2
+    );
+    --ol-noren-eo: calc(
+      100% - min(var(--ol-noren-outer) * (100% + var(--ol-noren-o)), 100%) + var(--stroke-hair) * 2
+    );
+  }
+
+  .ol-motion-noren:not([data-state="closing"])::before {
+    animation: ol-noren-edges calc(var(--dur-m) + var(--stagger) * 1.6) var(--ease-effect) backwards;
+  }
+
+  .ol-motion-noren[data-state="closing"]::before {
+    animation: ol-noren-edges calc(var(--dur-s) * 0.5 + var(--stagger) * 1.6 + var(--dur-m))
+      var(--ease-effect) forwards;
+  }
+}
+
+@keyframes ol-noren-edges {
+  from,
+  to {
+    opacity: 1;
+  }
+}
+
+.ol-motion-noren:not([data-state="closing"]) {
+  animation:
+    ol-noren-inner-drop var(--dur-m) var(--ease-move) backwards,
+    ol-noren-outer-drop var(--dur-m) var(--ease-move) calc(var(--stagger) * 1.6) backwards;
+}
+
+.ol-motion-noren[data-state="closing"] {
+  animation:
+    ol-noren-inner-lift var(--dur-m) var(--ease-move) calc(var(--dur-s) * 0.5) forwards,
+    ol-noren-outer-lift var(--dur-m) var(--ease-move)
+      calc(var(--dur-s) * 0.5 + var(--stagger) * 1.6) forwards;
+}
+
+.ol-motion-noren:not([data-state="closing"]) > * {
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) calc(var(--dur-m) * 0.7) backwards;
+}
+
+.ol-motion-noren[data-state="closing"] > * {
+  animation: ol-fade-out var(--dur-s) var(--ease-effect) forwards;
+}
+
+@keyframes ol-noren-inner-drop {
+  from {
+    --ol-noren-inner: 0;
+  }
+}
+
+@keyframes ol-noren-outer-drop {
+  from {
+    --ol-noren-outer: 0;
+  }
+}
+
+@keyframes ol-noren-inner-lift {
+  to {
+    --ol-noren-inner: 0;
+  }
+}
+
+@keyframes ol-noren-outer-lift {
+  to {
+    --ol-noren-outer: 0;
+  }
+}
+
+/* ---------- Opt-in: kumiko (lattice) ---------- */
+
+/*
+ * Any block: hairlines assemble into a lattice, hold and lift. For waits only: it plays once,
+ * and repeats only inside a live wait (role="status" or aria-busy="true", on it or an ancestor).
+ * .ol-motion-paused stops it (WCAG 2.2.2).
+ */
+:where(.ol-motion-kumiko) {
+  position: relative;
+  display: block;
+  min-height: var(--skeleton-min-height);
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.ol-motion-kumiko {
+  --ol-kumiko-cell: var(--space-12);
+}
+
+.ol-motion-kumiko::before,
+.ol-motion-kumiko::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  /* One lattice cell per tile, so every line meets the grid at its corners. */
+  background-size: var(--ol-kumiko-cell) var(--ol-kumiko-cell);
+  animation: ol-kumiko-across calc(var(--dur-xl) * 4.5) var(--ease-move);
+}
+
+.ol-motion-kumiko::before {
+  background-image:
+    linear-gradient(to bottom, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
+    linear-gradient(
+      45deg,
+      transparent calc(50% - var(--stroke-hair) / 2),
+      var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
+      transparent calc(50% + var(--stroke-hair) / 2)
+    );
+}
+
+.ol-motion-kumiko::after {
+  background-image:
+    linear-gradient(to right, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
+    linear-gradient(
+      -45deg,
+      transparent calc(50% - var(--stroke-hair) / 2),
+      var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
+      transparent calc(50% + var(--stroke-hair) / 2)
+    );
+  animation-name: ol-kumiko-down;
+}
+
+/* Inside a live wait the lattice keeps assembling until the wait ends. */
+:is([aria-busy="true"], [role="status"]) .ol-motion-kumiko::before,
+:is([aria-busy="true"], [role="status"]) .ol-motion-kumiko::after,
+.ol-motion-kumiko:is([aria-busy="true"], [role="status"])::before,
+.ol-motion-kumiko:is([aria-busy="true"], [role="status"])::after {
+  animation-iteration-count: infinite;
+}
+
+@keyframes ol-kumiko-across {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 1;
+  }
+
+  30% {
+    clip-path: inset(0);
+  }
+
+  82% {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+
+  96%,
+  100% {
+    clip-path: inset(0);
+    opacity: 0;
+  }
+}
+
+@keyframes ol-kumiko-down {
+  0%,
+  12% {
+    clip-path: inset(0 0 100% 0);
+    opacity: 1;
+  }
+
+  42% {
+    clip-path: inset(0);
+  }
+
+  82% {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+
+  96%,
+  100% {
+    clip-path: inset(0);
+    opacity: 0;
+  }
+}
+
+/* Without clip-path the lattice is simply shown, still. */
+@supports not (clip-path: inset(0)) {
+  .ol-motion-kumiko::before,
+  .ol-motion-kumiko::after {
+    animation: none;
+  }
+}
+
+/* ---------- Opt-in: shishi-odoshi (indeterminate wait) ---------- */
+
+/*
+ * On the documented SVG: the tube fills slowly, tips, empties and knocks the stone. For waits
+ * only (inside role="status" or aria-busy="true"); .ol-motion-paused stops it (WCAG 2.2.2).
+ */
+.ol-motion-shishi {
+  /* Geometry of the documented 220 × 120 SVG, in viewBox units: not design values. */
+  --ol-shishi-drops: 3 6;
+  --ol-shishi-drop-step: -9;
+  --ol-shishi-pivot: 110px 61px;
+  --ol-shishi-spout: 114px 61px;
+
+  overflow: visible;
+}
+
+.ol-motion-shishi :is(line, rect, circle) {
+  vector-effect: non-scaling-stroke;
+}
+
+:is(.ol-motion-shishi__spout, .ol-motion-shishi__post, .ol-motion-shishi__knock) {
+  stroke: var(--ink);
+  stroke-width: var(--stroke-hair);
+}
+
+.ol-motion-shishi__ground {
+  stroke: var(--rule);
+  stroke-width: var(--stroke-hair);
+}
+
+.ol-motion-shishi__stone {
+  fill: var(--paper-3);
+  stroke: var(--ink-2);
+  stroke-width: var(--stroke-hair);
+}
+
+.ol-motion-shishi__body {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--stroke-hair);
+}
+
+.ol-motion-shishi__pin {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: var(--stroke-hair);
+}
+
+.ol-motion-shishi__drip {
+  stroke: var(--olivo);
+  stroke-width: var(--stroke-bold);
+  stroke-dasharray: var(--ol-shishi-drops);
+
+  /* A steady trickle: the bare linear keyword is approved for timers and constant flows. */
+  animation: ol-shishi-drip calc(var(--dur-m) * 2) linear infinite;
+}
+
+.ol-motion-shishi__tube {
+  transform-box: view-box;
+  transform-origin: var(--ol-shishi-pivot);
+  transform: rotate(25deg);
+  animation: ol-shishi-tip calc(var(--dur-xl) * 6) var(--ease-move) infinite;
+}
+
+.ol-motion-shishi__fill {
+  fill: var(--olivo);
+  transform-box: view-box;
+  transform-origin: var(--ol-shishi-spout);
+  transform: scaleX(0.5);
+
+  /* The water level of an SVG rect: scaleX from the pivot stays (clip-path does not pivot). */
+  animation: ol-shishi-fill calc(var(--dur-xl) * 6) var(--ease-effect) infinite;
+}
+
+.ol-motion-shishi__knock {
+  opacity: 0;
+  animation: ol-shishi-knock calc(var(--dur-xl) * 6) var(--ease-effect) infinite;
+}
+
+@keyframes ol-shishi-drip {
+  to {
+    stroke-dashoffset: var(--ol-shishi-drop-step);
+  }
+}
+
+@keyframes ol-shishi-tip {
+  0%,
+  70% {
+    transform: rotate(25deg);
+    animation-timing-function: var(--ease-move);
+  }
+
+  80%,
+  86% {
+    transform: rotate(-16deg);
+    animation-timing-function: var(--ease-move);
+  }
+
+  92%,
+  100% {
+    transform: rotate(25deg);
+  }
+}
+
+@keyframes ol-shishi-fill {
+  0% {
+    transform: scaleX(0);
+  }
+
+  70%,
+  80% {
+    transform: scaleX(1);
+  }
+
+  85%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes ol-shishi-knock {
+  0%,
+  91.5% {
+    opacity: 0;
+  }
+
+  92%,
+  95% {
+    opacity: 1;
+  }
+
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The pivots need transform-box; without it the scene stays at rest. */
+@supports not (transform-box: view-box) {
+  :is(.ol-motion-shishi__tube, .ol-motion-shishi__fill, .ol-motion-shishi__knock) {
+    animation: none;
+  }
+}
+
+/* ---------- Opt-in: sumi (press feedback) ---------- */
+
+/*
+ * A hard-edged ink bloom from the pointer, replacing a ripple. Works with :active alone (from the
+ * centre); bindSumi()/useSumi() add the pointer position and keep the ink until release. For a
+ * label that inverts exactly inside the bloom, add an aria-hidden copy as .ol-motion-sumi__ink;
+ * without the copy the whole label inverts at once, a fallback.
+ */
+:where(.ol-motion-sumi) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ol-motion-sumi::before,
+.ol-motion-sumi__ink {
+  clip-path: circle(0 at var(--ol-sumi-x, 50%) var(--ol-sumi-y, 50%));
+  pointer-events: none;
+}
+
+.ol-motion-sumi::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  /* Under the label, inside the control's own stacking context (isolation). */
+  z-index: calc(var(--z-raised) * -1);
+  background: var(--ol-sumi-fill, var(--ink));
+}
+
+.ol-motion-sumi__ink {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: inherit;
+  padding: inherit;
+  color: var(--ol-sumi-text, var(--on-ink));
+  background: var(--ol-sumi-fill, var(--ink));
+}
+
+.ol-motion-sumi:is(:active, [data-press="down"])::before,
+.ol-motion-sumi:is(:active, [data-press="down"]) > .ol-motion-sumi__ink {
+  clip-path: circle(150% at var(--ol-sumi-x, 50%) var(--ol-sumi-y, 50%));
+  transition: clip-path var(--dur-m) var(--ease-move);
+}
+
+.ol-motion-sumi[data-press="up"]::before,
+.ol-motion-sumi[data-press="up"] > .ol-motion-sumi__ink {
+  clip-path: circle(150% at var(--ol-sumi-x, 50%) var(--ol-sumi-y, 50%));
+  opacity: 0;
+  transition: opacity var(--dur-m) var(--ease-effect);
+}
+
+/* Without the inked copy, the label inverts with the bloom. */
+.ol-motion-sumi:not(:has(> .ol-motion-sumi__ink)):is(:active, [data-press="down"]) {
+  color: var(--ol-sumi-text, var(--on-ink));
+  transition: color var(--dur-s) var(--ease-effect);
+}
+
+/* Without clip-path circles the ink covers the whole control while pressed. */
+@supports not (clip-path: circle(0)) {
+  .ol-motion-sumi::before,
+  .ol-motion-sumi__ink {
+    clip-path: none;
+    opacity: 0;
+  }
+
+  .ol-motion-sumi:is(:active, [data-press="down"])::before,
+  .ol-motion-sumi:is(:active, [data-press="down"]) > .ol-motion-sumi__ink {
+    opacity: 1;
+  }
+}
+
+/* ---------- Opt-in: origami (jabara-ori, one-line titles) ---------- */
+
+/*
+ * foldOrigami()/useOrigami() print the title on a strip folded like a fan (5 panels) and open it
+ * left to right when it enters the viewport. Without the script, or without 3D transforms, the
+ * title is plain text. The real text keeps its colour (only its fill is hidden) and the sheet
+ * inks with currentcolor, so a theme switch recolours both live. Once the fold has opened
+ * (data-origami="done") the sheet steps aside and the real text shows, so selection is visible.
+ */
+.ol-motion-origami[data-origami] {
+  --ol-fold: 0;
+
+  position: relative;
+  white-space: nowrap;
+  -webkit-text-fill-color: transparent;
+  perspective: var(--ol-motion-perspective);
+  perspective-origin: 0 50%;
+}
+
+.ol-motion-origami[data-state="folded"] {
+  --ol-fold: 1;
+}
+
+.ol-motion-origami__sheet {
+  position: absolute;
+  top: var(--ol-origami-y, 0);
+  left: var(--ol-origami-x, 0);
+  height: var(--ol-origami-h, 100%);
+  transform-style: preserve-3d;
+  pointer-events: none;
+  -webkit-text-fill-color: currentcolor;
+}
+
+.ol-motion-origami[data-origami="done"] {
+  -webkit-text-fill-color: currentcolor;
+}
+
+.ol-motion-origami[data-origami="done"] > .ol-motion-origami__sheet {
+  visibility: hidden;
+}
+
+.ol-motion-origami__panel {
+  position: relative;
+  display: block;
+  width: var(--ol-origami-panel);
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.ol-motion-origami__panel .ol-motion-origami__panel {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transform-origin: 0 50%;
+  transform: rotateY(calc(var(--ol-rel) * var(--ol-fold)));
+  transition: transform var(--dur-xl) var(--ease-move);
+  transition-delay: calc((var(--ol-i) - 1) * var(--dur-l) * 0.6);
+}
+
+.ol-motion-origami[data-state="folded"] .ol-motion-origami__panel .ol-motion-origami__panel {
+  transition-duration: var(--dur-m);
+  transition-delay: calc((var(--ol-origami-last, 4) - var(--ol-i)) * var(--stagger));
+}
+
+.ol-motion-origami[data-origami="reset"] .ol-motion-origami__panel .ol-motion-origami__panel {
+  transition: none;
+}
+
+.ol-motion-origami__front,
+.ol-motion-origami__back {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.ol-motion-origami__front {
+  background: var(--ol-origami-paper, var(--paper));
+}
+
+.ol-motion-origami__sheet > .ol-motion-origami__panel > .ol-motion-origami__front {
+  transform: translateZ(calc(var(--ol-fold) * var(--stroke-heavy)));
+}
+
+.ol-motion-origami__back {
+  transform: rotateY(180deg);
+  background: var(--paper-3);
+}
+
+.ol-motion-origami__text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: var(--ol-origami-h, inherit);
+  white-space: nowrap;
+  transform: translateX(calc(var(--ol-origami-panel) * var(--ol-i) * -1));
+}
+
+@supports not (transform-style: preserve-3d) {
+  .ol-motion-origami[data-origami] {
+    -webkit-text-fill-color: currentcolor;
+  }
+
+  .ol-motion-origami__sheet {
+    display: none;
+  }
+}
+
+/* ---------- Reduced motion: loops stop on their end state ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .ol-motion-shishi__drip,
+    .ol-motion-shishi__tube,
+    .ol-motion-shishi__fill,
+    .ol-motion-shishi__knock
+  ),
+  .ol-motion-kumiko::before,
+  .ol-motion-kumiko::after {
+    animation: none !important;
+  }
+
+  .ol-motion-origami[data-origami] {
+    --ol-fold: 0 !important;
+  }
+
+  .ol-motion-origami__panel .ol-motion-origami__panel {
+    transition: none !important;
+  }
+}
+
+.ol-reduce-motion
+  :is(
+    .ol-motion-shishi__drip,
+    .ol-motion-shishi__tube,
+    .ol-motion-shishi__fill,
+    .ol-motion-shishi__knock
+  ),
+.ol-reduce-motion .ol-motion-kumiko::before,
+.ol-reduce-motion .ol-motion-kumiko::after,
+.ol-reduce-motion.ol-motion-kumiko::before,
+.ol-reduce-motion.ol-motion-kumiko::after {
+  animation: none !important;
+}
+
+:is(.ol-reduce-motion .ol-motion-origami, .ol-reduce-motion.ol-motion-origami)[data-origami] {
+  --ol-fold: 0 !important;
+}
+
+:is(.ol-reduce-motion .ol-motion-origami, .ol-reduce-motion.ol-motion-origami)[data-origami]
+  .ol-motion-origami__panel
+  .ol-motion-origami__panel {
+  transition: none !important;
+}
+
+/* ---------- Pause (WCAG 2.2.2): stops the loops in a subtree ---------- */
+
+/* Kumiko and shishi-odoshi are for waits only; see the pause section in motion.css. */
+.ol-motion-shishi__drip:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-shishi__drip,
+.ol-motion-shishi__tube:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-shishi__tube,
+.ol-motion-shishi__fill:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-shishi__fill,
+.ol-motion-shishi__knock:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-shishi__knock,
+.ol-motion-kumiko:is(.ol-motion-paused, [data-motion="paused"])::before,
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-kumiko::before,
+.ol-motion-kumiko:is(.ol-motion-paused, [data-motion="paused"])::after,
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-motion-kumiko::after {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Forced colours: origami shows the real text ---------- */
+
+@media (forced-colors: active) {
+  .ol-motion-origami[data-origami] {
+    -webkit-text-fill-color: currentcolor;
+  }
+
+  .ol-motion-origami__sheet {
+    display: none;
+  }
+}
+
+/* ---------- Print: origami prints the real text (animations are off, see motion.css) ---------- */
+
+@media print {
+  .ol-motion-origami[data-origami] {
+    -webkit-text-fill-color: currentcolor;
+  }
+
+  .ol-motion-origami__sheet {
+    display: none;
+  }
+}
