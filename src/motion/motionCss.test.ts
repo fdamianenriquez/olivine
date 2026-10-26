@@ -212,12 +212,9 @@ describe("motion.css and motion-extras.css", () => {
     }
   });
 
-  it("lets the kakejiku rod be omitted and hangs it outside the moving edge", () => {
-    expect(rule(".ol-kakejiku--rodless::after")).toMatch(/content:\s*none/);
-    expect(rule(".ol-kakejiku::after")).toContain("calc(var(--stroke-heavy) * -1)");
-    expect(rule('.ol-kakejiku[data-side="top"]::after')).toContain(
-      "inset: calc(var(--stroke-heavy) * -1)",
-    );
+  it("hangs the kakejiku rod outside the moving edge of horizontal unrolls only", () => {
+    expect(css).not.toMatch(/\.ol-kakejiku(\[[^\]]*\])*::after/);
+    expect(css).not.toContain("ol-kakejiku--rodless");
     expect(rule(".ol-kakejiku--from-right::after")).toContain("calc(var(--stroke-heavy) * -1)");
     expect(rule(".ol-kakejiku--from-left::after")).toContain("calc(var(--stroke-heavy) * -1)");
   });

@@ -504,12 +504,6 @@ function KakejikuDemo() {
     setElement: setScroll,
   } = usePresence<HTMLDivElement>(modal);
   const { mounted: emakiShown, state: emakiState, setElement: setEmaki } = usePresence(drawer);
-  const [menu, setMenu] = useState(false);
-  const {
-    mounted: menuShown,
-    state: menuState,
-    setElement: setMenuEl,
-  } = usePresence<HTMLDivElement>(menu);
   return (
     <div className="ol-sb-motion__stack">
       <div className="ol-sb-motion__row">
@@ -532,16 +526,6 @@ function KakejikuDemo() {
           }}
         >
           Toggle panel
-        </button>
-        <button
-          type="button"
-          className="ol-sb-motion__btn"
-          aria-expanded={menu}
-          onClick={() => {
-            setMenu((m) => !m);
-          }}
-        >
-          Toggle small menu
         </button>
       </div>
       <div className="ol-sb-motion__stage">
@@ -583,17 +567,6 @@ function KakejikuDemo() {
             <Text as="p">Wood · Finish · Pickups</Text>
           </aside>
         )}
-        {menuShown && (
-          <div
-            ref={setMenuEl}
-            role="group"
-            aria-label="Quick actions"
-            className="ol-kakejiku ol-kakejiku--rodless ol-sb-motion__panel"
-            data-state={menuState}
-          >
-            <Text as="p">Share · Save · Compare</Text>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -604,7 +577,7 @@ export const Kakejiku: Story = {
     docs: {
       description: {
         story:
-          '`.ol-kakejiku` unrolls with a clip-path and a 3px rod just outside the moving edge; `data-state="closing"` rolls it back. `--from-right` / `--from-left` unroll from a screen edge (emakimono). The rod stays after unrolling on Modal and Offcanvas; `.ol-kakejiku--rodless` omits it on small menus (Fab), as in "Toggle small menu". Components keep it mounted and `inert` while it rolls up with an internal presence hook (`usePresence`, not exported from the package root; used here only to drive the demo).',
+          '`.ol-kakejiku` unrolls with a clip-path; `data-state="closing"` rolls it back. Vertical unrolls (Modal, menus) have no rod. `--from-right` / `--from-left` unroll from a screen edge (emakimono) with a 3px rod just outside the moving edge, which stays after unrolling (Offcanvas). Components keep it mounted and `inert` while it rolls up with an internal presence hook (`usePresence`, not exported from the package root; used here only to drive the demo).',
       },
     },
   },

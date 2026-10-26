@@ -40,7 +40,7 @@ describe("tokens", () => {
       "ease-move": "linear(0, 0.06 30%, 0.35 65%, 1)",
       "ease-effect": "cubic-bezier(0.34, 0.8, 0.34, 1)",
       "ease-standard": "cubic-bezier(0.27, 1, 0.18, 1)",
-      "ease-print": "steps(2, jump-end)",
+      "ease-print": "steps(2, jump-start)",
       "dur-s": "150ms",
       "dur-m": "300ms",
       "dur-l": "500ms",

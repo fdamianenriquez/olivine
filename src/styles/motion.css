@@ -527,10 +527,9 @@
 
 /*
  * data-state="open" (or none) unrolls on insertion; "closing" rolls back up (see usePresence).
- * Vertical, away from the trigger: data-side="bottom" (default) or "top". Horizontal, from a
- * screen edge: .ol-kakejiku--from-right or --from-left. The rod (jiku) sits just outside the
- * moving edge and stays after unrolling (Modal, Offcanvas); .ol-kakejiku--rodless omits it for
- * small menus (Fab).
+ * Vertical, away from the trigger: data-side="bottom" (default) or "top"; no rod (Modal, menus).
+ * Horizontal, from a screen edge: .ol-kakejiku--from-right or --from-left; the rod (jiku) sits
+ * just outside the moving edge and stays after unrolling (Offcanvas).
  */
 :where(.ol-kakejiku) {
   position: relative;
@@ -538,55 +537,27 @@
   --ol-kakejiku-o: calc(var(--ol-motion-overhang) * -1);
 }
 
-.ol-kakejiku::after {
-  content: "";
-  position: absolute;
-  inset: 0 calc(var(--space-2) * -1) calc(var(--stroke-heavy) * -1);
-  border-bottom: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
-  pointer-events: none;
-}
-
 .ol-kakejiku:not([data-state="closing"]) {
   animation: ol-unroll-down var(--dur-l) var(--ease-move) backwards;
-}
-
-.ol-kakejiku:not([data-state="closing"])::after {
-  animation: ol-rod-down var(--dur-l) var(--ease-move) backwards;
 }
 
 .ol-kakejiku[data-state="closing"] {
   animation: ol-roll-up var(--dur-l) var(--ease-move) forwards;
 }
 
-.ol-kakejiku[data-state="closing"]::after {
-  animation: ol-rod-up var(--dur-l) var(--ease-move) forwards;
-}
-
-.ol-kakejiku[data-side="top"]::after {
-  inset: calc(var(--stroke-heavy) * -1) calc(var(--space-2) * -1) 0;
-  border-top: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
-  border-bottom: 0;
-}
-
 .ol-kakejiku[data-side="top"]:not([data-state="closing"]) {
   animation-name: ol-unroll-up;
-}
-
-.ol-kakejiku[data-side="top"]:not([data-state="closing"])::after {
-  animation-name: ol-rod-up-in;
 }
 
 .ol-kakejiku[data-side="top"][data-state="closing"] {
   animation-name: ol-roll-down;
 }
 
-.ol-kakejiku[data-side="top"][data-state="closing"]::after {
-  animation-name: ol-rod-down-out;
-}
-
 .ol-kakejiku--from-right::after,
 .ol-kakejiku--from-left::after {
-  border-bottom: 0;
+  content: "";
+  position: absolute;
+  pointer-events: none;
 }
 
 .ol-kakejiku--from-right::after {
@@ -604,7 +575,7 @@
 }
 
 .ol-kakejiku--from-right:not([data-state="closing"])::after {
-  animation-name: ol-rod-left-in;
+  animation: ol-rod-left-in var(--dur-l) var(--ease-move) backwards;
 }
 
 .ol-kakejiku--from-right[data-state="closing"] {
@@ -612,7 +583,7 @@
 }
 
 .ol-kakejiku--from-right[data-state="closing"]::after {
-  animation-name: ol-rod-right-out;
+  animation: ol-rod-right-out var(--dur-l) var(--ease-move) forwards;
 }
 
 .ol-kakejiku--from-left:not([data-state="closing"]) {
@@ -620,7 +591,7 @@
 }
 
 .ol-kakejiku--from-left:not([data-state="closing"])::after {
-  animation-name: ol-rod-right-in;
+  animation: ol-rod-right-in var(--dur-l) var(--ease-move) backwards;
 }
 
 .ol-kakejiku--from-left[data-state="closing"] {
@@ -628,12 +599,7 @@
 }
 
 .ol-kakejiku--from-left[data-state="closing"]::after {
-  animation-name: ol-rod-left-out;
-}
-
-/* Small menus (Fab): the sheet unrolls without a rod. */
-.ol-kakejiku--rodless::after {
-  content: none;
+  animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
 }
 
 @keyframes ol-unroll-down {
@@ -713,30 +679,6 @@
 
   to {
     clip-path: inset(var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o) var(--ol-kakejiku-o));
-  }
-}
-
-@keyframes ol-rod-down {
-  from {
-    transform: translateY(-100%);
-  }
-}
-
-@keyframes ol-rod-up {
-  to {
-    transform: translateY(-100%);
-  }
-}
-
-@keyframes ol-rod-up-in {
-  from {
-    transform: translateY(100%);
-  }
-}
-
-@keyframes ol-rod-down-out {
-  to {
-    transform: translateY(100%);
   }
 }
 
@@ -835,6 +777,16 @@
     [data-state="on"]
   ):not(:where(:has(> .ol-ink-wipe__ink))) {
   color: var(--ol-ink-wipe-text, var(--on-ink));
+}
+
+/*
+ * With useInkWipe() the keyframes below own the wipe. Drop the clip-path transition so it never
+ * competes with them: transitions win the cascade over animations, and where a browser runs both
+ * the fallback (which always wipes from the left) would reverse the direction.
+ */
+.ol-ink-wipe[data-ink]::before,
+.ol-ink-wipe[data-ink] > .ol-ink-wipe__ink {
+  transition: none;
 }
 
 .ol-ink-wipe[data-ink="enter"][data-ink-dir="forward"]::before,
@@ -957,6 +909,18 @@
     height: 100%;
     animation-duration: var(--dur-l);
     animation-timing-function: var(--ease-effect);
+  }
+
+  /*
+   * A card with no partner (the other cards of the grid) must not cover the morph: it leaves
+   * quickly and fades in only at the end, when the morph has landed.
+   */
+  ::view-transition-old(*.ol-morph):only-child {
+    animation-duration: var(--dur-s);
+  }
+
+  ::view-transition-new(*.ol-morph):only-child {
+    animation-timing-function: var(--ease-move);
   }
 
   .ol-motion-shoji {
