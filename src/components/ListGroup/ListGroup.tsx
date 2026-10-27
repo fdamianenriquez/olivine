@@ -7,7 +7,7 @@ export interface ListGroupItem {
   title: ReactNode;
   /** Secondary line under the title. */
   description?: ReactNode;
-  /** Right-aligned mono label, such as a count or an arrow. */
+  /** Right-aligned label, such as a count or an arrow. */
   meta?: ReactNode;
   /** Makes the row a link. Takes precedence over `onClick`. */
   href?: string;

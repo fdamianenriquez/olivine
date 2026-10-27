@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Badge is a 22px mono tag for status and counts.\n\n**Props** — `tone`: `neutral` | `solid` | `accent` (maple fill, ink text) | `olivo` | `info` | `success` | `warning` | `danger`; `dot`; `count` (square numeric badge).\n\n- Status tones always keep a word inside — colour never carries meaning alone.\n- A bare `count` reads as just a number to screen readers; keep context words next to it, or put them in visually hidden text inside the badge: `<Badge count>12<span className="ol-sr"> unread</span></Badge>`.',
+          'Badge is a 22px tag in the label style for status and counts.\n\n**Props** — `tone`: `neutral` | `solid` | `accent` (maple fill, ink text) | `olivo` | `info` | `success` | `warning` | `danger`; `dot`; `count` (square numeric badge).\n\n- Status tones always keep a word inside — colour never carries meaning alone.\n- A bare `count` reads as just a number to screen readers; keep context words next to it, or put them in visually hidden text inside the badge: `<Badge count>12<span className="ol-sr"> unread</span></Badge>`.',
       },
     },
   },

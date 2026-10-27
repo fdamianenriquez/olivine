@@ -12,7 +12,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Sheet is the archive panel: an ink frame with a mono bar (index, title, meta) over its content.\n\n- Do use `crosshair` on one or two sheets per page, not all of them.\n- Texture utilities go inside a flush sheet: `.ol-halftone` (dot screen, add `--fade` or `--fine`) for images and covers, `.ol-scanlines` for dark data blocks only. Never put either behind body text.",
+          "Sheet is the archive panel: an ink frame with a label bar (index, title, meta) over its content.\n\n- Do use `crosshair` on one or two sheets per page, not all of them.\n- Texture utilities go inside a flush sheet: `.ol-halftone` (dot screen, add `--fade` or `--fine`) for images and covers, `.ol-scanlines` for dark data blocks only. Never put either behind body text.",
       },
     },
   },

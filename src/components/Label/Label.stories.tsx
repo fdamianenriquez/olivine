@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Label is the mono uppercase voice of the interface: eyebrows, metadata, index numbers.\n\n- Do write labels in 1-3 words. They are uppercased by CSS; write them in sentence case in code.",
+          "Label is the voice of the interface: eyebrows, metadata, index numbers, in Familjen Grotesk 500.\n\n- Do write labels in 1-3 words, in sentence case. Never uppercase them.",
       },
     },
   },

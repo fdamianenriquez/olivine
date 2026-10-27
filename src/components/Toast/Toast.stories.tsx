@@ -13,7 +13,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `Toast is a brief raised notice with a mono meta line (coloured dot by tone) and an optional draining timer bar. Place it inside \`ToastStack\`, which owns the single polite live region.
+        component: `Toast is a brief raised notice with a meta line (coloured dot by tone) and an optional draining timer bar. Place it inside \`ToastStack\`, which owns the single polite live region.
 
 - Do keep the title short and let the meta line say when or where.
 - Do pass \`onClose\` whenever you pass \`duration\`; the timer pauses on hover and focus.

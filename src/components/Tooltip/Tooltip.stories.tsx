@@ -14,7 +14,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Tooltip shows a few mono words in an ink box on hover and focus; Escape hides it.\n\nIt opens after `openDelay` on hover, at once on keyboard focus, and on a long press on touch. The pointer can move onto the tooltip without closing it. It renders in a portal and flips at the viewport edge.\n\nA disabled button receives no pointer or focus events, so the tooltip never opens. Wrap it in a focusable element (for example a `span` with `tabIndex={0}`) and put the tooltip on the wrapper.\n\n- Don't put essential information or links in a tooltip; use Popover.",
+          "Tooltip shows a few words in an ink box on hover and focus; Escape hides it.\n\nIt opens after `openDelay` on hover, at once on keyboard focus, and on a long press on touch. The pointer can move onto the tooltip without closing it. It renders in a portal and flips at the viewport edge.\n\nA disabled button receives no pointer or focus events, so the tooltip never opens. Wrap it in a focusable element (for example a `span` with `tabIndex={0}`) and put the tooltip on the wrapper.\n\n- Don't put essential information or links in a tooltip; use Popover.",
       },
     },
   },

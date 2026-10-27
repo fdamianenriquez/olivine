@@ -16,7 +16,7 @@ export interface FigureProps extends Omit<HTMLAttributes<HTMLElement>, "title"> 
 }
 
 /**
- * Pairs media with a mono caption line: "FIG. 01 — caption …… credit".
+ * Pairs media with a caption line: "Fig. 01 — caption …… credit".
  *
  * Renders a `<figure>` with a `<figcaption>`, which names the figure. Without `caption`, `credit`
  * or `index` no `<figcaption>` is rendered. The "Fig." word comes from the locale. Figure does not

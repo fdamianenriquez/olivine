@@ -27,8 +27,8 @@ export interface DividerProps extends HTMLAttributes<HTMLElement> {
 }
 
 /**
- * A hairline rule. Without `label` it is an `<hr>` (a separator); with `label` it is a mono
- * section marker followed by a line.
+ * A hairline rule. Without `label` it is an `<hr>` (a separator); with `label` it is a section
+ * marker in the label style followed by a line.
  *
  * Use the marker to start a section: set `headingLevel` and the label becomes the section's
  * heading, so assistive technology can jump to it. Leave it off when the marker only

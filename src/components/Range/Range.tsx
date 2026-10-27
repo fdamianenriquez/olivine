@@ -18,7 +18,7 @@ export interface RangeProps extends Omit<
   value?: number;
   /** Initial value when uncontrolled. Defaults to `min`. */
   defaultValue?: number;
-  /** Shows the mono scale with the minimum, current and maximum values. */
+  /** Shows the scale with the minimum, current and maximum values. */
   scale?: boolean;
   /** Formats the numbers on the scale. A string or number result also becomes `aria-valuetext`. */
   format?: (value: number) => ReactNode;
@@ -28,7 +28,7 @@ export interface RangeProps extends Omit<
 
 const identity = (value: number): ReactNode => value;
 
-/** A hairline track with a block thumb and a mono scale showing min, current and max. */
+/** A hairline track with a block thumb and a scale showing min, current and max. */
 export const Range = forwardRef<HTMLInputElement, RangeProps>(function Range(
   {
     min = 0,

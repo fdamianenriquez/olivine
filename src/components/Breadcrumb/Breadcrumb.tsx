@@ -18,7 +18,7 @@ export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, "chil
 }
 
 /**
- * Path of mono labels separated by "/". The last item is the current page and is not a link.
+ * Path of labels separated by "/". The last item is the current page and is not a link.
  * Long trails wrap onto further lines.
  */
 export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(

@@ -23,7 +23,6 @@
   line-height: var(--text-label-leading);
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
 }
 
 .ol-table td {
@@ -65,10 +64,13 @@
   text-align: right;
 }
 
+/* Amounts and quantities in the figure face (typography v2), never below 16px. */
 .ol-table td.ol-num {
   text-align: right;
-  font-family: var(--font-mono);
-  font-size: var(--text-mono-size);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
   font-variant-numeric: tabular-nums;
 }
 
@@ -80,9 +82,9 @@
   caption-side: bottom;
   text-align: left;
   padding-top: var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-mono-size);
-  line-height: var(--text-mono-leading);
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
   color: var(--ink-2);
 }
 

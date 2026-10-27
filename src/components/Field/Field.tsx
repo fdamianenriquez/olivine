@@ -13,7 +13,7 @@ import { FieldContext, type FieldContextValue, useField } from "../../hooks/useF
 import { cx } from "../../utils/cx";
 
 export interface FieldProps extends Omit<React.ComponentPropsWithoutRef<"div">, "children"> {
-  /** Mono uppercase label, bound to the control with `<label for>`. Leave it out when the control draws its own label (Checkbox, Radio, Switch). */
+  /** Sentence-case label, bound to the control with `<label for>`. Leave it out when the control draws its own label (Checkbox, Radio, Switch). */
   label?: ReactNode;
   /** Helper text under the control. Referenced by `aria-describedby`. */
   hint?: ReactNode;

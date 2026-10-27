@@ -36,7 +36,7 @@ function hasWord(node: ReactNode): boolean {
   return false;
 }
 
-/** A 22px mono tag for status and counts. */
+/** A 22px tag in the label style for status and counts. */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
   { tone = "neutral", dot = false, count = false, className, children, ...rest },
   ref,

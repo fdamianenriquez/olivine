@@ -88,7 +88,6 @@
   font-size: var(--text-label-size);
   line-height: var(--text-label-leading);
   letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
   color: var(--ink-2);
 }
 

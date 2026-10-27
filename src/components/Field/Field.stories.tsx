@@ -15,7 +15,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Field wraps one control with its mono label, hint and validation message, and wires the ARIA between them.\n\nOlivine controls read the field through context; a plain DOM element child is cloned with `id`, `aria-describedby`, `aria-invalid` and `required`; use `Field.Control` for any other component. Checkbox, Radio and Switch draw their own label, so don't also pass `label` to the Field.\n\n- Do write errors as instructions (\"Enter a valid address.\"), not accusations.\n- Don't rely on the × and ✓ prefixes or colour alone; the message text carries the meaning.",
+          "Field wraps one control with its label, hint and validation message, and wires the ARIA between them.\n\nOlivine controls read the field through context; a plain DOM element child is cloned with `id`, `aria-describedby`, `aria-invalid` and `required`; use `Field.Control` for any other component. Checkbox, Radio and Switch draw their own label, so don't also pass `label` to the Field.\n\n- Do write errors as instructions (\"Enter a valid address.\"), not accusations.\n- Don't rely on the × and ✓ prefixes or colour alone; the message text carries the meaning.",
       },
     },
   },

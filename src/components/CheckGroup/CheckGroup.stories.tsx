@@ -14,7 +14,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "CheckGroup is a fieldset for checkboxes or radios with a mono legend.\n\n- Use `legend` to name the group; it is what assistive technology announces.\n- Use `inline` for short options that fit on one row.\n- Disabling the group disables every option inside.",
+          "CheckGroup is a fieldset for checkboxes or radios with a legend.\n\n- Use `legend` to name the group; it is what assistive technology announces.\n- Use `inline` for short options that fit on one row.\n- Disabling the group disables every option inside.",
       },
     },
   },

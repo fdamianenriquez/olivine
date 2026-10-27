@@ -12,7 +12,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `Figure pairs media with a mono caption line: "FIG. 01 — caption …… credit".
+        component: `Figure pairs media with a caption line: "Fig. 01 — caption …… credit".
 
 **Props** — \`index\`, \`caption\`, \`credit\`; children are the media.
 

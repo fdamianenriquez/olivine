@@ -56,14 +56,13 @@
   left: var(--ol-float-x, 0);
 }
 
-/* The system voice: mono, uppercase via CSS. */
+/* The system voice: Familjen Grotesk 500, sentence case (never uppercase). */
 .ol-label {
   font-family: var(--text-label-family);
   font-size: var(--text-label-size);
   line-height: var(--text-label-leading);
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
 }
 
 @media (prefers-reduced-motion: reduce) {

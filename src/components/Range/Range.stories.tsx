@@ -18,7 +18,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Range is a hairline track with a block thumb and a mono scale showing min, current and max.\n\n- Do use `format` to add units to the scale and to the announced value.\n- Do use it inside `Field` so it gets a label.\n- Don't use it for exact entry; pair it with an `Input` when precision matters.",
+          "Range is a hairline track with a block thumb and a scale showing min, current and max.\n\n- Do use `format` to add units to the scale and to the announced value.\n- Do use it inside `Field` so it gets a label.\n- Don't use it for exact entry; pair it with an `Input` when precision matters.",
       },
     },
   },
