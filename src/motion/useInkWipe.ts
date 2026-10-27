@@ -10,21 +10,25 @@ interface Edges {
   r: number;
 }
 
+/**
+ * Left edge of an item's padding box, where its fill starts. Items that share a border overlap
+ * by its width, so measuring the border box would leak a border-wide strip of ink onto the next.
+ */
+const innerLeft = (item: HTMLElement, origin: number) =>
+  item.getBoundingClientRect().left + item.clientLeft - origin;
+
 /** Writes the selected item's edges on the group and each item's offset; returns the edges. */
 function measure(group: HTMLElement, active: number, previous: Edges | null): Edges {
-  const box = group.getBoundingClientRect();
+  const origin = group.getBoundingClientRect().left;
   const items = group.querySelectorAll<HTMLElement>(".ol-ink-wipe");
   items.forEach((item) => {
-    item.style.setProperty(
-      "--ol-ink-x",
-      `${String(item.getBoundingClientRect().left - box.left)}px`,
-    );
+    item.style.setProperty("--ol-ink-x", `${String(innerLeft(item, origin))}px`);
   });
   const target = active >= 0 ? items[active] : undefined;
   let edges: Edges;
   if (target) {
-    const rect = target.getBoundingClientRect();
-    edges = { l: rect.left - box.left, r: rect.right - box.left };
+    const l = innerLeft(target, origin);
+    edges = { l, r: l + target.clientWidth };
   } else {
     // No selection: the ink shrinks to the middle of where it was.
     const middle = previous ? (previous.l + previous.r) / 2 : 0;

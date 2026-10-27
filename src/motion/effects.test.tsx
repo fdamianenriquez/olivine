@@ -47,11 +47,14 @@ describe("useInkWipe", () => {
     } as DOMRect);
   }
 
+  // Three 100px items with a 1px border, sharing it: each overlaps the previous by 1px.
   function layout() {
     const group = screen.getByTestId("group");
-    place(group, 100, 300);
+    place(group, 100, 298);
     screen.getAllByRole("radio").forEach((item, index) => {
-      place(item, 100 + index * 100, 100);
+      place(item, 100 + index * 99, 100);
+      Object.defineProperty(item, "clientLeft", { configurable: true, value: 1 });
+      Object.defineProperty(item, "clientWidth", { configurable: true, value: 98 });
     });
     return group;
   }
@@ -65,16 +68,17 @@ describe("useInkWipe", () => {
     const { rerender } = render(<Group active={-1} />);
     const group = layout();
     rerender(<Group active={0} />);
-    expect(edges(group)).toEqual(["0px", "100px"]);
+    // Inside the borders: the ink ends (99px) before the next item's fill starts (100px).
+    expect(edges(group)).toEqual(["1px", "99px"]);
     expect(
       screen.getAllByRole("radio").map((el) => el.style.getPropertyValue("--ol-ink-x")),
-    ).toEqual(["0px", "100px", "200px"]);
+    ).toEqual(["1px", "100px", "199px"]);
     await waitFor(() => {
       expect(group).toHaveAttribute("data-ink-wipe", "ready");
     });
     // A jump over the middle item moves both edges; the ink crosses the item in between.
     rerender(<Group active={2} />);
-    expect(edges(group)).toEqual(["200px", "300px"]);
+    expect(edges(group)).toEqual(["199px", "297px"]);
   });
 
   it("shrinks the ink to the middle of the last selection when it is cleared", () => {
@@ -82,7 +86,7 @@ describe("useInkWipe", () => {
     const group = layout();
     rerender(<Group active={1} />);
     rerender(<Group active={-1} />);
-    expect(edges(group)).toEqual(["150px", "150px"]);
+    expect(edges(group)).toEqual(["149px", "149px"]);
   });
 
   it("has no axe violations before and after a change, with the inked copy", async () => {
