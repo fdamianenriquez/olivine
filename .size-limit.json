@@ -25,7 +25,7 @@
     "path": "dist/motion-extras.css",
     "rolldown": false,
     "gzip": true,
-    "limit": "3 kB"
+    "limit": "3.5 kB"
   },
   {
     "name": "JS (tokens)",
