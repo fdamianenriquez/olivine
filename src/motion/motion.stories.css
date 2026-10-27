@@ -93,7 +93,6 @@
   padding: var(--space-6);
   background: var(--paper);
   border: var(--stroke-hair) solid var(--rule);
-  border-top: var(--stroke-heavy) solid var(--ink);
   box-shadow: var(--shadow-block);
 }
 

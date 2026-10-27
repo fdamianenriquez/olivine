@@ -434,7 +434,7 @@
 }
 
 .ol-print-block {
-  animation: ol-print-block var(--dur-m) var(--ease-print) backwards;
+  animation: ol-print-block var(--dur-s) var(--ease-print) backwards;
 }
 
 /* ---------- Kintsugi: the crack is not hidden, it is repaired ---------- */
@@ -706,17 +706,32 @@
   }
 }
 
-/* ---------- Ink wipe (built-in effect): the selection is inked in its direction of travel ---------- */
+/* ---------- Ink wipe (built-in effect): one ink travels from the old selection to the new ---------- */
 
 /*
  * The fill sits under the content. Selected = aria-checked / aria-pressed / aria-selected
- * "true" or data-state="on". useInkWipe() adds data-ink="enter|leave" and data-ink-dir so the
- * ink arrives from the previous selection and leaves towards the new one.
+ * "true" or data-state="on". On its own, the selected item is inked and a change wipes in place.
+ * With useInkWipe() on the group, one ink travels from the previous selection to the new one,
+ * across the items in between: the hook writes the selected item's edges on the group
+ * (--ol-ink-l, --ol-ink-r) and each item's own offset (--ol-ink-x); every item clips its fill to
+ * the part of the ink that lies over it.
  *
  * For a label whose contrast never dips mid-wipe (SegmentedControl), add an aria-hidden copy of
  * the label as .ol-ink-wipe__ink: it is clipped exactly like the fill and carries the inverted
  * text, so the base label stays ink. Without the copy the label's colour cross-fades, a fallback.
  */
+@property --ol-ink-l {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --ol-ink-r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
 :where(.ol-ink-wipe) {
   position: relative;
   isolation: isolate;
@@ -779,96 +794,16 @@
   color: var(--ol-ink-wipe-text, var(--on-ink));
 }
 
-/*
- * With useInkWipe() the keyframes below own the wipe. Drop the clip-path transition so it never
- * competes with them: transitions win the cascade over animations, and where a browser runs both
- * the fallback (which always wipes from the left) would reverse the direction.
- */
-.ol-ink-wipe[data-ink]::before,
-.ol-ink-wipe[data-ink] > .ol-ink-wipe__ink {
-  transition: none;
-}
-
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="forward"]::before,
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="forward"] > .ol-ink-wipe__ink {
-  animation: ol-ink-in-from-left var(--dur-m) var(--ease-move) backwards;
-}
-
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="back"]::before,
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="back"] > .ol-ink-wipe__ink {
-  animation: ol-ink-in-from-right var(--dur-m) var(--ease-move) backwards;
-}
-
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="forward"]::before,
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="forward"] > .ol-ink-wipe__ink {
-  animation: ol-ink-out-to-right var(--dur-m) var(--ease-move) backwards;
-}
-
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="back"]::before,
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="back"] > .ol-ink-wipe__ink {
-  animation: ol-ink-out-to-left var(--dur-m) var(--ease-move) backwards;
-}
-
-/* Right to left: forward travels leftwards. */
-
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="back"]:dir(rtl)::before,
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="back"]:dir(rtl) > .ol-ink-wipe__ink {
-  animation-name: ol-ink-in-from-left;
-}
-
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="forward"]:dir(rtl)::before,
-.ol-ink-wipe[data-ink="enter"][data-ink-dir="forward"]:dir(rtl) > .ol-ink-wipe__ink {
-  animation-name: ol-ink-in-from-right;
-}
-
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="back"]:dir(rtl)::before,
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="back"]:dir(rtl) > .ol-ink-wipe__ink {
-  animation-name: ol-ink-out-to-right;
-}
-
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="forward"]:dir(rtl)::before,
-.ol-ink-wipe[data-ink="leave"][data-ink-dir="forward"]:dir(rtl) > .ol-ink-wipe__ink {
-  animation-name: ol-ink-out-to-left;
-}
-
-@keyframes ol-ink-in-from-left {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-
-  to {
-    clip-path: inset(0);
-  }
-}
-
-@keyframes ol-ink-in-from-right {
-  from {
-    clip-path: inset(0 0 0 100%);
-  }
-
-  to {
-    clip-path: inset(0);
-  }
-}
-
-@keyframes ol-ink-out-to-right {
-  from {
-    clip-path: inset(0);
-  }
-
-  to {
-    clip-path: inset(0 0 0 100%);
-  }
-}
-
-@keyframes ol-ink-out-to-left {
-  from {
-    clip-path: inset(0);
-  }
-
-  to {
-    clip-path: inset(0 100% 0 0);
-  }
+/* With useInkWipe(): the travelling ink. Physical edges, so right to left needs nothing more. */
+[data-ink-wipe="ready"] .ol-ink-wipe::before,
+[data-ink-wipe="ready"] .ol-ink-wipe > .ol-ink-wipe__ink {
+  clip-path: inset(
+    0 clamp(0px, 100% - var(--ol-ink-r) + var(--ol-ink-x, 0px), 100%) 0
+      clamp(0px, var(--ol-ink-l) - var(--ol-ink-x, 0px), 100%)
+  );
+  transition:
+    --ol-ink-l var(--dur-m) var(--ease-move),
+    --ol-ink-r var(--dur-m) var(--ease-move);
 }
 
 /* ---------- Sliding bar (built-in effect): a 3px olivo bar slides between tabs ---------- */
@@ -920,6 +855,12 @@
   }
 
   ::view-transition-new(*.ol-morph):only-child {
+    animation-timing-function: var(--ease-move);
+  }
+
+  /* Closing (direction "back"): the page keeps its paper until the card has nearly landed. */
+  :root[data-ol-vt="back"]::view-transition-old(*.ol-morph),
+  :root[data-ol-vt="back"]::view-transition-new(*.ol-morph) {
     animation-timing-function: var(--ease-move);
   }
 

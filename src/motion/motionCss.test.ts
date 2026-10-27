@@ -226,18 +226,14 @@ describe("motion.css and motion-extras.css", () => {
     expect(rule(".ol-motion-shishi__drip")).toMatch(/animation:[^;]*\blinear\b/);
   });
 
-  it("clips the ink-wipe copy exactly like the fill, in both directions and in RTL", () => {
-    for (const [ink, dir, name] of [
-      ["enter", "forward", "ol-ink-in-from-left"],
-      ["enter", "back", "ol-ink-in-from-right"],
-      ["leave", "forward", "ol-ink-out-to-right"],
-      ["leave", "back", "ol-ink-out-to-left"],
-    ]) {
-      const base = `.ol-ink-wipe[data-ink="${String(ink)}"][data-ink-dir="${String(dir)}"]`;
-      const body = rule(`${base}::before,\n${base} > .ol-ink-wipe__ink`);
-      expect(body).toContain(String(name));
-      expect(css).toContain(`${base}:dir(rtl) > .ol-ink-wipe__ink`);
-    }
+  it("clips the ink-wipe copy exactly like the fill, to the travelling ink", () => {
+    const body = rule(
+      '[data-ink-wipe="ready"] .ol-ink-wipe::before,\n[data-ink-wipe="ready"] .ol-ink-wipe > .ol-ink-wipe__ink',
+    );
+    expect(body).toContain("var(--ol-ink-l) - var(--ol-ink-x, 0px)");
+    expect(body).toContain("100% - var(--ol-ink-r) + var(--ol-ink-x, 0px)");
+    expect(body).toMatch(/--ol-ink-l var\(--dur-m\) var\(--ease-move\)/);
+    expect(css).toMatch(/@property --ol-ink-l \{[^}]*inherits: true/);
     // With the copy, the label itself keeps its colour.
     expect(css).toMatch(/:not\(:where\(:has\(> \.ol-ink-wipe__ink\)\)\)\s*\{\s*color:/);
   });
@@ -288,7 +284,7 @@ describe("motion.css and motion-extras.css", () => {
         <section class="ol-johakyu"><div class="ol-johakyu__ha"></div></section>
         <ul class="ol-stagger"><li></li></ul>
         <div class="ol-kakejiku" data-state="closing"></div>
-        <button class="ol-ink-wipe" data-ink="enter"></button>
+        <button class="ol-ink-wipe"></button>
         <svg><path class="ol-enso__stroke"></path></svg>
         <div class="ol-motion-kumiko"></div>
       </div>

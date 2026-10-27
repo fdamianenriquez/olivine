@@ -15,10 +15,10 @@ afterEach(() => {
 });
 
 describe("useInkWipe", () => {
-  function Group({ active }: { active: number }) {
-    const ink = useInkWipe(active);
+  function Group({ active, copy = false }: { active: number; copy?: boolean }) {
+    const ink = useInkWipe<HTMLDivElement>(active);
     return (
-      <div role="radiogroup" aria-label="Size">
+      <div ref={ink} data-testid="group" role="radiogroup" aria-label="Size">
         {["S", "M", "L"].map((label, index) => (
           <button
             key={label}
@@ -26,90 +26,79 @@ describe("useInkWipe", () => {
             role="radio"
             aria-checked={index === active}
             className="ol-ink-wipe"
-            {...ink(index)}
           >
             {label}
+            {copy && (
+              <span className="ol-ink-wipe__ink" aria-hidden="true">
+                {label}
+              </span>
+            )}
           </button>
         ))}
       </div>
     );
   }
 
-  const attrs = () =>
-    screen.getAllByRole("radio").map((el) => [el.dataset.ink ?? "", el.dataset.inkDir ?? ""]);
+  function place(el: Element, left: number, width: number) {
+    vi.spyOn(el, "getBoundingClientRect").mockReturnValue({
+      left,
+      width,
+      right: left + width,
+    } as DOMRect);
+  }
 
-  it("does not animate the first selection", () => {
-    render(<Group active={1} />);
-    expect(attrs()).toEqual([
-      ["", ""],
-      ["", ""],
-      ["", ""],
-    ]);
+  function layout() {
+    const group = screen.getByTestId("group");
+    place(group, 100, 300);
+    screen.getAllByRole("radio").forEach((item, index) => {
+      place(item, 100 + index * 100, 100);
+    });
+    return group;
+  }
+
+  const edges = (group: HTMLElement) => [
+    group.style.getPropertyValue("--ol-ink-l"),
+    group.style.getPropertyValue("--ol-ink-r"),
+  ];
+
+  it("writes the selected item's edges on the group and each item's offset, then travels", async () => {
+    const { rerender } = render(<Group active={-1} />);
+    const group = layout();
+    rerender(<Group active={0} />);
+    expect(edges(group)).toEqual(["0px", "100px"]);
+    expect(
+      screen.getAllByRole("radio").map((el) => el.style.getPropertyValue("--ol-ink-x")),
+    ).toEqual(["0px", "100px", "200px"]);
+    await waitFor(() => {
+      expect(group).toHaveAttribute("data-ink-wipe", "ready");
+    });
+    // A jump over the middle item moves both edges; the ink crosses the item in between.
+    rerender(<Group active={2} />);
+    expect(edges(group)).toEqual(["200px", "300px"]);
   });
 
-  it("inks forward and back in the direction of travel", () => {
-    const { rerender } = render(<Group active={0} />);
-    rerender(<Group active={2} />);
-    expect(attrs()).toEqual([
-      ["leave", "forward"],
-      ["", ""],
-      ["enter", "forward"],
-    ]);
+  it("shrinks the ink to the middle of the last selection when it is cleared", () => {
+    const { rerender } = render(<Group active={-1} />);
+    const group = layout();
     rerender(<Group active={1} />);
-    expect(attrs()).toEqual([
-      ["", ""],
-      ["enter", "back"],
-      ["leave", "back"],
-    ]);
+    rerender(<Group active={-1} />);
+    expect(edges(group)).toEqual(["150px", "150px"]);
   });
 
   it("has no axe violations before and after a change, with the inked copy", async () => {
-    function Copied({ active }: { active: number }) {
-      const ink = useInkWipe(active);
-      return (
-        <main>
-          <div role="radiogroup" aria-label="Size">
-            {["S", "M", "L"].map((label, index) => (
-              <button
-                key={label}
-                type="button"
-                role="radio"
-                aria-checked={index === active}
-                className="ol-ink-wipe"
-                {...ink(index)}
-              >
-                {label}
-                <span className="ol-ink-wipe__ink" aria-hidden="true">
-                  {label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </main>
-      );
-    }
-    const { container, rerender } = render(<Copied active={0} />);
+    const { container, rerender } = render(
+      <main>
+        <Group active={0} copy />
+      </main>,
+    );
     expect(await runAxe(container)).toHaveNoViolations();
-    rerender(<Copied active={2} />);
-    expect(screen.getAllByRole("radio")[2]).toHaveAttribute("data-ink", "enter");
+    rerender(
+      <main>
+        <Group active={2} copy />
+      </main>,
+    );
     expect(screen.getByRole("radio", { name: "L" })).toBeChecked();
     expect(await runAxe(container)).toHaveNoViolations();
-  });
-
-  it("handles an empty selection on either side", () => {
-    const { rerender } = render(<Group active={-1} />);
-    rerender(<Group active={1} />);
-    expect(attrs()).toEqual([
-      ["", ""],
-      ["enter", "forward"],
-      ["", ""],
-    ]);
-    rerender(<Group active={-1} />);
-    expect(attrs()).toEqual([
-      ["", ""],
-      ["leave", "back"],
-      ["", ""],
-    ]);
   });
 });
 

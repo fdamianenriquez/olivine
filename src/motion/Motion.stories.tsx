@@ -593,6 +593,7 @@ function InkWipeDemo({ copy }: { copy: boolean }) {
   const ink = useInkWipe(active);
   return (
     <div
+      ref={ink}
       className="ol-sb-motion__segmented"
       role="radiogroup"
       aria-label={copy ? "Body size" : "Body size (fallback)"}
@@ -607,7 +608,6 @@ function InkWipeDemo({ copy }: { copy: boolean }) {
           onClick={() => {
             setActive(index);
           }}
-          {...ink(index)}
         >
           {size}
           {copy && (
@@ -627,7 +627,7 @@ export const InkWipe: Story = {
     docs: {
       description: {
         story:
-          "`.ol-ink-wipe` inks the selected item; the ink arrives from the side the selection came from and leaves towards the new one (mirrored in RTL), driven by an internal hook (`useInkWipe`, not exported from the package root). First row: with `.ol-ink-wipe__ink`, an `aria-hidden` inked copy of the label clipped exactly like the fill, so the label never loses contrast mid-wipe (SegmentedControl uses it). Second row: without the copy the label colour cross-fades, a fallback only.",
+          "`.ol-ink-wipe` inks the selected item. With an internal hook on the group (`useInkWipe`, not exported from the package root), one ink travels from the previous selection to the new one, across the items in between (physical edges, so it also works right to left). First row: with `.ol-ink-wipe__ink`, an `aria-hidden` inked copy of the label clipped exactly like the fill, so the label never loses contrast mid-wipe (SegmentedControl uses it). Second row: without the copy the label colour cross-fades, a fallback only.",
       },
     },
   },
@@ -730,9 +730,12 @@ function ContainerTransformDemo({ prefix }: { prefix: string }) {
         type="button"
         className="ol-sb-motion__btn"
         onClick={() => {
-          void transition(() => {
-            setOpen(null);
-          });
+          void transition(
+            () => {
+              setOpen(null);
+            },
+            { direction: "back" },
+          );
         }}
       >
         Back
@@ -768,7 +771,7 @@ export const ContainerTransform: Story = {
     docs: {
       description: {
         story:
-          "The card grows into its page: both share a `view-transition-name`, `.ol-vt-morph` sets the timing and `useViewTransition()` runs the swap. Without View Transitions, or with reduced motion, the change is direct.",
+          'The card grows into its page: both share a `view-transition-name`, `.ol-vt-morph` sets the timing and `useViewTransition()` runs the swap; close with `{ direction: "back" }` so the page keeps its paper until the card has nearly landed. Without View Transitions, or with reduced motion, the change is direct.',
       },
     },
   },

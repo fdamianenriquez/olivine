@@ -4,7 +4,7 @@ export { ENSO, type OverlaySide, sideOf } from "./shapes";
 export { bindSumi, useSumi } from "./sumi";
 export { type Entrance, type EntranceOptions, replayAnimations, useEntrance } from "./useEntrance";
 export { INDICATOR_PROPERTIES, type IndicatorOptions, useIndicator } from "./useIndicator";
-export { type InkDirection, type InkWipeItemProps, useInkWipe } from "./useInkWipe";
+export { INK_WIPE_PROPERTIES, useInkWipe } from "./useInkWipe";
 export {
   type Presence,
   type PresenceOptions,
