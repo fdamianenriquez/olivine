@@ -62,8 +62,8 @@ the same version (`pnpm check:playwright` tells you), then run `pnpm visual:upda
 
 - Every value comes from a token: no literal colours, sizes, spacing, radii or shadows in
   component CSS (Stylelint enforces colours).
-- Words in Redaction, numbers in Sprat Condensed, interface text in Ronzino, labels in
-  Martian Mono.
+- Titles in Big Shoulders Display, amounts in Sprat Condensed, interface text and labels in
+  Familjen Grotesk (sentence case), code and data in Xanh Mono.
 - `olivo` is the single accent; `maple` is a fill only, always with `ink` text.
 - CSS classes are BEM with the `ol-` prefix.
 - Every built-in string goes through the locale (`en`, `es`, `ja`).

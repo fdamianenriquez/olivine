@@ -354,7 +354,7 @@ export function GuitarSVG({ config, crop = "full", title, className }: GuitarSVG
       <text
         x="153"
         y="100"
-        fontFamily="Zen Old Mincho, serif"
+        fontFamily="Yuji Syuku, serif"
         fontSize="7"
         fill="#1c1912"
         textAnchor="middle"
