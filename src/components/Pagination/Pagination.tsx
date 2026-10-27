@@ -3,7 +3,6 @@ import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from "react
 import { useControllable } from "../../hooks/useControllable";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
-import { pad } from "../../utils/pad";
 
 export interface PaginationProps extends Omit<
   ComponentPropsWithoutRef<"nav">,
@@ -46,7 +45,7 @@ function items(current: number, total: number, siblings: number): Item[] {
   return out;
 }
 
-/** Joined square cells with zero-padded page numbers; the current page is ink-filled. */
+/** Joined square cells with page numbers (unpadded, so each is part of its name); the current page is ink-filled. */
 export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagination(
   { total, page, defaultPage = 1, onChange, siblings = 1, getHref, size = "m", className, ...rest },
   ref,
@@ -121,7 +120,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
             <li key={it}>
               {cell(
                 <span className="ol-page__num" aria-hidden="true">
-                  {pad(it)}
+                  {it}
                 </span>,
                 t.page(it),
                 it,
