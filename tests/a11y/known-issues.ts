@@ -22,10 +22,4 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     target: /^#/,
     note: "Not a defect: the file-name status of a disabled FileInput is text of an inactive component, which WCAG 1.4.3 exempts; axe only sees that the input, not the status, is disabled.",
   },
-  {
-    stories: /^demo-shirakaba-gakki--page$/,
-    rule: "color-contrast",
-    target: /\.ol-tabs__idx/,
-    note: "The selected tab's index is olivo, 4.2:1 on paper-2 (it passes on paper). Backlog: N1 audit, olivo text on paper-2.",
-  },
 ];

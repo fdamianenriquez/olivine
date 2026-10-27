@@ -57,8 +57,9 @@
   color: var(--ink-2);
 }
 
+/* The active tab is marked in olivo by its bar; its index is ink, readable on any paper. */
 .ol-tabs__tab[aria-selected="true"] .ol-tabs__idx {
-  color: var(--olivo);
+  color: var(--ink);
 }
 
 .ol-tabs__panel {
