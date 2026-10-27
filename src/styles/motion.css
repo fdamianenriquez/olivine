@@ -737,6 +737,11 @@
   isolation: isolate;
 }
 
+/* Each item is its own stacking context: lift the focused one so its ring is never under the ink. */
+.ol-ink-wipe:focus-visible {
+  z-index: var(--z-raised);
+}
+
 /* :where() keeps these at zero specificity and, where :has() is missing, still matches. */
 :where(.ol-ink-wipe):not(:where(:has(> .ol-ink-wipe__ink))) {
   transition: color var(--dur-m) var(--ease-effect);
@@ -1016,6 +1021,7 @@
     background: Highlight;
   }
 
+  /* !important: no component rule may keep authored colours once adjustment is off. */
   .ol-ink-wipe:is(
     [aria-checked="true"],
     [aria-pressed="true"],
@@ -1023,8 +1029,13 @@
     [data-state="on"]
   ) {
     forced-color-adjust: none;
-    color: HighlightText;
-    border-color: Highlight;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+  }
+
+  /* With the inked copy, the base label only shows over Canvas: the copy covers the ink. */
+  .ol-ink-wipe:has(> .ol-ink-wipe__ink) {
+    color: CanvasText !important;
   }
 
   .ol-ink-wipe::before,

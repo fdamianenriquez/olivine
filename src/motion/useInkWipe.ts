@@ -61,7 +61,8 @@ export function useInkWipe<T extends HTMLElement = HTMLElement>(active: number):
     let timer: ReturnType<typeof setTimeout> | undefined;
     if (moved) {
       node.setAttribute("data-ink-wipe", "moving");
-      const duration = parseFloat(getComputedStyle(node).getPropertyValue("--dur-m")) || 300;
+      const token = getComputedStyle(node).getPropertyValue("--dur-m").trim();
+      const duration = (parseFloat(token) || 300) * (/[^m]s$/.test(token) ? 1000 : 1);
       timer = setTimeout(() => {
         node.setAttribute("data-ink-wipe", "ready");
       }, duration + 50);
