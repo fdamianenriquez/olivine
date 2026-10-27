@@ -23,19 +23,9 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     note: "Not a defect: the file-name status of a disabled FileInput is text of an inactive component, which WCAG 1.4.3 exempts; axe only sees that the input, not the status, is disabled.",
   },
   {
-    stories: /^navigation-pagination--/,
-    rule: "label-content-name-mismatch",
-    note: "Pages show a zero-padded number (01) but are named 'Page 1' (WCAG 2.5.3). Backlog: N1 audit, Pagination.",
-  },
-  {
-    stories: /^(navigation-tabs|navigation-nav|content-accordion|demo-shirakaba-gakki)--/,
+    stories: /^demo-shirakaba-gakki--page$/,
     rule: "color-contrast",
-    target: /\.ol-(tabs__idx|nav__index|accordion__idx)/,
-    note: "Decorative index numbers (aria-hidden) in ink-3 measure about 3.3:1. Backlog: N1 audit, index numbers.",
-  },
-  {
-    stories: /^navigation-navbar--locales$/,
-    rule: "target-size",
-    note: "The story squeezes the desktop bar into 360px; Navbar collapses by viewport, not by its container. Backlog: N1 audit, Navbar.",
+    target: /\.ol-tabs__idx/,
+    note: "The selected tab's index is olivo, 4.2:1 on paper-2 (it passes on paper). Backlog: N1 audit, olivo text on paper-2.",
   },
 ];
