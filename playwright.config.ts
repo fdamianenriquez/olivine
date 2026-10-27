@@ -3,7 +3,11 @@ import { defineConfig } from "@playwright/test";
 const PORT = 6007;
 
 export default defineConfig({
-  testDir: "tests/visual",
+  // Two passes over the built Storybook: screenshots against the baselines, and axe on every story.
+  projects: [
+    { name: "visual", testDir: "tests/visual" },
+    { name: "a11y", testDir: "tests/a11y" },
+  ],
   // One flat folder of baselines. They are made on Linux (see `pnpm visual:update`), so there is
   // no platform suffix.
   snapshotPathTemplate: "{testDir}/__screenshots__/{arg}{ext}",

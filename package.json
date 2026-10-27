@@ -82,6 +82,7 @@
     "prepare": "husky",
     "visual": "tsx scripts/visual.ts test",
     "visual:update": "tsx scripts/visual.ts update",
+    "a11y": "tsx scripts/visual.ts test --project=a11y",
     "ssr:prepare": "tsx scripts/ssr-prepare.ts",
     "ssr": "playwright test -c playwright.ssr.config.ts",
     "check:playwright": "tsx scripts/check-playwright-image.ts"

@@ -1,7 +1,7 @@
-// Visual regression helper.
-//   tsx scripts/visual.ts test      build Storybook and compare against the baselines (Linux container)
+// Browser checks over the built Storybook: visual regression and axe (projects "visual", "a11y").
+//   tsx scripts/visual.ts test      build Storybook, compare against the baselines and run axe (Linux container)
 //   tsx scripts/visual.ts update    build Storybook and rewrite the baselines (Linux container)
-// Extra arguments go to Playwright, e.g. `pnpm visual:update -g demo`.
+// Extra arguments go to Playwright, e.g. `pnpm visual:update -g demo` or `--project=a11y` (`pnpm a11y`).
 // The baselines are rendered in the same Playwright image the CI job uses, so they match there.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
