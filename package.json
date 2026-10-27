@@ -47,6 +47,7 @@
     "./fonts.css": "./dist/fonts.css",
     "./fonts-jp.css": "./dist/fonts-jp.css",
     "./components.css": "./dist/components.css",
+    "./motion-extras.css": "./dist/motion-extras.css",
     "./tokens": {
       "import": {
         "types": "./dist/tokens.d.ts",
@@ -72,7 +73,7 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "contrast": "tsx scripts/check-contrast.ts",
-    "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints styles.css tokens.css fonts.css fonts-jp.css components.css",
+    "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints styles.css tokens.css fonts.css fonts-jp.css components.css motion-extras.css",
     "size": "size-limit",
     "storybook:build": "storybook build -o storybook-static",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm contrast && pnpm test && pnpm build && pnpm check:package && pnpm size",

@@ -1,0 +1,1121 @@
+/*
+ * Olivine motion: the jo-ha-kyū timing layer, the six core motions, the built-in effects and
+ * shoji (View Transitions). The opt-in ol-motion-* classes (byōbu, noren, kumiko,
+ * shishi-odoshi, sumi, origami) live in motion-extras.css. Every duration, curve and stagger is
+ * a motion token (tokens.css).
+ * Only transform (translate; scale up to 1.02; rotation only in byobu, shishi and origami),
+ * opacity, clip-path and stroke-dashoffset animate. Structural defaults use :where() so a
+ * component's own rules always win.
+ */
+
+/* ---------- Timing ---------- */
+
+/* --ease-move (jo-ha-kyū) needs linear(); its cubic-bezier fallback lives in tokens.css. */
+
+/* Distances and constants shared by the motions. Override them per element if needed. */
+:root {
+  --ol-motion-settle: var(--space-2);
+  --ol-motion-rise: var(--space-3);
+  --ol-motion-drop: var(--space-4);
+  --ol-motion-slide: var(--space-8);
+  --ol-motion-overhang: var(--space-4);
+  --ol-motion-kento: calc(var(--space-1) / 2);
+  --ol-motion-stamp-scale: 1.02;
+  --ol-motion-perspective: calc(var(--space-32) * 8);
+}
+
+/* Reduced motion: every duration 1ms and no stagger. Loops stop on their end state (below). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-s: 1ms;
+    --dur-m: 1ms;
+    --dur-l: 1ms;
+    --dur-xl: 1ms;
+    --stagger: 0ms;
+  }
+}
+
+/* The same on a subtree, for an in-app "reduce motion" setting or a side-by-side demo. */
+.ol-reduce-motion {
+  --dur-s: 1ms;
+  --dur-m: 1ms;
+  --dur-l: 1ms;
+  --dur-xl: 1ms;
+  --stagger: 0ms;
+}
+
+/* Registered so clip-path polygons can interpolate them. */
+@property --ol-draw-top {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-draw-right {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-draw-bottom {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-draw-left {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* ---------- Shared keyframes ---------- */
+
+@keyframes ol-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ol-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* A short rise into place: toasts, panels, list rows. */
+@keyframes ol-settle {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ol-motion-settle));
+  }
+}
+
+/* Content revealed top-down while it rises (the "ha" beat). */
+@keyframes ol-rise {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(var(--ol-motion-rise));
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+
+/* The primary action lands last and stops dead (the "kyū" beat). */
+@keyframes ol-land {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(var(--ol-motion-settle) * -1));
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A stroke drawn along its path (needs pathLength="1"). */
+@keyframes ol-draw-stroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ol-draw-top {
+  from {
+    --ol-draw-top: 0;
+  }
+}
+
+@keyframes ol-draw-right {
+  from {
+    --ol-draw-right: 0;
+  }
+}
+
+@keyframes ol-draw-bottom {
+  from {
+    --ol-draw-bottom: 0;
+  }
+}
+
+@keyframes ol-draw-left {
+  from {
+    --ol-draw-left: 0;
+  }
+}
+
+/* ---------- Hairline draw (built-in effect) and the jo frame ---------- */
+
+/*
+ * Two pseudo-elements carry the four hairlines (top + right, bottom + left). Each polygon is the
+ * union of two growing rectangles, joined by a zero-area bridge, so the lines draw clockwise.
+ */
+:where(.ol-draw, .ol-johakyu) {
+  position: relative;
+}
+
+:is(.ol-draw, .ol-johakyu)::before,
+:is(.ol-draw, .ol-johakyu)::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--stroke-hair) * -1);
+  border: 0 solid var(--ol-draw-color, var(--ink));
+  pointer-events: none;
+}
+
+:is(.ol-draw, .ol-johakyu)::before {
+  border-top-width: var(--stroke-hair);
+  border-right-width: var(--stroke-hair);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(var(--ol-draw-right) * 100%),
+    calc(100% - var(--stroke-hair)) calc(var(--ol-draw-right) * 100%),
+    calc(100% - var(--stroke-hair)) 0,
+    calc(var(--ol-draw-top) * (100% - var(--stroke-hair))) 0,
+    calc(var(--ol-draw-top) * (100% - var(--stroke-hair))) 100%,
+    0 100%
+  );
+}
+
+:is(.ol-draw, .ol-johakyu)::after {
+  border-bottom-width: var(--stroke-hair);
+  border-left-width: var(--stroke-hair);
+  clip-path: polygon(
+    100% 100%,
+    0 100%,
+    0 calc(100% - var(--ol-draw-left) * 100%),
+    var(--stroke-hair) calc(100% - var(--ol-draw-left) * 100%),
+    var(--stroke-hair) 100%,
+    calc(100% - var(--ol-draw-bottom) * (100% - var(--stroke-hair))) 100%,
+    calc(100% - var(--ol-draw-bottom) * (100% - var(--stroke-hair))) 0,
+    100% 0
+  );
+}
+
+/* Hover, keyboard focus or [data-drawn]: the frame is traced clockwise from the top-left. */
+.ol-draw::before {
+  transition:
+    --ol-draw-top var(--dur-m) var(--ease-move),
+    --ol-draw-right var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.25);
+}
+
+.ol-draw::after {
+  transition:
+    --ol-draw-bottom var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.5),
+    --ol-draw-left var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.75);
+}
+
+.ol-draw:is(:hover, :focus-visible, :has(:focus-visible), [data-drawn])::before {
+  --ol-draw-top: 1;
+  --ol-draw-right: 1;
+}
+
+.ol-draw:is(:hover, :focus-visible, :has(:focus-visible), [data-drawn])::after {
+  --ol-draw-bottom: 1;
+  --ol-draw-left: 1;
+}
+
+/* ---------- Jo-ha-kyū: frame (jo) → content (ha) → primary action (kyū) ---------- */
+
+:where(.ol-johakyu) {
+  --ol-draw-color: var(--rule);
+}
+
+.ol-johakyu::before {
+  --ol-draw-top: 1;
+  --ol-draw-right: 1;
+
+  animation:
+    ol-draw-top var(--dur-m) var(--ease-move) backwards,
+    ol-draw-right var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.25) backwards;
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-johakyu::after {
+  --ol-draw-bottom: 1;
+  --ol-draw-left: 1;
+
+  animation:
+    ol-draw-bottom var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.5) backwards,
+    ol-draw-left var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.75) backwards;
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-johakyu--frameless::before,
+.ol-johakyu--frameless::after {
+  content: none;
+}
+
+.ol-johakyu__ha {
+  animation: ol-rise var(--dur-l) var(--ease-move) backwards;
+  animation-delay: calc(var(--dur-m) + var(--ol-i, 0) * var(--stagger));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-johakyu__kyu {
+  animation: ol-land var(--dur-m) var(--ease-move) backwards;
+  animation-delay: calc(var(--dur-m) + var(--dur-l));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+/* Staggered index: rows rise one after another. Inside jo-ha-kyū they wait for the frame. */
+.ol-stagger > * {
+  animation: ol-rise var(--dur-m) var(--ease-move) backwards;
+  animation-delay: calc(var(--ol-stagger-start, 0ms) + var(--ol-i, 0) * var(--stagger));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-johakyu .ol-stagger {
+  --ol-stagger-start: var(--dur-m);
+}
+
+/* useEntrance() holds the entrance until the element is in view. */
+[data-enter="wait"] {
+  --ol-enter-state: paused;
+}
+
+/* ---------- Shodō: strokes drawn like a brush ---------- */
+
+/* Drawn on insertion, in DOM order (stroke order). SVG shapes with pathLength="1". */
+.ol-shodo {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: ol-draw-stroke var(--dur-l) var(--ease-move) both;
+  animation-delay: calc(var(--ol-shodo-start, 0ms) + var(--ol-i, 0) * var(--dur-l));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+/* A check mark drawn when its control is checked. */
+.ol-shodo-mark {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-m) var(--ease-move);
+}
+
+:is([aria-checked="true"], [data-state="checked"], :checked ~ *) .ol-shodo-mark,
+:checked ~ .ol-shodo-mark {
+  stroke-dashoffset: 0;
+}
+
+/* Ensō: one open stroke drawn, held, lifted; the faint echo follows. */
+.ol-enso__stroke,
+.ol-enso__echo {
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: butt;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: ol-enso calc(var(--dur-xl) * 2.6) var(--ease-move);
+}
+
+.ol-enso__echo {
+  opacity: 0.5;
+  animation-delay: calc(var(--stagger) * 1.4);
+}
+
+/* Like kumiko: one pass to the drawn circle, repeating only inside a live wait. */
+:is([aria-busy="true"], [role="status"]) :is(.ol-enso__stroke, .ol-enso__echo) {
+  animation-iteration-count: infinite;
+}
+
+@keyframes ol-enso {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  80% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* Brush underline: enters from the left, leaves to the right. */
+:where(.ol-shodo-underline) {
+  position: relative;
+}
+
+.ol-shodo-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--stroke-hair) * -1);
+  height: var(--stroke-heavy);
+  background: var(--ol-underline-color, var(--ink));
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path var(--dur-m) var(--ease-move);
+  pointer-events: none;
+}
+
+/* The stroke is drawn in from the left; on leave, the transition wipes it out to the right. */
+.ol-shodo-underline:is(:hover, :focus-visible)::after {
+  clip-path: inset(0);
+  animation: ol-underline-in var(--dur-m) var(--ease-move);
+}
+
+@keyframes ol-underline-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* ---------- Mokuhanga: printed in passes, lightest first, snapping into register ---------- */
+
+@keyframes ol-print-pass {
+  0% {
+    opacity: 0;
+    transform: translate(var(--ol-motion-kento), calc(var(--ol-motion-kento) * -0.75));
+  }
+
+  75% {
+    opacity: 1;
+    transform: translate(var(--ol-motion-kento), calc(var(--ol-motion-kento) * -0.75));
+  }
+
+  76%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ol-mokuhanga > * {
+  animation: ol-print-pass var(--dur-l) var(--ease-effect) backwards;
+  animation-delay: calc(var(--ol-i, 0) * var(--ol-pass-gap, var(--dur-m)));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+/* Photographs: each pass is a full image; the first ones are lighter proofs. */
+.ol-mokuhanga--image {
+  --ol-pass-gap: var(--dur-l);
+}
+
+.ol-mokuhanga__light {
+  filter: grayscale(1) brightness(1.35) contrast(0.55);
+}
+
+.ol-mokuhanga__mid {
+  filter: grayscale(0.5) sepia(0.35) contrast(0.85);
+}
+
+/* One block of a segmented progress, printed when it turns on. */
+@keyframes ol-print-block {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--ol-motion-kento) / 2), calc(var(--ol-motion-kento) / -2));
+  }
+}
+
+.ol-print-block {
+  animation: ol-print-block var(--dur-s) var(--ease-print) backwards;
+}
+
+/* ---------- Kintsugi: the crack is not hidden, it is repaired ---------- */
+
+:where(.ol-kintsugi) {
+  position: relative;
+}
+
+.ol-kintsugi__crack,
+.ol-kintsugi__gold {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--space-1) * -1.25);
+  width: 100%;
+  height: calc(var(--space-2) * 1.25);
+  overflow: visible;
+  pointer-events: none;
+  clip-path: inset(calc(var(--space-1) * -1) 100% calc(var(--space-1) * -1) 0);
+  fill: none;
+  stroke-linejoin: miter;
+
+  /* 3.5px: the crack and its repair share one weight. */
+  stroke-width: calc(var(--stroke-heavy) * 7 / 6);
+}
+
+.ol-kintsugi__crack {
+  stroke: var(--beni);
+}
+
+.ol-kintsugi__gold {
+  stroke: var(--maple);
+}
+
+.ol-kintsugi__crack *,
+.ol-kintsugi__gold * {
+  vector-effect: non-scaling-stroke;
+}
+
+@keyframes ol-kintsugi-seam {
+  from {
+    clip-path: inset(calc(var(--space-1) * -1) 100% calc(var(--space-1) * -1) 0);
+  }
+
+  to {
+    clip-path: inset(calc(var(--space-1) * -1) 0);
+  }
+}
+
+[data-kintsugi="broken"] .ol-kintsugi__crack {
+  clip-path: inset(calc(var(--space-1) * -1) 0);
+  animation: ol-kintsugi-seam var(--dur-l) var(--ease-move) backwards;
+}
+
+[data-kintsugi="mended"] .ol-kintsugi__crack {
+  clip-path: inset(calc(var(--space-1) * -1) 0);
+  opacity: 0;
+  transition: opacity var(--dur-m) var(--ease-effect);
+}
+
+[data-kintsugi="mended"] .ol-kintsugi__gold {
+  clip-path: inset(calc(var(--space-1) * -1) 0);
+  animation: ol-kintsugi-seam var(--dur-l) var(--ease-move) var(--dur-s) backwards;
+}
+
+/* ---------- Hanko: the seal drops in one pass and stops dead ---------- */
+
+@keyframes ol-hanko {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(var(--ol-motion-drop) * -1)) scale(var(--ol-motion-stamp-scale));
+  }
+
+  30% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ol-hanko,
+.ol-stamp--press {
+  animation: ol-hanko var(--dur-m) var(--ease-move) backwards;
+  animation-delay: var(--ol-hanko-delay, 0ms);
+}
+
+/* ---------- Kakejiku / emakimono: unrolled with a clip-path, a rod on the moving edge ---------- */
+
+/*
+ * data-state="open" (or none) unrolls on insertion; "closing" rolls back up (see usePresence).
+ * Vertical, away from the trigger: data-side="bottom" (default) or "top"; no rod (Modal, menus).
+ * Horizontal, from a screen edge: .ol-kakejiku--from-right or --from-left; the rod (jiku) sits
+ * just outside the moving edge and stays after unrolling (Offcanvas).
+ */
+:where(.ol-kakejiku) {
+  position: relative;
+
+  --ol-kakejiku-o: calc(var(--ol-motion-overhang) * -1);
+}
+
+.ol-kakejiku:not([data-state="closing"]) {
+  animation: ol-unroll-down var(--dur-l) var(--ease-move) backwards;
+}
+
+.ol-kakejiku[data-state="closing"] {
+  animation: ol-roll-up var(--dur-l) var(--ease-move) forwards;
+}
+
+.ol-kakejiku[data-side="top"]:not([data-state="closing"]) {
+  animation-name: ol-unroll-up;
+}
+
+.ol-kakejiku[data-side="top"][data-state="closing"] {
+  animation-name: ol-roll-down;
+}
+
+.ol-kakejiku--from-right::after,
+.ol-kakejiku--from-left::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.ol-kakejiku--from-right::after {
+  inset: 0 0 0 calc(var(--stroke-heavy) * -1);
+  border-left: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
+}
+
+.ol-kakejiku--from-left::after {
+  inset: 0 calc(var(--stroke-heavy) * -1) 0 0;
+  border-right: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
+}
+
+.ol-kakejiku--from-right:not([data-state="closing"]) {
+  animation-name: ol-unroll-left;
+}
+
+.ol-kakejiku--from-right:not([data-state="closing"])::after {
+  animation: ol-rod-left-in var(--dur-l) var(--ease-move) backwards;
+}
+
+.ol-kakejiku--from-right[data-state="closing"] {
+  animation-name: ol-roll-right;
+}
+
+.ol-kakejiku--from-right[data-state="closing"]::after {
+  animation: ol-rod-right-out var(--dur-l) var(--ease-move) forwards;
+}
+
+.ol-kakejiku--from-left:not([data-state="closing"]) {
+  animation-name: ol-unroll-right;
+}
+
+.ol-kakejiku--from-left:not([data-state="closing"])::after {
+  animation: ol-rod-right-in var(--dur-l) var(--ease-move) backwards;
+}
+
+.ol-kakejiku--from-left[data-state="closing"] {
+  animation-name: ol-roll-left;
+}
+
+.ol-kakejiku--from-left[data-state="closing"]::after {
+  animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
+}
+
+@keyframes ol-unroll-down {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-roll-up {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-unroll-up {
+  from {
+    clip-path: inset(100% var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-roll-down {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(100% var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-unroll-left {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100%);
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-roll-right {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100%);
+  }
+}
+
+@keyframes ol-unroll-right {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-roll-left {
+  from {
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+  }
+}
+
+@keyframes ol-rod-left-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ol-rod-right-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ol-rod-right-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes ol-rod-left-out {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ---------- Ink wipe (built-in effect): one ink travels from the old selection to the new ---------- */
+
+/*
+ * The fill sits under the content. Selected = aria-checked / aria-pressed / aria-selected
+ * "true" or data-state="on". On its own, the selected item is inked and a change wipes in place.
+ * With useInkWipe() on the group, one ink travels from the previous selection to the new one,
+ * across the items in between: the hook writes the selected item's edges on the group
+ * (--ol-ink-l, --ol-ink-r) and each item's own offset (--ol-ink-x); every item clips its fill to
+ * the part of the ink that lies over it.
+ *
+ * For a label whose contrast never dips mid-wipe (SegmentedControl), add an aria-hidden copy of
+ * the label as .ol-ink-wipe__ink: it is clipped exactly like the fill and carries the inverted
+ * text, so the base label stays ink. Without the copy the label's colour cross-fades, a fallback.
+ */
+@property --ol-ink-l {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --ol-ink-r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
+:where(.ol-ink-wipe) {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Each item is its own stacking context: lift the focused one so its ring is never under the ink. */
+.ol-ink-wipe:focus-visible {
+  z-index: var(--z-raised);
+}
+
+/* :where() keeps these at zero specificity and, where :has() is missing, still matches. */
+:where(.ol-ink-wipe):not(:where(:has(> .ol-ink-wipe__ink))) {
+  transition: color var(--dur-m) var(--ease-effect);
+}
+
+.ol-ink-wipe::before,
+.ol-ink-wipe > .ol-ink-wipe__ink {
+  position: absolute;
+  inset: 0;
+  background: var(--ol-ink-wipe-fill, var(--ink));
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dur-m) var(--ease-move);
+  pointer-events: none;
+}
+
+.ol-ink-wipe::before {
+  content: "";
+
+  /*
+   * The fill also covers the item's hairline (--ol-ink-wipe-bleed, the item's border width), so
+   * no sliver of paper is left between it and a shared border when a browser snaps them to
+   * different device pixels (Safari). The label copy keeps the padding box, on the base label.
+   */
+  inset: calc(var(--ol-ink-wipe-bleed, var(--stroke-hair)) * -1);
+
+  /* Under the label, inside the item's own stacking context (isolation). */
+  z-index: calc(var(--z-raised) * -1);
+}
+
+.ol-ink-wipe > .ol-ink-wipe__ink {
+  display: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  gap: inherit;
+  padding: inherit;
+  white-space: nowrap;
+  color: var(--ol-ink-wipe-text, var(--on-ink));
+}
+
+.ol-ink-wipe:is(
+    [aria-checked="true"],
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-state="on"]
+  )::before,
+.ol-ink-wipe:is(
+    [aria-checked="true"],
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-state="on"]
+  )
+  > .ol-ink-wipe__ink {
+  clip-path: inset(0);
+}
+
+:where(.ol-ink-wipe):where(
+    [aria-checked="true"],
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-state="on"]
+  ):not(:where(:has(> .ol-ink-wipe__ink))) {
+  color: var(--ol-ink-wipe-text, var(--on-ink));
+}
+
+/*
+ * With useInkWipe(), while the ink travels: each item clips to the part of the ink over it.
+ * Physical edges, so right to left needs nothing more. At rest the rules above ink the selection.
+ */
+
+/*
+ * With the hook the ink only moves through --ol-ink-l / --ol-ink-r: the swap between the
+ * travelling clip and the resting one is instant (both draw the same ink). Interpolating it
+ * would sweep a sliver back across the item in Safari and Firefox.
+ */
+[data-ink-wipe] .ol-ink-wipe::before,
+[data-ink-wipe] .ol-ink-wipe > .ol-ink-wipe__ink {
+  transition: none;
+}
+
+[data-ink-wipe="moving"] .ol-ink-wipe::before,
+[data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink {
+  clip-path: inset(
+    0 clamp(0px, 100% - var(--ol-ink-r) + var(--ol-ink-x, 0px), 100%) 0
+      clamp(0px, var(--ol-ink-l) - var(--ol-ink-x, 0px), 100%)
+  );
+  transition:
+    --ol-ink-l var(--dur-m) var(--ease-move),
+    --ol-ink-r var(--dur-m) var(--ease-move);
+}
+
+/* The copy starts inside the hairline: its origin is the bleed further in, so it clips with the fill. */
+[data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink {
+  --ol-ink-o: calc(var(--ol-ink-x, 0px) + var(--ol-ink-wipe-bleed, var(--stroke-hair)));
+
+  clip-path: inset(
+    0 clamp(0px, 100% - var(--ol-ink-r) + var(--ol-ink-o), 100%) 0
+      clamp(0px, var(--ol-ink-l) - var(--ol-ink-o), 100%)
+  );
+}
+
+/* ---------- Sliding bar (built-in effect): a 3px olivo bar slides between tabs ---------- */
+
+/* Place inside a positioned container; useIndicator() sets the position on that container. */
+.ol-indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--ol-indicator-track, 100%);
+  height: var(--stroke-heavy);
+  background: var(--ol-indicator-color, var(--olivo));
+  clip-path: inset(
+    0 calc(100% - var(--ol-indicator-x, 0%) - var(--ol-indicator-w, 0%)) 0 var(--ol-indicator-x, 0%)
+  );
+  pointer-events: none;
+}
+
+[data-indicator="ready"] .ol-indicator {
+  transition: clip-path var(--dur-m) var(--ease-standard);
+}
+
+/* ---------- Container transform and shoji (View Transitions) ---------- */
+
+/* Give the card and its detail the same view-transition-name; startViewTransition() swaps them. */
+@supports (view-transition-class: a) {
+  .ol-vt-morph {
+    view-transition-class: ol-morph;
+  }
+
+  ::view-transition-group(*.ol-morph) {
+    animation-duration: var(--dur-l);
+    animation-timing-function: var(--ease-move);
+  }
+
+  ::view-transition-old(*.ol-morph),
+  ::view-transition-new(*.ol-morph) {
+    height: 100%;
+    animation-duration: var(--dur-l);
+    animation-timing-function: var(--ease-effect);
+  }
+
+  /*
+   * A card with no partner (the other cards of the grid) must not cover the morph: it leaves
+   * quickly and fades in only at the end, when the morph has landed.
+   */
+  ::view-transition-old(*.ol-morph):only-child {
+    animation-duration: var(--dur-s);
+  }
+
+  ::view-transition-new(*.ol-morph):only-child {
+    animation-timing-function: var(--ease-move);
+  }
+
+  /* Closing (direction "back"): the page keeps its paper until the card has nearly landed. */
+  :root[data-ol-vt="back"]::view-transition-old(*.ol-morph),
+  :root[data-ol-vt="back"]::view-transition-new(*.ol-morph) {
+    animation-timing-function: var(--ease-move);
+  }
+
+  .ol-motion-shoji {
+    view-transition-class: ol-shoji;
+  }
+
+  ::view-transition-group(*.ol-shoji) {
+    overflow: hidden;
+    animation-duration: var(--dur-l);
+  }
+
+  ::view-transition-old(*.ol-shoji) {
+    animation: ol-shoji-out var(--dur-l) var(--ease-move) both;
+  }
+
+  ::view-transition-new(*.ol-shoji) {
+    border-left: var(--stroke-hair) solid var(--ink);
+    animation: ol-shoji-in var(--dur-l) var(--ease-move) both;
+  }
+
+  :root[data-ol-vt="back"]::view-transition-old(*.ol-shoji) {
+    animation-name: ol-shoji-out-back;
+  }
+
+  :root[data-ol-vt="back"]::view-transition-new(*.ol-shoji) {
+    border-left: 0;
+    border-right: var(--stroke-hair) solid var(--ink);
+    animation-name: ol-shoji-in-back;
+  }
+}
+
+/* Panels without a name of their own pair by element identity where supported. */
+@supports (view-transition-name: match-element) {
+  .ol-motion-shoji {
+    view-transition-name: match-element;
+  }
+}
+
+/* While an Olivine transition runs, the rest of the page swaps without the default cross-fade. */
+:root[data-ol-vt]::view-transition-old(root),
+:root[data-ol-vt]::view-transition-new(root) {
+  animation: none;
+}
+
+@keyframes ol-shoji-out {
+  to {
+    opacity: 0.6;
+    transform: translateX(calc(var(--ol-motion-slide) * -1));
+  }
+}
+
+@keyframes ol-shoji-in {
+  from {
+    clip-path: inset(0 0 0 100%);
+    transform: translateX(var(--ol-motion-slide));
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+
+@keyframes ol-shoji-out-back {
+  to {
+    opacity: 0.6;
+    transform: translateX(var(--ol-motion-slide));
+  }
+}
+
+@keyframes ol-shoji-in-back {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(calc(var(--ol-motion-slide) * -1));
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+
+/* ---------- Reduced motion: loops stop on their end state, nothing scroll-linked ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ol-enso__stroke, .ol-enso__echo) {
+    animation: none !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+.ol-reduce-motion :is(.ol-enso__stroke, .ol-enso__echo) {
+  animation: none !important;
+}
+
+/* ---------- Pause (WCAG 2.2.2): stops the loops in a subtree ---------- */
+
+/*
+ * The ensō (and the opt-in kumiko and shishi-odoshi, in motion-extras.css) are for waits only.
+ * A pause control (or a page that keeps one running past five seconds) sets .ol-motion-paused
+ * or data-motion="paused" on the loop or any ancestor. Only the loops stop: one-shot entrances
+ * and exits still reach their end state.
+ */
+.ol-enso__stroke:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-enso__stroke,
+.ol-enso__echo:is(.ol-motion-paused, [data-motion="paused"]),
+:is(.ol-motion-paused, [data-motion="paused"]) .ol-enso__echo {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Forced colours: system colours instead of ink fills ---------- */
+
+@media (forced-colors: active) {
+  .ol-indicator {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  /* !important: no component rule may keep authored colours once adjustment is off. */
+  .ol-ink-wipe:is(
+    [aria-checked="true"],
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [data-state="on"]
+  ) {
+    forced-color-adjust: none;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+  }
+
+  /* With the inked copy, the base label only shows over Canvas: the copy covers the ink. */
+  .ol-ink-wipe:has(> .ol-ink-wipe__ink) {
+    color: CanvasText !important;
+  }
+
+  .ol-ink-wipe::before,
+  .ol-ink-wipe > .ol-ink-wipe__ink {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  /* forced-color-adjust: none above keeps the authored ring; give it a system colour. */
+  .ol-ink-wipe:focus-visible {
+    outline-color: CanvasText;
+  }
+}
+
+/* ---------- Print: everything in its end state ---------- */
+
+@media print {
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* The selection's ink is information: print it even when backgrounds are off. */
+  .ol-ink-wipe::before,
+  .ol-ink-wipe > .ol-ink-wipe__ink {
+    print-color-adjust: exact;
+  }
+}
+
+/* ---------- Sequence index ---------- */
+
+/* Sequence index for staggered children (inline `--ol-i` wins). */
+:is(.ol-stagger, .ol-mokuhanga) > :nth-child(2),
+.ol-shodo:nth-child(2) {
+  --ol-i: 1;
+}
+
+:is(.ol-stagger, .ol-mokuhanga) > :nth-child(3),
+.ol-shodo:nth-child(3) {
+  --ol-i: 2;
+}
+
+:is(.ol-stagger, .ol-mokuhanga) > :nth-child(4),
+.ol-shodo:nth-child(4) {
+  --ol-i: 3;
+}
+
+:is(.ol-stagger, .ol-mokuhanga) > :nth-child(5),
+.ol-shodo:nth-child(5) {
+  --ol-i: 4;
+}
+
+:is(.ol-stagger, .ol-mokuhanga) > :nth-child(6),
+.ol-shodo:nth-child(6) {
+  --ol-i: 5;
+}
+
+.ol-stagger > :nth-child(7) {
+  --ol-i: 6;
+}
+
+.ol-stagger > :nth-child(8) {
+  --ol-i: 7;
+}
+
+.ol-stagger > :nth-child(9) {
+  --ol-i: 8;
+}
+
+.ol-stagger > :nth-child(10) {
+  --ol-i: 9;
+}
+
+.ol-stagger > :nth-child(11) {
+  --ol-i: 10;
+}
+
+.ol-stagger > :nth-child(n + 12) {
+  --ol-i: 11;
+}

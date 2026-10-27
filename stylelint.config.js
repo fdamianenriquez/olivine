@@ -29,5 +29,29 @@ export default {
         ],
       },
     },
+    {
+      // Component CSS: every duration, curve and stagger is a motion token (styles/motion.css).
+      // The bare `linear` keyword stays allowed for timers (Toast's drain).
+      files: ["src/components/**/*.css"],
+      rules: {
+        "function-disallowed-list": [
+          [
+            ...["rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch", "color"],
+            ...["cubic-bezier", "steps", "linear"],
+          ],
+          { message: "Use a colour token or a motion token (--ease-*) instead of a literal value" },
+        ],
+        "declaration-property-value-disallowed-list": [
+          {
+            "/^(transition|animation)(-duration|-delay|-timing-function)?$/": [
+              "/(?<![\\w.-])\\d*\\.?\\d+m?s\\b/",
+              "/(?<![\\w-])(ease|ease-in|ease-out|ease-in-out|step-start|step-end)(?![\\w-])/",
+            ],
+            "/^--/": ["/^\\s*\\d*\\.?\\d+m?s\\s*$/"],
+          },
+          { message: "Use a motion token (--dur-*, --ease-*, --stagger) instead of a literal" },
+        ],
+      },
+    },
   ],
 };
