@@ -66,7 +66,6 @@
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
   line-height: var(--text-label-leading);
-  text-transform: uppercase;
   color: var(--ink-2);
 }
 

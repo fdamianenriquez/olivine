@@ -11,7 +11,6 @@
   line-height: var(--text-label-leading);
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
-  text-transform: uppercase;
 }
 
 .ol-breadcrumb__item {

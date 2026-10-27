@@ -15,7 +15,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `Stat shows one number in the figure face (Sprat Condensed) with a mono label and an optional change line.
+        component: `Stat shows one number in the figure face (Sprat Condensed) with a label and an optional change line.
 
 - Do zero-pad indexes and percentages (064%) when they sit in a row.
 - Do keep \`unit\` to a symbol (%, ¥, $, ×); words go in \`label\`, because the figure face is for numbers.

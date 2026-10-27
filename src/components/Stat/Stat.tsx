@@ -27,7 +27,7 @@ export interface StatProps extends Omit<HTMLAttributes<HTMLDivElement>, "childre
    * figure face is for numbers. Letters trigger a development warning.
    */
   unit?: StatUnit;
-  /** Mono caption above the figure. */
+  /** Caption above the figure. */
   label?: ReactNode;
   /** Change line below the figure, e.g. "12% vs. last month". */
   delta?: ReactNode;
@@ -49,7 +49,7 @@ export interface StatProps extends Omit<HTMLAttributes<HTMLDivElement>, "childre
 
 const hasLetters = (s: string) => /\p{L}/u.test(s);
 
-/** One number in the figure face with a mono label and an optional change line. */
+/** One number in the figure face with a label and an optional change line. */
 export const Stat = forwardRef<HTMLDivElement, StatProps>(function Stat(
   { value, unit, label, delta, trend, size = "l", accent = false, className, ...rest },
   ref,

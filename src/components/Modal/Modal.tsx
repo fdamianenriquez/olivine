@@ -24,7 +24,7 @@ export interface ModalOwnProps {
   onClose?: () => void;
   /** Heading of the dialog. It also names the dialog for assistive tech. */
   title?: ReactNode;
-  /** Mono eyebrow above the title. A number is zero-padded ("3" → "03"); a string is shown as is. */
+  /** Eyebrow above the title. A number is zero-padded ("3" → "03"); a string is shown as is. */
   index?: number | string;
   /**
    * Width of the dialog; `full` fills the viewport.

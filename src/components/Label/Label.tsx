@@ -11,7 +11,7 @@ export interface LabelOwnProps {
   dot?: boolean;
   /** Softens the label to the secondary ink colour. */
   muted?: boolean;
-  /** Label text. Write it in sentence case; CSS uppercases it. */
+  /** Label text, in sentence case. */
   children?: ReactNode;
   /** Extra class names on the root element. */
   className?: string;
@@ -20,7 +20,7 @@ export interface LabelOwnProps {
 export type LabelProps = LabelOwnProps &
   Omit<React.ComponentPropsWithoutRef<"span">, keyof LabelOwnProps>;
 
-/** The mono uppercase voice of the interface: eyebrows, metadata, index numbers. */
+/** The voice of the interface: eyebrows, metadata, index numbers, in sentence case. */
 export const Label = forwardRefAs<"span", LabelOwnProps>(function Label(
   { as: As = "span", index, dot = false, muted = false, className, children, ...rest },
   ref,

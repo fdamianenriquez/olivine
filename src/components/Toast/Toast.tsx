@@ -20,7 +20,7 @@ export type ToastTone = "accent" | "info" | "success" | "warning" | "danger" | "
 export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   /** Heading of the notice, set in the serif display face. */
   title?: ReactNode;
-  /** Mono meta line shown beside the tone dot. Defaults to the localised "Now". */
+  /** Meta line shown beside the tone dot. Defaults to the localised "Now". */
   meta?: ReactNode;
   /** Colour of the dot before the meta line. The meta text always accompanies it. */
   tone?: ToastTone;
@@ -36,7 +36,7 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"
 }
 
 /**
- * A brief raised notice with a mono meta line and an optional draining timer bar.
+ * A brief raised notice with a meta line and an optional draining timer bar.
  * It carries no live region; place it inside a ToastStack, which announces it.
  */
 export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(

@@ -19,7 +19,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Breadcrumb shows the path as mono labels separated by "/"; the last item is the current page.\n\n**Props** — `items` (`[{label, href}]`), `label` (overrides the localized navigation name).\n\n- The last item is the current page: it is not a link and carries `aria-current="page"`.\n- Separators are decorative and are not announced.\n- Long trails wrap onto further lines.',
+          'Breadcrumb shows the path as labels separated by "/"; the last item is the current page.\n\n**Props** — `items` (`[{label, href}]`), `label` (overrides the localized navigation name).\n\n- The last item is the current page: it is not a link and carries `aria-current="page"`.\n- Separators are decorative and are not announced.\n- Long trails wrap onto further lines.',
       },
     },
   },

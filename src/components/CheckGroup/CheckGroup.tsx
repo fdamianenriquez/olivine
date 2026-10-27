@@ -11,7 +11,7 @@ export interface CheckGroupProps extends React.FieldsetHTMLAttributes<HTMLFieldS
 }
 
 /**
- * A fieldset for checkboxes or radios with a mono legend.
+ * A fieldset for checkboxes or radios with a legend.
  *
  * Inside a `Field`, name the group with `legend`, not the Field `label` (a label cannot target
  * a fieldset). The Field still supplies its hint and error to the group's description; the

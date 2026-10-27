@@ -17,7 +17,7 @@ export interface TableColumn<Row> {
   key: Extract<keyof Row, string> | (string & {});
   /** Header content. */
   label: ReactNode;
-  /** Right-aligns the column and sets its cells in tabular mono figures. */
+  /** Right-aligns the column and sets its cells in the figure face (tabular). */
   numeric?: boolean;
   /** Turns the header into a sort button. */
   sortable?: boolean;

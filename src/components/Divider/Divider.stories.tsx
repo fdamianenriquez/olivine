@@ -12,7 +12,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Divider is a hairline rule in `rule`; with `label` it becomes a mono section marker ("02 — SELECTED WORKS ———").\n\n- Don\'t use `soft` as the only boundary between two controls.',
+          'Divider is a hairline rule in `rule`; with `label` it becomes a section marker ("02 — Selected works ———").\n\n- Don\'t use `soft` as the only boundary between two controls.',
       },
     },
   },

@@ -30,7 +30,7 @@ export interface SheetOwnProps {
 export type SheetProps = SheetOwnProps &
   Omit<React.ComponentPropsWithoutRef<"section">, keyof SheetOwnProps>;
 
-/** The archive panel: a ruled frame with a mono bar (index, title, meta) over its content. */
+/** The archive panel: a ruled frame with a label bar (index, title, meta) over its content. */
 export const Sheet = forwardRefAs<"section", SheetOwnProps>(function Sheet(
   {
     as: As = "section",

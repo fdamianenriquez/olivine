@@ -19,7 +19,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "ListGroup is a stack of ruled rows: title, optional description, and right-aligned mono meta.\n\n**Props** — `items` (`[{title, description, meta, href, onClick, active, disabled}]`), `numbered` (01, 02…), `boxed`, `flush`.\n\n- Rows with `href` render links and rows with `onClick` render buttons; both invert to ink on hover and focus.\n- `active` draws an olive left edge and sets `aria-current` (`page` on links, `true` on buttons).\n- Disabled rows are dimmed and not focusable.\n- Numbered lists render an `<ol>`.",
+          "ListGroup is a stack of ruled rows: title, optional description, and right-aligned meta.\n\n**Props** — `items` (`[{title, description, meta, href, onClick, active, disabled}]`), `numbered` (01, 02…), `boxed`, `flush`.\n\n- Rows with `href` render links and rows with `onClick` render buttons; both invert to ink on hover and focus.\n- `active` draws an olive left edge and sets `aria-current` (`page` on links, `true` on buttons).\n- Disabled rows are dimmed and not focusable.\n- Numbered lists render an `<ol>`.",
       },
     },
   },
