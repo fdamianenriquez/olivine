@@ -304,8 +304,12 @@
   inset: 0;
   pointer-events: none;
 
-  /* One lattice cell per tile, so every line meets the grid at its corners. */
+  /*
+   * One lattice cell per tile, so every line meets the grid at its corners. "round" fits a whole
+   * number of cells in each direction, so no cell is cut at the right or bottom edge.
+   */
   background-size: var(--ol-kumiko-cell) var(--ol-kumiko-cell);
+  background-repeat: round;
   animation: ol-kumiko-across calc(var(--dur-xl) * 4.5) var(--ease-move);
 }
 
@@ -313,7 +317,7 @@
   background-image:
     linear-gradient(to bottom, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
     linear-gradient(
-      45deg,
+      to top right,
       transparent calc(50% - var(--stroke-hair) / 2),
       var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
       transparent calc(50% + var(--stroke-hair) / 2)
@@ -324,7 +328,7 @@
   background-image:
     linear-gradient(to right, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
     linear-gradient(
-      -45deg,
+      to top left,
       transparent calc(50% - var(--stroke-hair) / 2),
       var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
       transparent calc(50% + var(--stroke-hair) / 2)
