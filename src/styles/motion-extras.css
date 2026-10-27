@@ -295,6 +295,22 @@
 
 .ol-motion-kumiko {
   --ol-kumiko-cell: var(--space-12);
+
+  /*
+   * The lattice is drawn as SVG masks over token colours: vector lines stay continuous at any
+   * cell size, where hard-stop gradients broke diagonals into dots. One cell per tile, lines
+   * along its top and left edges and corner to corner; the 96-unit tile is drawn at 48px, so a
+   * 1-unit line is the 0.5px hairline (the 1x variant below doubles it).
+   */
+  --ol-kumiko-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0h96v1H0zM0 0h1v96H0z'/%3E%3C/svg%3E");
+  --ol-kumiko-diagonals: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0l96 96M96 0L0 96' stroke='%23000'/%3E%3C/svg%3E");
+}
+
+@media (resolution < 2dppx) {
+  .ol-motion-kumiko {
+    --ol-kumiko-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0h96v2H0zM0 0h2v96H0z'/%3E%3C/svg%3E");
+    --ol-kumiko-diagonals: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M0 0l96 96M96 0L0 96' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
+  }
 }
 
 .ol-motion-kumiko::before,
@@ -304,35 +320,22 @@
   inset: 0;
   pointer-events: none;
 
-  /*
-   * One lattice cell per tile, so every line meets the grid at its corners. "round" fits a whole
-   * number of cells in each direction, so no cell is cut at the right or bottom edge.
-   */
-  background-size: var(--ol-kumiko-cell) var(--ol-kumiko-cell);
-  background-repeat: round;
+  /* "round" fits a whole number of cells in each direction: no cell is cut at an edge. */
+  mask-size: var(--ol-kumiko-cell) var(--ol-kumiko-cell);
+  mask-repeat: round;
   animation: ol-kumiko-across calc(var(--dur-xl) * 4.5) var(--ease-move);
 }
 
+/* The frame of the lattice, laid across. */
 .ol-motion-kumiko::before {
-  background-image:
-    linear-gradient(to bottom, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
-    linear-gradient(
-      to top right,
-      transparent calc(50% - var(--stroke-hair) / 2),
-      var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
-      transparent calc(50% + var(--stroke-hair) / 2)
-    );
+  background-color: var(--ink-3);
+  mask-image: var(--ol-kumiko-grid);
 }
 
+/* The diagonal pieces, dropped in. */
 .ol-motion-kumiko::after {
-  background-image:
-    linear-gradient(to right, var(--ink-3) var(--stroke-hair), transparent var(--stroke-hair)),
-    linear-gradient(
-      to top left,
-      transparent calc(50% - var(--stroke-hair) / 2),
-      var(--rule) calc(50% - var(--stroke-hair) / 2) calc(50% + var(--stroke-hair) / 2),
-      transparent calc(50% + var(--stroke-hair) / 2)
-    );
+  background-color: var(--rule);
+  mask-image: var(--ol-kumiko-diagonals);
   animation-name: ol-kumiko-down;
 }
 
@@ -789,9 +792,15 @@
   animation-play-state: paused !important;
 }
 
-/* ---------- Forced colours: origami shows the real text ---------- */
+/* ---------- Forced colours: kumiko lines in GrayText, origami shows the real text ---------- */
 
 @media (forced-colors: active) {
+  .ol-motion-kumiko::before,
+  .ol-motion-kumiko::after {
+    forced-color-adjust: none;
+    background-color: GrayText;
+  }
+
   .ol-motion-origami[data-origami] {
     -webkit-text-fill-color: currentcolor;
   }
