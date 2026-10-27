@@ -15,22 +15,23 @@ pause between things — most of every screen should stay empty paper.
    1px elsewhere). No soft shadows, no gradients, no rounded corners (`radius-0`).
 3. **One accent, one fill.** `olivo` marks what matters — focus, the active item, the one accent
    button. `maple` is a warm block, never text. Everything else is `ink` on `paper`.
-4. **Words, numbers, interface.** Words are set in Redaction, numbers in Sprat Condensed, the
-   interface in Ronzino and Martian Mono. See [Type](?path=/docs/foundations-type--docs).
+4. **Titles, amounts, interface.** Titles are set in Big Shoulders Display, amounts in Sprat
+   Condensed, the interface in Familjen Grotesk, code and data in Xanh Mono. See
+   [Type](?path=/docs/foundations-type--docs).
 5. **Numbers are ornament.** Index things: `01 —`, `FIG. 03`, `02 / 05`, zero-padded. Small
-   indexes are mono `ink-2`; at 16px and up they switch to the figure face.
-6. **Motion is stepped.** Transitions run 80–200ms with `steps()` timing — things click into
-   place rather than glide. `prefers-reduced-motion` is respected.
+   indexes are `ink-2` in the label style; at 16px and up they switch to the figure face.
+6. **Motion is physical.** Things slide, wipe, draw, print and stamp, on the jo-ha-kyū curve:
+   they begin slow, accelerate and stop dead, in 150–650ms. No bounce, no blur.
+   `prefers-reduced-motion` is respected. See [Motion](?path=/docs/motion--docs).
 
 ## Content
 
-- Labels are 1–3 words, written in sentence case in code; CSS uppercases them: `Send inquiry`,
-  `Selected works`.
+- Labels are 1–3 words in sentence case, never uppercased: `Send inquiry`, `Selected works`.
 - Headings state, they don't sell: "Kitchen 04", "Lead times" — not "Discover our amazing
   kitchens!".
 - Address the reader as _you_; the studio is _we_. No emoji. Glyphs instead: `→` go,
   `↗` external, `+`/`−` expand, `×` close, `✓` valid, `↑↓` sort.
-- Bilingual pairing is welcome: a Latin title with a kanji caption in `kanji` (Zen Old Mincho).
+- Bilingual pairing is welcome: a Latin title with a kanji caption in `kanji` (Yuji Syuku).
   The kanji is decoration with meaning — the Latin text must stand alone for accessibility.
 - Errors are instructions: "Enter a valid address.", not "Invalid input".
 

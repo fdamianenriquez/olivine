@@ -53,7 +53,7 @@ export function TypeSpecimens() {
             lineHeight: v("leading"),
             fontWeight: v("weight"),
             letterSpacing: v("tracking"),
-            textTransform: style.name === "label" ? "uppercase" : undefined,
+            textTransform: style.name === "stamp" ? "uppercase" : undefined,
           };
           return (
             <div key={style.name} className="ol-docs-specimen">

@@ -222,9 +222,10 @@
 }
 
 .sg-choice__price {
-  font-family: var(--font-mono);
-  font-size: var(--text-label-size);
-  letter-spacing: var(--text-label-tracking);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
   color: var(--ink-2);
 }
 
@@ -330,9 +331,9 @@
 .sg-photo__tag {
   align-self: flex-start;
   padding: var(--space-1) var(--space-2);
-  font-family: var(--font-mono);
+  font-family: var(--text-label-family);
   font-size: var(--text-label-size);
-  text-transform: uppercase;
+  font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
   color: var(--ink);
   background: var(--paper-3);

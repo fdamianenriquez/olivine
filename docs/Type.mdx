@@ -6,18 +6,20 @@ import { TypeSpecimens } from "./blocks";
 
 # Type
 
-Two rules carry the system: **words in Redaction, numbers in Sprat.** Everything else is
-interface.
+Two rules carry the system: **titles in Big Shoulders, amounts in Sprat.** Everything else is
+interface in Familjen Grotesk.
 
-| Style                                    | Family                           | Use                                                                                |
-| ---------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
-| `display-xl` / `display-l` / `display-m` | Redaction, tight tracking        | Hero names, page and section titles. One `display-xl` per page; two lines at most. |
-| `h1` `h2` `h3`                           | Redaction                        | Headings, card / modal / toast / alert titles, list and accordion rows.            |
-| `figure-xl` / `figure-l` / `figure-m`    | Sprat Condensed Black            | Numbers only: stats, prices, percentages, counters. Never below 16px, never words. |
-| `body-l` `body` `body-s`                 | Ronzino                          | Reading and UI text. Lines ≤ 65ch.                                                 |
-| `label`                                  | Martian Mono, UPPERCASE, +0.06em | The system voice: labels, buttons, badges, tabs, meta, `[ BRACKETED ]` actions.    |
-| `mono`                                   | Martian Mono                     | Code, data, numeric table columns.                                                 |
-| `kanji`                                  | Zen Old Mincho 500               | Kanji ornaments and vertical captions. Never the only label.                       |
+| Style                                    | Family                                      | Use                                                                                                              |
+| ---------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `display-xl` / `display-l` / `display-m` | Big Shoulders Display 300 (thin, condensed) | Hero names, page and section titles. One `display-xl` per page; two lines at most.                               |
+| `h1`                                     | Big Shoulders Display 400                   | Headings inside content. The condensed face is never set below 40px.                                             |
+| `h2` `h3`                                | Familjen Grotesk 600                        | Card / modal / toast / alert titles, list and accordion rows.                                                    |
+| `figure-xl` … `figure-s`                 | Sprat Condensed Black                       | Every amount and quantity: prices, totals, stats, counters, table amount columns. Never below 16px, never words. |
+| `body-l` `body` `ui` `body-s`            | Familjen Grotesk 400                        | Reading and UI text. Lines ≤ 65ch.                                                                               |
+| `label-s` `label` `label-l`              | Familjen Grotesk 500, sentence case         | The interface voice: labels, buttons, badges, tabs, meta. No uppercase, no letter-spacing.                       |
+| `mono`                                   | Xanh Mono 400                               | Code, data values, timestamps, IDs.                                                                              |
+| `kanji` `kanji-s`                        | Yuji Syuku 400 (brush)                      | Kanji ornaments and vertical captions. Never the only label.                                                     |
+| `stamp`                                  | Big Shoulders Display 800, uppercase        | Only inside `.ol-stamp`, the one place text is uppercased.                                                       |
 
 - Don't set the display and figure faces on the same line; give each its own line or cell.
 - Each style is available as custom properties: `--text-<style>-family`, `-size`, `-leading`,
@@ -29,11 +31,11 @@ interface.
 
 ## Fonts
 
-All six families are self-hosted and ship in the package's `fonts/` folder (SIL Open Font
-License 1.1). `olivine/styles.css` includes the `@font-face` rules for every family except Zen
-Old Mincho; import `olivine/fonts.css` on its own if you load tokens and components separately.
+All five families are self-hosted and ship in the package's `fonts/` folder (SIL Open Font
+License 1.1). `olivine/styles.css` includes the `@font-face` rules for every family except Yuji
+Syuku; import `olivine/fonts.css` on its own if you load tokens and components separately.
 
-Zen Old Mincho is opt-in, for pages that show kanji:
+Yuji Syuku is opt-in, for pages that show kanji:
 
 ```ts
 import "olivine/styles.css";

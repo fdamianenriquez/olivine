@@ -72,7 +72,7 @@ Olivine has two themes: `washi` (cream, the default) and `sumi` (ebony). Set `da
 | `olivine/styles.css`        | Tokens, fonts, base styles, components and utilities                                           |
 | `olivine/tokens.css`        | Design tokens as CSS custom properties, both themes                                            |
 | `olivine/fonts.css`         | `@font-face` rules for the self-hosted fonts                                                   |
-| `olivine/fonts-jp.css`      | Opt-in Zen Old Mincho for kanji (loaded by unicode slice)                                      |
+| `olivine/fonts-jp.css`      | Opt-in Yuji Syuku for kanji (loaded by unicode slice)                                          |
 | `olivine/components.css`    | Base styles, components and utilities only                                                     |
 | `olivine/motion-extras.css` | Opt-in motion classes (`ol-motion-byobu`, `-noren`, `-kumiko`, `-shishi`, `-sumi`, `-origami`) |
 
