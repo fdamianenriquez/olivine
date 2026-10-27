@@ -53,10 +53,12 @@ export const Sticky: Story = {
   ),
 };
 
+// Navbar folds by viewport width (under 720px), not by its container: these stories open on the
+// mobile viewport rather than squeezing the desktop bar into a narrow box.
 export const Mobile: Story = {
   parameters: { viewport: { defaultViewport: "mobile1" } },
   render: (args) => (
-    <div style={{ width: 360, margin: "0 auto", border: "var(--stroke-hair) solid var(--rule)" }}>
+    <div style={{ border: "var(--stroke-hair) solid var(--rule)" }}>
       <Navbar {...args} />
     </div>
   ),
@@ -75,13 +77,12 @@ export const Themes: Story = {
 };
 
 export const Locales: Story = {
+  parameters: { viewport: { defaultViewport: "mobile1" } },
   render: (args) => (
     <div style={{ display: "grid", gap: "var(--space-4)" }}>
       {(["en", "es", "ja"] as const).map((locale) => (
         <Root key={locale} locale={locale}>
-          <div style={{ width: 360 }}>
-            <Navbar {...args} />
-          </div>
+          <Navbar {...args} />
         </Root>
       ))}
     </div>
