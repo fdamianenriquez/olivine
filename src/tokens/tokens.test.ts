@@ -35,6 +35,44 @@ describe("tokens", () => {
     }
   });
 
+  it("declares the approved motion tokens: jo-ha-kyū by default, no overshoot", () => {
+    expect(tokens.motion).toMatchObject({
+      "ease-move": "linear(0, 0.06 30%, 0.35 65%, 1)",
+      "ease-effect": "cubic-bezier(0.34, 0.8, 0.34, 1)",
+      "ease-standard": "cubic-bezier(0.27, 1, 0.18, 1)",
+      "ease-print": "steps(3, jump-none)",
+      "dur-s": "150ms",
+      "dur-m": "300ms",
+      "dur-l": "500ms",
+      "dur-xl": "650ms",
+      stagger: "50ms",
+    });
+    const scalars = declared(":root {");
+    for (const token of source.motion.tokens) expect(scalars).toContain(token.name);
+
+    for (const token of source.motion.tokens) {
+      const curve = /cubic-bezier\(([^)]+)\)/.exec(token.value)?.[1];
+      if (!curve) continue;
+      const [, y1, , y2] = curve.split(",").map(Number);
+      for (const y of [y1, y2]) {
+        expect(y, token.name).toBeGreaterThanOrEqual(0);
+        expect(y, token.name).toBeLessThanOrEqual(1);
+      }
+    }
+    for (const point of tokens.motion["ease-move"].matchAll(/(-?[\d.]+)(?=\s|,|\))/g)) {
+      expect(Number(point[1])).toBeGreaterThanOrEqual(0);
+      expect(Number(point[1])).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("marks the stepped motion-* timings as deprecated", () => {
+    const stepped = source.motion.tokens.filter((token) => token.value.includes("steps("));
+    for (const token of stepped) {
+      if (token.name === "ease-print") continue;
+      expect("deprecated" in token && token.deprecated, token.name).toBe(true);
+    }
+  });
+
   it("declares every scale and type style as a custom property", () => {
     const scalars = declared(":root {");
     for (const group of [source.spacing, source.radius, source.stroke, source.control]) {

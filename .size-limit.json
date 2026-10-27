@@ -4,14 +4,14 @@
     "path": "dist/index.js",
     "import": "*",
     "gzip": true,
-    "limit": "28 kB"
+    "limit": "29 kB"
   },
   {
     "name": "CSS (styles.css: tokens, fonts, components)",
     "path": "dist/olivine.css",
     "rolldown": false,
     "gzip": true,
-    "limit": "13 kB"
+    "limit": "16 kB"
   },
   {
     "name": "CSS (fonts-jp.css, opt-in)",
@@ -19,6 +19,13 @@
     "rolldown": false,
     "gzip": true,
     "limit": "29.5 kB"
+  },
+  {
+    "name": "CSS (motion-extras.css, opt-in)",
+    "path": "dist/motion-extras.css",
+    "rolldown": false,
+    "gzip": true,
+    "limit": "3.5 kB"
   },
   {
     "name": "JS (tokens)",

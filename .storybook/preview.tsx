@@ -2,6 +2,7 @@ import "../src/styles/fonts.css";
 import "../src/styles/fonts-jp.css";
 import "../src/styles/tokens.css";
 import "../src/styles/index.css";
+import "../src/styles/motion-extras.css";
 import "./preview.css";
 
 import type { Preview } from "@storybook/react-vite";
