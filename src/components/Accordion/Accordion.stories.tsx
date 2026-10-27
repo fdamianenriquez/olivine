@@ -44,7 +44,7 @@ export const Themes: Story = {
           key={theme}
           className="ol"
           data-theme={theme}
-          style={{ padding: "var(--space-5)", background: "var(--bg)", color: "var(--ink)" }}
+          style={{ padding: "var(--space-5)", background: "var(--paper)", color: "var(--ink)" }}
         >
           <Accordion {...args} />
         </div>
