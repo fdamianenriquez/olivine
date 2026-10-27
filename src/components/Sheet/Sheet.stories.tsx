@@ -35,7 +35,7 @@ export const Default: Story = {
           style={{ padding: "var(--space-4)", minHeight: "var(--space-32)" }}
         >
           <Text variant="mono" as="p">
-            {">>> UNIT / D-01"}
+            {">>> Unit / D-01"}
             <br />
             {"[ 064% ] ////////"}
           </Text>

@@ -231,9 +231,7 @@ function Shirakaba() {
         <Photo img={IMAGES.hero} className="sg-hero__photo">
           <Container className="sg-hero__over">
             <div className="sg-hero__panel">
-              <Label index="01" dot>
-                Matsumoto · Nagano · since 1987
-              </Label>
+              <Label dot>Matsumoto · Nagano · since 1987</Label>
               <Text variant="display-xl" as="h1" className="sg-hero__title">
                 Guitars made at the foot of the Alps.
               </Text>
@@ -279,7 +277,7 @@ function Shirakaba() {
         <Container>
           <div className="sg-split">
             <Stack gap={6}>
-              <Label index="02">The workshop</Label>
+              <Label>The workshop</Label>
               <Text variant="h1" as="h2">
                 Timber that waits <i>a whole winter</i> before it becomes a guitar.
               </Text>
@@ -349,7 +347,7 @@ function Shirakaba() {
         <Container>
           <div className="sg-bar">
             <Stack gap={3}>
-              <Label index="03">Models</Label>
+              <Label>Models</Label>
               <Text variant="display-m" as="h2">
                 Three shapes, all our own.
               </Text>
@@ -360,10 +358,9 @@ function Shirakaba() {
             </Text>
           </div>
           <div className="sg-models">
-            {MODELS.map((m, i) => (
+            {MODELS.map((m) => (
               <Card
                 key={m.id}
-                index={String(i + 1).padStart(2, "0")}
                 meta={<span lang="ja">{m.kanji}</span>}
                 media={
                   <div className="sg-models__media">
@@ -414,7 +411,7 @@ function Shirakaba() {
       <section id="build" className="sg-section sg-section--tint">
         <Container>
           <Stack gap={3}>
-            <Label index="04">Configurator</Label>
+            <Label>Configurator</Label>
             <Text variant="display-m" as="h2">
               Your guitar, step by step.
             </Text>
@@ -805,7 +802,7 @@ function Shirakaba() {
           <div className="sg-split">
             <Stack gap={6}>
               <Stack gap={4}>
-                <Label index="05">After you order</Label>
+                <Label>After you order</Label>
                 <Text variant="h1" as="h2">
                   From deposit to your door.
                 </Text>
@@ -848,7 +845,7 @@ function Shirakaba() {
         <Container>
           <div className="sg-split">
             <Stack gap={4}>
-              <Label index="06">Questions</Label>
+              <Label>Questions</Label>
               <Text variant="h1" as="h2">
                 What people ask us most.
               </Text>
@@ -945,7 +942,7 @@ function Shirakaba() {
         onClose={() => {
           setConfirm(false);
         }}
-        index="04 — Order"
+        index="Order"
         title="Reserve this guitar?"
         footer={
           <>

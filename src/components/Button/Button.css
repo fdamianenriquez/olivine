@@ -118,7 +118,7 @@
 }
 
 .ol-btn__arrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--glyph-m);
   line-height: 1;
   transition: transform var(--motion-base);

@@ -151,7 +151,12 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(function F
         <span id={labelId} className="ol-file__label" aria-hidden={named || undefined}>
           {label ?? t.fileLabel}
         </span>
-        <span id={namesId} className="ol-file__names" role="status">
+        <span
+          id={namesId}
+          className="ol-file__names"
+          role="status"
+          data-files={names.length ? "" : undefined}
+        >
           {names.length ? names.join(", ") : (hint ?? t.fileEmpty)}
         </span>
       </span>

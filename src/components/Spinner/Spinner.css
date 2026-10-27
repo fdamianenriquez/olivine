@@ -33,7 +33,7 @@
 }
 
 .ol-spinner__dots {
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--glyph-s);
   line-height: 1;
   letter-spacing: 0.2em;

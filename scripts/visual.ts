@@ -36,7 +36,9 @@ run("docker", [
   "node",
   "node_modules/@playwright/test/cli.js",
   "test",
-  ...(mode === "update" ? ["--update-snapshots"] : []),
+  // "all" rewrites every baseline: the default only rewrites those past the diff threshold, so a
+  // small but real change (a label's case, a glyph) would keep its stale baseline.
+  ...(mode === "update" ? ["--update-snapshots=all"] : []),
   // Anything after the mode goes to Playwright, e.g. `-g demo` to run a few stories.
   ...process.argv.slice(3),
 ]);

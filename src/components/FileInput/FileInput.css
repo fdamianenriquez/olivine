@@ -34,10 +34,15 @@
 }
 
 .ol-file__names {
-  font-family: var(--font-mono);
+  font-family: var(--text-body-s-family);
   font-size: var(--text-body-s-size);
   color: var(--ink-2);
   overflow-wrap: anywhere;
+}
+
+/* Chosen file names are data: mono. The empty state and the hint stay in body-s. */
+.ol-file__names[data-files] {
+  font-family: var(--font-mono);
 }
 
 .ol-file__input {

@@ -46,7 +46,7 @@
 }
 
 .ol-accordion__sign {
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-weight: 400;
   font-size: var(--glyph-xl);
   text-align: center;

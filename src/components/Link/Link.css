@@ -25,7 +25,7 @@
 }
 
 .ol-link__arrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   margin-left: 0.25em;
 }
 
