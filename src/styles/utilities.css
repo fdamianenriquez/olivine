@@ -42,7 +42,7 @@
   position: absolute;
   z-index: 1;
   padding: 0 calc(var(--space-1) / 2);
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--crosshair-size);
   line-height: 1;
   color: var(--ink);

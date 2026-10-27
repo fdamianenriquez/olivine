@@ -59,7 +59,7 @@
 
 .ol-field__error::before,
 .ol-field__valid::before {
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
 }
 
 .ol-field__error::before {

@@ -32,7 +32,7 @@
   display: grid;
   place-items: center;
   width: var(--control-m);
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--glyph-s);
   color: var(--ink);
   pointer-events: none;

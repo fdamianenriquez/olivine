@@ -9,7 +9,7 @@
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--glyph-l);
   line-height: 1;
   transition:

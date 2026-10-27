@@ -42,7 +42,7 @@ function Demo(props: Partial<ModalProps>) {
         Open modal
       </Button>
       <Modal
-        index="03 — Inquiry"
+        index="Inquiry"
         title="Start a project"
         {...props}
         open={open}
