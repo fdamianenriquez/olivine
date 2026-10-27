@@ -42,7 +42,7 @@
   font-weight: var(--text-figure-m-weight);
   line-height: var(--text-figure-m-leading);
   letter-spacing: var(--text-figure-m-tracking);
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .ol-accordion__sign {
