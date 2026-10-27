@@ -12,7 +12,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `Pagination is a row of joined square cells with zero-padded numbers; the current page is ink-filled.
+        component: `Pagination is a row of joined square cells with page numbers (not zero-padded, so each number is part of its accessible name, "Page 1"); the current page is ink-filled.
 
 - Do use \`siblings\` to widen the window around the current page.
 - Do pass \`page\` and \`onChange\` to keep the page in your own state or URL.

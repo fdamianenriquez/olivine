@@ -25,12 +25,12 @@ describe("Pagination", () => {
   });
 
   it.each([
-    [12, 5, 1, ["←", "01", "…", "04", "05", "06", "…", "12", "→"]],
-    [12, 1, 1, ["←", "01", "02", "…", "12", "→"]],
-    [12, 12, 1, ["←", "01", "…", "11", "12", "→"]],
-    [12, 6, 2, ["←", "01", "…", "04", "05", "06", "07", "08", "…", "12", "→"]],
-    [3, 2, 1, ["←", "01", "02", "03", "→"]],
-    [1, 1, 1, ["←", "01", "→"]],
+    [12, 5, 1, ["←", "1", "…", "4", "5", "6", "…", "12", "→"]],
+    [12, 1, 1, ["←", "1", "2", "…", "12", "→"]],
+    [12, 12, 1, ["←", "1", "…", "11", "12", "→"]],
+    [12, 6, 2, ["←", "1", "…", "4", "5", "6", "7", "8", "…", "12", "→"]],
+    [3, 2, 1, ["←", "1", "2", "3", "→"]],
+    [1, 1, 1, ["←", "1", "→"]],
   ])("truncates total=%i page=%i siblings=%i", (total, page, siblings, expected) => {
     render(<Pagination total={total} page={page} siblings={siblings} />);
     expect(cells(screen.getByRole("navigation"))).toEqual(expected);
@@ -166,13 +166,13 @@ describe("Pagination", () => {
   describe("with getHref", () => {
     const getHref = (p: number) => `/items?page=${String(p)}`;
 
-    it("renders links with hrefs, names and padded figures", () => {
+    it("renders links with hrefs, names and figures", () => {
       render(<Pagination total={5} page={3} getHref={getHref} />);
       expect(screen.queryByRole("button")).not.toBeInTheDocument();
       const link = screen.getByRole("link", { name: "Page 4" });
       expect(link).toHaveAttribute("href", "/items?page=4");
       expect(link).toHaveClass("ol-page__item");
-      expect(link).toHaveTextContent("04");
+      expect(link).toHaveTextContent("4");
       expect(screen.getByRole("link", { name: "Next page" })).toHaveAttribute(
         "href",
         "/items?page=4",
