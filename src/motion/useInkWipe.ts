@@ -10,18 +10,10 @@ interface Edges {
   r: number;
 }
 
-/**
- * An item's padding box, where its fill sits. Items that share a border overlap by its width, so
- * the border box would leak a strip of ink onto the next. Border widths come from the computed
- * style: clientLeft and clientWidth round to whole pixels and miss a 0.5px hairline.
- */
-function inner(item: HTMLElement, origin: number): Edges {
+/** An item's border box, which the ink covers (it bleeds over the item's own hairline). */
+function outer(item: HTMLElement, origin: number): Edges {
   const rect = item.getBoundingClientRect();
-  const style = getComputedStyle(item);
-  return {
-    l: rect.left + (parseFloat(style.borderLeftWidth) || 0) - origin,
-    r: rect.right - (parseFloat(style.borderRightWidth) || 0) - origin,
-  };
+  return { l: rect.left - origin, r: rect.right - origin };
 }
 
 /** Writes the selected item's edges on the group and each item's offset; returns the edges. */
@@ -29,12 +21,12 @@ function measure(group: HTMLElement, active: number, previous: Edges | null): Ed
   const origin = group.getBoundingClientRect().left;
   const items = group.querySelectorAll<HTMLElement>(".ol-ink-wipe");
   items.forEach((item) => {
-    item.style.setProperty("--ol-ink-x", `${String(inner(item, origin).l)}px`);
+    item.style.setProperty("--ol-ink-x", `${String(outer(item, origin).l)}px`);
   });
   const target = active >= 0 ? items[active] : undefined;
   let edges: Edges;
   if (target) {
-    edges = inner(target, origin);
+    edges = outer(target, origin);
   } else {
     // No selection: the ink shrinks to the middle of where it was.
     const middle = previous ? (previous.l + previous.r) / 2 : 0;

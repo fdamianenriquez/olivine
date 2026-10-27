@@ -53,7 +53,6 @@ describe("useInkWipe", () => {
     place(group, 100, 299);
     screen.getAllByRole("radio").forEach((item, index) => {
       place(item, 100 + index * 99.5, 100);
-      item.style.border = "0.5px solid";
     });
     return group;
   }
@@ -67,18 +66,18 @@ describe("useInkWipe", () => {
     const { rerender } = render(<Group active={-1} />);
     const group = layout();
     rerender(<Group active={0} />);
-    // Inside the hairlines, to the half pixel: the ink ends (99.5px) where the next border starts.
-    expect(edges(group)).toEqual(["0.5px", "99.5px"]);
+    // The ink covers the item's border box, to the half pixel.
+    expect(edges(group)).toEqual(["0px", "100px"]);
     expect(
       screen.getAllByRole("radio").map((el) => el.style.getPropertyValue("--ol-ink-x")),
-    ).toEqual(["0.5px", "100px", "199.5px"]);
+    ).toEqual(["0px", "99.5px", "199px"]);
     await waitFor(() => {
       expect(group).toHaveAttribute("data-ink-wipe", "ready");
     });
     // A jump over the middle item moves both edges; the ink crosses the item in between, and
     // the group is "moving" only while it travels.
     rerender(<Group active={2} />);
-    expect(edges(group)).toEqual(["199.5px", "298.5px"]);
+    expect(edges(group)).toEqual(["199px", "299px"]);
     expect(group).toHaveAttribute("data-ink-wipe", "moving");
     await waitFor(() => {
       expect(group).toHaveAttribute("data-ink-wipe", "ready");

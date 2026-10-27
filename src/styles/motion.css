@@ -755,6 +755,13 @@
 .ol-ink-wipe::before {
   content: "";
 
+  /*
+   * The fill also covers the item's hairline (--ol-ink-wipe-bleed, the item's border width), so
+   * no sliver of paper is left between it and a shared border when a browser snaps them to
+   * different device pixels (Safari). The label copy keeps the padding box, on the base label.
+   */
+  inset: calc(var(--ol-ink-wipe-bleed, var(--stroke-hair)) * -1);
+
   /* Under the label, inside the item's own stacking context (isolation). */
   z-index: calc(var(--z-raised) * -1);
 }
@@ -807,6 +814,16 @@
   transition:
     --ol-ink-l var(--dur-m) var(--ease-move),
     --ol-ink-r var(--dur-m) var(--ease-move);
+}
+
+/* The copy starts inside the hairline: its origin is the bleed further in, so it clips with the fill. */
+[data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink {
+  --ol-ink-o: calc(var(--ol-ink-x, 0px) + var(--ol-ink-wipe-bleed, var(--stroke-hair)));
+
+  clip-path: inset(
+    0 clamp(0px, 100% - var(--ol-ink-r) + var(--ol-ink-o), 100%) 0
+      clamp(0px, var(--ol-ink-l) - var(--ol-ink-o), 100%)
+  );
 }
 
 /* ---------- Sliding bar (built-in effect): a 3px olivo bar slides between tabs ---------- */
