@@ -805,6 +805,17 @@
  * With useInkWipe(), while the ink travels: each item clips to the part of the ink over it.
  * Physical edges, so right to left needs nothing more. At rest the rules above ink the selection.
  */
+
+/*
+ * With the hook the ink only moves through --ol-ink-l / --ol-ink-r: the swap between the
+ * travelling clip and the resting one is instant (both draw the same ink). Interpolating it
+ * would sweep a sliver back across the item in Safari and Firefox.
+ */
+[data-ink-wipe] .ol-ink-wipe::before,
+[data-ink-wipe] .ol-ink-wipe > .ol-ink-wipe__ink {
+  transition: none;
+}
+
 [data-ink-wipe="moving"] .ol-ink-wipe::before,
 [data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink {
   clip-path: inset(
