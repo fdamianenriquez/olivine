@@ -46,7 +46,7 @@
 }
 
 .ol-nav__index {
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 /* The active link is marked in olivo by its rule; its index is ink, readable on any paper. */

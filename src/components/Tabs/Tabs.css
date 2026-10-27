@@ -54,7 +54,7 @@
   font-weight: var(--text-figure-s-weight);
   line-height: var(--text-figure-s-leading);
   letter-spacing: var(--text-figure-s-tracking);
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .ol-tabs__tab[aria-selected="true"] .ol-tabs__idx {
