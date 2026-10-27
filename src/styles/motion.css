@@ -794,9 +794,12 @@
   color: var(--ol-ink-wipe-text, var(--on-ink));
 }
 
-/* With useInkWipe(): the travelling ink. Physical edges, so right to left needs nothing more. */
-[data-ink-wipe="ready"] .ol-ink-wipe::before,
-[data-ink-wipe="ready"] .ol-ink-wipe > .ol-ink-wipe__ink {
+/*
+ * With useInkWipe(), while the ink travels: each item clips to the part of the ink over it.
+ * Physical edges, so right to left needs nothing more. At rest the rules above ink the selection.
+ */
+[data-ink-wipe="moving"] .ol-ink-wipe::before,
+[data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink {
   clip-path: inset(
     0 clamp(0px, 100% - var(--ol-ink-r) + var(--ol-ink-x, 0px), 100%) 0
       clamp(0px, var(--ol-ink-l) - var(--ol-ink-x, 0px), 100%)

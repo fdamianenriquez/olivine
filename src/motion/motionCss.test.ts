@@ -228,7 +228,7 @@ describe("motion.css and motion-extras.css", () => {
 
   it("clips the ink-wipe copy exactly like the fill, to the travelling ink", () => {
     const body = rule(
-      '[data-ink-wipe="ready"] .ol-ink-wipe::before,\n[data-ink-wipe="ready"] .ol-ink-wipe > .ol-ink-wipe__ink',
+      '[data-ink-wipe="moving"] .ol-ink-wipe::before,\n[data-ink-wipe="moving"] .ol-ink-wipe > .ol-ink-wipe__ink',
     );
     expect(body).toContain("var(--ol-ink-l) - var(--ol-ink-x, 0px)");
     expect(body).toContain("100% - var(--ol-ink-r) + var(--ol-ink-x, 0px)");

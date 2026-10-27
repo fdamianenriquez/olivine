@@ -47,14 +47,13 @@ describe("useInkWipe", () => {
     } as DOMRect);
   }
 
-  // Three 100px items with a 1px border, sharing it: each overlaps the previous by 1px.
+  // Three 100px items with a 0.5px hairline, sharing it: each overlaps the previous by 0.5px.
   function layout() {
     const group = screen.getByTestId("group");
-    place(group, 100, 298);
+    place(group, 100, 299);
     screen.getAllByRole("radio").forEach((item, index) => {
-      place(item, 100 + index * 99, 100);
-      Object.defineProperty(item, "clientLeft", { configurable: true, value: 1 });
-      Object.defineProperty(item, "clientWidth", { configurable: true, value: 98 });
+      place(item, 100 + index * 99.5, 100);
+      item.style.border = "0.5px solid";
     });
     return group;
   }
@@ -68,17 +67,22 @@ describe("useInkWipe", () => {
     const { rerender } = render(<Group active={-1} />);
     const group = layout();
     rerender(<Group active={0} />);
-    // Inside the borders: the ink ends (99px) before the next item's fill starts (100px).
-    expect(edges(group)).toEqual(["1px", "99px"]);
+    // Inside the hairlines, to the half pixel: the ink ends (99.5px) where the next border starts.
+    expect(edges(group)).toEqual(["0.5px", "99.5px"]);
     expect(
       screen.getAllByRole("radio").map((el) => el.style.getPropertyValue("--ol-ink-x")),
-    ).toEqual(["1px", "100px", "199px"]);
+    ).toEqual(["0.5px", "100px", "199.5px"]);
     await waitFor(() => {
       expect(group).toHaveAttribute("data-ink-wipe", "ready");
     });
-    // A jump over the middle item moves both edges; the ink crosses the item in between.
+    // A jump over the middle item moves both edges; the ink crosses the item in between, and
+    // the group is "moving" only while it travels.
     rerender(<Group active={2} />);
-    expect(edges(group)).toEqual(["199px", "297px"]);
+    expect(edges(group)).toEqual(["199.5px", "298.5px"]);
+    expect(group).toHaveAttribute("data-ink-wipe", "moving");
+    await waitFor(() => {
+      expect(group).toHaveAttribute("data-ink-wipe", "ready");
+    });
   });
 
   it("shrinks the ink to the middle of the last selection when it is cleared", () => {
@@ -86,7 +90,7 @@ describe("useInkWipe", () => {
     const group = layout();
     rerender(<Group active={1} />);
     rerender(<Group active={-1} />);
-    expect(edges(group)).toEqual(["149px", "149px"]);
+    expect(edges(group)).toEqual(["149.5px", "149.5px"]);
   });
 
   it("has no axe violations before and after a change, with the inked copy", async () => {
