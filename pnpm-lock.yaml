@@ -188,10 +188,16 @@ importers:
       '@eslint/js':
         specifier: 9.39.5
         version: 9.39.5
-      '@fontsource/martian-mono':
+      '@fontsource/big-shoulders-display':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/zen-old-mincho':
+      '@fontsource/familjen-grotesk':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/xanh-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/yuji-syuku':
         specifier: ^5.3.1
         version: 5.3.1
       '@playwright/test':
@@ -882,11 +888,17 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@fontsource/martian-mono@5.3.0':
-    resolution: {integrity: sha512-0iTnU6SZi6j5z4ymwlZGep6akvp/xWm+r+WyZO9hMfDJWX+dsFLipQp9zO02S0lkUQ+zAahcZNy3XLiNP+gVqQ==}
+  '@fontsource/big-shoulders-display@5.3.0':
+    resolution: {integrity: sha512-d4+Tcsq/WfoKeqWfB6wFdeNDsSYYnilJbSNNpf5w53MlWrGHAc9YvkAjC6id6PgFDiGaFKsXfP0RFAQtpt0bog==}
 
-  '@fontsource/zen-old-mincho@5.3.1':
-    resolution: {integrity: sha512-wahFUlw1s0zKkxiTRj9jJiyVrdNT5uHNYWakr6cDEIgp91YoP/LOvfD2+JVIKiXIwTChDM1oW1yqXJbdtlI56w==}
+  '@fontsource/familjen-grotesk@5.3.0':
+    resolution: {integrity: sha512-Kh6DXwAtw+kyvCSpiOI3wss/LvOJtJJRl9NTf9YpYpmcpsZ5BGQLTF9nVm9TUmnpLTe4z3iyAcvnLfsQgQR0lg==}
+
+  '@fontsource/xanh-mono@5.3.0':
+    resolution: {integrity: sha512-6dw5BzWzkPhBJKzFdxEbjHzuUNnw6uIqKNGvfhy2EnZJv2l6TUbxtjyEWfpW9Rn4mm/ef+HRjlUkfe8ptSIL7w==}
+
+  '@fontsource/yuji-syuku@5.3.1':
+    resolution: {integrity: sha512-ELjsWAESeJykf71gnjkcgL+UmV9K3dSAis/oQhFdwpGBL8wMAvXH89BypDFNELw1U/MnpfPj9x2Wvy/6dWVM5g==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -4795,9 +4807,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@fontsource/martian-mono@5.3.0': {}
+  '@fontsource/big-shoulders-display@5.3.0': {}
 
-  '@fontsource/zen-old-mincho@5.3.1': {}
+  '@fontsource/familjen-grotesk@5.3.0': {}
+
+  '@fontsource/xanh-mono@5.3.0': {}
+
+  '@fontsource/yuji-syuku@5.3.1': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

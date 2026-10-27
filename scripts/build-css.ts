@@ -2,7 +2,7 @@
  * Builds the published stylesheets from src/styles:
  *   dist/tokens.css      custom properties for both themes
  *   dist/fonts.css       @font-face rules, URLs relative to the package's fonts/
- *   dist/fonts-jp.css    opt-in Zen Old Mincho (kanji), sliced by unicode-range
+ *   dist/fonts-jp.css    opt-in Yuji Syuku (kanji), sliced by unicode-range
  *   dist/components.css  base + components + utilities, no tokens or fonts
  *   dist/motion-extras.css  opt-in ol-motion-* classes (byōbu, noren, kumiko, shishi-odoshi, sumi, origami)
  *   dist/olivine.css     everything above in one file

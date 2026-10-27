@@ -94,7 +94,7 @@ export function readVendorFonts(path = VENDOR_FONTS_PATH): FontFace[] {
 }
 
 /** Families that only ship in the opt-in fonts-jp.css (large unicode-range sliced sets). */
-const JP_FAMILIES = new Set(["Zen Old Mincho"]);
+const JP_FAMILIES = new Set(["Yuji Syuku"]);
 
 /** Font faces split into the default set (fonts.css) and the opt-in Japanese set (fonts-jp.css). */
 export function fontSets(tokens: TokenFile): { core: FontFace[]; jp: FontFace[] } {
