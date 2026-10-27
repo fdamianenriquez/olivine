@@ -40,6 +40,10 @@
   gap: var(--space-4);
 }
 
+.ol-sb-motion__fill {
+  align-self: stretch;
+}
+
 .ol-sb-motion__note {
   margin: 0;
   max-width: 60ch;

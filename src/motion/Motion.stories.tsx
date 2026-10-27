@@ -944,7 +944,7 @@ function Pausable({ children }: { children: ReactNode }) {
       >
         Pause animation
       </button>
-      <div className={paused ? "ol-motion-paused" : undefined}>{children}</div>
+      <div className={`ol-sb-motion__fill${paused ? " ol-motion-paused" : ""}`}>{children}</div>
     </div>
   );
 }
