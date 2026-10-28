@@ -34,6 +34,21 @@ describe("Root", () => {
     expect(screen.getByTestId("root")).toHaveAttribute("data-theme", "auto");
   });
 
+  it("renders the stamp edge filter once, in the outermost Root only", () => {
+    const { container } = render(
+      <Root>
+        <Root theme="sumi">
+          <span className="ol-stamp">Seal</span>
+        </Root>
+      </Root>,
+    );
+    const filters = container.querySelectorAll("filter#ol-stamp-edge");
+    expect(filters).toHaveLength(1);
+    const defs = filters[0]?.closest("svg");
+    expect(defs).toHaveAttribute("aria-hidden", "true");
+    expect(defs?.parentElement).toBe(container.firstElementChild);
+  });
+
   it("renders another element with as", () => {
     render(<Root as="main" data-testid="root" />);
     expect(screen.getByTestId("root").tagName).toBe("MAIN");

@@ -69,3 +69,102 @@
   color: var(--olivo);
   vertical-align: super;
 }
+
+/*
+ * Seal (tenkoku) for short titles and marks; stays real text. Shubun by default: ink characters in
+ * a thick frame. Rough edges come from the #ol-stamp-edge filter that Root renders once; ink pores
+ * and uneven pressure are masks sized in em, so they scale with the seal. The softly rounded
+ * corner is the one exception to radius 0. Uppercase exists only here.
+ */
+.ol-stamp {
+  --stamp-ink: var(--ink);
+  --stamp-paper: var(--paper);
+  --stamp-radius: 0.16em;
+  --stamp-frame: 0.09em;
+  --stamp-pores: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -12 9.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --stamp-press: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.8 1.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.1em 0.22em 0.06em;
+  border: var(--stamp-frame) solid var(--stamp-ink);
+  border-radius: var(--stamp-radius);
+  color: var(--stamp-ink);
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  filter: url("#ol-stamp-edge");
+  mask-image: var(--stamp-pores), var(--stamp-press);
+  mask-size:
+    3em 3em,
+    100% 100%;
+  mask-composite: intersect;
+}
+
+.ol-stamp:lang(ja) {
+  padding: 0.14em;
+  font-family: var(--font-jp);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Hakubun: a solid ink block with the characters knocked out in paper. */
+.ol-stamp--negative,
+.ol-stamp--haku {
+  background: var(--stamp-ink);
+  color: var(--stamp-paper);
+}
+
+.ol-stamp--shu {
+  --stamp-ink: var(--shu);
+}
+
+.ol-stamp--olivo {
+  --stamp-ink: var(--olivo);
+}
+
+.ol-stamp--vertical {
+  --stamp-radius: 0.22em;
+
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+/* Four kanji in a 2 × 2 seal, read in columns right to left. */
+.ol-stamp--square {
+  --stamp-radius: 0.2em;
+
+  box-sizing: content-box;
+  inline-size: 2.08em;
+  block-size: 2.08em;
+  writing-mode: vertical-rl;
+  line-height: 1.04;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.ol-stamp--round {
+  --stamp-radius: 50%;
+  --stamp-frame: 0.07em;
+
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.6em;
+  block-size: 1.6em;
+  padding: 0;
+}
+
+/* Its own property, so the hanko keyframes (transform) keep the tilt while they play. */
+.ol-stamp--tilt {
+  rotate: -4deg;
+}
+
+@media (forced-colors: active) {
+  .ol-stamp {
+    filter: none;
+    mask-image: none;
+  }
+}
