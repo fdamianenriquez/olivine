@@ -1,4 +1,4 @@
-import { type ElementType, useContext, useMemo } from "react";
+import { createContext, type ElementType, useContext, useMemo } from "react";
 
 import {
   type LabelOverrides,
@@ -33,6 +33,30 @@ export interface RootOwnProps {
 
 export type RootProps<E extends ElementType = "div"> = PolymorphicProps<E, RootOwnProps>;
 
+/** True inside a Root: only the outermost one renders the shared SVG definitions. */
+const InsideRoot = createContext(false);
+
+/**
+ * Rough edges of `.ol-stamp` seals (`filter: url("#ol-stamp-edge")`), rendered once and never
+ * injected at runtime.
+ */
+function StampFilter() {
+  return (
+    <svg className="ol-root__defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="ol-stamp-edge" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves={2} seed={11} result="n" />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="n"
+          scale={3.4}
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+  );
+}
+
 function isBuiltIn(locale: string): boolean {
   return Object.hasOwn(locales, locale) || Object.hasOwn(locales, locale.split("-")[0] ?? "");
 }
@@ -42,6 +66,7 @@ const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
   ref,
 ) {
   const parent = useContext(LocaleContext);
+  const nested = useContext(InsideRoot);
   const dictionary = useMemo(() => {
     if (locale === undefined) return labels ? makeLabels(parent, labels) : parent;
     return makeLabels(locale, labels);
@@ -49,15 +74,18 @@ const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
   const lang = typeof locale === "string" && isBuiltIn(locale) ? locale : undefined;
   return (
     <LocaleContext.Provider value={dictionary}>
-      <As
-        ref={ref}
-        className={cx("ol", className as string | undefined)}
-        data-theme={theme}
-        lang={lang}
-        {...rest}
-      >
-        {children}
-      </As>
+      <InsideRoot.Provider value>
+        <As
+          ref={ref}
+          className={cx("ol", className as string | undefined)}
+          data-theme={theme}
+          lang={lang}
+          {...rest}
+        >
+          {nested ? null : <StampFilter />}
+          {children}
+        </As>
+      </InsideRoot.Provider>
     </LocaleContext.Provider>
   );
 });

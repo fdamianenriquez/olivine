@@ -34,6 +34,13 @@
   outline-offset: var(--focus-offset);
 }
 
+/* Shared SVG definitions rendered by the outermost Root (the stamp edge filter): no box. */
+.ol-root__defs {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* Visually hidden, still announced. */
 .ol-sr {
   position: absolute;
