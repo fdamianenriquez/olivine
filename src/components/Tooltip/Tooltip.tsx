@@ -65,6 +65,8 @@ const SETTLE_MS = 400;
 
 interface ChildProps {
   "aria-describedby"?: string | undefined;
+  "aria-label"?: string | undefined;
+  children?: ReactNode;
   onPointerEnter?: (event: PointerEvent<HTMLElement>) => void;
   onPointerLeave?: (event: PointerEvent<HTMLElement>) => void;
   onPointerDown?: (event: PointerEvent<HTMLElement>) => void;
@@ -75,6 +77,18 @@ interface ChildProps {
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   onContextMenu?: (event: MouseEvent<HTMLElement>) => void;
   ref?: Ref<HTMLElement>;
+}
+
+const normalise = (text: string) => text.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+
+/**
+ * True when the tooltip only repeats the trigger's name (a square button's `aria-label`, or its
+ * text): describing it again would make screen readers say the same words twice.
+ */
+function repeatsName(content: ReactNode, own: ChildProps): boolean {
+  if (typeof content !== "string") return false;
+  const name = own["aria-label"] ?? (typeof own.children === "string" ? own.children : undefined);
+  return name !== undefined && normalise(name) === normalise(content);
 }
 
 function setRef<T>(ref: Ref<T> | undefined, node: T | null) {
@@ -183,9 +197,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
 
   const trigger = cloneElement(child, {
     ref: setTrigger,
-    "aria-describedby": open
-      ? [own["aria-describedby"], id].filter(Boolean).join(" ")
-      : own["aria-describedby"],
+    "aria-describedby":
+      open && !repeatsName(content, own)
+        ? [own["aria-describedby"], id].filter(Boolean).join(" ")
+        : own["aria-describedby"],
     onPointerEnter: (event: PointerEvent<HTMLElement>) => {
       own.onPointerEnter?.(event);
       if (!isTouch(event)) schedule(true, openDelay);
