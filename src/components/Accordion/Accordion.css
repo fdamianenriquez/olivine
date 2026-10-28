@@ -52,8 +52,9 @@
   text-align: center;
 }
 
+/* The open item's index is ink, readable on any paper; the sign already marks it open. */
 .ol-accordion__btn[aria-expanded="true"] .ol-accordion__idx {
-  color: var(--olivo);
+  color: var(--ink);
 }
 
 .ol-accordion__panel {
