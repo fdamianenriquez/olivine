@@ -20,6 +20,7 @@
   --control-s: 32px;
   --control-m: 44px;
   --control-l: 56px;
+  --control-xl: 80px;
   --control-area: 120px;
   --target-min: 24px;
   --menu-min-width: 220px;
@@ -77,7 +78,7 @@
   --underline-weight: 1px;
   --underline-offset: 4px;
   --z-raised: 1;
-  --z-dropdown: 100;
+  --z-dropdown: 350;
   --z-sticky: 200;
   --z-overlay: 300;
   --z-toast: 400;
@@ -234,6 +235,7 @@
   --on-olivo: #f7f2e7;
   --maple: #d08a24;
   --on-maple: #1c1912;
+  --shu: #b8341b;
   --ai: #2c4a8c;
   --matsu: #2b6a4a;
   --kitsune: #7a5200;
@@ -260,6 +262,7 @@
   --on-olivo: #14120d;
   --maple: #e0a24a;
   --on-maple: #14120d;
+  --shu: #e86a4c;
   --ai: #9bb0f0;
   --matsu: #74c79a;
   --kitsune: #e3ad4f;
@@ -288,6 +291,7 @@
     --on-olivo: #14120d;
     --maple: #e0a24a;
     --on-maple: #14120d;
+    --shu: #e86a4c;
     --ai: #9bb0f0;
     --matsu: #74c79a;
     --kitsune: #e3ad4f;
