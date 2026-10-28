@@ -15,8 +15,10 @@ export type ToastStackPosition = "br" | "tr" | "bl" | "tc" | "static";
 
 export interface ToastStackProps extends HTMLAttributes<HTMLDivElement> {
   /**
-   * Where the stack is pinned, with a `space-6` margin: bottom-right, top-right, bottom-left,
-   * top-centre, or `static` to sit in the page flow (useful in documentation).
+   * Where the stack is pinned, with a `space-6` margin: top-right, bottom-right, bottom-left,
+   * top-centre, or `static` to sit in the page flow (useful in documentation). Top-right by
+   * default: Fab owns the bottom-end corner.
+   * @default "tr"
    */
   position?: ToastStackPosition;
   /** The toasts. Every countdown pauses while the pointer or focus is in the stack, or the page is hidden. */
@@ -30,7 +32,7 @@ export interface ToastStackProps extends HTMLAttributes<HTMLDivElement> {
  * holds its auto-dismiss timer.
  */
 export const ToastStack = forwardRef<HTMLDivElement, ToastStackProps>(function ToastStack(
-  { position = "br", className, children, onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
+  { position = "tr", className, children, onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
   ref,
 ) {
   const [hovered, setHovered] = useState(false);
