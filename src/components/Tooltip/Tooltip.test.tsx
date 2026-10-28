@@ -126,6 +126,21 @@ describe("Tooltip", () => {
     expect(btn().getAttribute("aria-describedby")).toBe(`other ${id ?? ""}`);
   });
 
+  it("doesn't describe a trigger whose name the tooltip only repeats", () => {
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <Button square aria-label="copy  link" aria-describedby="other">
+          ⧉
+        </Button>
+      </Tooltip>,
+    );
+    expect(tip()).not.toBeNull();
+    expect(screen.getByRole("button", { name: "copy link" })).toHaveAttribute(
+      "aria-describedby",
+      "other",
+    );
+  });
+
   it("closes on Escape without closing an enclosing modal", () => {
     const onClose = vi.fn();
     render(
