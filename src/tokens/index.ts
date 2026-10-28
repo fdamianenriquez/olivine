@@ -55,6 +55,10 @@ export const tokens = {
       washi: "#1c1912",
       sumi: "#14120d",
     },
+    shu: {
+      washi: "#b8341b",
+      sumi: "#e86a4c",
+    },
     ai: {
       washi: "#2c4a8c",
       sumi: "#9bb0f0",
@@ -291,6 +295,7 @@ export const tokens = {
     "control-s": "32px",
     "control-m": "44px",
     "control-l": "56px",
+    "control-xl": "80px",
     "control-area": "120px",
     "target-min": "24px",
     "menu-min-width": "220px",
@@ -373,7 +378,7 @@ export const tokens = {
   },
   zIndex: {
     "z-raised": "1",
-    "z-dropdown": "100",
+    "z-dropdown": "350",
     "z-sticky": "200",
     "z-overlay": "300",
     "z-toast": "400",

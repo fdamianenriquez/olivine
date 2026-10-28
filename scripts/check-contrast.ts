@@ -24,6 +24,8 @@ const PAIRS: Pair[] = [
   { fg: "olivo", bg: "paper-2", min: 3, why: "marks, figures 24px+, bold labels only" },
   { fg: "on-olivo", bg: "olivo", min: 4.5, why: "accent button" },
   { fg: "on-maple", bg: "maple", min: 4.5, why: "maple fills" },
+  { fg: "shu", bg: "paper", min: 4.5, why: "seal characters (shubun)" },
+  { fg: "paper", bg: "shu", min: 4.5, why: "characters knocked out of a seal (hakubun)" },
   ...STATUSES.map((fg): Pair => ({ fg, bg: "paper", min: 4.5, why: "status text" })),
   ...STATUSES.map((bg): Pair => ({ fg: "on-status", bg, min: 4.5, why: "text on status fills" })),
 ];
