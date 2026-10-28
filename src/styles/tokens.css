@@ -146,6 +146,11 @@
   --text-figure-s-leading: 1;
   --text-figure-s-weight: 900;
   --text-figure-s-tracking: 0;
+  --text-figure-xs-family: var(--font-figure);
+  --text-figure-xs-size: 16px;
+  --text-figure-xs-leading: 1;
+  --text-figure-xs-weight: 900;
+  --text-figure-xs-tracking: 0;
   --text-body-l-family: var(--font-sans);
   --text-body-l-size: 18px;
   --text-body-l-leading: 1.6;

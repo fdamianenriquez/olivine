@@ -67,10 +67,10 @@
 /* Amounts and quantities in the figure face (typography v2), never below 16px. */
 .ol-table td.ol-num {
   text-align: right;
-  font-family: var(--text-figure-s-family);
-  font-size: var(--text-figure-s-size);
-  line-height: var(--text-figure-s-leading);
-  font-weight: var(--text-figure-s-weight);
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
   font-variant-numeric: tabular-nums;
 }
 
