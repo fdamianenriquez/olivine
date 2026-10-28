@@ -108,6 +108,17 @@ describe("Tabs", () => {
     expect(screen.getByRole("tab", { name: "Four" })).toHaveFocus();
   });
 
+  it("leaves Ctrl, Alt and Meta arrow combinations to the browser", async () => {
+    const user = userEvent.setup();
+    render(<Demo />);
+    screen.getByRole("tab", { name: "One" }).focus();
+    for (const mod of ["Control", "Alt", "Meta"]) {
+      await user.keyboard(`{${mod}>}{ArrowRight}{/${mod}}`);
+    }
+    expect(screen.getByRole("tab", { name: "One" })).toHaveFocus();
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("Panel one");
+  });
+
   it("jumps with Home and End", async () => {
     const user = userEvent.setup();
     render(<Demo />);
