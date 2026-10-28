@@ -61,7 +61,13 @@ import {
 import { GuitarSVG } from "./GuitarSVG";
 import { Photo, Ridge, Swatch } from "./Parts";
 
-const price = (amount: number) => (amount ? `+${yen(amount)}` : "Included");
+/** An option's surcharge in figures; "Included" is a word, so it is set as a label. */
+const price = (amount: number) =>
+  amount ? (
+    <span className="sg-choice__price">{`+${yen(amount)}`}</span>
+  ) : (
+    <span className="sg-choice__price sg-choice__price--word">Included</span>
+  );
 const STEPS = ["Model", "Body", "Neck", "Sound", "Extras", "Order"] as const;
 
 interface ChoiceProps<T extends Option> {
@@ -87,7 +93,7 @@ function Choice<T extends Option>({ name, list, value, onChange, swatch, desc }:
         <span className="sg-choice">
           {swatch?.(item)}
           <span>{item.name}</span>
-          <span className="sg-choice__price">{price(item.price)}</span>
+          {price(item.price)}
         </span>
       }
       hint={desc?.(item)}
@@ -372,7 +378,7 @@ function Shirakaba() {
                 footer={
                   <>
                     <Text variant="h3" as="span">
-                      from {yen(m.base)}
+                      from <span className="sg-figure">{yen(m.base)}</span>
                     </Text>
                     <Button
                       size="s"
@@ -606,7 +612,7 @@ function Shirakaba() {
                                 <span className="sg-swatch sg-swatch--none" aria-hidden="true" />
                               )}
                               <span>{g.name}</span>
-                              <span className="sg-choice__price">Included</span>
+                              {price(0)}
                             </span>
                           }
                         />

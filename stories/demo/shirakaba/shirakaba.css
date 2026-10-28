@@ -229,6 +229,19 @@
   color: var(--ink-2);
 }
 
+.sg-choice__price--word {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+}
+
+/* An amount inside a heading: the figure face at the heading's size. */
+.sg-figure {
+  font-family: var(--font-figure);
+  font-weight: var(--text-figure-m-weight);
+}
+
 .sg-kanji {
   margin-left: var(--space-1);
   font-family: var(--font-jp);
