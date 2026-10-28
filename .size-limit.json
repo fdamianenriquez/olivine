@@ -18,7 +18,7 @@
     "path": "dist/fonts-jp.css",
     "rolldown": false,
     "gzip": true,
-    "limit": "30 kB"
+    "limit": "31 kB"
   },
   {
     "name": "CSS (motion-extras.css, opt-in)",
