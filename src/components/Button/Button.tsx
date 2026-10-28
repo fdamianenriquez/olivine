@@ -10,12 +10,7 @@ import {
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
-import {
-  forwardRefAs,
-  type PolymorphicComponent,
-  type PolymorphicProps,
-  type PolymorphicRef,
-} from "../../utils/polymorphic";
+import { forwardRefAs, type PolymorphicProps, type PolymorphicRef } from "../../utils/polymorphic";
 
 export interface ButtonOwnProps {
   /**
@@ -32,8 +27,14 @@ export interface ButtonOwnProps {
   brackets?: boolean;
   /** Appends a glyph that nudges on hover. `true` renders "→"; pass a node for another glyph. */
   arrow?: ReactNode;
-  /** Leading icon. Without children the button becomes a square icon-only button and needs `aria-label`. */
+  /** Leading icon. Without children the button becomes `square` and needs `aria-label`. */
   icon?: ReactNode;
+  /**
+   * Equal width and height (32, 44 or 56px by `size`) for one glyph from the system set
+   * (→ ↗ ← ↑ ↓ ↕ + − × ✓), which is hidden from assistive tech. Requires `aria-label` or
+   * `aria-labelledby`; ignores `brackets`, `arrow` and `block`.
+   */
+  square?: boolean;
   /** Disables the button, sets `aria-busy`, shows a stepped square and announces the locale's "loading" text. */
   loading?: boolean;
   /** Full width; the label sits left and the arrow right. */
@@ -57,11 +58,18 @@ type ButtonAnchorProps = ButtonOwnProps & { href: string; as?: never } & Omit<
     keyof ButtonOwnProps
   > & { ref?: PolymorphicRef<"a"> };
 
-interface ButtonComponent extends PolymorphicComponent<"button", ButtonOwnProps> {
-  (props: ButtonAnchorProps): ReactNode;
+/** A `square` button shows only a glyph, so it must be named. */
+export type ButtonNaming =
+  | { square?: false | undefined }
+  | { square: true; "aria-label": string }
+  | { square: true; "aria-labelledby": string };
+
+interface ButtonComponent {
+  (props: ButtonAnchorProps & ButtonNaming): ReactNode;
   <E extends ElementType = "button">(
-    props: PolymorphicProps<E, ButtonOwnProps> & { ref?: PolymorphicRef<E> },
+    props: PolymorphicProps<E, ButtonOwnProps> & ButtonNaming & { ref?: PolymorphicRef<E> },
   ): ReactNode;
+  displayName?: string;
 }
 
 /** A square, ink-lined action that inverts to ink on hover. Renders an `<a>` when given `href`. */
@@ -71,6 +79,7 @@ export const Button = forwardRefAs<"button", ButtonOwnProps>(function Button(
     size = "m",
     block,
     icon,
+    square,
     arrow,
     brackets,
     loading,
@@ -88,15 +97,15 @@ export const Button = forwardRefAs<"button", ButtonOwnProps>(function Button(
   const As: ElementType = as ?? (href ? "a" : "button");
   const native = As === "button";
   const hasLabel = children !== undefined && children !== null && children !== false;
-  const iconOnly = Boolean(icon) && !hasLabel;
+  const isSquare = square === true || (Boolean(icon) && !hasLabel);
   const inert = disabled === true || loading === true;
   const named = Boolean(rest["aria-label"] ?? rest["aria-labelledby"]);
 
   useEffect(() => {
-    if (iconOnly && !named) {
-      devWarn("Button", "an icon-only button needs an `aria-label`.");
+    if (isSquare && !named) {
+      devWarn("Button", "a square button needs an `aria-label`.");
     }
-  }, [iconOnly, named]);
+  }, [isSquare, named]);
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     if (inert && !native) {
@@ -122,13 +131,19 @@ export const Button = forwardRefAs<"button", ButtonOwnProps>(function Button(
         "ol-btn",
         variant !== "outline" && `ol-btn--${variant}`,
         size !== "m" && `ol-btn--${size}`,
-        block && "ol-btn--block",
-        iconOnly && "ol-btn--icon",
+        block && !isSquare && "ol-btn--block",
+        isSquare && "ol-btn--square",
         className,
       )}
     >
-      {icon ? <span aria-hidden="true">{icon}</span> : null}
-      {brackets && hasLabel ? (
+      {icon && !(square && loading) ? <span aria-hidden="true">{icon}</span> : null}
+      {square && hasLabel ? (
+        loading ? null : (
+          <span className="ol-btn__glyph" aria-hidden="true">
+            {children}
+          </span>
+        )
+      ) : brackets && hasLabel ? (
         <span>
           <span className="ol-btn__br" aria-hidden="true">
             [{" "}
@@ -149,6 +164,7 @@ export const Button = forwardRefAs<"button", ButtonOwnProps>(function Button(
           <span className="ol-sr"> {labels.loading}</span>
         </>
       ) : (
+        !isSquare &&
         arrow != null &&
         arrow !== false &&
         arrow !== "" && (

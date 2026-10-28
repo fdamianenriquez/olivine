@@ -44,7 +44,7 @@ export type DropdownItem = DropdownActionItem | DropdownHeaderItem | DropdownDiv
 
 export interface DropdownProps extends Omit<
   ButtonProps,
-  "children" | "href" | "arrow" | "onToggle" | "as"
+  "children" | "href" | "arrow" | "onToggle" | "as" | "square"
 > {
   /** Text of the trigger button. */
   label: ReactNode;
