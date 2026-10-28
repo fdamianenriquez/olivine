@@ -180,6 +180,13 @@ export const tokens = {
       fontWeight: 900,
       letterSpacing: "0",
     },
+    "figure-xs": {
+      family: "figure",
+      fontSize: "16px",
+      lineHeight: 1,
+      fontWeight: 900,
+      letterSpacing: "0",
+    },
     "body-l": {
       family: "sans",
       fontSize: "18px",
