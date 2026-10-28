@@ -18,8 +18,8 @@
   font-weight: var(--text-label-weight);
   letter-spacing: var(--text-label-tracking);
   transition:
-    background-color var(--motion-fast),
-    color var(--motion-fast);
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
 }
 
 .ol-btn:hover {
@@ -94,13 +94,51 @@
   justify-content: space-between;
 }
 
-.ol-btn--icon {
+.ol-btn--square {
   width: var(--control-m);
   padding: 0;
 }
 
-.ol-btn--icon.ol-btn--s {
+.ol-btn--square.ol-btn--s {
   width: var(--control-s);
+}
+
+.ol-btn--square.ol-btn--l {
+  width: var(--control-l);
+}
+
+.ol-btn__glyph {
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-l);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.ol-btn--l .ol-btn__glyph {
+  font-size: var(--glyph-xl);
+}
+
+/*
+ * Selectable controls (aria-pressed): pressed is the ink fill, so hover can't also invert to ink.
+ * Unpressed hover fills with paper-2; pressed ignores hover, so a click always shows a change.
+ */
+.ol-btn[aria-pressed="false"]:hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.ol-btn[aria-pressed="true"],
+.ol-btn[aria-pressed="true"]:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-btn[aria-pressed="true"][disabled],
+.ol-btn[aria-pressed="true"][aria-disabled="true"] {
+  background: var(--ink-3);
+  border-color: var(--ink-3);
+  color: var(--on-ink);
 }
 
 .ol-btn[disabled],
@@ -121,7 +159,7 @@
   font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
   font-size: var(--glyph-m);
   line-height: 1;
-  transition: transform var(--motion-base);
+  transition: transform var(--dur-s) var(--ease-move);
 }
 
 .ol-btn:hover .ol-btn__arrow {
@@ -182,5 +220,18 @@
     background: ButtonFace;
     color: GrayText;
     border-color: GrayText;
+  }
+
+  .ol-btn[aria-pressed="false"]:hover {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .ol-btn[aria-pressed="true"],
+  .ol-btn[aria-pressed="true"]:hover {
+    background: Highlight;
+    color: HighlightText;
+    border-color: ButtonText;
+    forced-color-adjust: none;
   }
 }

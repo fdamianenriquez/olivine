@@ -22,16 +22,4 @@
   z-index: var(--z-raised);
 }
 
-.ol-btngroup > .ol-btn[aria-pressed="true"] {
-  background: var(--ink);
-  color: var(--on-ink);
-}
-
-@media (forced-colors: active) {
-  .ol-btngroup > .ol-btn[aria-pressed="true"] {
-    background: Highlight;
-    color: HighlightText;
-    border-color: ButtonText;
-    forced-color-adjust: none;
-  }
-}
+/* Pressed buttons use the shared .ol-btn[aria-pressed] rule in Button.css. */

@@ -65,7 +65,48 @@ describe("Button", () => {
   it("renders an icon-only square button named by aria-label", () => {
     render(<Button icon="+" aria-label="Add" />);
     const el = screen.getByRole("button", { name: "Add" });
-    expect(el).toHaveClass("ol-btn--icon");
+    expect(el).toHaveClass("ol-btn--square");
+  });
+
+  it("renders a square glyph button: glyph hidden, name from aria-label", () => {
+    render(
+      <Button square size="l" aria-label="Add a row" arrow brackets block>
+        +
+      </Button>,
+    );
+    const el = screen.getByRole("button", { name: "Add a row" });
+    expect(el).toHaveClass("ol-btn--square", "ol-btn--l");
+    expect(el).not.toHaveClass("ol-btn--block");
+    expect(el.querySelector(".ol-btn__glyph")).toHaveAttribute("aria-hidden", "true");
+    expect(el.querySelector(".ol-btn__arrow, .ol-btn__br")).toBeNull();
+  });
+
+  it("replaces the glyph with the loading mark in the same box", () => {
+    render(
+      <Button square aria-label="Add" loading>
+        +
+      </Button>,
+    );
+    const el = screen.getByRole("button", { name: /Add/ });
+    expect(el).toHaveClass("ol-btn--square");
+    expect(el.querySelector(".ol-btn__glyph")).toBeNull();
+    expect(el.querySelector(".ol-btn__spin")).not.toBeNull();
+  });
+
+  it("requires a name for a square button in the types", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    // @ts-expect-error -- a square button needs aria-label or aria-labelledby
+    render(<Button square>+</Button>);
+    render(
+      <>
+        <span id="lbl">Add</span>
+        <Button square aria-labelledby="lbl">
+          +
+        </Button>
+      </>,
+    );
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
   });
 
   it("warns for an icon-only button without a name", () => {
