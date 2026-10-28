@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useControllable } from "../../hooks/useControllable";
+import { useRovingFocus } from "../../hooks/useRovingFocus";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
 import { pad } from "../../utils/pad";
@@ -80,7 +81,7 @@ const TabsRoot = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
   );
   const [active, setActive] = useControllable<number>(value, defaultValue, onChange);
   const base = useId();
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const list = useRef<HTMLDivElement>(null);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
 
   // Without focusable content a panel is the only way to reach it by keyboard. The attribute is
@@ -103,63 +104,50 @@ const TabsRoot = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
     }
   }, [listName, ariaLabelledBy]);
 
-  const move = (from: number, target: number) => {
-    if (target === from || tabs[target]?.props.disabled) return;
-    setActive(target);
-    buttons.current[target]?.focus();
-  };
-
-  const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const enabled = tabs.map((t, i) => (t.props.disabled ? -1 : i)).filter((i) => i >= 0);
-    if (enabled.length === 0) return;
-    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
-    const pos = Math.max(0, enabled.indexOf(index));
-    let target: number | undefined;
-    if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-      const dir = (event.key === "ArrowRight" ? 1 : -1) * (rtl ? -1 : 1);
-      target = enabled[(pos + dir + enabled.length) % enabled.length];
-    } else if (event.key === "Home") target = enabled[0];
-    else if (event.key === "End") target = enabled[enabled.length - 1];
-    if (target === undefined) return;
-    event.preventDefault();
-    move(index, target);
-  };
+  // Selection follows focus: an arrow, Home or End key selects the tab it lands on.
+  const roving = useRovingFocus(list, {
+    itemSelector: '[role="tab"]',
+    loop: true,
+    selectedSelector: '[aria-selected="true"]',
+    restore: "selected",
+    onActiveChange: (tab) => {
+      setActive(Number(tab.dataset.index));
+    },
+  });
 
   // A selection pointing at a disabled or missing tab falls back to the first enabled one.
   const selected = tabs[active] && !tabs[active].props.disabled ? active : -1;
-  const firstEnabled = tabs.findIndex((t) => !t.props.disabled);
-  const stop = selected >= 0 ? selected : firstEnabled;
 
   return (
     <div ref={ref} className={cx("ol-tabs", fill && "ol-tabs--fill", className)} {...rest}>
+      {/* The tabs are the focus stops; the list only delegates their arrow keys (roving). */}
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
       <div
         role="tablist"
         aria-label={listName}
         aria-labelledby={ariaLabelledBy}
         className="ol-tabs__list"
+        ref={list}
+        onKeyDown={roving.onKeyDown}
+        onFocus={roving.onFocus}
+        onBlur={roving.onBlur}
       >
         {tabs.map((tab, i) => {
           const on = i === selected;
           return (
             <button
               key={i}
-              ref={(el) => {
-                buttons.current[i] = el;
-              }}
               type="button"
               role="tab"
               id={`${base}-t${String(i)}`}
               aria-controls={`${base}-p${String(i)}`}
               aria-selected={on}
-              tabIndex={i === stop ? 0 : -1}
               disabled={tab.props.disabled}
               data-state={on ? "active" : "inactive"}
+              data-index={i}
               className="ol-tabs__tab ol-label"
               onClick={() => {
                 setActive(i);
-              }}
-              onKeyDown={(event) => {
-                onKeyDown(event, i);
               }}
             >
               {indexed && (
