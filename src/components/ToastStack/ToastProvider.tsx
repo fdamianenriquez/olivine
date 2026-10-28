@@ -6,7 +6,10 @@ import { type ToastApi, ToastContext, type ToastOptions } from "./ToastContext";
 import { ToastStack, type ToastStackPosition } from "./ToastStack";
 
 export interface ToastProviderProps {
-  /** Corner the stack is pinned to. */
+  /**
+   * Corner the stack is pinned to.
+   * @default "tr"
+   */
   position?: Exclude<ToastStackPosition, "static">;
   /** Most toasts visible at once; the rest queue and appear as earlier ones close. */
   max?: number;
@@ -25,7 +28,7 @@ interface Entry extends ToastOptions {
  * is open. The newest toast sits at the edge nearest the corner.
  */
 export function ToastProvider({
-  position = "br",
+  position = "tr",
   max = 3,
   duration = 5000,
   children,

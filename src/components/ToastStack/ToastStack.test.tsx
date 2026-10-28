@@ -65,7 +65,7 @@ describe("ToastStack", () => {
   it("renders the polite live region even when empty", () => {
     render(<ToastStack data-testid="s" className="x" />);
     const el = screen.getByTestId("s");
-    expect(el).toHaveClass("ol-toaststack", "ol-toaststack--br", "x");
+    expect(el).toHaveClass("ol-toaststack", "ol-toaststack--tr", "x");
     expect(el).toHaveAttribute("aria-live", "polite");
     expect(el).toHaveAttribute("aria-atomic", "false");
     expect(el).toHaveAttribute("aria-relevant", "additions text");
