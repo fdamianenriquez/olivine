@@ -1,8 +1,19 @@
-.ol-tabs__list {
+/* The bar holds the list and, when it overflows, the scroll buttons; the hairline sits on it. */
+.ol-tabs__bar {
   display: flex;
+  align-items: stretch;
   border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tabs__list {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: auto hidden;
   scrollbar-width: none;
+  scroll-behavior: auto;
+  scroll-padding-inline: var(--space-6);
 }
 
 .ol-tabs__list::-webkit-scrollbar {
@@ -10,6 +21,7 @@
 }
 
 .ol-tabs__tab {
+  position: relative;
   flex: none;
   box-sizing: border-box;
   display: inline-flex;
@@ -25,18 +37,59 @@
   color: var(--ink-2);
   white-space: nowrap;
   cursor: pointer;
-  transition: color var(--motion-fast);
+  transition: color var(--dur-s) var(--ease-effect);
 }
 
 .ol-tabs__tab:hover {
   color: var(--ink);
 }
 
+/* The box of the selected tab changes at once; only its olive edge travels. */
 .ol-tabs__tab[aria-selected="true"] {
   color: var(--ink);
   background: var(--paper);
   border-color: var(--rule);
-  box-shadow: inset 0 var(--stroke-bold) 0 var(--olivo);
+}
+
+/* The tab's own olive edge: shown before the sliding mark is measured, and for vertical tabs. */
+.ol-tabs__tab[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(var(--stroke-hair) * -1) auto;
+  height: var(--stroke-bold);
+  background: var(--olivo);
+  pointer-events: none;
+}
+
+.ol-tabs:not(.ol-tabs--vertical) .ol-tabs__list[data-indicator="ready"] .ol-tabs__tab::before {
+  display: none;
+}
+
+/*
+ * The sliding olive edge: as wide as the list, moved by useIndicator's x and scaled to the
+ * selected tab by the unitless --ol-tabs-w, so only the transform animates.
+ */
+.ol-tabs__mark {
+  position: absolute;
+  top: var(--stroke-hair);
+  left: 0;
+  width: 100%;
+  height: var(--stroke-bold);
+  background: var(--olivo);
+  transform: translateX(var(--ol-indicator-x, 0)) scaleX(var(--ol-tabs-w, 0));
+  transform-origin: left;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.ol-tabs__list[data-indicator="ready"] > .ol-tabs__mark {
+  visibility: visible;
+  transition: transform var(--dur-m) var(--ease-move);
+}
+
+/* Layout-only re-measures (resize, font load) move the edge at once. */
+.ol-tabs__list[data-tabs-still] > .ol-tabs__mark {
+  transition: none;
 }
 
 .ol-tabs__tab:disabled {
@@ -57,9 +110,57 @@
   color: var(--ink-2);
 }
 
-/* The active tab is marked in olivo by its bar; its index is ink, readable on any paper. */
+/* The active tab is marked in olivo by its edge; its index is ink, readable on any paper. */
 .ol-tabs__tab[aria-selected="true"] .ol-tabs__idx {
   color: var(--ink);
+}
+
+/* Scroll buttons: a pointer aid, present only while the list overflows. */
+.ol-tabs__scroll {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  inline-size: var(--control-m);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-xl);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color var(--dur-s) var(--ease-effect),
+    background-color var(--dur-s) var(--ease-effect);
+}
+
+/* The glyph is chosen per direction in code; keep the browser from mirroring it again. */
+.ol-tabs__glyph {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ol-tabs__scroll--start {
+  border-inline-end: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tabs__scroll--end {
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+@media (hover: hover) {
+  .ol-tabs__scroll:hover:not(:disabled) {
+    color: var(--ink);
+    background: var(--paper-2);
+  }
+}
+
+.ol-tabs__scroll:disabled {
+  color: var(--ink-3);
+  cursor: default;
 }
 
 .ol-tabs__panel {
@@ -71,14 +172,88 @@
   justify-content: center;
 }
 
+/* ---------- Vertical: a column of tabs at the inline start, the panel beside it ---------- */
+
+.ol-tabs--vertical {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.ol-tabs--vertical > .ol-tabs__bar {
+  grid-area: 1 / 1;
+  flex-direction: column;
+  min-height: 0;
+  border-bottom: 0;
+  border-inline-end: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tabs--vertical .ol-tabs__list {
+  flex-direction: column;
+  min-width: auto;
+  min-height: 0;
+  overflow: hidden auto;
+  scroll-padding-inline: 0;
+  scroll-padding-block: var(--space-6);
+}
+
+.ol-tabs--vertical .ol-tabs__tab {
+  justify-content: flex-start;
+  margin-bottom: 0;
+  margin-inline-end: calc(var(--stroke-hair) * -1);
+  border: var(--stroke-hair) solid transparent;
+  border-inline-end: 0;
+}
+
+.ol-tabs--vertical .ol-tabs__tab[aria-selected="true"] {
+  border-color: var(--rule);
+}
+
+.ol-tabs--vertical .ol-tabs__tab[aria-selected="true"]::before {
+  inset-block: calc(var(--stroke-hair) * -1);
+  inset-inline: 0 auto;
+  width: var(--stroke-bold);
+  height: auto;
+}
+
+.ol-tabs--vertical .ol-tabs__scroll {
+  inline-size: auto;
+  block-size: var(--control-m);
+}
+
+/* The horizontal glyphs, turned to point up and down. */
+.ol-tabs--vertical .ol-tabs__glyph {
+  transform: rotate(90deg);
+}
+
+.ol-tabs--vertical .ol-tabs__scroll--start {
+  border-inline-end: 0;
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tabs--vertical .ol-tabs__scroll--end {
+  border-inline-start: 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tabs--vertical > .ol-tabs__panel {
+  grid-area: 1 / 2;
+  padding-block: 0;
+  padding-inline: var(--space-6) 0;
+}
+
 @media (forced-colors: active) {
   .ol-tabs__tab[aria-selected="true"] {
     border-color: ButtonText;
-    box-shadow: none;
-    border-top: var(--stroke-bold) solid Highlight;
     forced-color-adjust: none;
     color: ButtonText;
     background: Canvas;
+  }
+
+  .ol-tabs__tab[aria-selected="true"]::before,
+  .ol-tabs__mark {
+    forced-color-adjust: none;
+    background: Highlight;
   }
 
   .ol-tabs__tab:disabled {
@@ -88,5 +263,18 @@
   .ol-tabs__idx,
   .ol-tabs__tab[aria-selected="true"] .ol-tabs__idx {
     color: inherit;
+  }
+
+  .ol-tabs__scroll {
+    color: ButtonText;
+  }
+
+  .ol-tabs__scroll:disabled {
+    color: GrayText;
+  }
+
+  .ol-tabs__scroll:hover:not(:disabled) {
+    outline: var(--stroke-hair) solid CanvasText;
+    outline-offset: calc(var(--stroke-hair) * -1);
   }
 }
