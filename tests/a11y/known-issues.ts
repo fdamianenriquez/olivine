@@ -25,7 +25,7 @@ export const KNOWN_ISSUES: KnownIssue[] = [
   {
     stories: /^actions-chip--(disabled|themes)$/,
     rule: "color-contrast",
-    target: /ol-chip--removable > \.ol-chip__main > \.ol-chip__label/,
+    target: /\.ol-chip--(?:disabled|removable)[^ >]* > \.ol-chip__main > \.ol-chip__label$/,
     note: "Not a defect: the label of a disabled remove-only Chip is text of an inactive component, which WCAG 1.4.3 exempts; the label sits in a span, so axe only sees that the × button, not the label, is disabled.",
   },
 ];
