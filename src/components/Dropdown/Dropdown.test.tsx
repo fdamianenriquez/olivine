@@ -3,7 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { createRef, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+import { stubNoAnimations } from "../../test/animations";
 import { runAxe } from "../../test/axe";
+import { KbdPlatformContext } from "../Kbd";
 import { Root } from "../Root";
 import { Dropdown, type DropdownItem } from "./Dropdown";
 
@@ -26,6 +28,8 @@ async function openByKeyboard(user: ReturnType<typeof userEvent.setup>, key = "{
 }
 
 describe("Dropdown", () => {
+  stubNoAnimations();
+
   it("renders a closed trigger with menu semantics and no menu", () => {
     render(<Dropdown label="Actions" items={items()} className="x" data-testid="t" />);
     const el = trigger();
@@ -57,8 +61,8 @@ describe("Dropdown", () => {
     const menu = await screen.findByRole("menu", { name: /actions/i });
     expect(trigger()).toHaveAttribute("aria-expanded", "true");
     expect(trigger()).toHaveAttribute("aria-controls", menu.id);
-    expect(menuitems().map((el) => el.textContent)).toEqual([
-      "Rename⌘R",
+    expect(menuitems().map((el) => el.querySelector(".ol-dropdown__label")?.textContent)).toEqual([
+      "Rename",
       "Duplicate",
       "Archive",
       "Delete",
@@ -69,6 +73,29 @@ describe("Dropdown", () => {
       "true",
     );
     await waitFor(() => expect(menu).toHaveAttribute("data-state", "open"));
+  });
+
+  it("draws the shortcut with Kbd, hidden from the name and exposed as aria-keyshortcuts", async () => {
+    const user = userEvent.setup();
+    render(
+      <KbdPlatformContext.Provider value="apple">
+        <Dropdown
+          label="Actions"
+          items={[
+            { label: "Rename", kbd: "⌘R" },
+            { label: "Open", kbd: "mod+o" },
+          ]}
+        />
+      </KbdPlatformContext.Provider>,
+    );
+    await user.click(trigger());
+    const rename = await screen.findByRole("menuitem", { name: "Rename" });
+    expect(rename).toHaveAttribute("aria-keyshortcuts", "Meta+R");
+    expect(rename.querySelector(".ol-kbd-group, .ol-kbd")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByRole("menuitem", { name: "Open" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      "Meta+O",
+    );
   });
 
   it("focuses the menu itself after a pointer open", async () => {
@@ -325,6 +352,23 @@ describe("Dropdown", () => {
     );
     await user.click(trigger());
     await screen.findByRole("menu");
+    expect(
+      await runAxe(document.body, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
+  });
+
+  it("has no axe violations open in sumi with groups, shortcuts and danger rows", async () => {
+    const user = userEvent.setup();
+    render(
+      <Root theme="sumi">
+        <main>
+          <Dropdown label="Actions" items={items()} />
+        </main>
+      </Root>,
+    );
+    await user.click(trigger());
+    await screen.findByRole("group", { name: "Project" });
+    expect(screen.getByRole("menuitem", { name: "Rename" })).toHaveAttribute("aria-keyshortcuts");
     expect(
       await runAxe(document.body, { rules: { region: { enabled: false } } }),
     ).toHaveNoViolations();

@@ -30,8 +30,13 @@ export interface RovingFocusOptions {
    * @default "last"
    */
   restore?: "last" | "selected";
+  /**
+   * Focuses without letting the browser scroll; the caller reveals the item itself (a menu
+   * scrolls only its own list, never the page).
+   */
+  preventScroll?: boolean;
   /** Called after an arrow, Home or End key moved focus, with the newly focused item. */
-  onActiveChange?: (item: HTMLElement, key: string) => void;
+  onActiveChange?: ((item: HTMLElement, key: string) => void) | undefined;
 }
 
 export interface RovingFocus {
@@ -63,6 +68,7 @@ export function useRovingFocus(
     loop = false,
     selectedSelector,
     restore = "last",
+    preventScroll = false,
     onActiveChange,
   }: RovingFocusOptions,
 ): RovingFocus {
@@ -96,7 +102,7 @@ export function useRovingFocus(
   const moveTo = (target: HTMLElement) => {
     last.current = target;
     apply();
-    target.focus();
+    target.focus({ preventScroll });
   };
 
   const focusItem = (target: HTMLElement | "first" | "last") => {
