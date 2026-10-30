@@ -85,6 +85,11 @@ export {
   type ToastStackProps,
   useToast,
 } from "./components/ToastStack";
+export {
+  ToggleButton,
+  type ToggleButtonOwnProps,
+  type ToggleButtonProps,
+} from "./components/ToggleButton";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
 export {
   type LabelOverrides,
