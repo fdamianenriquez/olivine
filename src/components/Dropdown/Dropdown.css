@@ -9,16 +9,32 @@
   border-radius: var(--radius-0);
   box-shadow: var(--shadow-block);
   outline: none;
+
+  /* A long menu stops at the viewport edge and scrolls (the room is measured by useFloating). */
+  max-height: var(--ol-float-available-height, none);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Hidden (but focusable) until the first position is known, so it never flashes at 0,0. */
-.ol-dropdown__menu[data-state="pending"] {
+.ol-dropdown__menu.ol-floating:not([data-positioned]) {
   opacity: 0;
   pointer-events: none;
 }
 
-.ol-dropdown__menu > li {
+/* At least as wide as its anchor (a split button's whole bar). */
+.ol-dropdown__menu[data-match-width] {
+  min-width: max(var(--menu-min-width), var(--ol-anchor-width, var(--menu-min-width)));
+}
+
+.ol-dropdown__menu li {
   display: block;
+}
+
+.ol-dropdown__group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .ol-dropdown__item {
@@ -41,8 +57,13 @@
   cursor: pointer;
 }
 
-.ol-dropdown__item:hover,
-.ol-dropdown__item:focus-visible {
+/* One highlighted row: the pointer moves focus, so hover and keyboard never mark two rows.
+ * Shortcut caps follow the row: inverted when highlighted, faint when disabled. */
+.ol-dropdown__item[data-highlighted] {
+  --kbd-fill: transparent;
+  --kbd-ink: var(--on-ink);
+  --kbd-line: var(--on-ink);
+
   color: var(--on-ink);
   background: var(--ink);
   outline: none;
@@ -55,31 +76,35 @@
 }
 
 .ol-dropdown__item[aria-disabled="true"] {
+  --kbd-fill: transparent;
+  --kbd-ink: var(--ink-3);
+  --kbd-line: var(--ink-3);
+
   color: var(--ink-3);
   cursor: default;
 }
 
-.ol-dropdown__item[aria-disabled="true"]:hover {
+.ol-dropdown__item[aria-disabled="true"][data-highlighted] {
   color: var(--ink-3);
   background: none;
+}
+
+@media (pointer: coarse) {
+  .ol-dropdown__item {
+    min-height: var(--control-m);
+  }
 }
 
 .ol-dropdown__item--danger {
   color: var(--beni);
 }
 
-.ol-dropdown__item--danger:hover,
-.ol-dropdown__item--danger:focus-visible {
+.ol-dropdown__item--danger[data-highlighted] {
+  --kbd-ink: var(--on-status);
+  --kbd-line: var(--on-status);
+
   color: var(--on-status);
   background: var(--beni);
-}
-
-.ol-dropdown__kbd {
-  font-family: var(--text-label-family);
-  font-size: var(--text-label-size);
-  line-height: var(--text-label-leading);
-  letter-spacing: var(--text-label-tracking);
-  opacity: 0.7;
 }
 
 .ol-dropdown__header {
@@ -102,15 +127,14 @@
     border-color: CanvasText;
   }
 
-  .ol-dropdown__item:hover,
-  .ol-dropdown__item:focus-visible {
+  .ol-dropdown__item[data-highlighted] {
     color: HighlightText;
     background: Highlight;
     outline-color: HighlightText;
   }
 
   .ol-dropdown__item[aria-disabled="true"],
-  .ol-dropdown__item[aria-disabled="true"]:hover {
+  .ol-dropdown__item[aria-disabled="true"][data-highlighted] {
     color: GrayText;
     background: none;
   }

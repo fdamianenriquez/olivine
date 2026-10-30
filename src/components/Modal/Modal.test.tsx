@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createRef, useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -325,8 +325,9 @@ describe("Modal", () => {
   });
 
   it("keeps focus in a Dropdown menu opened inside a Modal; Escape closes only the menu", async () => {
+    const onClose = vi.fn();
     render(
-      <Modal open title="Menu" onClose={() => undefined}>
+      <Modal open title="Menu" onClose={onClose}>
         <Dropdown label="Actions" items={[{ label: "Rename" }, { label: "Delete" }]} />
       </Modal>,
     );
@@ -335,9 +336,17 @@ describe("Modal", () => {
     fireEvent.click(trigger);
     const menu = await screen.findByRole("menu");
     expect(menu.contains(document.activeElement)).toBe(true);
+    // jsdom reports no animations, so the closing menu unmounts on the next microtask.
+    Object.defineProperty(menu, "getAnimations", { value: () => [] });
     fireEvent.keyDown(document.activeElement ?? menu, { key: "Escape" });
-    expect(screen.queryByRole("menu")).toBeNull();
-    expect(screen.getByRole("dialog", { name: "Menu" })).toBeInTheDocument();
+    expect(menu).toHaveAttribute("inert");
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).toBeNull();
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(trigger).toHaveFocus();
+    fireEvent.keyDown(trigger, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   describe("scrollbar compensation", () => {
