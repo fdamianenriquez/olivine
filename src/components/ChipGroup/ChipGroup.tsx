@@ -155,8 +155,8 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
     [ref],
   );
 
-  // Only the description comes from a surrounding Field: its `<label for>` cannot name a
-  // toolbar, so the group never claims the Field's control id and is named by its own `label`.
+  // A surrounding Field's `<label for>` cannot name a toolbar, so the group never claims the
+  // Field's control id: it takes the description, and the label through `aria-labelledby`.
   const field = useField();
   const describedBy =
     [field?.describedBy, rest["aria-describedby"]].filter(Boolean).join(" ") || undefined;
@@ -317,9 +317,11 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
     }
   };
 
-  const named = [label, rest["aria-label"], rest["aria-labelledby"]].some(
+  const ownName = [label, rest["aria-label"], rest["aria-labelledby"]].some(
     (v) => v !== undefined && v !== "",
   );
+  const fieldLabelId = ownName ? undefined : field?.labelId;
+  const named = ownName || fieldLabelId !== undefined;
   const inField = field !== null;
   const controlledInNone = selectionMode === "none" && value !== undefined;
   const tooManyForSingle = selectionMode === "single" && rawSelected.length > 1;
@@ -328,7 +330,7 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
       devWarn(
         "ChipGroup",
         inField
-          ? "a Field's label does not name a ChipGroup; pass `label`, `aria-label` or `aria-labelledby`."
+          ? "the Field has no label to name the group; pass `label`, `aria-label` or `aria-labelledby`."
           : "the group needs a name; pass `label`, `aria-label` or `aria-labelledby`.",
       );
     }
@@ -369,6 +371,7 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
     <div
       role={hasChips ? "toolbar" : "group"}
       aria-label={label}
+      aria-labelledby={fieldLabelId}
       aria-disabled={(hasChips && disabled) || undefined}
       {...rest}
       aria-describedby={describedBy}
