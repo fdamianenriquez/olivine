@@ -16,7 +16,8 @@ const meta = {
         component: `ButtonGroup joins buttons so their borders collapse into one ruled bar.
 
 - Do give the group a \`label\`; it conveys a choice and needs a name.
-- Do mark the selected button with \`aria-pressed="true"\`; it renders ink-filled.
+- Do use SegmentedControl when exactly one option is chosen (it is a radio group with arrow-key selection); the examples below show the look only.
+- Do use ToggleButton for buttons that switch on and off independently; pressed ones render ink-filled.
 - Don't mix button sizes inside one group.`,
       },
     },
