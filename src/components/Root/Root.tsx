@@ -10,6 +10,7 @@ import {
 } from "../../locale";
 import { cx } from "../../utils/cx";
 import { forwardRefAs, type PolymorphicProps } from "../../utils/polymorphic";
+import { KbdPlatformContext, type KbdPlatformSetting } from "../Kbd/useKbdPlatform";
 
 /** Own props of {@link Root}. */
 export interface RootOwnProps {
@@ -29,6 +30,12 @@ export interface RootOwnProps {
    * every render re-creates the context value.
    */
   labels?: LabelOverrides;
+  /**
+   * Keyboard the shortcuts in Kbd are drawn for: `apple` (⌘ ⌥), `other` (Ctrl Alt) or `auto`
+   * (detected in the browser). Set it when the server knows the platform, so server-rendered
+   * shortcuts don't change after hydration. Omit it to inherit.
+   */
+  platform?: KbdPlatformSetting;
 }
 
 export type RootProps<E extends ElementType = "div"> = PolymorphicProps<E, RootOwnProps>;
@@ -62,7 +69,7 @@ function isBuiltIn(locale: string): boolean {
 }
 
 const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
-  { as: As = "div", theme, locale, labels, className, children, ...rest },
+  { as: As = "div", theme, locale, labels, platform, className, children, ...rest },
   ref,
 ) {
   const parent = useContext(LocaleContext);
@@ -72,7 +79,7 @@ const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
     return makeLabels(locale, labels);
   }, [parent, locale, labels]);
   const lang = typeof locale === "string" && isBuiltIn(locale) ? locale : undefined;
-  return (
+  const content = (
     <LocaleContext.Provider value={dictionary}>
       <InsideRoot.Provider value>
         <As
@@ -87,6 +94,11 @@ const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
         </As>
       </InsideRoot.Provider>
     </LocaleContext.Provider>
+  );
+  return platform === undefined ? (
+    content
+  ) : (
+    <KbdPlatformContext.Provider value={platform}>{content}</KbdPlatformContext.Provider>
   );
 });
 
