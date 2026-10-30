@@ -1,0 +1,209 @@
+/*
+ * Chip: a 32px hairline frame holding a main control (button, link or span) and an optional ×
+ * cell (CloseButton). Selected is the ink fill plus a ✓ stamped in as a hanko.
+ */
+.ol-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+  height: var(--control-s);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  vertical-align: middle;
+  white-space: nowrap;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    border-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-chip__main {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+/* Keep each focus ring above the neighbouring cell. */
+.ol-chip__main:focus-visible,
+.ol-chip__remove:focus-visible {
+  position: relative;
+  z-index: var(--z-raised);
+}
+
+.ol-chip :is(button, a[href]).ol-chip__main {
+  cursor: pointer;
+}
+
+.ol-chip--disabled :is(button, a[aria-disabled]).ol-chip__main {
+  cursor: not-allowed;
+}
+
+.ol-chip__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ol-chip__mark,
+.ol-chip__leading {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  line-height: 1;
+}
+
+/* The ✓ slot is always there on a selectable chip, so selecting never changes the width. */
+.ol-chip__mark {
+  visibility: hidden;
+}
+
+.ol-chip--selected .ol-chip__mark {
+  visibility: visible;
+}
+
+/* A leading Avatar is clamped to the chip's inner height. */
+.ol-chip__leading > * {
+  max-height: calc(var(--control-s) - var(--space-2));
+}
+
+/* Hanko: the ✓ drops in a short distance and stops dead (only on a user's select). */
+.ol-chip--stamp .ol-chip__mark {
+  --ol-motion-drop: var(--space-1);
+
+  animation: ol-hanko var(--dur-s) var(--ease-move) backwards;
+}
+
+/* The × cell: CloseButton reduced to an inline-start divider, square at the inner height. */
+.ol-chip .ol-close.ol-chip__remove {
+  flex: none;
+  align-self: stretch;
+  width: calc(var(--control-s) - var(--stroke-hair) * 2);
+  height: auto;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+  background: transparent;
+  color: inherit;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+/* line-soft is allowed only for an inner divider inside the ink frame. */
+.ol-chip--selected .ol-close.ol-chip__remove {
+  border-inline-start-color: var(--line-soft);
+}
+
+/* Selectable hover: unselected fills with paper-2, selected ignores hover. */
+@media (hover: hover) {
+  .ol-chip:not(.ol-chip--selected) :is(button:not(:disabled), a[href]).ol-chip__main:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+
+  .ol-chip .ol-chip__remove:not(:disabled):hover {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  .ol-chip--selected .ol-chip__remove:not(:disabled):hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+}
+
+.ol-chip--selected {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+/* Disabled drops the fill; a selected chip keeps its ✓ as the only cue. */
+.ol-chip--disabled,
+.ol-chip--disabled.ol-chip--selected {
+  background: transparent;
+  border-color: var(--ink-3);
+  color: var(--ink-3);
+}
+
+.ol-chip--disabled .ol-chip__remove,
+.ol-chip--disabled .ol-chip__remove[disabled] {
+  border-color: var(--ink-3);
+  color: var(--ink-3);
+}
+
+@media (forced-colors: active) {
+  .ol-chip {
+    border-color: CanvasText;
+    color: CanvasText;
+  }
+
+  .ol-chip__main {
+    color: inherit;
+  }
+
+  .ol-chip .ol-chip__remove {
+    border-color: CanvasText;
+    color: inherit;
+  }
+
+  .ol-chip--selected {
+    background: Highlight;
+    border-color: CanvasText;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .ol-chip--selected .ol-close.ol-chip__remove {
+    border-color: HighlightText;
+  }
+
+  /* The × hover opts out of forced colours (CloseButton), so paint it with system colours. */
+  .ol-chip .ol-close.ol-chip__remove:not(:disabled):hover {
+    background: ButtonText;
+    color: ButtonFace;
+    forced-color-adjust: none;
+  }
+
+  .ol-chip--selected .ol-close.ol-chip__remove:not(:disabled):hover {
+    background: HighlightText;
+    color: Highlight;
+  }
+
+  .ol-chip--disabled,
+  .ol-chip--disabled.ol-chip--selected {
+    background: Canvas;
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .ol-chip--disabled .ol-chip__remove,
+  .ol-chip--disabled .ol-chip__remove[disabled] {
+    background: Canvas;
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

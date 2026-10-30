@@ -33,5 +33,8 @@ export const en: OlivineLabels = {
   trendUp: "up",
   trendDown: "down",
   figure: "Fig.",
+  removeChip: (label) => `Remove ${label}`,
+  chipRemoved: (label) => `${label} removed`,
+  chipsCleared: "Selection cleared",
   tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
 };

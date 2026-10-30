@@ -33,5 +33,8 @@ export const ja: OlivineLabels = {
   trendUp: "増加",
   trendDown: "減少",
   figure: "図",
+  removeChip: (label) => `${label}を削除`,
+  chipRemoved: (label) => `${label}を削除しました`,
+  chipsCleared: "選択を解除しました",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
 };

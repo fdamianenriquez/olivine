@@ -8,6 +8,7 @@ export { Card, type CardOwnProps, type CardProps } from "./components/Card";
 export { Carousel, type CarouselProps } from "./components/Carousel";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
 export { CheckGroup, type CheckGroupProps } from "./components/CheckGroup";
+export { Chip, type ChipProps, type ChipRemoveEvent } from "./components/Chip";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";
 export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
 export { Container, type ContainerProps } from "./components/Container";
