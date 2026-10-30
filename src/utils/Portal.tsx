@@ -2,6 +2,11 @@ import { type ReactNode, type RefObject, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { KEEP_ACTIVE_ATTR } from "../hooks/useOverlay";
+import { REDUCE_MOTION_CLASS } from "../motion/reducedMotion";
+import { cx } from "./cx";
+
+/** In-app motion settings that portalled layers inherit from their anchor. */
+const PAUSED_CLASS = "ol-motion-paused";
 
 export interface PortalProps {
   children: ReactNode;
@@ -15,7 +20,8 @@ export interface PortalProps {
 
 /**
  * Renders children into `container` (body by default) inside an `.ol` layer that keeps the
- * anchor's theme, language and direction, so floating content looks and reads like the island it came from. Nothing renders
+ * anchor's theme, language, direction and in-app motion settings (`ol-reduce-motion`,
+ * `ol-motion-paused`), so floating content looks, reads and moves like the island it came from. Nothing renders
  * on the server or before mount.
  */
 export function Portal({ children, container, anchor, keepActive }: PortalProps) {
@@ -23,6 +29,8 @@ export function Portal({ children, container, anchor, keepActive }: PortalProps)
   const [theme, setTheme] = useState<string | undefined>(undefined);
   const [lang, setLang] = useState<string | undefined>(undefined);
   const [dir, setDir] = useState<string | undefined>(undefined);
+  const [reduce, setReduce] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // Portals need the DOM: resolve the target and theme once mounted (never during SSR).
   useEffect(() => {
@@ -32,12 +40,14 @@ export function Portal({ children, container, anchor, keepActive }: PortalProps)
     setTheme(themed?.getAttribute("data-theme") ?? undefined);
     setLang(anchor?.current?.closest("[lang]")?.getAttribute("lang") ?? undefined);
     setDir(anchor?.current?.closest("[dir]")?.getAttribute("dir") ?? undefined);
+    setReduce(Boolean(anchor?.current?.closest(`.${REDUCE_MOTION_CLASS}`)));
+    setPaused(Boolean(anchor?.current?.closest(`.${PAUSED_CLASS}`)));
   }, [container, anchor]);
 
   if (!target) return null;
   return createPortal(
     <div
-      className="ol ol-portal"
+      className={cx("ol ol-portal", reduce && REDUCE_MOTION_CLASS, paused && PAUSED_CLASS)}
       data-theme={theme}
       lang={lang}
       dir={dir}

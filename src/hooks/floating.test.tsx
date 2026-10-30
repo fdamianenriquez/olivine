@@ -68,6 +68,23 @@ describe("useDismiss", () => {
 });
 
 describe("Portal", () => {
+  it("carries the anchor's in-app motion settings", async () => {
+    function Host() {
+      const anchor = useRef<HTMLSpanElement>(null);
+      return (
+        <div className="ol-reduce-motion ol-motion-paused">
+          <span ref={anchor} />
+          <Portal anchor={anchor}>
+            <p>Floating</p>
+          </Portal>
+        </div>
+      );
+    }
+    render(<Host />);
+    const layer = (await screen.findByText("Floating")).parentElement;
+    expect(layer).toHaveClass("ol-portal", "ol-reduce-motion", "ol-motion-paused");
+  });
+
   function Island() {
     const anchor = useRef<HTMLSpanElement>(null);
     return (
