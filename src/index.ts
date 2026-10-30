@@ -66,6 +66,13 @@ export {
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
+export {
+  SplitButton,
+  type SplitButtonCloseReason,
+  type SplitButtonHalfProps,
+  type SplitButtonItem,
+  type SplitButtonProps,
+} from "./components/SplitButton";
 export { Stack, type StackProps } from "./components/Stack";
 export {
   Stat,

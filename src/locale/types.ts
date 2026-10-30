@@ -39,6 +39,8 @@ export interface OlivineLabels {
   /** Announced after a chip group's selection is cleared. */
   chipsCleared: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
+  /** Default accessible name of a split button's menu trigger. */
+  moreActions: string;
   /** Presence words for Avatar's status dot. */
   avatarStatus: { online: string; away: string; busy: string; offline: string };
   /** Accessible name of an avatar with a status: "{name}, {status}". */
