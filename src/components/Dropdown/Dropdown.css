@@ -16,6 +16,12 @@
   overscroll-behavior: contain;
 }
 
+/* The menu is a container, not an item: it holds focus only after a pointer open or when the
+ * pointer leaves a row, and the next key moves to an item, which has its own ring. */
+.ol-dropdown__menu:focus-visible {
+  outline: none;
+}
+
 /* Hidden (but focusable) until the first position is known, so it never flashes at 0,0. */
 .ol-dropdown__menu.ol-floating:not([data-positioned]) {
   opacity: 0;
