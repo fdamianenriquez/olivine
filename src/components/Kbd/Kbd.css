@@ -1,0 +1,59 @@
+/*
+ * A keycap: hairline box with a heavier bottom edge. Hosts recolour it through three custom
+ * properties (inverted, selected or disabled rows); the defaults are the paper cap.
+ *   --kbd-fill  background      (paper)
+ *   --kbd-ink   legend          (ink-2)
+ *   --kbd-line  border          (rule)
+ */
+.ol-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--kbd-size);
+  min-height: var(--kbd-size);
+  padding: 0 var(--kbd-pad);
+  border: var(--stroke-hair) solid var(--kbd-line, var(--rule));
+  border-bottom-width: var(--stroke-bold);
+  background: var(--kbd-fill, var(--paper));
+  color: var(--kbd-ink, var(--ink-2));
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+  white-space: nowrap;
+  direction: ltr;
+  unicode-bidi: isolate;
+
+  /* In running text the cap sits on the middle of the line and lends the line box only 14px of
+     its 22px, so even a body-s line (19.5px) keeps its spacing. */
+  vertical-align: middle;
+  margin-block: calc(var(--space-1) * -1);
+}
+
+/* Ink grounds: tooltips, selected or hovered rows. */
+.ol-kbd--inverse {
+  --kbd-fill: transparent;
+  --kbd-ink: var(--on-ink);
+  --kbd-line: var(--on-ink);
+}
+
+/* One combination: caps side by side, never reordered or mirrored in right-to-left text. */
+.ol-kbd-group {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font: inherit;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Inside hosts that keep their own colours (forced-color-adjust: none), follow the text. */
+@media (forced-colors: active) {
+  .ol-kbd {
+    border-color: currentcolor;
+  }
+}

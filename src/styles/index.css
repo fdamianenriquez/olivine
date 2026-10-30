@@ -21,6 +21,7 @@
 @import "../components/Chip/Chip.css";
 @import "../components/Link/Link.css";
 @import "../components/Badge/Badge.css";
+@import "../components/Kbd/Kbd.css";
 
 /* Forms */
 @import "../components/Field/Field.css";

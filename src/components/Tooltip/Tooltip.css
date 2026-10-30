@@ -1,4 +1,9 @@
 .ol-tooltip {
+  /* Kbd caps inside the inverted bubble are drawn inverse. */
+  --kbd-fill: transparent;
+  --kbd-ink: var(--on-ink);
+  --kbd-line: var(--on-ink);
+
   z-index: var(--z-tooltip);
   max-width: min(var(--tooltip-max-width), 100vw);
   padding: var(--space-1) var(--space-2);

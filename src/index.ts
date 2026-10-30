@@ -38,6 +38,7 @@ export {
   InputGroupText,
   type InputGroupTextProps,
 } from "./components/InputGroup";
+export * from "./components/Kbd";
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
 export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";

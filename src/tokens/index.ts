@@ -340,6 +340,8 @@ export const tokens = {
     "knob-size": "16px",
     "check-size": "20px",
     "badge-height": "22px",
+    "kbd-size": "22px",
+    "kbd-pad": "5px",
     "thumb-width": "12px",
     "thumb-height": "20px",
     "switch-width": "48px",
