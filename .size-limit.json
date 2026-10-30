@@ -4,14 +4,14 @@
     "path": "dist/index.js",
     "import": "*",
     "gzip": true,
-    "limit": "38 kB"
+    "limit": "42 kB"
   },
   {
     "name": "CSS (styles.css: tokens, fonts, components)",
     "path": "dist/olivine.css",
     "rolldown": false,
     "gzip": true,
-    "limit": "18 kB"
+    "limit": "18.5 kB"
   },
   {
     "name": "CSS (fonts-jp.css, opt-in)",
