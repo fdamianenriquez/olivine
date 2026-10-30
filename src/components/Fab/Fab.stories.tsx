@@ -87,7 +87,8 @@ function Page({ rows = 1 }: { rows?: number }) {
 function Frame({ children }: { children: ReactNode }) {
   return (
     <div style={frame}>
-      <div className="ol-has-fab" style={scroller}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard (Safari) */}
+      <div className="ol-has-fab" style={scroller} tabIndex={0} role="region" aria-label="Page">
         <Page />
       </div>
       {children}
@@ -186,7 +187,15 @@ function CollapsingDemo(args: FabArgs) {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div style={frame}>
-      <div ref={ref} className="ol-has-fab" style={scroller}>
+      <div
+        ref={ref}
+        className="ol-has-fab"
+        style={scroller}
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard (Safari)
+        tabIndex={0}
+        role="region"
+        aria-label="Page"
+      >
         <Page rows={4} />
       </div>
       <Fab {...args} label="Start a build" contained collapseOnScroll scrollTarget={ref} />
