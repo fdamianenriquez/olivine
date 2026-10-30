@@ -142,7 +142,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
       }
     };
 
-    const root = useRef<HTMLDivElement>(null);
+    const root = useRef<HTMLDivElement | null>(null);
     const roving = useRovingFocus(root, {
       itemSelector: multiple ? NONE : RADIO,
       orientation: vertical ? "vertical" : "horizontal",
