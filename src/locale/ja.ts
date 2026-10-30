@@ -37,6 +37,7 @@ export const ja: OlivineLabels = {
   chipRemoved: (label) => `${label}を削除しました`,
   chipsCleared: "選択を解除しました",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
+  moreActions: "その他の操作",
   avatarStatus: { online: "連絡可能", away: "退席中", busy: "取り込み中", offline: "オフライン" },
   avatarLabel: (name, status) => `${name}、${status}`,
   avatarMore: (n, names) =>
