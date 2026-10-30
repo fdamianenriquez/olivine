@@ -516,6 +516,31 @@ describe("Chip", () => {
   });
 
   describe("inside a group", () => {
+    it("exposes its value on the root only inside a group", () => {
+      const { container, rerender } = render(<Chip value="w">Walnut</Chip>);
+      expect(container.querySelector(".ol-chip")).not.toHaveAttribute("data-ol-chip-value");
+      rerender(
+        <Group>
+          <Chip value="w">Walnut</Chip>
+        </Group>,
+      );
+      expect(container.querySelector(".ol-chip")).toHaveAttribute("data-ol-chip-value", "w");
+    });
+
+    it("warns when given a tabIndex inside a group", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      render(
+        <Group>
+          <Chip value="w" onClick={() => undefined} tabIndex={0}>
+            Walnut
+          </Chip>
+        </Group>,
+      );
+      expect(warn.mock.calls.some((c) => String(c[0]).includes("must not set `tabIndex`"))).toBe(
+        true,
+      );
+    });
+
     it("takes selection from the group, ignores its own props and marks the roving item", async () => {
       const user = userEvent.setup();
       const toggle = vi.fn();

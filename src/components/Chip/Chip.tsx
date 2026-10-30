@@ -147,6 +147,16 @@ export const Chip = forwardRef<HTMLElement, ChipProps>(function Chip(
     }
   }, [group, value]);
 
+  const ownTabIndex = rest.tabIndex !== undefined;
+  useEffect(() => {
+    if (group !== null && ownTabIndex) {
+      devWarn(
+        "Chip",
+        "a chip inside a ChipGroup must not set `tabIndex`; the group manages the tab stop.",
+      );
+    }
+  }, [group, ownTabIndex]);
+
   useEffect(() => {
     if (hasRemove && label === undefined && removeLabel === undefined) {
       devWarn(
@@ -261,6 +271,8 @@ export const Chip = forwardRef<HTMLElement, ChipProps>(function Chip(
         className,
       )}
       data-state={selectable ? (selected ? "on" : "off") : undefined}
+      // Lets the group find this chip in the DOM: selection order, Escape, focus by value.
+      data-ol-chip-value={grouped ? value : undefined}
       onKeyDown={handleKeyDown}
     >
       <Main

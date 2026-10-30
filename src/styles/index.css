@@ -19,6 +19,7 @@
 @import "../components/SegmentedControl/SegmentedControl.css";
 @import "../components/CloseButton/CloseButton.css";
 @import "../components/Chip/Chip.css";
+@import "../components/ChipGroup/ChipGroup.css";
 @import "../components/Link/Link.css";
 @import "../components/Badge/Badge.css";
 @import "../components/Kbd/Kbd.css";
