@@ -1,0 +1,20 @@
+/*
+ * ChipGroup: a wrapping row of chips. No frame of its own; each chip keeps its hairline and the
+ * space-2 gap keeps the targets apart. No overflow clipping, so focus rings stay whole.
+ */
+.ol-chipgroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ol-chipgroup__empty {
+  color: var(--ink-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
