@@ -32,6 +32,12 @@ export interface OlivineLabels {
   trendUp: string;
   trendDown: string;
   figure: string;
+  /** Name of a chip's remove button. */
+  removeChip: (label: string) => string;
+  /** Announced after a chip is removed. */
+  chipRemoved: (label: string) => string;
+  /** Announced after a chip group's selection is cleared. */
+  chipsCleared: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
 }
 
