@@ -30,7 +30,12 @@ export function makeLabels(
     base = name !== undefined && isLocaleName(name) ? locales[name] : en;
   }
   if (!labels) return base;
-  return { ...base, ...labels, tags: { ...base.tags, ...labels.tags } };
+  return {
+    ...base,
+    ...labels,
+    tags: { ...base.tags, ...labels.tags },
+    keys: { ...base.keys, ...labels.keys },
+  };
 }
 
 export const LocaleContext = createContext<OlivineLabels>(en);
