@@ -1,0 +1,104 @@
+/*
+ * SegmentedControl: the ButtonGroup bar (.ol-btngroup shares the hairlines and raises the hovered
+ * or focused cell) with outline Button cells. The selected fill is the shared ink wipe
+ * (.ol-ink-wipe in styles/motion.css), so the cell itself never paints a background for it.
+ */
+
+/* .ol-seg--v is a modifier hook only; the column layout comes from .ol-btngroup--v. */
+
+.ol-seg--fill {
+  display: flex;
+  width: 100%;
+}
+
+.ol-seg--fill > .ol-seg__cell {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Cells do not nudge on press: a translate would tear the shared hairline. */
+.ol-seg > .ol-seg__cell:active {
+  transform: none;
+}
+
+/*
+ * Selected: the ink layer and its inked label copy carry the fill and the on-ink text; the base
+ * label stays ink underneath, so contrast never dips while the ink travels. Hover changes nothing.
+ */
+.ol-seg > .ol-seg__cell:is([aria-checked="true"], [aria-pressed="true"]),
+.ol-seg > .ol-seg__cell:is([aria-checked="true"], [aria-pressed="true"]):hover {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+/* Unselected hover (selectable rule): paper-2, never the ink inversion, so never read as selected. */
+.ol-seg > .ol-seg__cell:not([aria-checked="true"], [aria-pressed="true"], :disabled):hover {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+/* Disabled: ink-3 lines and text; a disabled selected cell keeps an ink-3 fill so the choice shows. */
+.ol-seg.ol-btngroup > .ol-seg__cell:disabled {
+  --ol-ink-wipe-fill: var(--ink-3);
+  --ol-ink-wipe-text: var(--on-ink);
+
+  background: transparent;
+  color: var(--ink-3);
+  border-color: var(--ink-3);
+}
+
+.ol-seg__check,
+.ol-seg__icon {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  font-weight: 400;
+  line-height: 1;
+}
+
+/*
+ * With `check`, every cell carries the glyph: hidden while unselected, so the row keeps its
+ * width and neighbours never shift on select. Fill rows have equal cells, so it is removed there.
+ */
+.ol-seg__cell:not([aria-checked="true"], [aria-pressed="true"]) .ol-seg__check {
+  visibility: hidden;
+}
+
+.ol-seg--fill > .ol-seg__cell:not([aria-checked="true"], [aria-pressed="true"]) .ol-seg__check {
+  display: none;
+}
+
+.ol-seg__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (forced-colors: active) {
+  .ol-seg > .ol-seg__cell:is([aria-checked="true"], [aria-pressed="true"]),
+  .ol-seg > .ol-seg__cell:is([aria-checked="true"], [aria-pressed="true"]):hover {
+    background: ButtonFace;
+    color: ButtonText;
+    border-color: ButtonText;
+  }
+
+  .ol-seg > .ol-seg__cell:not([aria-checked="true"], [aria-pressed="true"], :disabled):hover {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  /*
+   * The shared ink-wipe rules (styles/motion.css) paint the selected ink in Highlight with
+   * !important borders; a disabled selected cell must read as unavailable instead.
+   */
+  .ol-seg > .ol-seg__cell:disabled::before,
+  .ol-seg > .ol-seg__cell:disabled > .ol-ink-wipe__ink {
+    background: GrayText;
+    color: ButtonFace;
+  }
+
+  .ol-seg > .ol-seg__cell:disabled:is([aria-checked="true"], [aria-pressed="true"]) {
+    border-color: GrayText !important;
+  }
+}

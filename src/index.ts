@@ -52,6 +52,13 @@ export { Radio, type RadioProps } from "./components/Radio";
 export { Range, type RangeProps } from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
+export {
+  SegmentedControl,
+  type SegmentedControlMultipleProps,
+  type SegmentedControlOption,
+  type SegmentedControlProps,
+  type SegmentedControlSingleProps,
+} from "./components/SegmentedControl";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
