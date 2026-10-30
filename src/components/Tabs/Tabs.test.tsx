@@ -34,6 +34,11 @@ function Bare(props: Omit<React.ComponentProps<typeof Tabs>, "children">) {
   );
 }
 
+/** Marks an element inert through the DOM (React 18 types have no `inert` prop). */
+function markInert(node: HTMLDivElement | null) {
+  node?.setAttribute("inert", "");
+}
+
 describe("Tabs", () => {
   it("renders root class, className, native props and forwards the ref", () => {
     const ref = createRef<HTMLDivElement>();
@@ -563,7 +568,8 @@ describe("Tabs audit", () => {
             <fieldset disabled>
               <input aria-label="In fieldset" />
             </fieldset>
-            <div inert>
+            {/* `inert` set as an attribute: React 18 has no prop for it. */}
+            <div ref={markInert}>
               <a href="#x">Inert</a>
             </div>
             <div hidden>
@@ -590,7 +596,8 @@ describe("Tabs audit", () => {
             <button type="button" disabled>
               Off
             </button>
-            <div inert>
+            {/* `inert` set as an attribute: React 18 has no prop for it. */}
+            <div ref={markInert}>
               <a href="#x">Inert</a>
             </div>
           </Tabs.Tab>
