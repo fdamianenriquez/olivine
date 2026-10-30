@@ -15,7 +15,7 @@ import {
   type Shortcut,
   toAriaKeyShortcuts,
 } from "./shortcut";
-import { detectKbdPlatform, KbdPlatformContext, useKbdPlatform } from "./useKbdPlatform";
+import { detectKbdPlatform, useKbdPlatform } from "./useKbdPlatform";
 
 const KEYS: Record<"en" | "es" | "ja", KbdKeyLabels> = {
   en: {
@@ -247,15 +247,17 @@ describe("Kbd", () => {
     expect(spoken(screen.getByTestId("o"))).toBe("Control Alt Shift Control Enter");
   });
 
-  it("follows the platform of the nearest provider (Root platform)", () => {
+  it("follows Root platform, and its own platform first", () => {
     render(
-      <Root locale={dict("en")}>
-        <KbdPlatformContext.Provider value="other">
-          <Kbd keys="mod+k" data-testid="k" />
-          <Kbd keys="mod+k" platform="apple" data-testid="own" />
-        </KbdPlatformContext.Provider>
+      <Root locale={dict("en")} platform="other">
+        <Kbd keys="mod+k" data-testid="k" />
+        <Kbd keys="mod+k" platform="apple" data-testid="own" />
+        <Root theme="sumi">
+          <Kbd keys="mod+k" data-testid="nested" />
+        </Root>
       </Root>,
     );
+    expect(visible(firstCap("nested"))).toBe("Ctrl");
     expect(visible(firstCap("k"))).toBe("Ctrl");
     expect(visible(firstCap("own"))).toBe("⌘");
   });
