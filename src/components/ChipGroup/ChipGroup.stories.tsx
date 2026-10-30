@@ -168,12 +168,12 @@ export const DisabledChip: Story = {
 /** No chips: the `empty` content shows and the root is a plain group. */
 export const Empty: Story = { render: () => <Recipients initial={[]} /> };
 
-/** Named by its own `label`; the Field adds the hint and the error to the description. */
+/** Named by the Field's label (`aria-labelledby`); the Field adds the hint and the error to the description. */
 export const InField: Story = {
   name: "In a Field",
   render: () => (
-    <Field hint="Pick the woods you want quoted." error="Pick at least one wood.">
-      <ChipGroup label="Woods" selectionMode="multiple" name="woods">
+    <Field label="Woods" hint="Pick the woods you want quoted." error="Pick at least one wood.">
+      <ChipGroup selectionMode="multiple" name="woods">
         {woods.map((w) => (
           <Chip key={w.value} value={w.value}>
             {w.label}

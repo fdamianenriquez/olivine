@@ -100,12 +100,15 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
   const hasValid = !hasError && hasContent(valid);
   const hintId = hasHint ? `${id}-hint` : undefined;
   const msgId = `${id}-msg`;
+  const hasLabel = hasContent(label);
+  const labelId = hasLabel ? `${id}-label` : undefined;
   const describedBy =
     [hintId, hasError || hasValid ? msgId : undefined].filter(Boolean).join(" ") || undefined;
 
   const context = useMemo<FieldContextValue>(
     () => ({
       id,
+      labelId,
       describedBy,
       invalid: hasError,
       required,
@@ -115,7 +118,7 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
       },
       setControlId,
     }),
-    [id, describedBy, hasError, required, claims],
+    [id, labelId, describedBy, hasError, required, claims],
   );
 
   // Only intrinsic labelable controls are cloned (not wrapper elements, whose Olivine children wire themselves). Olivine controls (and Field.Control) read the
@@ -141,7 +144,6 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
     });
   }
 
-  const hasLabel = hasContent(label);
   return (
     <FieldContext.Provider value={context}>
       <div
@@ -153,7 +155,7 @@ const FieldRoot = forwardRef<HTMLDivElement, FieldProps>(function Field(
         {(hasLabel || hasContent(aside)) && (
           <div className="ol-field__top">
             {hasLabel && (
-              <label className="ol-field__label" htmlFor={ownId ?? controlId}>
+              <label id={labelId} className="ol-field__label" htmlFor={ownId ?? controlId}>
                 {label}
                 {required && (
                   <span className="ol-field__req" aria-hidden="true">

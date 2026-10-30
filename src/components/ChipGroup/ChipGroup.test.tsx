@@ -140,6 +140,17 @@ describe("ChipGroup", () => {
       expect(screen.getByRole("toolbar")).toHaveAccessibleDescription("Pick any Pick one at least");
     });
 
+    it("is named by the Field's label when it has no name of its own", () => {
+      render(
+        <Field label="Woods" hint="Pick any">
+          <Woods selectionMode="multiple" />
+        </Field>,
+      );
+      expect(screen.getByRole("toolbar", { name: "Woods" })).toHaveAccessibleDescription(
+        "Pick any",
+      );
+    });
+
     it("is named by its own label inside a Field and does not take the Field's control id", () => {
       const { container } = render(
         <Field label="Woods" hint="Pick any">
@@ -154,18 +165,18 @@ describe("ChipGroup", () => {
       expect(toolbar).toHaveAccessibleDescription("Pick any");
     });
 
-    it("warns when it has no name inside a Field", () => {
+    it("warns when it has no name inside a Field without a label", () => {
       const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
       render(
-        <Field label="Woods">
+        <Field hint="Pick any">
           <ChipGroup selectionMode="multiple">
             <Chip value="a">Alder</Chip>
           </ChipGroup>
         </Field>,
       );
-      expect(
-        warn.mock.calls.some((c) => String(c[0]).includes("a Field's label does not name")),
-      ).toBe(true);
+      expect(warn.mock.calls.some((c) => String(c[0]).includes("the Field has no label"))).toBe(
+        true,
+      );
     });
 
     it("keeps chip semantics: aria-pressed only when the group selects", () => {

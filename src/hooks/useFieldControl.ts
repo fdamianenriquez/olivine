@@ -6,6 +6,11 @@ import { useIsomorphicLayoutEffect } from "./useFloating";
 export interface FieldContextValue {
   /** Id for the labelled control (the label's `htmlFor`). */
   id: string;
+  /**
+   * Id of the Field's `<label>`, or undefined when it has none. A control that a `<label for>`
+   * can't name (a group, a listbox) points `aria-labelledby` at it.
+   */
+  labelId?: string | undefined;
   /** Ids of the hint and message, for `aria-describedby`. */
   describedBy: string | undefined;
   invalid: boolean;
