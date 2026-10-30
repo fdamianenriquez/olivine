@@ -36,12 +36,25 @@ function useKeyLabels(): KbdKeyLabels | undefined {
   return useLabels().keys;
 }
 
+/** Symbol legends (⌘ ⌥ ⇧ ← →): one system symbol face, so every arrow and modifier matches. */
+const SYMBOL = /^[^\p{L}\p{N}]+$/u;
+
 function Legend({ part, silent }: { part: FormattedKey; silent: boolean }) {
-  if (silent) return <span aria-hidden="true">{part.text}</span>;
-  if (part.name === undefined) return part.text;
+  const glyph = SYMBOL.test(part.text) && part.text.trim() !== "" ? "ol-kbd__glyph" : undefined;
+  if (silent) {
+    return (
+      <span aria-hidden="true" className={glyph}>
+        {part.text}
+      </span>
+    );
+  }
+  if (part.name === undefined)
+    return glyph ? <span className={glyph}>{part.text}</span> : part.text;
   return (
     <>
-      <span aria-hidden="true">{part.text}</span>
+      <span aria-hidden="true" className={glyph}>
+        {part.text}
+      </span>
       <span className="ol-sr">{part.name}</span>
     </>
   );

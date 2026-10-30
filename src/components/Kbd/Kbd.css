@@ -40,6 +40,13 @@
 }
 
 /* One combination: caps side by side, never reordered or mirrored in right-to-left text. */
+
+/* Arrows and modifier symbols come from one system symbol face: Familjen Grotesk has ↑ ↓ but
+   not ← → ⌘ ⌥, and mixed fallbacks drew them at different weights. */
+.ol-kbd__glyph {
+  font-family: var(--font-symbols);
+}
+
 .ol-kbd-group {
   display: inline-flex;
   gap: var(--space-1);
