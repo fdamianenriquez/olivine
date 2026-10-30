@@ -37,6 +37,12 @@ export const en: OlivineLabels = {
   chipRemoved: (label) => `${label} removed`,
   chipsCleared: "Selection cleared",
   tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
+  avatarStatus: { online: "Available", away: "Away", busy: "Busy", offline: "Offline" },
+  avatarLabel: (name, status) => `${name}, ${status}`,
+  avatarMore: (n, names) =>
+    names.length > 0
+      ? `${String(n)} more: ${new Intl.ListFormat("en").format(names)}`
+      : `${String(n)} more`,
   keys: {
     command: "Command",
     windows: "Windows",

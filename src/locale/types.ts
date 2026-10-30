@@ -39,6 +39,12 @@ export interface OlivineLabels {
   /** Announced after a chip group's selection is cleared. */
   chipsCleared: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
+  /** Presence words for Avatar's status dot. */
+  avatarStatus: { online: string; away: string; busy: string; offline: string };
+  /** Accessible name of an avatar with a status: "{name}, {status}". */
+  avatarLabel: (name: string, status: string) => string;
+  /** Accessible name of an AvatarGroup's "+N" cell; joins the names with Intl.ListFormat. */
+  avatarMore: (n: number, names: readonly string[]) => string;
   /** Spoken key names and non-Apple legends for Kbd. */
   keys: KbdKeyLabels;
 }
@@ -83,8 +89,9 @@ export interface KbdKeyLabels {
 /** Built-in locales. */
 export type LocaleName = "en" | "es" | "ja";
 
-/** Partial overrides of a dictionary; `tags` and `keys` merge one level deep. */
-export type LabelOverrides = Partial<Omit<OlivineLabels, "tags" | "keys">> & {
+/** Partial overrides of a dictionary; `tags`, `keys` and `avatarStatus` merge one level deep. */
+export type LabelOverrides = Partial<Omit<OlivineLabels, "tags" | "keys" | "avatarStatus">> & {
   tags?: Partial<OlivineLabels["tags"]>;
+  avatarStatus?: Partial<OlivineLabels["avatarStatus"]>;
   keys?: Partial<OlivineLabels["keys"]>;
 };
