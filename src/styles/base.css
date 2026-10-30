@@ -7,13 +7,6 @@
   box-sizing: border-box;
 }
 
-/* True hairlines on high-density screens; 1px elsewhere so shared borders still overlap exactly. */
-@media (resolution >= 2dppx) {
-  :root {
-    --stroke-hair: 0.5px;
-  }
-}
-
 .ol {
   font-family: var(--text-body-family);
   font-size: var(--text-body-size);
