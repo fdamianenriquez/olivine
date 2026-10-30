@@ -93,6 +93,8 @@
   --font-label: "Familjen Grotesk", "Helvetica Neue", sans-serif;
   --font-mono: "Xanh Mono", ui-monospace, monospace;
   --font-jp: "Yuji Syuku", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-symbols:
+    -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI", system-ui, sans-serif;
   --font-stamp: "Big Shoulders Display", "Arial Narrow", sans-serif;
   --text-display-xl-family: var(--font-display);
   --text-display-xl-size: clamp(64px, 14vw, 168px);

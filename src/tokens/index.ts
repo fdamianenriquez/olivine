@@ -96,6 +96,8 @@ export const tokens = {
     label: '"Familjen Grotesk", "Helvetica Neue", sans-serif',
     mono: '"Xanh Mono", ui-monospace, monospace',
     jp: '"Yuji Syuku", "Hiragino Mincho ProN", "Yu Mincho", serif',
+    symbols:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "Segoe UI", system-ui, sans-serif',
     stamp: '"Big Shoulders Display", "Arial Narrow", sans-serif',
   },
   text: {
