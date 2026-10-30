@@ -1,0 +1,339 @@
+/* ---------- Wrapper: fixed to a bottom corner, safe-area aware ---------- */
+
+/* The button comes first in the DOM; column-reverse puts the menu above it. */
+.ol-fab-wrap {
+  position: fixed;
+  z-index: var(--z-sticky);
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--space-2);
+
+  /* The viewport (or the container when contained) minus the offsets on both sides. */
+  max-width: calc(
+    100% - var(--space-6) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)
+  );
+}
+
+.ol-fab-wrap--end {
+  right: calc(var(--space-6) + env(safe-area-inset-right, 0px));
+}
+
+.ol-fab-wrap--start {
+  left: calc(var(--space-6) + env(safe-area-inset-left, 0px));
+  align-items: flex-start;
+}
+
+/* Centred without a transform, so it can use the full width minus the offsets. */
+.ol-fab-wrap--center {
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-inline: auto;
+  align-items: center;
+}
+
+.ol-fab-wrap--contained {
+  position: absolute;
+  bottom: var(--space-6);
+}
+
+.ol-fab-wrap--contained.ol-fab-wrap--end {
+  right: var(--space-6);
+}
+
+.ol-fab-wrap--contained.ol-fab-wrap--start {
+  left: var(--space-6);
+}
+
+/* ---------- The raised square ---------- */
+
+.ol-fab {
+  /* Side of the square, and the structural ratios of the glyph cell. */
+  --ol-fab-size: var(--control-l);
+  --ol-fab-glyph-scale: 0.46;
+  --ol-fab-cell-scale: 0.78;
+  --ol-fab-cell-inset: 0.11;
+
+  /* A press moves the box by shadow-block minus shadow-press, so it sinks into its shadow. */
+  --ol-fab-press: calc(var(--space-1) / 2);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-width: var(--ol-fab-size);
+  max-width: 100%;
+  height: var(--ol-fab-size);
+  padding: 0;
+  box-sizing: border-box;
+  border: var(--stroke-hair) solid var(--olivo);
+  border-radius: var(--radius-0);
+  background: var(--olivo);
+  color: var(--on-olivo);
+  box-shadow: var(--shadow-block);
+  cursor: pointer;
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+  line-height: 1;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect),
+    border-color var(--dur-s) var(--ease-effect),
+    transform var(--dur-s) var(--ease-standard),
+    box-shadow var(--dur-s) var(--ease-standard);
+}
+
+.ol-fab--s {
+  --ol-fab-size: var(--control-m);
+
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-fab--l {
+  --ol-fab-size: var(--control-xl);
+
+  font-size: var(--text-body-l-size);
+}
+
+.ol-fab--ink {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-fab--paper {
+  background: var(--paper-3);
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+.ol-fab:hover,
+.ol-fab[data-state="open"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-fab--ink:hover,
+.ol-fab--ink[data-state="open"] {
+  background: var(--olivo);
+  border-color: var(--olivo);
+  color: var(--on-olivo);
+}
+
+.ol-fab:active {
+  transform: translate(var(--ol-fab-press), var(--ol-fab-press));
+  box-shadow: var(--shadow-press);
+}
+
+/* The ring takes the shadow's place while focused, so it never sits on the shadow's colour. */
+.ol-fab:focus-visible {
+  box-shadow: var(--shadow-none);
+}
+
+.ol-fab__glyph {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--ol-fab-size);
+  height: 100%;
+  font-family: var(--font-label);
+  font-size: calc(var(--ol-fab-size) * var(--ol-fab-glyph-scale));
+  font-weight: 400;
+  line-height: 1;
+  animation: ol-fab-glyph var(--dur-s) var(--ease-move) both;
+}
+
+.ol-fab--extended {
+  padding-right: var(--space-6);
+}
+
+.ol-fab--extended .ol-fab__glyph {
+  width: calc(var(--ol-fab-size) * var(--ol-fab-cell-scale));
+  margin-left: calc(var(--ol-fab-size) * var(--ol-fab-cell-inset));
+}
+
+/* The label never pushes the Fab off-screen; the accessible name stays complete. */
+.ol-fab__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ol-fab__label[data-state="open"] {
+  animation: ol-fab-label-in var(--dur-m) var(--ease-move) both;
+}
+
+.ol-fab__label[data-state="closing"] {
+  animation: ol-fab-label-out var(--dur-s) var(--ease-move) both;
+}
+
+@keyframes ol-fab-glyph {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes ol-fab-label-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes ol-fab-label-out {
+  from {
+    clip-path: inset(0);
+  }
+
+  to {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+/* ---------- Menu: a ruled stack that unrolls upward (kakejiku, no rod) ---------- */
+
+.ol-fab__menu {
+  /* The unroll's clip leaves room for the block shadow. */
+  --ol-motion-overhang: var(--space-2);
+
+  display: flex;
+  flex-direction: column;
+  min-width: var(--menu-min-width);
+  max-height: calc(100dvh - var(--control-xl) - var(--space-6) * 4);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  outline: none;
+}
+
+/* Rolls back up faster than it unrolls (kyū). */
+.ol-fab__menu.ol-kakejiku[data-state="closing"] {
+  animation-duration: var(--dur-m);
+}
+
+/* The menu itself takes focus only as a container after a pointer open: no ring on it. */
+.ol-fab__menu:focus-visible {
+  outline: none;
+}
+
+.ol-fab__menu li {
+  display: block;
+}
+
+.ol-fab__menu li + li {
+  border-top: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-fab__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 0 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+  line-height: var(--text-label-l-leading);
+  text-align: left;
+}
+
+/* Rows have a fixed height: long labels end in an ellipsis. */
+.ol-fab__item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ol-fab__item-glyph {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--control-m);
+  height: 100%;
+  border-left: var(--stroke-hair) solid var(--line-soft);
+  font-size: var(--glyph-xl);
+  font-weight: 400;
+}
+
+/* One highlighted row: the pointer moves focus, so hover and keyboard never mark two rows. */
+.ol-fab__item[data-highlighted] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-fab__item:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-bold) * -1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-fab {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-fab,
+  .ol-fab__menu {
+    border-color: CanvasText;
+  }
+
+  .ol-fab__menu li + li,
+  /* Rows have a fixed height: long labels end in an ellipsis. */
+.ol-fab__item-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ol-fab__item-glyph {
+    border-color: CanvasText;
+  }
+
+  .ol-fab__item[data-highlighted] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .ol-fab__item:focus-visible {
+    outline: var(--stroke-bold) solid HighlightText;
+  }
+}
+
+@media print {
+  .ol-fab-wrap {
+    display: none;
+  }
+}

@@ -24,6 +24,13 @@ export {
   type DropdownProps,
 } from "./components/Dropdown";
 export {
+  Fab,
+  FAB_MAX_ACTIONS,
+  type FabAction,
+  type FabCloseReason,
+  type FabProps,
+} from "./components/Fab";
+export {
   Field,
   type FieldControlProps,
   type FieldControlRenderProps,

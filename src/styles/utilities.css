@@ -168,3 +168,8 @@
     mask-image: none;
   }
 }
+
+/* A scroll container under a Fab: focused or scrolled-to content stops above the button. */
+.ol-has-fab {
+  scroll-padding-bottom: calc(var(--control-xl) + var(--space-6) * 2);
+}
