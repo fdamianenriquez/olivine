@@ -9,8 +9,8 @@ import {
 
 import { useOverlay } from "../../hooks/useOverlay";
 import { cx } from "../../utils/cx";
-import { Portal } from "../../utils/Portal";
 import { CloseButton } from "../CloseButton";
+import { Portal } from "../Portal";
 
 export type OffcanvasPlacement = "end" | "start" | "bottom";
 

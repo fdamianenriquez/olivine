@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useMemo, useRef, useState } from "react";
 
-import { Portal } from "../../utils/Portal";
+import { Portal } from "../Portal";
 import { Toast } from "../Toast";
 import { type ToastApi, ToastContext, type ToastOptions } from "./ToastContext";
 import { ToastStack, type ToastStackPosition } from "./ToastStack";

@@ -15,7 +15,7 @@ import { prefersReducedMotion, useReducedMotion } from "../../motion/reducedMoti
 import { usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
-import { Portal } from "../../utils/Portal";
+import { Portal } from "../Portal";
 
 /** The most actions a Fab menu shows; extra ones are ignored. */
 export const FAB_MAX_ACTIONS = 6;

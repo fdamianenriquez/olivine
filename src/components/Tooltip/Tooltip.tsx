@@ -18,7 +18,7 @@ import { useDismiss } from "../../hooks/useDismiss";
 import { useFloating } from "../../hooks/useFloating";
 import { cx } from "../../utils/cx";
 import { getElementRef } from "../../utils/elementRef";
-import { Portal } from "../../utils/Portal";
+import { Portal } from "../Portal";
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
 

@@ -3,9 +3,9 @@ import { type HTMLAttributes, type ReactNode, useCallback, useId } from "react";
 import { MenuTreeContext, type UseMenuResult } from "../../hooks/useMenu";
 import type { MenuPosition } from "../../hooks/useMenuPosition";
 import { cx } from "../../utils/cx";
-import { Portal } from "../../utils/Portal";
 import { Kbd, type Shortcut, toAriaKeyShortcuts } from "../Kbd";
 import { useResolvedKbdPlatform } from "../Kbd/useKbdPlatform";
+import { Portal } from "../Portal";
 
 /** An actionable entry of the menu. */
 export interface MenuActionItem {

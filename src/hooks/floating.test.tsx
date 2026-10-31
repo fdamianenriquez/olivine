@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useRef, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Portal } from "../utils/Portal";
+import { Portal } from "../components/Portal";
 import { useDismiss } from "./useDismiss";
 import { useFloating } from "./useFloating";
 
