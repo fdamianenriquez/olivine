@@ -50,6 +50,10 @@ export interface OlivineLabels {
   /** NumberField stepper names: "Increase {label}" / "Decrease {label}". */
   numberIncrease: (label?: string) => string;
   numberDecrease: (label?: string) => string;
+  /** Listbox: default content of an empty list. */
+  noOptions: string;
+  /** Listbox: announced after a bulk selection change: "4 selected". */
+  optionsSelected: (n: number) => string;
   /** Range with two thumbs: spoken name of the low thumb. */
   rangeMin: (label?: string) => string;
   /** Range with two thumbs: spoken name of the high thumb. */

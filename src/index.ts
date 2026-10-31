@@ -57,6 +57,18 @@ export {
 export * from "./components/Kbd";
 export { Label, type LabelProps } from "./components/Label";
 export { Link, type LinkProps } from "./components/Link";
+export {
+  Listbox,
+  type ListboxActions,
+  type ListboxFocusTarget,
+  ListboxGroup,
+  type ListboxGroupProps,
+  type ListboxMultipleProps,
+  ListboxOption,
+  type ListboxOptionProps,
+  type ListboxProps,
+  type ListboxSingleProps,
+} from "./components/Listbox";
 export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";
 export { Modal, type ModalProps, type ModalSize } from "./components/Modal";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";

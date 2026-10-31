@@ -49,6 +49,8 @@ export const ja: OlivineLabels = {
   swatchUnavailable: "選択できません",
   numberIncrease: (label) => (label ? `${label}を増やす` : "増やす"),
   numberDecrease: (label) => (label ? `${label}を減らす` : "減らす"),
+  noOptions: "選択肢がありません",
+  optionsSelected: (n) => `${String(n)}件を選択中`,
   rangeMin: (label) => (label ? `${label}の最小値` : "最小値"),
   rangeMax: (label) => (label ? `${label}の最大値` : "最大値"),
   moreActions: "その他の操作",

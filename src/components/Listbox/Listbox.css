@@ -1,0 +1,263 @@
+/* Listbox: a list of values, not of commands. Unselected rows fill with paper-2 on hover (the
+ * selectable rule, as Chip); selected rows are ink with a ✓; the keyboard-active row carries the
+ * olive inset ring (as a Dropdown item). Selection is instant: no motion. */
+.ol-listbox {
+  /* Row height, so `rows` can cap the list at whole rows. Internal, assigned from tokens. */
+  --ol-listbox-row: max(var(--control-s), var(--target-min));
+
+  display: block;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: var(--radius-0);
+  outline: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ol-listbox--m {
+  --ol-listbox-row: var(--control-m);
+}
+
+@media (pointer: coarse) {
+  .ol-listbox {
+    --ol-listbox-row: var(--control-m);
+  }
+}
+
+/* In a popup the cap never exceeds the room measured by useFloating. */
+.ol-listbox--rows {
+  max-height: min(
+    calc(var(--ol-listbox-rows) * var(--ol-listbox-row)),
+    var(--ol-float-available-height, calc(var(--ol-listbox-rows) * var(--ol-listbox-row)))
+  );
+}
+
+.ol-listbox--boxed {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-listbox--boxed.ol-listbox--rows {
+  max-height: min(
+    calc(var(--ol-listbox-rows) * var(--ol-listbox-row) + var(--stroke-hair) * 2),
+    var(
+      --ol-float-available-height,
+      calc(var(--ol-listbox-rows) * var(--ol-listbox-row) + var(--stroke-hair) * 2)
+    )
+  );
+}
+
+.ol-listbox--boxed[aria-invalid="true"] {
+  border-color: var(--beni);
+}
+
+.ol-listbox__group {
+  display: block;
+}
+
+.ol-listbox__heading {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+.ol-listbox__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  min-height: var(--ol-listbox-row);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-ui-leading);
+  letter-spacing: var(--text-ui-tracking);
+  font-weight: var(--text-ui-weight);
+  color: var(--ink);
+  background: transparent;
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.ol-listbox--divided .ol-listbox__option {
+  border-bottom: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-listbox__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ol-listbox__label {
+  overflow-wrap: anywhere;
+}
+
+.ol-listbox__desc {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  letter-spacing: var(--text-body-s-tracking);
+  font-weight: var(--text-body-s-weight);
+  color: var(--ink-2);
+}
+
+.ol-listbox__meta {
+  flex: none;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+/* The ✓ slot is always there, so selecting never changes the row's layout (as Chip). */
+.ol-listbox__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  line-height: 1;
+  visibility: hidden;
+}
+
+.ol-listbox__option[aria-selected="true"] .ol-listbox__mark {
+  visibility: visible;
+}
+
+/* Figures: centred amounts in the figure face, as in a time column. */
+.ol-listbox--figures .ol-listbox__label {
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-weight: var(--text-figure-s-weight);
+  text-align: center;
+}
+
+/* Highlighted (active option, or the pointer in a controller-driven list) and hover. */
+.ol-listbox__option[data-highlighted]:not([aria-selected="true"], [aria-disabled="true"]) {
+  background: var(--paper-2);
+}
+
+@media (hover: hover) {
+  .ol-listbox__option:not([aria-selected="true"], [aria-disabled="true"]):hover {
+    background: var(--paper-2);
+  }
+}
+
+.ol-listbox__option[aria-selected="true"] {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-listbox__option[aria-selected="true"] :is(.ol-listbox__desc, .ol-listbox__meta) {
+  color: var(--on-ink);
+}
+
+/* Keyboard only: real focus in a list on the page, the controller's flag in a popup. */
+.ol-listbox__option:focus-visible,
+.ol-listbox__option[data-focus-visible] {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-bold) * -1);
+}
+
+/* On an ink row olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-listbox__option[aria-selected="true"]:is(:focus-visible, [data-focus-visible]) {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+.ol-listbox__option[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-listbox__option[aria-disabled="true"] :is(.ol-listbox__desc, .ol-listbox__meta) {
+  color: var(--ink-3);
+}
+
+/* Selected and disabled keeps the ink row: ink-3 on ink would fail contrast. */
+.ol-listbox__option[aria-selected="true"][aria-disabled="true"],
+.ol-listbox__option[aria-selected="true"][aria-disabled="true"]
+  :is(.ol-listbox__desc, .ol-listbox__meta) {
+  color: var(--on-ink);
+}
+
+/* Inside the frame the last row needs no line of its own: the frame closes the list. */
+.ol-listbox--boxed.ol-listbox--divided > .ol-listbox__option:last-child,
+.ol-listbox--boxed.ol-listbox--divided
+  > .ol-listbox__group:last-child
+  > .ol-listbox__option:last-child {
+  border-bottom: 0;
+}
+
+.ol-listbox__empty {
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .ol-listbox--boxed {
+    border-color: CanvasText;
+  }
+
+  /* Only selection fills; the highlight and focus are outlines, so the two never look alike. */
+  .ol-listbox__option[aria-selected="true"],
+  .ol-listbox__option[aria-selected="true"] :is(.ol-listbox__desc, .ol-listbox__meta) {
+    /* No Canvas backplate behind the text: it would hide HighlightText on Highlight. */
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-listbox__option[aria-selected="true"] :is(.ol-listbox__desc, .ol-listbox__meta) {
+    background: none;
+  }
+
+  .ol-listbox__option[data-highlighted]:not([aria-selected="true"]) {
+    background: none;
+    outline: var(--stroke-hair) solid CanvasText;
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+
+  .ol-listbox__option:is(:focus-visible, [data-focus-visible]),
+  .ol-listbox__option[aria-selected="true"]:is(:focus-visible, [data-focus-visible]) {
+    outline: var(--stroke-bold) solid CanvasText;
+    outline-offset: calc(var(--stroke-bold) * -1);
+    box-shadow: none;
+  }
+
+  .ol-listbox__option[aria-selected="true"]:is(:focus-visible, [data-focus-visible]) {
+    outline-color: HighlightText;
+    outline-offset: calc(var(--stroke-bold) * -2);
+  }
+
+  .ol-listbox--divided .ol-listbox__option {
+    border-color: CanvasText;
+  }
+
+  .ol-listbox__option[aria-disabled="true"]:not([aria-selected="true"]) {
+    color: GrayText;
+    background: none;
+  }
+
+  .ol-listbox__option[aria-disabled="true"]:not([aria-selected="true"])
+    :is(.ol-listbox__desc, .ol-listbox__meta) {
+    color: GrayText;
+  }
+}
