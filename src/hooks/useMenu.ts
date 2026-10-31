@@ -15,6 +15,7 @@ import {
 } from "react";
 
 import { type PresenceState, usePresence } from "../motion/usePresence";
+import { reveal, visibleText } from "../utils/listItems";
 import { useLayer } from "./layers";
 import { useControllable } from "./useControllable";
 import { useIsomorphicLayoutEffect } from "./useFloating";
@@ -125,27 +126,6 @@ const ITEM_SELECTOR = '[role^="menuitem"]';
 const HIGHLIGHT_ATTR = "data-highlighted";
 
 const isSkipped = (el: Element) => el.hasAttribute("data-disabled");
-
-/** The item's text without its aria-hidden parts (shortcut caps, glyphs). */
-function visibleText(item: HTMLElement): string {
-  const own = item.getAttribute("data-text-value");
-  if (own !== null) return own;
-  let text = "";
-  const walker = document.createTreeWalker(item, NodeFilter.SHOW_TEXT);
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    if (!node.parentElement?.closest('[aria-hidden="true"]')) text += node.textContent ?? "";
-  }
-  return text;
-}
-
-/** Scrolls a capped menu so the item is in view, without scrolling the page. */
-function reveal(menu: HTMLElement, item: HTMLElement) {
-  if (menu.scrollHeight <= menu.clientHeight) return;
-  const box = menu.getBoundingClientRect();
-  const row = item.getBoundingClientRect();
-  if (row.top < box.top) menu.scrollTop -= box.top - row.top;
-  else if (row.bottom > box.bottom) menu.scrollTop += row.bottom - box.bottom;
-}
 
 function compose<E>(user: ((event: E) => void) | undefined, own: (event: E) => void) {
   return (event: E) => {
