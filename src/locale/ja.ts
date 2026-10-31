@@ -104,4 +104,13 @@ export const ja: OlivineLabels = {
   },
   theme: "テーマ",
   themes: { washi: "ライト", sumi: "ダーク", auto: "自動" },
+  prevMonth: "前の月",
+  nextMonth: "次の月",
+  prevYear: "前の年",
+  nextYear: "次の年",
+  chooseMonth: "月を選択",
+  dateToday: "今日",
+  dateSelected: "選択済み",
+  dateUnavailable: "選択不可",
+  dayLabel: (date, marks) => [date, ...marks].join("、"),
 };

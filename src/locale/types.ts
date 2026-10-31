@@ -98,6 +98,19 @@ export interface OlivineLabels {
   theme: string;
   /** Visible names of the themes in a ThemeSwitch (washi is light, sumi is dark). */
   themes: { washi: string; sumi: string; auto: string };
+  /** Calendar navigation buttons. */
+  prevMonth: string;
+  nextMonth: string;
+  prevYear: string;
+  nextYear: string;
+  /** Description of the calendar title, which opens the 12-month grid. */
+  chooseMonth: string;
+  /** Marks added to a calendar day's name. */
+  dateToday: string;
+  dateSelected: string;
+  dateUnavailable: string;
+  /** Accessible name of a calendar day: the long date followed by its marks. */
+  dayLabel: (date: string, marks: readonly string[]) => string;
 }
 
 export interface KbdKeyLabels {

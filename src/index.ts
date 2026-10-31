@@ -5,6 +5,15 @@ export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./components/Breadcrumb";
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";
 export { ButtonGroup, type ButtonGroupProps } from "./components/ButtonGroup";
+export {
+  Calendar,
+  type CalendarHandle,
+  type CalendarProps,
+  type CalendarRangeProps,
+  type CalendarSingleProps,
+  type DateRange,
+  type Weekday,
+} from "./components/Calendar";
 export { Card, type CardOwnProps, type CardProps } from "./components/Card";
 export { Carousel, type CarouselProps } from "./components/Carousel";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";

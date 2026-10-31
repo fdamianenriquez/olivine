@@ -102,4 +102,13 @@ export const es: OlivineLabels = {
   },
   theme: "Tema",
   themes: { washi: "Claro", sumi: "Oscuro", auto: "Auto" },
+  prevMonth: "Mes anterior",
+  nextMonth: "Mes siguiente",
+  prevYear: "Año anterior",
+  nextYear: "Año siguiente",
+  chooseMonth: "Elegir mes",
+  dateToday: "hoy",
+  dateSelected: "seleccionado",
+  dateUnavailable: "no disponible",
+  dayLabel: (date, marks) => [date, ...marks].join(", "),
 };

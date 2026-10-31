@@ -1,0 +1,345 @@
+/*
+ * Calendar: a ruled month grid with poster numerals. Cells share hairlines; the picked day is
+ * inked, a range is a maple band between inked ends, and today wears the round shu seal
+ * (.ol-stamp--round .ol-stamp--shu, utilities.css) with its numeral in shu.
+ */
+
+.ol-cal {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--ink);
+}
+
+/* ---------- Head: month title and the month buttons ---------- */
+
+.ol-cal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.ol-cal__title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-0);
+  background: none;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+
+.ol-cal__month {
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  line-height: var(--text-h1-leading);
+}
+
+.ol-cal__month:lang(ja) {
+  font-family: var(--text-kanji-family);
+}
+
+.ol-cal__year {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  font-weight: var(--text-figure-m-weight);
+  line-height: var(--text-figure-m-leading);
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-cal__era {
+  flex-basis: 100%;
+  font-family: var(--text-kanji-s-family);
+  font-size: var(--text-kanji-s-size);
+  line-height: var(--text-kanji-s-leading);
+  color: var(--ink-2);
+}
+
+/* Hover, and the open month grid, underline the month in ink. */
+.ol-cal__title:hover .ol-cal__month,
+.ol-cal__title[aria-expanded="true"] .ol-cal__month {
+  text-decoration: underline;
+  text-decoration-thickness: var(--underline-weight);
+  text-underline-offset: var(--underline-offset);
+}
+
+.ol-cal__nav {
+  display: flex;
+}
+
+/* Adjacent boxes share borders, as in ButtonGroup. */
+.ol-cal__nav > .ol-btn + .ol-btn {
+  margin-left: calc(var(--stroke-hair) * -1);
+}
+
+.ol-cal__nav > .ol-btn:hover,
+.ol-cal__nav > .ol-btn:focus-visible {
+  position: relative;
+  z-index: var(--z-raised);
+}
+
+/* ---------- Day grid ---------- */
+
+.ol-cal__grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.ol-cal__grid th {
+  height: var(--control-s);
+  padding: 0;
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  color: var(--ink);
+  text-align: center;
+}
+
+.ol-cal__grid th[data-weekend] {
+  color: var(--ink-2);
+}
+
+.ol-cal__grid td {
+  width: var(--control-m);
+  height: var(--control-m);
+  padding: 0;
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-cal__day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: var(--control-m);
+  min-height: var(--control-m);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  font-weight: var(--text-figure-s-weight);
+  line-height: var(--text-figure-s-leading);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-cal__num {
+  position: relative;
+}
+
+.ol-cal__day[data-weekend] {
+  color: var(--ink-2);
+}
+
+/* Neighbouring months: context only, never focused or picked. Their colour is set here only. */
+.ol-cal__day[data-outside] {
+  color: var(--ink-3);
+  cursor: default;
+}
+
+/* Today: the numeral in seal vermilion, like the ring pressed around it. */
+.ol-cal__day[aria-current="date"] {
+  color: var(--shu);
+}
+
+/* Unavailable: crossed with a hairline in rule, never inverted. */
+.ol-cal__day:is([aria-disabled="true"], [data-unavailable]) {
+  --ol-cal-cross: linear-gradient(
+    to top right,
+    transparent calc(50% - var(--stroke-hair) / 2),
+    var(--rule) calc(50% - var(--stroke-hair) / 2),
+    var(--rule) calc(50% + var(--stroke-hair) / 2),
+    transparent calc(50% + var(--stroke-hair) / 2)
+  );
+
+  cursor: not-allowed;
+  background: var(--ol-cal-cross);
+}
+
+.ol-cal__day[aria-disabled="true"] {
+  color: var(--ink-3);
+}
+
+/* Hover inverts to ink, as on every outline control. */
+button.ol-cal__day:not([aria-disabled="true"]):hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/*
+ * Focus: the global ring (outside the cell); the cell rises so neighbours don't cover it. The
+ * offset gap is filled with paper so the olivo ring never sits on a maple or ink neighbour.
+ */
+.ol-cal__day:focus-visible {
+  z-index: var(--z-raised);
+  box-shadow: 0 0 0 var(--focus-offset) var(--paper);
+}
+
+/* Range band: maple fill with on-maple numerals between the inked ends. */
+td[data-in-range] .ol-cal__day {
+  background: var(--maple);
+  color: var(--on-maple);
+}
+
+/* A closed day inside the band keeps its cross. */
+td[data-in-range] .ol-cal__day:is([aria-disabled="true"], [data-unavailable]) {
+  background: var(--ol-cal-cross), var(--maple);
+}
+
+/* The picked day and the range ends are inked. */
+.ol-cal__day[data-selected],
+button.ol-cal__day[data-selected]:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* Today's seal: a round shu stamp sized to the cell, behind the numeral. */
+.ol-cal__seal {
+  position: absolute;
+
+  /* Not a type role: sizes the stamp's em-based pores and pressure masks. */
+  font-size: var(--text-kanji-s-size);
+  inline-size: calc(var(--control-m) * 0.75);
+  block-size: calc(var(--control-m) * 0.75);
+  border-width: var(--stroke-bold);
+  pointer-events: none;
+}
+
+/* ---------- Mokuhanga: the new month prints in one pass, then snaps into register ---------- */
+
+@keyframes ol-cal-print {
+  0% {
+    opacity: 0;
+    transform: translate(var(--ol-cal-offset), calc(var(--ol-motion-kento) / -2));
+  }
+
+  70% {
+    opacity: 1;
+    transform: translate(var(--ol-cal-offset), calc(var(--ol-motion-kento) / -2));
+  }
+
+  71%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ol-cal__body[data-dir] {
+  animation: ol-cal-print var(--dur-m) var(--ease-effect) both;
+}
+
+.ol-cal__body[data-dir="1"] {
+  --ol-cal-offset: calc(var(--ol-motion-kento) * 3);
+}
+
+.ol-cal__body[data-dir="-1"] {
+  --ol-cal-offset: calc(var(--ol-motion-kento) * -3);
+}
+
+/* ---------- Month grid ---------- */
+
+.ol-cal__months {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: calc(var(--control-m) * 7);
+  border-top: var(--stroke-hair) solid var(--rule);
+  border-left: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-cal__mon {
+  position: relative;
+  height: calc(var(--control-m) * 1.5);
+  padding: 0;
+  border: 0;
+  border-right: var(--stroke-hair) solid var(--rule);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  line-height: var(--text-label-l-leading);
+  cursor: pointer;
+}
+
+/* Same paper gap as the days: the ring never sits on an inked neighbour. */
+.ol-cal__mon:focus-visible {
+  z-index: var(--z-raised);
+  box-shadow: 0 0 0 var(--focus-offset) var(--paper);
+}
+
+/* This month: the olivo active marker under the cell. */
+.ol-cal__mon[aria-current="date"] {
+  box-shadow: inset 0 calc(var(--stroke-heavy) * -1) 0 var(--olivo);
+}
+
+.ol-cal__mon:not([aria-disabled="true"]):hover,
+.ol-cal__mon[aria-selected="true"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* On an inked cell the marker turns on-ink, so it stays visible. */
+.ol-cal__mon[aria-current="date"]:is(:not([aria-disabled="true"]):hover, [aria-selected="true"]) {
+  box-shadow: inset 0 calc(var(--stroke-heavy) * -1) 0 var(--on-ink);
+}
+
+.ol-cal__mon[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* Reduced motion needs no rule here: the --dur-* tokens drop to 1ms (motion.css). */
+
+@media (forced-colors: active) {
+  .ol-cal__grid td {
+    border-color: CanvasText;
+  }
+
+  .ol-cal__day[data-selected],
+  .ol-cal__mon[aria-selected="true"] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  /* Gradients are dropped in forced colours: strike the numeral instead. */
+  .ol-cal__day:is([aria-disabled="true"], [data-unavailable]) {
+    color: GrayText;
+  }
+
+  .ol-cal__day:is([aria-disabled="true"], [data-unavailable]) .ol-cal__num {
+    text-decoration: line-through;
+  }
+
+  /* A wider gap keeps the focus ring apart from the neighbouring band frames. */
+  .ol-cal__day:focus-visible {
+    outline-offset: calc(var(--focus-offset) * 2);
+  }
+
+  /* The band is a Highlight frame, so the outline stays free for focus. */
+  td[data-in-range] .ol-cal__day {
+    border: var(--stroke-bold) solid Highlight;
+  }
+
+  .ol-cal__mon[aria-current="date"] {
+    border-bottom: var(--stroke-heavy) solid CanvasText;
+  }
+}
