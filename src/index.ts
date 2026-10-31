@@ -70,7 +70,14 @@ export { Popover, type PopoverPlacement, type PopoverProps } from "./components/
 export { Portal, type PortalProps } from "./components/Portal";
 export { Progress, type ProgressProps } from "./components/Progress";
 export { Radio, type RadioProps } from "./components/Radio";
-export { Range, type RangeProps } from "./components/Range";
+export {
+  Range,
+  type RangeComponent,
+  type RangeDualBaseProps,
+  type RangeDualProps,
+  type RangeProps,
+  type RangeValue,
+} from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export {

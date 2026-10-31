@@ -4,7 +4,7 @@
   gap: var(--space-2);
 }
 
-.ol-range input {
+.ol-range > input {
   appearance: none;
   width: 100%;
 
@@ -15,17 +15,17 @@
   cursor: pointer;
 }
 
-.ol-range input::-webkit-slider-runnable-track {
+.ol-range > input::-webkit-slider-runnable-track {
   height: var(--stroke-hair);
   background: var(--rule);
 }
 
-.ol-range input::-moz-range-track {
+.ol-range > input::-moz-range-track {
   height: var(--stroke-hair);
   background: var(--rule);
 }
 
-.ol-range input::-webkit-slider-thumb {
+.ol-range > input::-webkit-slider-thumb {
   appearance: none;
   width: var(--thumb-width);
   height: var(--thumb-height);
@@ -35,7 +35,7 @@
   border-radius: var(--radius-0);
 }
 
-.ol-range input::-moz-range-thumb {
+.ol-range > input::-moz-range-thumb {
   width: var(--thumb-width);
   height: var(--thumb-height);
   background: var(--ink);
@@ -43,37 +43,42 @@
   border-radius: var(--radius-0);
 }
 
-.ol-range input:focus-visible {
+.ol-range > input:focus-visible {
   outline: var(--stroke-bold) solid var(--olivo);
   outline-offset: var(--focus-offset);
 }
 
-.ol-range input:focus-visible::-webkit-slider-thumb {
+.ol-range > input:focus-visible::-webkit-slider-thumb {
   background: var(--olivo);
 }
 
-.ol-range input:focus-visible::-moz-range-thumb {
+.ol-range > input:focus-visible::-moz-range-thumb {
   background: var(--olivo);
 }
 
-.ol-range input:disabled {
+.ol-range > input:disabled {
   cursor: not-allowed;
 }
 
-.ol-range input:disabled::-webkit-slider-thumb {
+.ol-range > input:disabled::-webkit-slider-thumb {
   background: var(--ink-3);
 }
 
-.ol-range input:disabled::-moz-range-thumb {
+.ol-range > input:disabled::-moz-range-thumb {
   background: var(--ink-3);
 }
 
+/* Amounts take the figure face; units inside `format` go in .ol-range__unit. */
 .ol-range__scale {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  font-family: var(--text-label-family);
-  font-size: var(--text-label-size);
-  line-height: var(--text-label-leading);
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  font-weight: var(--text-figure-xs-weight);
+  line-height: var(--text-figure-xs-leading);
+  letter-spacing: var(--text-figure-xs-tracking);
+  font-variant-numeric: tabular-nums;
   color: var(--ink-2);
 }
 
@@ -81,46 +86,161 @@
   color: var(--ink);
 }
 
+/* Units are words, so they take the label face, not the figure face. */
+.ol-range__unit {
+  margin-inline-start: var(--space-1);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+}
+
+/* Two thumbs: a drawn track with two ink blocks, each holding a visually hidden native slider. */
+.ol-range__track {
+  position: relative;
+
+  /* The whole row is a 24px target (WCAG 2.5.8); pressing it moves the nearest thumb. */
+  height: var(--target-min);
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.ol-range__track::before {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% - var(--stroke-hair) / 2);
+  height: var(--stroke-hair);
+  content: "";
+  background: var(--rule);
+}
+
+/* Block centres travel from half a block in from each end, as the native thumb does. */
+.ol-range__fill {
+  position: absolute;
+  inset-inline-start: calc(
+    var(--ol-range-lo) * (100% - var(--thumb-width)) + var(--thumb-width) / 2
+  );
+  top: calc(50% - var(--stroke-heavy) / 2);
+  width: calc((var(--ol-range-hi) - var(--ol-range-lo)) * (100% - var(--thumb-width)));
+  height: var(--stroke-heavy);
+  background: var(--ink);
+}
+
+.ol-range__thumb {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(
+    var(--ol-range-at) * (100% - var(--thumb-width)) + (var(--thumb-width) - var(--target-min)) / 2
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-min);
+}
+
+/* The thumb that can move (or was used last) sits above the other when they meet. */
+.ol-range__thumb[data-active] {
+  z-index: var(--z-raised);
+}
+
+/* Hidden with .ol-sr, still focusable and announced; the block draws it. */
+.ol-range__input {
+  margin: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.ol-range__block {
+  width: var(--thumb-width);
+  height: var(--thumb-height);
+  background: var(--ink);
+  border-radius: var(--radius-0);
+}
+
+/* A focused thumb keeps its ring after a pointer press too, so the keyboard can take over. */
+.ol-range__input:focus-visible + .ol-range__block,
+.ol-range__thumb[data-focused] .ol-range__block {
+  background: var(--olivo);
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+.ol-range__thumb[data-dragging] .ol-range__block {
+  background: var(--olivo);
+}
+
+.ol-range--dual[data-disabled] .ol-range__track {
+  cursor: not-allowed;
+}
+
+.ol-range--dual[data-disabled] .ol-range__fill,
+.ol-range--dual[data-disabled] .ol-range__block {
+  background: var(--ink-3);
+}
+
 /* System colours keep the track, thumb and focus ring visible. */
 @media (forced-colors: active) {
-  .ol-range input::-webkit-slider-runnable-track {
+  .ol-range > input::-webkit-slider-runnable-track {
     background: CanvasText;
   }
 
-  .ol-range input::-moz-range-track {
+  .ol-range > input::-moz-range-track {
     background: CanvasText;
   }
 
-  .ol-range input::-webkit-slider-thumb {
+  .ol-range > input::-webkit-slider-thumb {
     background: ButtonText;
   }
 
-  .ol-range input::-moz-range-thumb {
+  .ol-range > input::-moz-range-thumb {
     background: ButtonText;
   }
 
-  .ol-range input:focus-visible {
+  .ol-range > input:focus-visible {
     outline-color: Highlight;
   }
 
-  .ol-range input:focus-visible::-webkit-slider-thumb {
+  .ol-range > input:focus-visible::-webkit-slider-thumb {
     background: Highlight;
   }
 
-  .ol-range input:focus-visible::-moz-range-thumb {
+  .ol-range > input:focus-visible::-moz-range-thumb {
     background: Highlight;
   }
 
-  .ol-range input:disabled::-webkit-slider-thumb {
+  .ol-range > input:disabled::-webkit-slider-thumb {
     background: GrayText;
   }
 
-  .ol-range input:disabled::-moz-range-thumb {
+  .ol-range > input:disabled::-moz-range-thumb {
     background: GrayText;
   }
 
   .ol-range__scale,
   .ol-range__current {
     color: CanvasText;
+  }
+
+  .ol-range__track::before,
+  .ol-range__fill {
+    background: CanvasText;
+  }
+
+  .ol-range__block {
+    background: ButtonText;
+  }
+
+  .ol-range__input:focus-visible + .ol-range__block,
+  .ol-range__thumb[data-focused] .ol-range__block,
+  .ol-range__thumb[data-dragging] .ol-range__block {
+    background: Highlight;
+    outline-color: Highlight;
+  }
+
+  .ol-range--dual[data-disabled] .ol-range__fill,
+  .ol-range--dual[data-disabled] .ol-range__block {
+    background: GrayText;
   }
 }

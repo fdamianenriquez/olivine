@@ -50,6 +50,10 @@ export interface OlivineLabels {
   /** NumberField stepper names: "Increase {label}" / "Decrease {label}". */
   numberIncrease: (label?: string) => string;
   numberDecrease: (label?: string) => string;
+  /** Range with two thumbs: spoken name of the low thumb. */
+  rangeMin: (label?: string) => string;
+  /** Range with two thumbs: spoken name of the high thumb. */
+  rangeMax: (label?: string) => string;
   /** Default accessible name of a split button's menu trigger. */
   moreActions: string;
   /** Presence words for Avatar's status dot. */
