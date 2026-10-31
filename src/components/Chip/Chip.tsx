@@ -20,6 +20,7 @@ import { useLabels } from "../../locale";
 import { prefersReducedMotion } from "../../motion";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { isImeKey } from "../../utils/ime";
 import { CloseButton } from "../CloseButton";
 import { CHIP_ITEM_ATTR, type ChipRemoveEvent, useChipGroup } from "./ChipGroupContext";
 
@@ -224,9 +225,7 @@ export const Chip = forwardRef<HTMLElement, ChipProps>(function Chip(
 
   const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
     if (event.defaultPrevented || (event.key !== "Delete" && event.key !== "Backspace")) return;
-    // Safari sends the key that ends a composition with isComposing false and keyCode 229.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+    if (isImeKey(event)) return;
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (!hasRemove || disabled) return;
     event.preventDefault();
