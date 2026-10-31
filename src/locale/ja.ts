@@ -37,6 +37,15 @@ export const ja: OlivineLabels = {
   chipRemoved: (label) => `${label}を削除しました`,
   chipsCleared: "選択を解除しました",
   tags: { info: "情報", success: "完了", warning: "注意", danger: "エラー", neutral: "メモ" },
+  pinLength: (length, numeric) => `${String(length)}${numeric ? "桁" : "文字"}`,
+  pinPosition: (index, length, numeric) => {
+    const unit = numeric ? "桁" : "文字";
+    return `${String(length)}${unit}中${String(index)}${unit}目`;
+  },
+  pinEntered: (count, length, numeric) => {
+    const unit = numeric ? "桁" : "文字";
+    return `${String(length)}${unit}中${String(count)}${unit}入力済み`;
+  },
   moreActions: "その他の操作",
   avatarStatus: { online: "連絡可能", away: "退席中", busy: "取り込み中", offline: "オフライン" },
   avatarLabel: (name, status) => `${name}、${status}`,

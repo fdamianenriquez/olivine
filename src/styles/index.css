@@ -35,6 +35,7 @@
 @import "../components/Range/Range.css";
 @import "../components/InputGroup/InputGroup.css";
 @import "../components/FileInput/FileInput.css";
+@import "../components/PinInput/PinInput.css";
 
 /* Navigation and content */
 @import "../components/Navbar/Navbar.css";

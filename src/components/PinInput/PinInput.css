@@ -1,0 +1,178 @@
+/*
+ * PinInput: Input's rules repeated per cell. Cells inside a group share their hairlines (as in
+ * ButtonGroup); groups are set apart by a gap. One transparent input covers the whole row, so the
+ * shared focus ring (base.css) draws around every cell at once.
+ */
+.ol-pin {
+  --ol-pin-cell: var(--control-m);
+
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start; /* never stretched by a column parent (Field): the ring hugs the cells */
+  gap: var(--space-3);
+  font-size: var(--text-body-l-size);
+  border-radius: var(--radius-0);
+}
+
+.ol-pin--s {
+  --ol-pin-cell: var(--control-s);
+
+  font-size: var(--text-body-size);
+}
+
+.ol-pin--l {
+  --ol-pin-cell: var(--control-l);
+
+  font-size: var(--text-h2-size);
+}
+
+.ol-pin__group {
+  display: flex;
+}
+
+.ol-pin__cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--ol-pin-cell);
+  height: var(--ol-pin-cell);
+  font-family: var(--font-mono);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+}
+
+.ol-pin__cell + .ol-pin__cell {
+  margin-left: calc(var(--stroke-hair) * -1);
+}
+
+/* The placeholder character, in empty cells. */
+.ol-pin__cell:not([data-filled]) {
+  color: var(--ink-2);
+}
+
+/*
+ * Active cell: a 2px olive underline over the bottom hairline, drawn left to right (shodō).
+ * The cell that loses it fades out; its clip resets only once the fade is done.
+ */
+.ol-pin__cell::after {
+  position: absolute;
+  inset: auto calc(var(--stroke-hair) * -1) calc(var(--stroke-hair) * -1);
+  height: var(--stroke-bold);
+  content: "";
+  background: var(--olivo);
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  transition:
+    opacity var(--dur-s) var(--ease-effect),
+    clip-path var(--dur-s) var(--ease-move) var(--dur-s);
+}
+
+.ol-pin__cell[data-active] {
+  z-index: var(--z-raised);
+}
+
+.ol-pin__cell[data-active]::after {
+  clip-path: inset(0);
+  opacity: 1;
+  transition: clip-path var(--dur-s) var(--ease-move);
+}
+
+/* A selected range (Ctrl/Cmd+A, Shift+arrows): maple fill with on-maple characters. */
+.ol-pin__cell[data-selected] {
+  color: var(--on-maple);
+  background: var(--maple);
+}
+
+.ol-pin[data-invalid] .ol-pin__cell {
+  border-color: var(--beni);
+}
+
+.ol-pin[data-disabled] .ol-pin__cell {
+  color: var(--ink-3);
+  background: transparent;
+  border-color: var(--ink-3);
+}
+
+/* Hover paints the whole row (the input covers the cells), as Input does; focus clears it. */
+.ol-pin:hover:not([data-disabled], [data-focused]) .ol-pin__cell {
+  background: var(--paper-2);
+}
+
+/*
+ * The real input: on top of every cell, its text, caret, selection and autofill paint made
+ * transparent (never display:none or opacity:0, so autofill and selection keep working).
+ * 18px keeps iOS from zooming on focus.
+ */
+.ol-pin__input {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-raised);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: var(--text-body-l-size);
+  color: transparent;
+  caret-color: transparent;
+  -webkit-text-fill-color: transparent;
+  cursor: text;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  appearance: none;
+}
+
+.ol-pin__input:disabled {
+  cursor: not-allowed;
+}
+
+.ol-pin > .ol-pin__input::selection {
+  color: transparent;
+  background: transparent;
+}
+
+.ol-pin > .ol-pin__input:autofill {
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* System colours keep the frame, underline, selection and disabled state visible. */
+@media (forced-colors: active) {
+  /* The real input stays invisible: the system would paint its text, caret and selection. */
+  .ol-pin__input {
+    forced-color-adjust: none;
+  }
+
+  .ol-pin__cell {
+    color: FieldText;
+    background: Field;
+    border-color: CanvasText;
+  }
+
+  .ol-pin__cell::after {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .ol-pin__cell[data-selected] {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-pin[data-invalid] .ol-pin__cell {
+    border-color: Mark;
+  }
+
+  .ol-pin[data-disabled] .ol-pin__cell {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}
