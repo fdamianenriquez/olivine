@@ -6,7 +6,8 @@ import { forwardRefAs } from "../../utils/polymorphic";
 export interface VisuallyHiddenOwnProps {
   /**
    * Shows the content while it has keyboard focus, in a ruled box at the top-left of the
-   * viewport. Use it with `as="a"` for a skip link.
+   * viewport. Use it with `as="a"` for a skip link: the first focusable element inside `Root`
+   * (the focus ring comes from Root), pointing at `#main` whose target has `tabIndex={-1}`.
    */
   focusable?: boolean;
   /** Text announced by screen readers. Pass a locale string, never a hard-coded word. */

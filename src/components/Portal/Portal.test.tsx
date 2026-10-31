@@ -1,5 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { useRef } from "react";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { Portal } from "./Portal";
@@ -75,5 +76,24 @@ describe("Portal", () => {
     );
     const layer = screen.getByText("floated").parentElement;
     expect(layer).toHaveAttribute("data-ol-keep-active");
+  });
+
+  it("copies lang and dir from the anchor and renders nothing on the server", () => {
+    function Page() {
+      const anchor = useRef<HTMLSpanElement>(null);
+      return (
+        <div lang="ja" dir="rtl">
+          <span ref={anchor} />
+          <Portal anchor={anchor}>
+            <p>floated</p>
+          </Portal>
+        </div>
+      );
+    }
+    expect(renderToString(<Page />)).not.toContain("floated");
+    render(<Page />);
+    const layer = screen.getByText("floated").parentElement;
+    expect(layer).toHaveAttribute("lang", "ja");
+    expect(layer).toHaveAttribute("dir", "rtl");
   });
 });
