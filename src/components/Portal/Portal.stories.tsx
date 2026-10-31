@@ -13,7 +13,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Renders its children into `document.body` (or `container`) inside an `.ol` layer, for floating content you build yourself. Locale and platform pass through React context; pass `anchor` so the layer keeps the theme, `lang`, `dir` and motion settings of the island it came from. Nothing renders on the server.\n\n- Do give your layer a z-index token.\n- Don't portal content that belongs in the flow.",
+          'Renders its children into `document.body` (or `container`) inside an `.ol` layer, for floating content you build yourself. Locale and platform pass through React context; pass `anchor` so the layer keeps the theme, `lang`, `dir` and motion settings of the island it came from. Nothing renders on the server. `container={null}` means "not ready yet" and renders nothing. The layer paints no background: children bring their own surface.\n\n- Do give your layer a z-index token.\n- Do use `keepActive` only for content that must stay usable under a modal (a live region, your own toasts).\n- Don\'t portal content that belongs in the flow.',
       },
     },
   },

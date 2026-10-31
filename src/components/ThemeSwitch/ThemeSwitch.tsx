@@ -40,7 +40,8 @@ export interface ThemeSwitchProps extends Omit<
    */
   themes?: readonly ThemeName[];
   /**
-   * Element that receives `data-theme` when uncontrolled. Ignored when controlled.
+   * Element that receives `data-theme` when uncontrolled; `null` drives no element. Ignored
+   * when controlled.
    * @default document.documentElement
    */
   target?: HTMLElement | RefObject<HTMLElement | null> | null;

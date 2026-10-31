@@ -17,10 +17,14 @@ export interface PortalProps {
   container?: Element | null | undefined;
   /**
    * An element inside the app. The layer copies its island theme (a `data-theme` below `<html>`),
-   * `lang`, `dir` and in-app motion settings, and follows the island theme while open.
+   * `lang`, `dir` and in-app motion settings, and follows the island theme while open (an
+   * island that only gains `data-theme` after the layer opens is not followed).
    */
   anchor?: RefObject<Element | null> | undefined;
-  /** Keeps the layer reachable while a modal overlay makes the rest of the page inert. */
+  /**
+   * Keeps the layer reachable while a modal overlay makes the rest of the page inert. Applies to
+   * the default container (layers in `body`), not to a layer inside an inert subtree.
+   */
   keepActive?: boolean | undefined;
 }
 

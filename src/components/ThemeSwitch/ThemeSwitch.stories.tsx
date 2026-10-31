@@ -13,7 +13,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `ThemeSwitch is a three-way control for the colour theme: Light (\`washi\`), Dark (\`sumi\`) or Auto, which follows the system. It is a single-choice SegmentedControl named "Theme"; the words come from the locale, the values keep the brand names. The theme changes instantly.
+        component: `ThemeSwitch is a three-way control for the colour theme: Light (\`washi\`), Dark (\`sumi\`) or Auto, which follows the system. It is a single-choice SegmentedControl named "Theme"; the words come from the locale, the values keep the brand names. The theme changes instantly. Use a plain \`Switch\` for two themes without Auto, and \`Root theme\` alone for a fixed theme.
 
 **Controlled** — the app owns the theme and feeds it to \`Root theme\`, so the switch and the page cannot disagree:
 
