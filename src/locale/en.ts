@@ -37,6 +37,12 @@ export const en: OlivineLabels = {
   chipRemoved: (label) => `${label} removed`,
   chipsCleared: "Selection cleared",
   tags: { info: "Info", success: "Done", warning: "Note", danger: "Error", neutral: "Memo" },
+  pinLength: (length, numeric) =>
+    `${String(length)} ${numeric ? (length === 1 ? "digit" : "digits") : length === 1 ? "character" : "characters"}`,
+  pinPosition: (index, length, numeric) =>
+    `${numeric ? "Digit" : "Character"} ${String(index)} of ${String(length)}`,
+  pinEntered: (count, length, numeric) =>
+    `${String(count)} of ${String(length)} ${numeric ? "digits" : "characters"} entered`,
   moreActions: "More actions",
   avatarStatus: { online: "Available", away: "Away", busy: "Busy", offline: "Offline" },
   avatarLabel: (name, status) => `${name}, ${status}`,

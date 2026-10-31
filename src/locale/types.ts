@@ -39,6 +39,12 @@ export interface OlivineLabels {
   /** Announced after a chip group's selection is cleared. */
   chipsCleared: string;
   tags: { info: string; success: string; warning: string; danger: string; neutral: string };
+  /** PinInput: the code shape, read as its description: "6 digits" / "6 characters". */
+  pinLength: (length: number, numeric: boolean) => string;
+  /** PinInput: announced when the caret moves: "Digit 3 of 6". */
+  pinPosition: (index: number, length: number, numeric: boolean) => string;
+  /** PinInput with `mask`: announced after each change: "3 of 6 digits entered". */
+  pinEntered: (count: number, length: number, numeric: boolean) => string;
   /** Default accessible name of a split button's menu trigger. */
   moreActions: string;
   /** Presence words for Avatar's status dot. */

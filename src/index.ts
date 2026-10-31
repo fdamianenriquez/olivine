@@ -56,6 +56,7 @@ export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
 export { Offcanvas, type OffcanvasPlacement, type OffcanvasProps } from "./components/Offcanvas";
 export { Pagination, type PaginationProps } from "./components/Pagination";
+export { type PinCharset, PinInput, type PinInputProps } from "./components/PinInput";
 export { Placeholder, type PlaceholderProps } from "./components/Placeholder";
 export { Popover, type PopoverPlacement, type PopoverProps } from "./components/Popover";
 export { Portal, type PortalProps } from "./components/Portal";
