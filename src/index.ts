@@ -13,6 +13,13 @@ export { Chip, type ChipProps, type ChipRemoveEvent } from "./components/Chip";
 export { ChipGroup, type ChipGroupActions, type ChipGroupProps } from "./components/ChipGroup";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";
 export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
+export {
+  ColorSwatches,
+  type ColorSwatchesLayout,
+  type ColorSwatchesProps,
+  type ColorSwatchesSize,
+  type ColorSwatchOption,
+} from "./components/ColorSwatches";
 export { Container, type ContainerProps } from "./components/Container";
 export { Divider, type DividerProps } from "./components/Divider";
 export {

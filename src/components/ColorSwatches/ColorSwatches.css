@@ -1,0 +1,342 @@
+/*
+ * ColorSwatches: a fieldset of native radios, each a cell (label) holding a square colour tile
+ * and its name. The selected fill is the shared ink wipe (.ol-ink-wipe in styles/motion.css) on
+ * the cell; nothing is ever drawn on the colour itself. The user's colour arrives only through
+ * --ol-swatch and --ol-swatch-base on the tile.
+ */
+.ol-swatches {
+  --ol-swatches-tile: var(--control-m);
+
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ol-swatches--s {
+  --ol-swatches-tile: var(--control-s);
+}
+
+.ol-swatches--l {
+  --ol-swatches-tile: var(--control-l);
+}
+
+/* Same voice as the CheckGroup legend. */
+.ol-swatches__legend {
+  padding: 0;
+  margin-bottom: var(--space-3);
+  color: var(--ink);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-swatches:disabled > .ol-swatches__legend {
+  color: var(--ink-3);
+}
+
+.ol-swatches__list {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.ol-swatches--stack .ol-swatches__list {
+  flex-flow: column nowrap;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* ---------- Cell ---------- */
+
+.ol-swatches__item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  padding: var(--space-2);
+  border-radius: var(--radius-0);
+  color: var(--ink);
+  cursor: pointer;
+
+  /* Keeps the shared ink wipe's colour cross-fade for the name. */
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-m) var(--ease-effect);
+}
+
+/* Selected: the cell's text inverts with the shared ink (whose own fallback has zero specificity). */
+.ol-swatches__item[data-state="on"] {
+  color: var(--ol-ink-wipe-text, var(--on-ink));
+}
+
+/* Grid cells have no frame, so the ink stays inside the cell. */
+.ol-swatches--grid .ol-swatches__item {
+  --ol-ink-wipe-bleed: 0px;
+}
+
+/* Stack: ruled rows that share their hairlines; the ink covers the row's own border. */
+.ol-swatches--stack .ol-swatches__item {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-swatches--stack .ol-swatches__item + .ol-swatches__item {
+  margin-top: calc(var(--stroke-hair) * -1);
+}
+
+/* The radio covers the whole cell: the cell is the hit area. */
+.ol-swatches__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+/* Focus: the ring goes around the whole cell, raised above its neighbours and the ink. */
+.ol-swatches__item:has(.ol-swatches__input:focus-visible) {
+  z-index: var(--z-raised);
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+/* Unselected hover (the selectable rule): paper-2, never the ink inversion. */
+@media (hover: hover) {
+  .ol-swatches__item:not([data-state="on"], .ol-swatches__item--disabled):hover {
+    background: var(--paper-2);
+  }
+}
+
+/* ---------- Tile ---------- */
+
+.ol-swatches__tile {
+  --ol-swatches-line: var(--rule);
+
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: var(--ol-swatches-tile);
+  height: var(--ol-swatches-tile);
+  border: var(--stroke-hair) solid var(--ol-swatches-line);
+  border-radius: var(--radius-0);
+
+  /* The user's colour over its opaque base; a missing or rejected colour shows paper. */
+  background-color: var(--ol-swatch-base, transparent);
+  background-image: linear-gradient(
+    var(--ol-swatch, var(--paper-2)),
+    var(--ol-swatch, var(--paper-2))
+  );
+  transition: border-color var(--dur-m) var(--ease-effect);
+}
+
+/* No colour: an empty tile crossed by one hairline. */
+.ol-swatches__tile--none {
+  background-color: transparent;
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - var(--stroke-hair) / 2),
+    var(--ol-swatches-line) 50%,
+    transparent calc(50% + var(--stroke-hair) / 2)
+  );
+}
+
+/* On the ink mat the tile's edge turns on-ink, so a black finish never melts into it. */
+.ol-swatches__item[data-state="on"] .ol-swatches__tile {
+  --ol-swatches-line: var(--on-ink);
+}
+
+/* ---------- Name, check and hint ---------- */
+
+.ol-swatches__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ol-swatches--stack .ol-swatches__text {
+  flex: 1 1 auto;
+  flex-flow: row wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.ol-swatches__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ol-swatches__name {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+/* The ✓ slot is always there, so selecting never moves the name. */
+.ol-swatches__check {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  line-height: 1;
+  visibility: hidden;
+}
+
+.ol-swatches__item[data-state="on"] .ol-swatches__check {
+  visibility: visible;
+}
+
+/* Hanko: the ✓ drops in a short distance and stops dead (only on a user's selection). */
+.ol-swatches__item--stamp[data-state="on"] .ol-swatches__check {
+  --ol-motion-drop: var(--space-1);
+
+  animation: ol-hanko var(--dur-s) var(--ease-move) backwards;
+}
+
+.ol-swatches__hint {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+/* Grid: two columns, so the hint lines up with the name and not with the ✓ slot. */
+.ol-swatches--grid .ol-swatches__text {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: var(--space-1);
+}
+
+.ol-swatches--grid .ol-swatches__label {
+  display: contents;
+}
+
+.ol-swatches--grid .ol-swatches__hint {
+  grid-column: 2;
+}
+
+/* On the ink mat the hint follows the cell's inverted text. */
+.ol-swatches__item[data-state="on"] .ol-swatches__hint {
+  color: inherit;
+}
+
+/* Tooltip mode: the hint is still the radio's description, read but not shown. */
+.ol-swatches__hint--hidden {
+  position: absolute;
+  width: var(--stroke-hair);
+  height: var(--stroke-hair);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Tooltip mode: the selected name (and hint) echoed under the tiles. */
+.ol-swatches__current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  min-height: var(--text-label-leading);
+  margin: var(--space-2) 0 0;
+  color: var(--ink);
+}
+
+/* ---------- Disabled ---------- */
+
+.ol-swatches__item--disabled {
+  /* A disabled selected cell keeps an ink-3 fill so the choice stays visible. */
+  --ol-ink-wipe-fill: var(--ink-3);
+  --ol-ink-wipe-text: var(--on-ink);
+
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* The disabled radio lets the pointer through to the cell, which carries the tooltip. */
+.ol-swatches__item--disabled .ol-swatches__input {
+  pointer-events: none;
+}
+
+.ol-swatches__item--disabled:not([data-state="on"]) .ol-swatches__hint {
+  color: var(--ink-3);
+}
+
+/* Unavailable: an × of two hairlines across the tile. */
+.ol-swatches__item--disabled .ol-swatches__tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      to top right,
+      transparent calc(50% - var(--stroke-hair) / 2),
+      var(--ol-swatches-cross, var(--ink-3)) 50%,
+      transparent calc(50% + var(--stroke-hair) / 2)
+    ),
+    linear-gradient(
+      to bottom right,
+      transparent calc(50% - var(--stroke-hair) / 2),
+      var(--ol-swatches-cross, var(--ink-3)) 50%,
+      transparent calc(50% + var(--stroke-hair) / 2)
+    );
+}
+
+.ol-swatches__item--disabled[data-state="on"] .ol-swatches__tile {
+  --ol-swatches-cross: var(--on-ink);
+}
+
+/* ---------- Direction: the ink wipes in from the inline-start edge ---------- */
+
+.ol-swatches__item.ol-ink-wipe:dir(rtl):not([data-state="on"])::before {
+  clip-path: inset(0 0 0 100%);
+}
+
+/* ---------- Forced colours ---------- */
+
+@media (forced-colors: active) {
+  /* The colour is content, like an image: keep it, and give it a system edge. */
+  .ol-swatches__tile {
+    --ol-swatches-line: CanvasText;
+    --ol-swatches-cross: GrayText;
+
+    forced-color-adjust: none;
+  }
+
+  .ol-swatches__item[data-state="on"] .ol-swatches__tile {
+    --ol-swatches-line: HighlightText;
+  }
+
+  .ol-swatches__item:has(.ol-swatches__input:focus-visible) {
+    outline-color: Highlight;
+  }
+
+  .ol-swatches__item--disabled,
+  .ol-swatches__item--disabled .ol-swatches__hint {
+    color: GrayText;
+  }
+
+  /* The shared ink wipe paints the selection in Highlight; a disabled one reads as unavailable. */
+  .ol-swatches__item--disabled::before {
+    background: GrayText;
+  }
+
+  .ol-swatches__item--disabled[data-state="on"] .ol-swatches__tile {
+    --ol-swatches-cross: Canvas;
+  }
+}

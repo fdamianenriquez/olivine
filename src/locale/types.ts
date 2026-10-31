@@ -45,6 +45,8 @@ export interface OlivineLabels {
   pinPosition: (index: number, length: number, numeric: boolean) => string;
   /** PinInput with `mask`: announced after each change: "3 of 6 digits entered". */
   pinEntered: (count: number, length: number, numeric: boolean) => string;
+  /** ColorSwatches: the reason shown on a disabled swatch that has no `hint`. */
+  swatchUnavailable: string;
   /** NumberField stepper names: "Increase {label}" / "Decrease {label}". */
   numberIncrease: (label?: string) => string;
   numberDecrease: (label?: string) => string;

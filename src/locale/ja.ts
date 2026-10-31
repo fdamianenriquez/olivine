@@ -46,6 +46,7 @@ export const ja: OlivineLabels = {
     const unit = numeric ? "桁" : "文字";
     return `${String(length)}${unit}中${String(count)}${unit}入力済み`;
   },
+  swatchUnavailable: "選択できません",
   numberIncrease: (label) => (label ? `${label}を増やす` : "増やす"),
   numberDecrease: (label) => (label ? `${label}を減らす` : "減らす"),
   moreActions: "その他の操作",
