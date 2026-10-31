@@ -41,6 +41,19 @@ export function makeLabels(
 
 export const LocaleContext = createContext<OlivineLabels>(en);
 
+/** The BCP 47 tag of the nearest `Root` that names its locale with a string. */
+export const LocaleTagContext = createContext<string | undefined>(undefined);
+
+/**
+ * The language tag numbers and dates are formatted with: `own` when given (a component's
+ * `locale` prop), else the nearest `Root`'s string `locale` (a regional tag such as `"es-MX"`
+ * is kept, so es-ES and es-MX format differently), else `"en"`.
+ */
+export function useLocaleTag(own?: string): string {
+  const tag = useContext(LocaleTagContext);
+  return own ?? tag ?? "en";
+}
+
 /** The current dictionary: the nearest `Root`'s, or English outside one. */
 export function useLabels(): OlivineLabels {
   return useContext(LocaleContext);

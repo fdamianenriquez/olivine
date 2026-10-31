@@ -5,6 +5,7 @@ import {
   LocaleContext,
   type LocaleName,
   locales,
+  LocaleTagContext,
   makeLabels,
   type OlivineLabels,
 } from "../../locale";
@@ -79,20 +80,24 @@ const RootBase = forwardRefAs<"div", RootOwnProps>(function Root(
     return makeLabels(locale, labels);
   }, [parent, locale, labels]);
   const lang = typeof locale === "string" && isBuiltIn(locale) ? locale : undefined;
+  const parentTag = useContext(LocaleTagContext);
+  const tag = typeof locale === "string" ? locale : parentTag;
   const content = (
     <LocaleContext.Provider value={dictionary}>
-      <InsideRoot.Provider value>
-        <As
-          ref={ref}
-          className={cx("ol", className as string | undefined)}
-          data-theme={theme}
-          lang={lang}
-          {...rest}
-        >
-          {nested ? null : <StampFilter />}
-          {children}
-        </As>
-      </InsideRoot.Provider>
+      <LocaleTagContext.Provider value={tag}>
+        <InsideRoot.Provider value>
+          <As
+            ref={ref}
+            className={cx("ol", className as string | undefined)}
+            data-theme={theme}
+            lang={lang}
+            {...rest}
+          >
+            {nested ? null : <StampFilter />}
+            {children}
+          </As>
+        </InsideRoot.Provider>
+      </LocaleTagContext.Provider>
     </LocaleContext.Provider>
   );
   return platform === undefined ? (

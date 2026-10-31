@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it } from "vitest";
 
-import { useLabels } from "../../locale";
+import { useLabels, useLocaleTag } from "../../locale";
 import { runAxe } from "../../test/axe";
 import { Root } from "./Root";
 
@@ -92,6 +92,28 @@ describe("Root", () => {
     );
     expect(probe()).toBe(`${Root.locales.es.close}|${Root.locales.es.tags.warning}`);
     expect(screen.getByTestId("inner")).not.toHaveAttribute("lang");
+  });
+
+  it("passes its locale tag down, kept through islands and dictionary objects", () => {
+    function Tag() {
+      return <span data-testid="tag">{useLocaleTag()}</span>;
+    }
+    const { rerender } = render(
+      <Root locale="es-MX">
+        <Root theme="sumi" locale={Root.locales.ja}>
+          <Tag />
+        </Root>
+      </Root>,
+    );
+    expect(screen.getByTestId("tag")).toHaveTextContent("es-MX");
+    rerender(
+      <Root locale="es-MX">
+        <Root locale="ja">
+          <Tag />
+        </Root>
+      </Root>,
+    );
+    expect(screen.getByTestId("tag")).toHaveTextContent("ja");
   });
 
   it("merges labels onto the parent dictionary", () => {
