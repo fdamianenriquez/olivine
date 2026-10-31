@@ -37,6 +37,7 @@
 @import "../components/NumberField/NumberField.css";
 @import "../components/FileInput/FileInput.css";
 @import "../components/PinInput/PinInput.css";
+@import "../components/ColorSwatches/ColorSwatches.css";
 
 /* Navigation and content */
 @import "../components/Navbar/Navbar.css";

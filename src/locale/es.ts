@@ -43,6 +43,7 @@ export const es: OlivineLabels = {
     `${numeric ? "Dígito" : "Carácter"} ${String(index)} de ${String(length)}`,
   pinEntered: (count, length, numeric) =>
     `${String(count)} de ${String(length)} ${numeric ? "dígitos" : "caracteres"} introducidos`,
+  swatchUnavailable: "No disponible",
   numberIncrease: (label) => (label ? `Aumentar ${label}` : "Aumentar"),
   numberDecrease: (label) => (label ? `Disminuir ${label}` : "Disminuir"),
   moreActions: "Más acciones",
