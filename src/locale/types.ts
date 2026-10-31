@@ -49,6 +49,10 @@ export interface OlivineLabels {
   avatarMore: (n: number, names: readonly string[]) => string;
   /** Spoken key names and non-Apple legends for Kbd. */
   keys: KbdKeyLabels;
+  /** Default accessible name of a ThemeSwitch. */
+  theme: string;
+  /** Visible names of the themes in a ThemeSwitch (washi is light, sumi is dark). */
+  themes: { washi: string; sumi: string; auto: string };
 }
 
 export interface KbdKeyLabels {
@@ -92,8 +96,11 @@ export interface KbdKeyLabels {
 export type LocaleName = "en" | "es" | "ja";
 
 /** Partial overrides of a dictionary; `tags`, `keys` and `avatarStatus` merge one level deep. */
-export type LabelOverrides = Partial<Omit<OlivineLabels, "tags" | "keys" | "avatarStatus">> & {
+export type LabelOverrides = Partial<
+  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes">
+> & {
   tags?: Partial<OlivineLabels["tags"]>;
   avatarStatus?: Partial<OlivineLabels["avatarStatus"]>;
   keys?: Partial<OlivineLabels["keys"]>;
+  themes?: Partial<OlivineLabels["themes"]>;
 };
