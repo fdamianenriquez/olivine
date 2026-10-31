@@ -18,8 +18,8 @@ import { useFloating, useIsomorphicLayoutEffect } from "../../hooks/useFloating"
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
 import { getElementRef } from "../../utils/elementRef";
-import { Portal } from "../../utils/Portal";
 import { CloseButton } from "../CloseButton";
+import { Portal } from "../Portal";
 
 /** Which side of the trigger the popover opens on. It flips when there is no room. */
 export type PopoverPlacement = "bottom" | "top" | "right";

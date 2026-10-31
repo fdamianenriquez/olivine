@@ -58,6 +58,7 @@ export { Offcanvas, type OffcanvasPlacement, type OffcanvasProps } from "./compo
 export { Pagination, type PaginationProps } from "./components/Pagination";
 export { Placeholder, type PlaceholderProps } from "./components/Placeholder";
 export { Popover, type PopoverPlacement, type PopoverProps } from "./components/Popover";
+export { Portal, type PortalProps } from "./components/Portal";
 export { Progress, type ProgressProps } from "./components/Progress";
 export { Radio, type RadioProps } from "./components/Radio";
 export { Range, type RangeProps } from "./components/Range";
