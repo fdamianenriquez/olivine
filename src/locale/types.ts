@@ -45,6 +45,9 @@ export interface OlivineLabels {
   pinPosition: (index: number, length: number, numeric: boolean) => string;
   /** PinInput with `mask`: announced after each change: "3 of 6 digits entered". */
   pinEntered: (count: number, length: number, numeric: boolean) => string;
+  /** NumberField stepper names: "Increase {label}" / "Decrease {label}". */
+  numberIncrease: (label?: string) => string;
+  numberDecrease: (label?: string) => string;
   /** Default accessible name of a split button's menu trigger. */
   moreActions: string;
   /** Presence words for Avatar's status dot. */
