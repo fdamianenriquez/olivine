@@ -28,4 +28,10 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     target: /\.ol-chip--(?:disabled|removable)[^ >]* > \.ol-chip__main > \.ol-chip__label$/,
     note: "Not a defect: the label of a disabled remove-only Chip is text of an inactive component, which WCAG 1.4.3 exempts; the label sits in a span, so axe only sees that the × button, not the label, is disabled.",
   },
+  {
+    stories: /^forms-(listbox|combobox|searchfield)--/,
+    rule: "label-content-name-mismatch",
+    target: /-o-/,
+    note: "Not a defect: an option with a description or meta is named by its visible label alone (aria-labelledby) and the extra text is its description (aria-describedby); the name is the visible label, so WCAG 2.5.3 holds, but axe compares the name with all of the option's text.",
+  },
 ];
