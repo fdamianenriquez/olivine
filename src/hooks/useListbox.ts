@@ -178,7 +178,8 @@ export function useListbox({
   const setActive = useCallback(
     (value: string | null, source: HighlightSource = "keyboard") => {
       setActiveState(value);
-      setFocusVisible(value !== null && source === "keyboard");
+      // Only the pointer hides the ring: a filter or auto highlight is what Enter will pick.
+      setFocusVisible(value !== null && source !== "pointer");
       if (value === null || source === "pointer") return;
       const root = listRef.current;
       const el = root?.querySelector<HTMLElement>(`#${CSS.escape(optionId(value))}`);
@@ -195,6 +196,7 @@ export function useListbox({
     selectedSelector: '[aria-selected="true"]',
     preventScroll: true,
     consumeEnds: true,
+    disabled: virtual,
     onActiveChange: (item, key) => {
       const root = listRef.current;
       if (root) reveal(root, item);
@@ -383,6 +385,8 @@ export function useListbox({
       ...user,
       id: optionId(value),
       role: "option",
+      // Focus stays on the controller in virtual mode; options are never tab stops.
+      tabIndex: virtual ? -1 : undefined,
       "aria-selected": selected.includes(value),
       "aria-disabled": off || undefined,
       "data-value": value,

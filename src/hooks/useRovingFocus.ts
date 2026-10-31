@@ -40,6 +40,8 @@ export interface RovingFocusOptions {
    * hands the key to the page (which would scroll it).
    */
   consumeEnds?: boolean;
+  /** Turns the hook off: it writes no `tabindex` and handles no keys (a list whose focus stays elsewhere). */
+  disabled?: boolean;
   /** Called after an arrow, Home or End key moved focus, with the newly focused item. */
   onActiveChange?: ((item: HTMLElement, key: string) => void) | undefined;
 }
@@ -75,6 +77,7 @@ export function useRovingFocus(
     restore = "last",
     preventScroll = false,
     consumeEnds = false,
+    disabled = false,
     onActiveChange,
   }: RovingFocusOptions,
 ): RovingFocus {
@@ -90,7 +93,7 @@ export function useRovingFocus(
 
   const apply = useCallback(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || disabled) return;
     root.setAttribute(ROOT_ATTR, "");
     const all = items();
     const enabled = all.filter((el) => !isDisabled(el));
@@ -100,7 +103,7 @@ export function useRovingFocus(
       : undefined;
     const stop = remembered ?? selected ?? enabled[0];
     for (const el of all) el.setAttribute("tabindex", el === stop ? "0" : "-1");
-  }, [rootRef, items, selectedSelector]);
+  }, [rootRef, items, selectedSelector, disabled]);
 
   // Every render: items may have been added, removed, disabled or selected.
   useLayoutEffect(apply);
@@ -141,7 +144,9 @@ export function useRovingFocus(
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): boolean => {
-    if (event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey) return false;
+    if (disabled || event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey) {
+      return false;
+    }
     if (event.nativeEvent.isComposing) return false;
     const root = rootRef.current;
     const current = (event.target as Element).closest<HTMLElement>(itemSelector);
