@@ -1,0 +1,20 @@
+/* A focusable hidden element (a skip link) shows in a ruled box while it has focus. */
+.ol-sr--focusable:is(:focus, :focus-within) {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: var(--z-tooltip);
+  width: auto;
+  height: auto;
+  padding: var(--space-2) var(--space-4);
+  overflow: visible;
+  clip-path: none;
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-3);
+  color: var(--ink);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+}
