@@ -1,2 +1,8 @@
-export type { RangeProps } from "./Range";
+export type {
+  RangeComponent,
+  RangeDualBaseProps,
+  RangeDualProps,
+  RangeProps,
+  RangeValue,
+} from "./Range";
 export { Range } from "./Range";

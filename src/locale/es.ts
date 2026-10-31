@@ -46,6 +46,8 @@ export const es: OlivineLabels = {
   swatchUnavailable: "No disponible",
   numberIncrease: (label) => (label ? `Aumentar ${label}` : "Aumentar"),
   numberDecrease: (label) => (label ? `Disminuir ${label}` : "Disminuir"),
+  rangeMin: (label) => (label ? `${label}, mínimo` : "Mínimo"),
+  rangeMax: (label) => (label ? `${label}, máximo` : "Máximo"),
   moreActions: "Más acciones",
   avatarStatus: { online: "Disponible", away: "Ausente", busy: "Ocupado", offline: "Sin conexión" },
   avatarLabel: (name, status) => `${name}, ${status}`,
