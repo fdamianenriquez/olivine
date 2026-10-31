@@ -73,4 +73,6 @@ export const en: OlivineLabels = {
     backspaceLegend: "Backspace",
     deleteLegend: "Del",
   },
+  theme: "Theme",
+  themes: { washi: "Light", sumi: "Dark", auto: "Auto" },
 };

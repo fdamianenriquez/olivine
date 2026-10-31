@@ -73,4 +73,6 @@ export const ja: OlivineLabels = {
     backspaceLegend: "Backspace",
     deleteLegend: "Del",
   },
+  theme: "テーマ",
+  themes: { washi: "ライト", sumi: "ダーク", auto: "自動" },
 };

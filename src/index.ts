@@ -100,6 +100,7 @@ export {
 export { Tabs, type TabsProps, TabsTab, type TabsTabProps } from "./components/Tabs";
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
+export { type ThemeName, ThemeSwitch, type ThemeSwitchProps } from "./components/ThemeSwitch";
 export { Toast, type ToastProps, type ToastTone } from "./components/Toast";
 export {
   type ToastApi,

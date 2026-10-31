@@ -36,6 +36,7 @@ export function makeLabels(
     tags: { ...base.tags, ...labels.tags },
     keys: { ...base.keys, ...labels.keys },
     avatarStatus: { ...base.avatarStatus, ...labels.avatarStatus },
+    themes: { ...base.themes, ...labels.themes },
   };
 }
 
