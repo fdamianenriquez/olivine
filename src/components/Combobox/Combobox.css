@@ -1,0 +1,226 @@
+/*
+ * Combobox: the field box is Input's box (hairline, paper-2 on hover, inset olive ring while the
+ * input has focus) holding chips, the bare input and Select-style cells. The popup hangs from
+ * the box, as wide as it, sharing its bottom hairline; its rows are Listbox rows.
+ */
+.ol-combobox {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-m);
+  color: var(--ink);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: text;
+}
+
+.ol-combobox--l {
+  min-height: var(--control-l);
+}
+
+.ol-combobox:hover {
+  background: var(--paper-2);
+}
+
+/* The ring belongs to the box, not the bare input. */
+.ol-combobox:has(.ol-combobox__input:focus-visible) {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background: transparent;
+}
+
+@supports not selector(:has(*)) {
+  .ol-combobox:focus-within {
+    outline: var(--stroke-bold) solid var(--olivo);
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+}
+
+.ol-combobox:has(.ol-combobox__input[aria-invalid="true"]) {
+  border-color: var(--beni);
+}
+
+.ol-combobox__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-inline: var(--space-4);
+}
+
+/* Chips are 32px: the box keeps a little block padding around them. */
+.ol-combobox--chips .ol-combobox__body {
+  padding: var(--space-1) var(--space-2);
+}
+
+.ol-combobox__chips {
+  max-width: 100%;
+}
+
+.ol-combobox__input {
+  flex: 1 1 var(--space-24);
+  min-width: 0;
+  min-height: var(--control-s);
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--text-body-size);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  outline: none;
+  appearance: none;
+}
+
+.ol-combobox--chips .ol-combobox__input {
+  padding-inline-start: var(--space-2);
+}
+
+.ol-combobox--l .ol-combobox__input {
+  font-size: var(--text-body-l-size);
+}
+
+.ol-combobox__input::placeholder {
+  color: var(--ink-2);
+}
+
+.ol-combobox__start,
+.ol-combobox__end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--ink-2);
+}
+
+.ol-combobox__end {
+  padding-inline-end: var(--space-3);
+}
+
+/* Square cells at the field's height with a hairline before them, as Select's arrow cell. */
+.ol-combobox__cell {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-s);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.ol-combobox__clear {
+  font-size: var(--glyph-l);
+}
+
+.ol-combobox--l .ol-combobox__cell {
+  width: var(--control-l);
+}
+
+@media (hover: hover) {
+  .ol-combobox__cell:hover {
+    color: var(--on-ink);
+    background: var(--ink);
+  }
+}
+
+.ol-combobox__cell:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+}
+
+/* A disabled field keeps its trigger cell, inert and faint. */
+.ol-combobox__cell:disabled,
+.ol-combobox__cell:disabled:hover {
+  color: var(--ink-3);
+  background: transparent;
+  border-inline-start-color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-combobox--disabled,
+.ol-combobox--disabled:hover {
+  color: var(--ink-3);
+  background: transparent;
+  border-color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-combobox--disabled .ol-combobox__input {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* The global ring would draw inside the box; the box carries it instead. */
+.ol-combobox .ol-combobox__input:focus-visible {
+  outline: none;
+}
+
+.ol-combobox--readonly {
+  cursor: default;
+}
+
+/* The popup: a raised surface like a Dropdown menu, as wide as the field box. */
+.ol-combobox__popup {
+  z-index: var(--z-dropdown);
+  box-sizing: border-box;
+  width: var(--ol-anchor-width, auto);
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  overflow: hidden;
+}
+
+/* Hidden until the first position is known, so it never flashes at 0,0. */
+.ol-combobox__popup.ol-floating:not([data-positioned]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .ol-combobox {
+    color: FieldText;
+    background: Field;
+    border-color: CanvasText;
+  }
+
+  .ol-combobox:has(.ol-combobox__input:focus-visible) {
+    outline-color: Highlight;
+  }
+
+  .ol-combobox:has(.ol-combobox__input[aria-invalid="true"]) {
+    border-color: Mark;
+  }
+
+  .ol-combobox__cell {
+    color: ButtonText;
+    border-inline-start-color: CanvasText;
+  }
+
+  .ol-combobox--disabled,
+  .ol-combobox--disabled .ol-combobox__input,
+  .ol-combobox__cell:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
+
+  .ol-combobox__popup {
+    border-color: CanvasText;
+  }
+}
