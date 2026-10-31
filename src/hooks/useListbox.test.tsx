@@ -179,4 +179,20 @@ describe("useListbox (virtual)", () => {
     fireEvent.keyDown(input, { key: "ArrowDown", isComposing: true });
     expect(input).toHaveAttribute("aria-activedescendant", option("Alder").id);
   });
+
+  it("never makes an option a tab stop, so Tab leaves the controller", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Virtual />
+        <button type="button">After</button>
+      </>,
+    );
+    expect(screen.getAllByRole("option").every((o) => o.getAttribute("tabindex") === "-1")).toBe(
+      true,
+    );
+    await user.click(screen.getByRole("combobox"));
+    await user.tab();
+    expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
+  });
 });
