@@ -1,0 +1,82 @@
+/* NumberField: an InputGroup of − / input / + and an optional unit cell. */
+
+.ol-numberfield .ol-numberfield__input {
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  font-weight: var(--text-figure-s-weight);
+  line-height: var(--text-figure-s-leading);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.ol-numberfield--s .ol-numberfield__input {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  font-weight: var(--text-figure-xs-weight);
+  line-height: var(--text-figure-xs-leading);
+  letter-spacing: var(--text-figure-xs-tracking);
+}
+
+.ol-numberfield--l .ol-numberfield__input {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  font-weight: var(--text-figure-m-weight);
+  line-height: var(--text-figure-m-leading);
+  letter-spacing: var(--text-figure-m-tracking);
+}
+
+/* Without steppers the figures align like a table's amount column. */
+.ol-numberfield[data-steppers="false"] .ol-numberfield__input {
+  text-align: end;
+}
+
+/* An invalid field keeps its beni border whole, even above a hovered (raised) stepper. */
+.ol-numberfield > .ol-numberfield__input[aria-invalid="true"] {
+  z-index: calc(var(--z-raised) * 2);
+}
+
+/* A held stepper must not select text or open the touch callout. */
+.ol-numberfield__step {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Units are words, so they take the label face, not the figure face. */
+.ol-numberfield__unit {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-numberfield--s .ol-numberfield__unit {
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+}
+
+.ol-numberfield--l .ol-numberfield__unit {
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  line-height: var(--text-label-l-leading);
+  letter-spacing: var(--text-label-l-tracking);
+}
+
+.ol-numberfield[data-disabled] .ol-numberfield__unit {
+  color: var(--ink-3);
+  background: transparent;
+  border-color: var(--ink-3);
+}
+
+@media (forced-colors: active) {
+  .ol-numberfield[data-disabled] .ol-numberfield__unit {
+    color: GrayText;
+    border-color: GrayText;
+  }
+}

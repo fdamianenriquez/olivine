@@ -54,6 +54,7 @@ export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components
 export { Modal, type ModalProps, type ModalSize } from "./components/Modal";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
+export { NumberField, type NumberFieldProps } from "./components/NumberField";
 export { Offcanvas, type OffcanvasPlacement, type OffcanvasProps } from "./components/Offcanvas";
 export { Pagination, type PaginationProps } from "./components/Pagination";
 export { type PinCharset, PinInput, type PinInputProps } from "./components/PinInput";

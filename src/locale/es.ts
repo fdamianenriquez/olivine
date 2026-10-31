@@ -43,6 +43,8 @@ export const es: OlivineLabels = {
     `${numeric ? "Dígito" : "Carácter"} ${String(index)} de ${String(length)}`,
   pinEntered: (count, length, numeric) =>
     `${String(count)} de ${String(length)} ${numeric ? "dígitos" : "caracteres"} introducidos`,
+  numberIncrease: (label) => (label ? `Aumentar ${label}` : "Aumentar"),
+  numberDecrease: (label) => (label ? `Disminuir ${label}` : "Disminuir"),
   moreActions: "Más acciones",
   avatarStatus: { online: "Disponible", away: "Ausente", busy: "Ocupado", offline: "Sin conexión" },
   avatarLabel: (name, status) => `${name}, ${status}`,

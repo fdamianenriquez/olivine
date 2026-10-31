@@ -34,6 +34,7 @@
 @import "../components/Switch/Switch.css";
 @import "../components/Range/Range.css";
 @import "../components/InputGroup/InputGroup.css";
+@import "../components/NumberField/NumberField.css";
 @import "../components/FileInput/FileInput.css";
 @import "../components/PinInput/PinInput.css";
 
