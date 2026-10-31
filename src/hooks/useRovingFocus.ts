@@ -35,6 +35,11 @@ export interface RovingFocusOptions {
    * scrolls only its own list, never the page).
    */
   preventScroll?: boolean;
+  /**
+   * Consumes an arrow key at the first or last item even though focus stays, so a list never
+   * hands the key to the page (which would scroll it).
+   */
+  consumeEnds?: boolean;
   /** Called after an arrow, Home or End key moved focus, with the newly focused item. */
   onActiveChange?: ((item: HTMLElement, key: string) => void) | undefined;
 }
@@ -69,6 +74,7 @@ export function useRovingFocus(
     selectedSelector,
     restore = "last",
     preventScroll = false,
+    consumeEnds = false,
     onActiveChange,
   }: RovingFocusOptions,
 ): RovingFocus {
@@ -178,6 +184,7 @@ export function useRovingFocus(
       default:
         return false;
     }
+    if (!target && consumeEnds && event.key.startsWith("Arrow")) target = current;
     if (!target) return false;
     event.preventDefault();
     if (target !== current) {
