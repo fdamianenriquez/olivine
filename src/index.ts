@@ -117,6 +117,7 @@ export {
   type ToggleButtonProps,
 } from "./components/ToggleButton";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
+export { VisuallyHidden, type VisuallyHiddenProps } from "./components/VisuallyHidden";
 export {
   type LabelOverrides,
   type LocaleName,

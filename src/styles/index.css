@@ -68,6 +68,7 @@
 
 /* Utilities */
 @import "./utilities.css";
+@import "../components/VisuallyHidden/VisuallyHidden.css";
 
 /* After the utilities: the Avatar seal builds on .ol-stamp. */
 @import "../components/Avatar/Avatar.css";
