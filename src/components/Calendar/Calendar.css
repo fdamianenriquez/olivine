@@ -148,7 +148,7 @@
 
 /* Neighbouring months: context only, never focused or picked. Their colour is set here only. */
 .ol-cal__day[data-outside] {
-  color: var(--ink-3);
+  color: var(--ink-2);
   cursor: default;
 }
 
