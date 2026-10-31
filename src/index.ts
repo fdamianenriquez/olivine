@@ -20,6 +20,17 @@ export {
   type ColorSwatchesSize,
   type ColorSwatchOption,
 } from "./components/ColorSwatches";
+export {
+  Combobox,
+  type ComboboxFilter,
+  type ComboboxGroup,
+  type ComboboxInputChangeReason,
+  type ComboboxItem,
+  type ComboboxMultipleProps,
+  type ComboboxOption,
+  type ComboboxProps,
+  type ComboboxSingleProps,
+} from "./components/Combobox";
 export { Container, type ContainerProps } from "./components/Container";
 export { Divider, type DividerProps } from "./components/Divider";
 export {

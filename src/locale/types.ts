@@ -58,6 +58,22 @@ export interface OlivineLabels {
   rangeMin: (label?: string) => string;
   /** Range with two thumbs: spoken name of the high thumb. */
   rangeMax: (label?: string) => string;
+  /** Combobox: status when no option matches. */
+  comboboxNoResults: string;
+  /** Combobox: announced when the list settles: "3 results available". */
+  comboboxResults: (n: number) => string;
+  /** Combobox: name of the button that opens the list. */
+  comboboxShowOptions: string;
+  /** Name of the clear button of a text field (Combobox, SearchField). */
+  clear: string;
+  /** Combobox: the row that creates a new option from the typed text. */
+  comboboxCreate: (text: string) => string;
+  /** Combobox (multiple): announced after a pick. */
+  comboboxAdded: (label: string) => string;
+  /** Combobox (multiple): name of the group of chips. */
+  comboboxSelected: string;
+  /** Combobox (multiple): how to reach the chips from the input. */
+  comboboxChipsHint: string;
   /** Default accessible name of a split button's menu trigger. */
   moreActions: string;
   /** Presence words for Avatar's status dot. */
