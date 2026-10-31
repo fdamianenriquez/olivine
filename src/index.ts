@@ -123,6 +123,7 @@ export {
   makeLabels,
   type OlivineLabels,
   useLabels,
+  useLocaleTag,
 } from "./locale";
 export {
   bindSumi,

@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
-import { LocaleContext, locales, makeLabels, useLabels } from ".";
+import { LocaleContext, locales, LocaleTagContext, makeLabels, useLabels, useLocaleTag } from ".";
 
 describe("makeLabels", () => {
   it("defaults to English", () => {
@@ -64,5 +64,16 @@ describe("useLabels", () => {
       <LocaleContext.Provider value={locales.ja}>{children}</LocaleContext.Provider>
     );
     expect(renderHook(() => useLabels(), { wrapper }).result.current.close).toBe("閉じる");
+  });
+});
+
+describe("useLocaleTag", () => {
+  it("prefers the component's own tag, then the Root's, then en", () => {
+    expect(renderHook(() => useLocaleTag()).result.current).toBe("en");
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <LocaleTagContext.Provider value="es-MX">{children}</LocaleTagContext.Provider>
+    );
+    expect(renderHook(() => useLocaleTag(), { wrapper }).result.current).toBe("es-MX");
+    expect(renderHook(() => useLocaleTag("ja"), { wrapper }).result.current).toBe("ja");
   });
 });
