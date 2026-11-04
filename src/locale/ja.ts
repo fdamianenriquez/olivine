@@ -113,4 +113,12 @@ export const ja: OlivineLabels = {
   dateSelected: "選択済み",
   dateUnavailable: "選択不可",
   dayLabel: (date, marks) => [date, ...marks].join("、"),
+  dateChoose: "日付を選択",
+  dateChange: (date) => `日付を変更、${date}`,
+  dateFormat: (pattern) => `形式: ${pattern}`,
+  dateGoToday: "今日",
+  dateRangeStart: "開始",
+  dateRangeEnd: "終了",
+  dateCancel: "キャンセル",
+  dateConfirm: "OK",
 };

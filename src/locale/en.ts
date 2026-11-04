@@ -110,4 +110,12 @@ export const en: OlivineLabels = {
   dateSelected: "selected",
   dateUnavailable: "unavailable",
   dayLabel: (date, marks) => [date, ...marks].join(", "),
+  dateChoose: "Choose date",
+  dateChange: (date) => `Change date, ${date}`,
+  dateFormat: (pattern) => `Format: ${pattern}`,
+  dateGoToday: "Today",
+  dateRangeStart: "Start",
+  dateRangeEnd: "End",
+  dateCancel: "Cancel",
+  dateConfirm: "OK",
 };

@@ -111,6 +111,20 @@ export interface OlivineLabels {
   dateUnavailable: string;
   /** Accessible name of a calendar day: the long date followed by its marks. */
   dayLabel: (date: string, marks: readonly string[]) => string;
+  /** DatePicker: name of the button that opens the calendar, and of its popover when the field has no label. */
+  dateChoose: string;
+  /** DatePicker: name of that button once a date is set: "Change date, Thursday, October 22, 2026". */
+  dateChange: (date: string) => string;
+  /** DatePicker: the default hint under the field: "Format: MM/DD/YYYY". */
+  dateFormat: (pattern: string) => string;
+  /** DatePicker: the footer button that picks today. */
+  dateGoToday: string;
+  /** DatePicker range: names of the start and end inputs. */
+  dateRangeStart: string;
+  dateRangeEnd: string;
+  /** DatePicker modal: the sheet's Cancel and OK buttons. */
+  dateCancel: string;
+  dateConfirm: string;
 }
 
 export interface KbdKeyLabels {
