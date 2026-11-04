@@ -130,4 +130,5 @@ export const ja: OlivineLabels = {
   railLabel: "メイン",
   railExpand: "ナビゲーションを開く",
   railCollapse: "ナビゲーションを閉じる",
+  stepper: { step: "ステップ", of: "/", completed: "完了", error: "要確認" },
 };

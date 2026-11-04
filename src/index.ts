@@ -159,6 +159,13 @@ export {
   type StatTrend,
   type StatUnit,
 } from "./components/Stat";
+export {
+  Stepper,
+  type StepperLabels,
+  type StepperOrientation,
+  type StepperProps,
+  type StepperStep,
+} from "./components/Stepper";
 export { Switch, type SwitchProps } from "./components/Switch";
 export {
   Table,

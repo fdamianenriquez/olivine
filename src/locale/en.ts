@@ -127,4 +127,5 @@ export const en: OlivineLabels = {
   railLabel: "Main",
   railExpand: "Expand navigation",
   railCollapse: "Collapse navigation",
+  stepper: { step: "Step", of: "of", completed: "completed", error: "needs attention" },
 };
