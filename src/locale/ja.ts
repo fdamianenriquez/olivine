@@ -127,4 +127,7 @@ export const ja: OlivineLabels = {
   timeChoose: "時刻を選択",
   timeEmpty: "未入力",
   timeDone: "OK",
+  railLabel: "メイン",
+  railExpand: "ナビゲーションを開く",
+  railCollapse: "ナビゲーションを閉じる",
 };

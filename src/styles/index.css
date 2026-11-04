@@ -46,6 +46,7 @@
 /* Navigation and content */
 @import "../components/Navbar/Navbar.css";
 @import "../components/Nav/Nav.css";
+@import "../components/NavigationRail/NavigationRail.css";
 @import "../components/Tabs/Tabs.css";
 @import "../components/Breadcrumb/Breadcrumb.css";
 @import "../components/Pagination/Pagination.css";

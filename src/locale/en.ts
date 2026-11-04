@@ -124,4 +124,7 @@ export const en: OlivineLabels = {
   timeChoose: "Choose time",
   timeEmpty: "Empty",
   timeDone: "OK",
+  railLabel: "Main",
+  railExpand: "Expand navigation",
+  railCollapse: "Collapse navigation",
 };
