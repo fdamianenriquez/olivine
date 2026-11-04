@@ -285,7 +285,6 @@
 
 /* The AM/PM word beside an hour is a word, so it takes the label face. */
 .ol-timepicker__cell small {
-  margin-inline-start: var(--space-1);
   font-family: var(--text-label-s-family);
   font-size: var(--text-label-s-size);
   font-weight: var(--text-label-s-weight);

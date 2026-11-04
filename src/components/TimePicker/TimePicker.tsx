@@ -342,7 +342,12 @@ function Column({ label, options, onPick, focusOnMount = false }: ColumnProps) {
         >
           <span className="ol-timepicker__cell">
             {option.text}
-            {option.small !== undefined && <small>{option.small}</small>}
+            {option.small !== undefined && (
+              <>
+                {" "}
+                <small>{option.small}</small>
+              </>
+            )}
           </span>
         </button>
       ))}
