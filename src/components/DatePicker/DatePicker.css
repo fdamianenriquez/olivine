@@ -1,0 +1,373 @@
+/*
+ * DatePicker: the labelled field box (hairline, an inset olivo border while the input has
+ * focus, a square ▦ button at the end), the hint, the docked popup that unrolls from the box
+ * (kakejiku), the range form and the modal sheet.
+ */
+
+.ol-datefield {
+  /* As wide as the calendar popup: seven ruled cells, the popup's padding and its borders. */
+  --ol-field-width: calc(
+    (var(--control-m) + var(--stroke-hair)) * 7 + var(--stroke-hair) + var(--space-4) * 2 +
+      var(--stroke-hair) * 2
+  );
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--ol-field-width);
+  color: var(--ink);
+}
+
+.ol-datefield__label {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink);
+}
+
+.ol-datefield__req {
+  color: var(--olivo);
+}
+
+/* ---------- Box ---------- */
+
+.ol-datefield__box {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: var(--control-m);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+}
+
+.ol-datefield__box:hover {
+  background: var(--paper-2);
+}
+
+/* ---------- Input and range ---------- */
+
+.ol-datefield__input {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-family: var(--text-input-family);
+  font-size: var(--text-input-size);
+  font-weight: var(--text-input-weight);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--text-input-leading);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  appearance: none;
+}
+
+.ol-datefield__input::placeholder {
+  color: var(--ink-2);
+}
+
+/* Two inputs share the box: the arrow sits between them. */
+.ol-datefield__to {
+  display: grid;
+  flex: none;
+  place-items: center;
+  padding: 0 var(--space-1);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-l);
+  color: var(--ink-2);
+}
+
+.ol-datefield--invalid .ol-datefield__box {
+  border-color: var(--beni);
+}
+
+.ol-datefield__input:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-datefield__input:disabled::placeholder {
+  color: var(--ink-3);
+}
+
+.ol-datefield__box:has(.ol-datefield__input:disabled) {
+  border-color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* The box's own border is the focus indicator: olivo at 2px, no offset, no ring on the input. */
+.ol-datefield__box:has(.ol-datefield__input:focus-visible) {
+  border-color: var(--olivo);
+  box-shadow: inset 0 0 0 calc(var(--stroke-bold) - var(--stroke-hair)) var(--olivo);
+  background: transparent;
+}
+
+@supports not selector(:has(*)) {
+  .ol-datefield__box:focus-within {
+    border-color: var(--olivo);
+    box-shadow: inset 0 0 0 calc(var(--stroke-bold) - var(--stroke-hair)) var(--olivo);
+  }
+}
+
+.ol-datefield__box .ol-datefield__input:focus-visible {
+  outline: none;
+}
+
+/* The button keeps its own inset ring when it is the focused part. */
+.ol-datefield__btn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-xl);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-datefield__btn:hover,
+.ol-datefield__btn[aria-expanded="true"] {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-datefield__btn:disabled {
+  color: var(--ink-3);
+  background: transparent;
+  border-inline-start-color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-datefield__btn:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+}
+
+/* On the ink fill olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-datefield__btn:is(:hover, [aria-expanded="true"]):focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+/* ---------- Hint and error ---------- */
+
+.ol-datefield__hint {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+.ol-datefield__hint[data-state="invalid"] {
+  color: var(--beni);
+}
+
+.ol-datefield__hint[data-state="invalid"]::before {
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  content: "× ";
+  content: "× " / "";
+}
+
+/* ---------- Docked popup: unrolls from the box (kakejiku), a raised ruled surface ---------- */
+
+.ol-datepop {
+  /* The unroll's clip leaves room for the block shadow. */
+  --ol-motion-overhang: var(--space-2);
+
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  padding: var(--space-4);
+  color: var(--ink);
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+}
+
+/* Hidden until the first position is known, so it never flashes at 0,0. */
+.ol-datepop.ol-floating:not([data-positioned]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Rolls back up faster than it unrolls (kyū). */
+.ol-datepop.ol-kakejiku[data-state="closing"] {
+  animation-duration: var(--dur-m);
+}
+
+.ol-datepop:focus-visible {
+  outline: none;
+}
+
+.ol-datepop__foot,
+.ol-datemodal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ---------- Modal: a sheet over a scrim, a bottom sheet on phones ---------- */
+
+.ol-datemodal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: var(--scrim);
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) both;
+}
+
+.ol-datemodal[data-state="closing"] {
+  animation: ol-fade-out var(--dur-m) var(--ease-effect) forwards;
+}
+
+.ol-datemodal__panel {
+  /* The unroll's clip leaves room for the block shadow. */
+  --ol-motion-overhang: var(--space-2);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  padding: var(--space-6);
+  overflow: auto;
+  color: var(--ink);
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-top: var(--stroke-heavy) solid var(--ink);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+}
+
+.ol-datemodal__panel[data-state="closing"] {
+  animation-duration: var(--dur-m);
+}
+
+.ol-datemodal__panel:focus-visible {
+  outline: none;
+}
+
+.ol-datemodal__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-block-end: var(--space-3);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-datemodal__label {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink-2);
+}
+
+/* The chosen date, set large in the display face. */
+.ol-datemodal__value {
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  line-height: var(--text-h1-leading);
+  letter-spacing: var(--text-h1-tracking);
+}
+
+.ol-datemodal__value:lang(ja) {
+  font-family: var(--text-kanji-family);
+  line-height: var(--text-kanji-leading);
+}
+
+@media (width <= 480px) {
+  .ol-datemodal {
+    place-items: end stretch;
+    padding: 0;
+  }
+
+  .ol-datemodal__panel {
+    border-inline: 0;
+    border-bottom: 0;
+  }
+}
+
+/* Reduced motion needs no rule here: the --dur-* tokens drop to 1ms (motion.css). */
+
+@media (forced-colors: active) {
+  .ol-datefield__box,
+  .ol-datepop {
+    border-color: CanvasText;
+  }
+
+  .ol-datefield--invalid .ol-datefield__box {
+    border-color: Mark;
+  }
+
+  /* The box's border and shadow don't survive forced colours: outline the focused box. */
+  .ol-datefield__box:has(.ol-datefield__input:focus-visible) {
+    outline: var(--stroke-bold) solid Highlight;
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+
+  @supports not selector(:has(*)) {
+    .ol-datefield__box:focus-within {
+      outline: var(--stroke-bold) solid Highlight;
+      outline-offset: calc(var(--stroke-hair) * -1);
+    }
+  }
+
+  .ol-datefield__btn {
+    color: ButtonText;
+    border-inline-start-color: CanvasText;
+  }
+
+  .ol-datefield__btn:disabled {
+    color: GrayText;
+    border-inline-start-color: GrayText;
+  }
+
+  .ol-datefield__btn:not(:disabled):is(:hover, [aria-expanded="true"]) {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-datefield__btn:not(:disabled):is(:hover, [aria-expanded="true"]):focus-visible {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+
+  .ol-datefield__input:disabled {
+    color: GrayText;
+  }
+
+  .ol-datemodal__panel {
+    border-color: CanvasText;
+  }
+}

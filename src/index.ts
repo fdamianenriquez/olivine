@@ -41,6 +41,13 @@ export {
   type ComboboxSingleProps,
 } from "./components/Combobox";
 export { Container, type ContainerProps } from "./components/Container";
+export {
+  DatePicker,
+  type DatePickerMode,
+  type DatePickerProps,
+  type DatePickerRangeProps,
+  type DatePickerSingleProps,
+} from "./components/DatePicker";
 export { Divider, type DividerProps } from "./components/Divider";
 export {
   Dropdown,
