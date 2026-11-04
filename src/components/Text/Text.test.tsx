@@ -15,6 +15,8 @@ const variants = [
   ["figure-xl", "SPAN"],
   ["figure-l", "SPAN"],
   ["figure-m", "SPAN"],
+  ["figure-s", "SPAN"],
+  ["figure-xs", "SPAN"],
   ["body-l", "P"],
   ["body", "P"],
   ["body-s", "P"],

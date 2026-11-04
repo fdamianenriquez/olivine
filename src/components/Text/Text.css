@@ -75,6 +75,22 @@
   letter-spacing: var(--text-figure-m-tracking);
 }
 
+.ol-text--figure-s {
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+}
+
+.ol-text--figure-xs {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  letter-spacing: var(--text-figure-xs-tracking);
+}
+
 .ol-text--body-l {
   font-family: var(--text-body-l-family);
   font-size: var(--text-body-l-size);
@@ -126,7 +142,9 @@
 
 .ol-text--figure-xl,
 .ol-text--figure-l,
-.ol-text--figure-m {
+.ol-text--figure-m,
+.ol-text--figure-s,
+.ol-text--figure-xs {
   font-variant-numeric: tabular-nums;
 }
 

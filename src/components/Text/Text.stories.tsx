@@ -62,6 +62,8 @@ export const Figures: Story = {
       <Text variant="figure-xl">07</Text>
       <Text variant="figure-l">¥48,000</Text>
       <Text variant="figure-m">02 / 03</Text>
+      <Text variant="figure-s">×2</Text>
+      <Text variant="figure-xs">+¥8,000</Text>
     </div>
   ),
 };

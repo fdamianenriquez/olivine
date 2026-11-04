@@ -14,6 +14,8 @@ export type TextVariant =
   | "figure-xl"
   | "figure-l"
   | "figure-m"
+  | "figure-s"
+  | "figure-xs"
   | "body-l"
   | "body"
   | "body-s"
@@ -61,6 +63,8 @@ const TAG: Record<TextVariant, ElementType> = {
   "figure-xl": "span",
   "figure-l": "span",
   "figure-m": "span",
+  "figure-s": "span",
+  "figure-xs": "span",
 };
 
 function textOf(node: ReactNode): string {

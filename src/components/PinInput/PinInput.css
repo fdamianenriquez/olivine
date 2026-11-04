@@ -56,13 +56,13 @@
 }
 
 /*
- * Active cell: a 2px olive underline over the bottom hairline, drawn left to right (shodō).
+ * Active cell: a stroke-heavy olive underline over the bottom hairline, drawn left to right (shodō).
  * The cell that loses it fades out; its clip resets only once the fade is done.
  */
 .ol-pin__cell::after {
   position: absolute;
   inset: auto calc(var(--stroke-hair) * -1) calc(var(--stroke-hair) * -1);
-  height: var(--stroke-bold);
+  height: var(--stroke-heavy);
   content: "";
   background: var(--olivo);
   clip-path: inset(0 100% 0 0);
