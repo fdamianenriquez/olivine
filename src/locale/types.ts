@@ -140,6 +140,8 @@ export interface OlivineLabels {
   /** Name of the NavigationRail toggle while collapsed, and while expanded. */
   railExpand: string;
   railCollapse: string;
+  /** The words of the Stepper count line and of each step's spoken name. */
+  stepper: { step: string; of: string; completed: string; error: string };
 }
 
 export interface KbdKeyLabels {

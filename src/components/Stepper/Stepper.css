@@ -1,0 +1,305 @@
+.ol-stepper {
+  --ol-stepper-node: var(--space-6);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ol-stepper__count {
+  margin: 0;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+.ol-stepper__count b {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  color: var(--ink);
+}
+
+.ol-stepper__list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Step ---------- */
+
+.ol-stepper__hit {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  width: 100%;
+  margin: 0;
+  padding: var(--space-3) var(--space-3) var(--space-3) 0;
+  border: 0;
+  color: var(--ink);
+  text-align: start;
+  background: transparent;
+  font: inherit;
+}
+
+button.ol-stepper__hit {
+  cursor: pointer;
+}
+
+.ol-stepper__hit[data-locked] {
+  cursor: not-allowed;
+}
+
+.ol-stepper__num {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  line-height: var(--text-figure-m-leading);
+  font-weight: var(--text-figure-m-weight);
+  letter-spacing: var(--text-figure-m-tracking);
+  color: var(--ink);
+}
+
+.ol-stepper__text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-1) / 2);
+  min-width: 0;
+}
+
+.ol-stepper__label {
+  overflow-wrap: break-word;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+button.ol-stepper__hit:hover .ol-stepper__label {
+  text-decoration: underline;
+  text-decoration-thickness: var(--stroke-hair);
+  text-underline-offset: var(--space-1);
+}
+
+.ol-stepper__desc,
+.ol-stepper__err {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+}
+
+.ol-stepper__desc {
+  color: var(--ink-2);
+}
+
+.ol-stepper__err {
+  color: var(--beni);
+}
+
+/* The check is drawn when the step becomes done (shodō). */
+.ol-stepper__mark svg {
+  display: block;
+  width: var(--space-3);
+  height: var(--space-3);
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--stroke-bold);
+}
+
+.ol-stepper__check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--dur-m) var(--ease-move);
+}
+
+.ol-stepper__step[data-state="done"] .ol-stepper__check {
+  stroke-dashoffset: 0;
+  transition-delay: var(--dur-s);
+}
+
+/* ---------- Horizontal: a ruled timeline ---------- */
+
+.ol-stepper--horizontal .ol-stepper__step {
+  --ol-stepper-line: var(--ink);
+  --ol-stepper-clip: inset(0 100% 0 0);
+
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+/* The line above a step is drawn in ink when the step is done (shodō); the current step's is olivo. */
+.ol-stepper--horizontal .ol-stepper__step::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--stroke-hair) * -1) 0 auto;
+  height: var(--stroke-heavy);
+  clip-path: var(--ol-stepper-clip);
+  background: var(--ol-stepper-line);
+  transition:
+    clip-path var(--dur-l) var(--ease-move),
+    background-color var(--dur-s) var(--ease-effect);
+}
+
+/* ---------- Vertical: a hairline spine through the numbers ---------- */
+
+.ol-stepper--vertical .ol-stepper__list {
+  flex-direction: column;
+}
+
+.ol-stepper--vertical .ol-stepper__step {
+  --ol-stepper-spine: var(--stroke-hair);
+  --ol-stepper-line: var(--rule);
+
+  position: relative;
+  padding-inline-start: var(--space-8);
+}
+
+.ol-stepper--vertical .ol-stepper__step::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--ol-stepper-node) / 2);
+  width: var(--ol-stepper-spine);
+  margin-inline-start: calc(var(--ol-stepper-spine) / -2);
+  background: var(--ol-stepper-line);
+  transition: background-color var(--dur-s) var(--ease-effect);
+}
+
+.ol-stepper--vertical .ol-stepper__step:first-child::before {
+  top: var(--space-4);
+}
+
+.ol-stepper--vertical .ol-stepper__step:last-child::before {
+  bottom: auto;
+  height: var(--space-4);
+}
+
+.ol-stepper--vertical .ol-stepper__num {
+  position: absolute;
+  inset-inline-start: 0;
+  width: var(--ol-stepper-node);
+  padding-block: var(--space-1);
+  text-align: center;
+  background: var(--paper);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+}
+
+.ol-stepper--vertical .ol-stepper__hit {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: var(--space-3) 0;
+}
+
+/* The current step opens its panel like a hanging scroll (kakejiku). */
+.ol-stepper__panel {
+  padding-block: 0 var(--space-6);
+  animation: ol-stepper-unroll var(--dur-l) var(--ease-move) backwards;
+}
+
+@keyframes ol-stepper-unroll {
+  from {
+    clip-path: inset(0 0 100%);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* ---------- State ---------- */
+
+/* Horizontal draws the line above a done, current or error step; vertical thickens the spine. */
+.ol-stepper__step[data-state="done"] {
+  --ol-stepper-clip: inset(0);
+  --ol-stepper-spine: var(--stroke-bold);
+  --ol-stepper-line: var(--ink);
+}
+
+.ol-stepper__step[data-state="current"] {
+  --ol-stepper-clip: inset(0);
+  --ol-stepper-spine: var(--stroke-heavy);
+  --ol-stepper-line: var(--olivo);
+}
+
+.ol-stepper__step[data-state="error"] {
+  --ol-stepper-clip: inset(0);
+  --ol-stepper-spine: var(--stroke-heavy);
+  --ol-stepper-line: var(--beni);
+}
+
+.ol-stepper__step[data-state="current"] .ol-stepper__num {
+  color: var(--olivo);
+}
+
+.ol-stepper__step[data-state="todo"] :is(.ol-stepper__num, .ol-stepper__label) {
+  color: var(--ink-2);
+}
+
+.ol-stepper__step[data-state="error"] .ol-stepper__num {
+  color: var(--beni);
+}
+
+/* ---------- Phones: descriptions hide, labels shrink ---------- */
+
+@media (width < 720px) {
+  .ol-stepper__desc {
+    display: none;
+  }
+
+  .ol-stepper__label {
+    font-size: var(--text-label-s-size);
+    line-height: var(--text-label-s-leading);
+  }
+
+  .ol-stepper--horizontal .ol-stepper__hit {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline-end: var(--space-1);
+  }
+
+  .ol-stepper--horizontal .ol-stepper__num {
+    grid-area: 1 / 1;
+  }
+
+  .ol-stepper--horizontal .ol-stepper__mark {
+    grid-area: 1 / 2;
+  }
+
+  .ol-stepper--horizontal .ol-stepper__text {
+    grid-area: 2 / 1 / auto / -1;
+  }
+}
+
+/* ---------- Forced colours ---------- */
+
+@media (forced-colors: active) {
+  .ol-stepper--horizontal .ol-stepper__step::before,
+  .ol-stepper--vertical .ol-stepper__step::before {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .ol-stepper__step[data-state="current"]::before {
+    background: Highlight;
+  }
+
+  .ol-stepper__mark svg {
+    stroke: CanvasText;
+  }
+
+  .ol-stepper__step[data-state="todo"] :is(.ol-stepper__num, .ol-stepper__label) {
+    color: GrayText;
+  }
+
+  .ol-stepper__step[data-state="error"] .ol-stepper__err {
+    color: CanvasText;
+  }
+}
