@@ -29,6 +29,14 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     note: "Not a defect: the label of a disabled remove-only Chip is text of an inactive component, which WCAG 1.4.3 exempts; the label sits in a span, so axe only sees that the × button, not the label, is disabled.",
   },
   {
+    stories: /^forms-numberfield--(states|themes)$/,
+    rule: "color-contrast",
+    // In States the disabled field has the only unit, so axe shortens its selector.
+    target:
+      /(?:\.ol-numberfield\[data-disabled="true"\] > \.ol-inputgroup__text\.ol-numberfield__unit|^\.ol-inputgroup__text)$/,
+    note: "Not a defect: the unit of a disabled NumberField is text of an inactive component, which WCAG 1.4.3 exempts; it sits in a span beside the input, so axe only sees that the input, not the unit, is disabled.",
+  },
+  {
     stories: /^forms-(listbox|combobox|searchfield)--/,
     rule: "label-content-name-mismatch",
     target: /-o-/,
