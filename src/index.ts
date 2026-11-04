@@ -164,6 +164,12 @@ export { Tabs, type TabsProps, TabsTab, type TabsTabProps } from "./components/T
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export { type ThemeName, ThemeSwitch, type ThemeSwitchProps } from "./components/ThemeSwitch";
+export {
+  type HourCycle,
+  TimePicker,
+  type TimePickerProps,
+  type TimeValue,
+} from "./components/TimePicker";
 export { Toast, type ToastProps, type ToastTone } from "./components/Toast";
 export {
   type ToastApi,

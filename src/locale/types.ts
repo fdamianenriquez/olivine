@@ -125,6 +125,16 @@ export interface OlivineLabels {
   /** DatePicker modal: the sheet's Cancel and OK buttons. */
   dateCancel: string;
   dateConfirm: string;
+  /** Names of the TimePicker segments and columns. */
+  timeHour: string;
+  timeMinute: string;
+  timePeriod: string;
+  /** Name of the TimePicker button, and of its popover when the field has no label. */
+  timeChoose: string;
+  /** Spoken value of a TimePicker segment that holds nothing. */
+  timeEmpty: string;
+  /** Label of the TimePicker confirm button. */
+  timeDone: string;
 }
 
 export interface KbdKeyLabels {

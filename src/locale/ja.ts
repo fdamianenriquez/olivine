@@ -121,4 +121,10 @@ export const ja: OlivineLabels = {
   dateRangeEnd: "終了",
   dateCancel: "キャンセル",
   dateConfirm: "OK",
+  timeHour: "時",
+  timeMinute: "分",
+  timePeriod: "午前/午後",
+  timeChoose: "時刻を選択",
+  timeEmpty: "未入力",
+  timeDone: "OK",
 };

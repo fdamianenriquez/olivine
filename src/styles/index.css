@@ -80,3 +80,4 @@
 /* After the utilities: the Avatar and Calendar seals build on .ol-stamp. */
 @import "../components/Avatar/Avatar.css";
 @import "../components/Calendar/Calendar.css";
+@import "../components/TimePicker/TimePicker.css";

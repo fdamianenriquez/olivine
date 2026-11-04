@@ -1,0 +1,371 @@
+/*
+ * TimePicker: a segmented time in an Input-like box with a ◷ button on its right edge, and a
+ * popover that unrolls from it (kakejiku): the time set large in the figure face over two ruled
+ * columns. Cells share hairlines; hover and the picked cell invert to ink; olivo is only the focus.
+ */
+
+.ol-timepicker {
+  --ol-timepicker-width: var(--modal-width-s);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--ol-timepicker-width);
+  color: var(--ink);
+}
+
+.ol-timepicker__label {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink);
+}
+
+.ol-timepicker__hint {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  color: var(--ink-2);
+}
+
+/* ---------- The field box ---------- */
+
+.ol-timepicker__box {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  height: var(--control-m);
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+}
+
+.ol-timepicker__box:hover {
+  background: var(--paper-2);
+}
+
+/* The box carries the focus ring; the focused segment inverts to ink instead of drawing its own. */
+.ol-timepicker__box:has(.ol-timepicker__seg:focus) {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background: transparent;
+}
+
+@supports not selector(:has(*)) {
+  .ol-timepicker__box:focus-within {
+    outline: var(--stroke-bold) solid var(--olivo);
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+}
+
+.ol-timepicker[data-invalid] .ol-timepicker__box {
+  border-color: var(--beni);
+}
+
+.ol-timepicker__segs {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  padding: 0 var(--space-3);
+  font-family: var(--text-input-family);
+  font-size: var(--text-input-size);
+  font-weight: var(--text-input-weight);
+  line-height: var(--text-input-leading);
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-timepicker__seg {
+  display: inline-block;
+  min-inline-size: var(--target-min);
+  padding: var(--space-1) calc(var(--space-1) / 2);
+  text-align: center;
+  color: var(--ink);
+  border-radius: var(--radius-0);
+  outline: none;
+  cursor: text;
+  user-select: none;
+}
+
+.ol-timepicker__seg[data-empty] {
+  color: var(--ink-2);
+}
+
+.ol-timepicker__seg:focus {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* The box draws the ring (above), not the segment. */
+.ol-timepicker__seg:focus-visible {
+  outline: none;
+}
+
+.ol-timepicker__seg--period {
+  margin-inline-start: var(--space-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-ui-size);
+  font-weight: var(--text-label-weight);
+  cursor: default;
+}
+
+.ol-timepicker__colon {
+  color: var(--ink-2);
+}
+
+/* ---------- The ◷ button: a cell at the right edge, inverting on hover ---------- */
+
+.ol-timepicker__btn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+}
+
+.ol-timepicker__glyph {
+  font-family: var(--font-symbols);
+  font-size: var(--glyph-xl);
+  line-height: 1;
+}
+
+.ol-timepicker__btn:hover,
+.ol-timepicker__btn[aria-expanded="true"] {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-timepicker__btn:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-heavy) * -1);
+}
+
+.ol-timepicker__btn:disabled {
+  cursor: not-allowed;
+}
+
+/* On the ink fill olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-timepicker__btn:is(:hover, [aria-expanded="true"]):focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+/* ---------- Disabled and read-only ---------- */
+
+.ol-timepicker[data-disabled] .ol-timepicker__box {
+  border-color: var(--ink-3);
+  background: transparent;
+}
+
+.ol-timepicker[data-disabled] .ol-timepicker__seg,
+.ol-timepicker[data-disabled] .ol-timepicker__colon,
+.ol-timepicker[data-disabled] .ol-timepicker__btn {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-timepicker[data-disabled] .ol-timepicker__btn:hover {
+  background: transparent;
+}
+
+.ol-timepicker[data-readonly] .ol-timepicker__seg {
+  cursor: default;
+}
+
+/* ---------- The popover ---------- */
+
+.ol-timepicker__pop {
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  outline: none;
+}
+
+/* Hidden (but focusable) until the first position is known, so it never flashes at 0,0. */
+.ol-timepicker__pop.ol-floating:not([data-positioned]) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Rolls back up faster than it unrolls (kyū). */
+.ol-timepicker__pop.ol-kakejiku[data-state="closing"] {
+  animation-duration: var(--dur-m);
+}
+
+.ol-timepicker__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--ink);
+}
+
+.ol-timepicker__value {
+  font-family: var(--text-figure-l-family);
+  font-size: var(--text-figure-l-size);
+  font-weight: var(--text-figure-l-weight);
+  line-height: var(--text-figure-l-leading);
+  letter-spacing: var(--text-figure-l-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-timepicker__period {
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  line-height: var(--text-label-l-leading);
+}
+
+.ol-timepicker__cols {
+  display: flex;
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-timepicker__col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--space-24) + var(--space-3));
+  height: calc(var(--control-m) * 5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
+}
+
+/* Adjacent boxes share borders. */
+.ol-timepicker__col + .ol-timepicker__col {
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-timepicker__opt {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--control-m);
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: var(--stroke-hair) solid var(--line-soft);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  scroll-snap-align: center;
+}
+
+.ol-timepicker__opt:last-child {
+  border-bottom: 0;
+}
+
+.ol-timepicker__cell {
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  font-weight: var(--text-figure-s-weight);
+  line-height: var(--text-figure-s-leading);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The AM/PM word beside an hour is a word, so it takes the label face. */
+.ol-timepicker__cell small {
+  margin-inline-start: var(--space-1);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+}
+
+.ol-timepicker__opt:hover,
+.ol-timepicker__opt[aria-selected="true"] {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-timepicker__opt[aria-disabled="true"] {
+  color: var(--ink-3);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.ol-timepicker__opt:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-heavy) * -1);
+}
+
+/* On an ink cell olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-timepicker__opt:is(:hover, [aria-selected="true"]):focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+.ol-timepicker__opt[aria-disabled="true"]:focus-visible {
+  box-shadow: none;
+}
+
+.ol-timepicker__foot {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+@media (forced-colors: active) {
+  .ol-timepicker__box,
+  .ol-timepicker__pop,
+  .ol-timepicker__cols {
+    border-color: CanvasText;
+  }
+
+  .ol-timepicker__btn {
+    color: ButtonText;
+    border-inline-start-color: CanvasText;
+  }
+
+  .ol-timepicker__btn:is(:hover, [aria-expanded="true"]),
+  .ol-timepicker__opt:hover {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-timepicker__btn:is(:hover, [aria-expanded="true"]):focus-visible,
+  .ol-timepicker__opt:is(:hover, [aria-selected="true"]):focus-visible {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+
+  .ol-timepicker__seg:focus,
+  .ol-timepicker__opt[aria-selected="true"] {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-timepicker[data-disabled] .ol-timepicker__box,
+  .ol-timepicker__opt[aria-disabled="true"] {
+    color: GrayText;
+    border-color: GrayText;
+  }
+
+  .ol-timepicker__opt[aria-disabled="true"]:is(:hover, [aria-selected="true"]) {
+    forced-color-adjust: auto;
+    background: Canvas;
+    color: GrayText;
+  }
+}
