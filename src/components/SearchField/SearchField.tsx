@@ -32,10 +32,16 @@ import { isImeKey } from "../../utils/ime";
 import { Button } from "../Button";
 import { Combobox, type ComboboxFilter, type ComboboxItem, type ComboboxOption } from "../Combobox";
 import { flatten, normalize, textOf } from "../Combobox/options";
-import { Kbd, type Shortcut, toAriaKeyShortcuts, useKbdPlatform } from "../Kbd";
+import {
+  isBareShortcut,
+  Kbd,
+  matchShortcut,
+  type Shortcut,
+  toAriaKeyShortcuts,
+  useKbdPlatform,
+} from "../Kbd";
 import { Portal } from "../Portal";
 import { Spinner } from "../Spinner";
-import { isBareShortcut, matchShortcut } from "./matchShortcut";
 
 /**
  * Below `bp-md` (720px) a `fullscreen="compact"` field opens the full-screen view. Media queries

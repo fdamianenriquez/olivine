@@ -8,10 +8,10 @@ import { stubNoAnimations } from "../../test/animations";
 import { runAxe } from "../../test/axe";
 import source from "../../tokens/tokens.json";
 import { Field } from "../Field";
+import { matchShortcut } from "../Kbd";
 import { Modal } from "../Modal";
 import { Root } from "../Root";
 import { SearchField, type SearchFieldActions, type SearchFieldProps } from ".";
-import { matchShortcut } from "./matchShortcut";
 import { COMPACT_QUERY } from "./SearchField";
 
 afterEach(() => {
