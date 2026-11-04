@@ -118,4 +118,10 @@ export const en: OlivineLabels = {
   dateRangeEnd: "End",
   dateCancel: "Cancel",
   dateConfirm: "OK",
+  timeHour: "Hour",
+  timeMinute: "Minute",
+  timePeriod: "AM/PM",
+  timeChoose: "Choose time",
+  timeEmpty: "Empty",
+  timeDone: "OK",
 };

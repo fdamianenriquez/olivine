@@ -119,4 +119,10 @@ export const es: OlivineLabels = {
   dateRangeEnd: "Fin",
   dateCancel: "Cancelar",
   dateConfirm: "Aceptar",
+  timeHour: "Hora",
+  timeMinute: "Minuto",
+  timePeriod: "a. m./p. m.",
+  timeChoose: "Elegir hora",
+  timeEmpty: "Vacío",
+  timeDone: "Aceptar",
 };
