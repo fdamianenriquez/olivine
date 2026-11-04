@@ -462,7 +462,7 @@ export const TimePicker = forwardRef<HTMLDivElement, TimePickerProps>(function T
   };
 
   // ---- popup ----
-  const boxRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const presence = usePresence<HTMLDivElement>(open);
