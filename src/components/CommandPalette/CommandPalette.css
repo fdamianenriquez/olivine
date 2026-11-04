@@ -1,0 +1,213 @@
+/* The scrim holds the panel near the top of the screen; the panel unrolls from its ink rod. */
+.ol-cmd-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-24) var(--space-4) var(--space-4);
+  background: var(--scrim);
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
+.ol-cmd-scrim[data-state="closing"] {
+  pointer-events: none;
+
+  /* Stays until the panel has rolled back up (it is the panel's parent). */
+  animation: ol-fade-out var(--dur-l) var(--ease-effect) forwards;
+}
+
+.ol-cmd {
+  display: flex;
+  flex-direction: column;
+  width: min(calc(var(--space-32) * 5), 100%);
+  max-height: min(100%, calc(var(--space-32) * 4));
+  border: var(--stroke-hair) solid var(--rule);
+  border-top: var(--stroke-heavy) solid var(--ink);
+  background: var(--paper-3);
+  color: var(--ink);
+  box-shadow: var(--shadow-block);
+}
+
+.ol-cmd--inline {
+  width: 100%;
+  max-height: calc(var(--space-32) * 3.5);
+}
+
+.ol-cmd__search {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 0 var(--space-4);
+  color: var(--ink-2);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+/* The olive line under the search row is the focus indicator; the input has no ring. */
+.ol-cmd__search:focus-within {
+  box-shadow: inset 0 calc(var(--stroke-bold) * -1) 0 var(--olivo);
+}
+
+.ol-cmd__glyph {
+  flex: none;
+  display: block;
+  width: var(--glyph-l);
+  height: var(--glyph-l);
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: square;
+  overflow: visible;
+}
+
+.ol-cmd__glyph * {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke-bold);
+}
+
+.ol-cmd__search .ol-cmd__input,
+.ol-cmd__search .ol-cmd__input:focus,
+.ol-cmd__search .ol-cmd__input:focus-visible {
+  flex: 1;
+  min-width: 0;
+  height: var(--control-l);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--text-body-l-family);
+  font-size: var(--text-body-l-size);
+  font-weight: var(--text-body-l-weight);
+  letter-spacing: var(--text-body-l-tracking);
+  outline: none;
+  box-shadow: none;
+}
+
+.ol-cmd__input::placeholder {
+  color: var(--ink-2);
+}
+
+.ol-cmd__list {
+  min-height: 0;
+  padding: var(--space-2) 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ol-cmd__glabel {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  color: var(--ink-2);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+}
+
+.ol-cmd__opt {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: var(--control-m);
+  padding: 0 var(--space-4);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.ol-cmd__label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  line-height: var(--text-label-l-leading);
+  letter-spacing: var(--text-label-l-tracking);
+}
+
+.ol-cmd__meta {
+  color: var(--ink-2);
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  white-space: nowrap;
+}
+
+.ol-cmd__hit {
+  background: var(--maple);
+  color: var(--on-maple);
+}
+
+/* The active row inverts to ink; its keycaps and meta follow. */
+.ol-cmd__opt[aria-selected="true"] {
+  --kbd-fill: transparent;
+  --kbd-ink: var(--on-ink);
+  --kbd-line: var(--on-ink);
+
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-cmd__opt[aria-selected="true"] .ol-cmd__meta {
+  color: var(--on-ink);
+}
+
+.ol-cmd__empty {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  color: var(--ink-2);
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+}
+
+.ol-cmd__foot {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-2) var(--space-4);
+  color: var(--ink-2);
+  border-top: var(--stroke-hair) solid var(--line-soft);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+}
+
+.ol-cmd__foot > span {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+@media (forced-colors: active) {
+  .ol-cmd,
+  .ol-cmd__search,
+  .ol-cmd__foot {
+    border-color: CanvasText;
+  }
+
+  .ol-cmd__search:focus-within {
+    box-shadow: none;
+    border-bottom-color: Highlight;
+    outline: var(--stroke-bold) solid Highlight;
+    outline-offset: calc(var(--stroke-bold) * -1);
+  }
+
+  .ol-cmd__opt[aria-selected="true"] {
+    --kbd-ink: HighlightText;
+    --kbd-line: HighlightText;
+
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  .ol-cmd__opt[aria-selected="true"] .ol-cmd__meta {
+    color: HighlightText;
+  }
+
+  .ol-cmd__hit {
+    text-decoration: underline;
+  }
+}

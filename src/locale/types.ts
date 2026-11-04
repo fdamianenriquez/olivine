@@ -142,6 +142,16 @@ export interface OlivineLabels {
   railCollapse: string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
+  /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
+  commandPalette: {
+    name: string;
+    placeholder: string;
+    results: string;
+    empty: (query: string) => string;
+    move: string;
+    open: string;
+    close: string;
+  };
 }
 
 export interface KbdKeyLabels {

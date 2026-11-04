@@ -40,6 +40,14 @@ export {
   type ComboboxProps,
   type ComboboxSingleProps,
 } from "./components/Combobox";
+export {
+  CommandPalette,
+  type CommandPaletteGroup,
+  type CommandPaletteItem,
+  type CommandPaletteLabels,
+  type CommandPaletteOwnProps,
+  type CommandPaletteProps,
+} from "./components/CommandPalette";
 export { Container, type ContainerProps } from "./components/Container";
 export {
   DatePicker,

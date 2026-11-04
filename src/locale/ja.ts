@@ -131,4 +131,13 @@ export const ja: OlivineLabels = {
   railExpand: "ナビゲーションを開く",
   railCollapse: "ナビゲーションを閉じる",
   stepper: { step: "ステップ", of: "/", completed: "完了", error: "要確認" },
+  commandPalette: {
+    name: "コマンドパレット",
+    placeholder: "コマンドを検索",
+    results: "検索結果",
+    empty: (query) => `「${query}」に一致する項目はありません`,
+    move: "移動",
+    open: "開く",
+    close: "閉じる",
+  },
 };
