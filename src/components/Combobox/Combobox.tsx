@@ -124,6 +124,12 @@ interface ComboboxBaseProps extends InputBase {
   endContent?: ReactNode;
   /** Extra classes for the popup, for example `ol-motion-noren`. */
   popupClassName?: string | undefined;
+  /**
+   * Announces the result count when typing settles. Set `false` when a parent announces its
+   * own count (SearchField's `resultCount`).
+   * @default true
+   */
+  announceResults?: boolean | undefined;
   /** Classes for the field box. */
   className?: string | undefined;
   /** Inline styles for the field box. */
@@ -212,6 +218,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     startContent,
     endContent,
     popupClassName,
+    announceResults = true,
     className,
     style,
     id: idProp,
@@ -436,7 +443,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
   // Result count, once typing settles.
   const count = flatten(visible).length;
   useEffect(() => {
-    if (!shown || loading || query.text.trim() === "") return;
+    if (!announceResults || !shown || loading || query.text.trim() === "") return;
     const timer = window.setTimeout(() => {
       // The "Create …" row is the answer when nothing matches: no "No results" then.
       if (count === 0 && showCreate) return;
@@ -446,7 +453,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     return () => {
       window.clearTimeout(timer);
     };
-  }, [shown, loading, query.text, count, showCreate, t]);
+  }, [announceResults, shown, loading, query.text, count, showCreate, t]);
 
   // After a chip removal: if focus fell to the page or the group root, give it to the input.
   useLayoutEffect(() => {

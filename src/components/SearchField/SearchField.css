@@ -1,0 +1,411 @@
+/*
+ * SearchField: the landmark form holds the field box and an optional joined Search button that
+ * shares its hairline (as InputGroup). The box is Input's box (hairline, paper-2 on hover, inset
+ * olive ring while the input has focus); with suggestions it is the Combobox frame. The search
+ * glyph sits at the start; the shortcut hint and the clear cell share the end slot.
+ * Below bp-md a full-screen field is a bar (a button drawn as the box) that opens a view.
+ */
+.ol-searchfield {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.ol-searchfield > .ol-searchfield__box,
+.ol-searchfield__head > .ol-searchfield__box {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---------- Joined Search button ---------- */
+
+.ol-searchfield__submit {
+  position: relative;
+  flex: none;
+  margin-inline-start: calc(var(--stroke-hair) * -1);
+}
+
+/* ---------- The box (plain field and bar; the Combobox frame draws its own) ---------- */
+
+.ol-searchfield__box:not(.ol-combobox) {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-m);
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-align: start;
+  background: transparent;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: text;
+}
+
+.ol-searchfield--l .ol-searchfield__box:not(.ol-combobox) {
+  min-height: var(--control-l);
+}
+
+.ol-searchfield__bar:not(.ol-searchfield__box--disabled) {
+  cursor: pointer;
+}
+
+/* The button fills the bar's box; the box draws the frame and the ring. */
+.ol-searchfield__trigger {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  outline: none;
+  cursor: inherit;
+}
+
+.ol-searchfield__box:has(.ol-searchfield__input[aria-invalid="true"]) {
+  border-color: var(--beni);
+}
+
+.ol-searchfield__box:not(.ol-combobox):hover {
+  background: var(--paper-2);
+}
+
+/* The ring belongs to the box, not the bare input. */
+.ol-searchfield__box:not(.ol-combobox):has(.ol-searchfield__input:focus-visible),
+.ol-searchfield__bar:has(.ol-searchfield__trigger:focus-visible) {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+  background: transparent;
+}
+
+@supports not selector(:has(*)) {
+  .ol-searchfield__box:not(.ol-combobox):focus-within {
+    outline: var(--stroke-bold) solid var(--olivo);
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+}
+
+.ol-searchfield__body {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-inline: var(--space-4);
+}
+
+.ol-searchfield__icon,
+.ol-searchfield .ol-combobox__start,
+.ol-searchfield__view .ol-combobox__start {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--ink-2);
+}
+
+/* Glyphs are exempt from the circle rule: the magnifier draws its ring. */
+.ol-searchfield__glyph {
+  display: block;
+  width: var(--glyph-l);
+  height: var(--glyph-l);
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: square;
+  overflow: visible;
+}
+
+.ol-searchfield__glyph * {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke-bold);
+}
+
+.ol-searchfield__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--control-s);
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--text-input-size);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  outline: none;
+  appearance: none;
+}
+
+.ol-searchfield--l .ol-searchfield__input {
+  font-size: var(--text-body-l-size);
+}
+
+.ol-searchfield__input::placeholder {
+  color: var(--ink-2);
+}
+
+/* Native search chrome: Olivine's clear cell is the only ×, with no rounded field or magnifier. */
+.ol-searchfield__input::-webkit-search-cancel-button,
+.ol-searchfield__input::-webkit-search-decoration,
+.ol-searchfield__input::-webkit-search-results-button,
+.ol-searchfield__input::-webkit-search-results-decoration,
+.ol-searchfield .ol-combobox__input::-webkit-search-cancel-button,
+.ol-searchfield .ol-combobox__input::-webkit-search-decoration,
+.ol-searchfield__view .ol-combobox__input::-webkit-search-cancel-button,
+.ol-searchfield__view .ol-combobox__input::-webkit-search-decoration {
+  display: none;
+  appearance: none;
+}
+
+/* ---------- End slot: spinner, shortcut hint, clear cell ---------- */
+
+.ol-searchfield__end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline-end: var(--space-3);
+  color: var(--ink-2);
+}
+
+.ol-searchfield__busy {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* The hint is for the empty, unfocused field; on touch screens there is no keyboard to press. */
+.ol-searchfield__box:focus-within .ol-searchfield__hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .ol-searchfield__hint {
+    display: none;
+  }
+}
+
+/* Square cell at the field height with a hairline before it, as Combobox's clear cell. */
+.ol-searchfield__clear {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-label);
+  font-size: var(--glyph-l);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.ol-searchfield--l .ol-searchfield__clear {
+  width: var(--control-l);
+}
+
+@media (hover: hover) {
+  .ol-searchfield__clear:hover {
+    color: var(--on-ink);
+    background: var(--ink);
+  }
+}
+
+.ol-searchfield__clear:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+}
+
+/* ---------- Bar that opens the view ---------- */
+
+.ol-searchfield__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-input-size);
+  line-height: var(--text-input-leading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ol-searchfield--l .ol-searchfield__value {
+  font-size: var(--text-body-l-size);
+}
+
+.ol-searchfield__value--placeholder {
+  color: var(--ink-2);
+}
+
+/* ---------- Line: bottom rule only, as Input line ---------- */
+
+.ol-searchfield .ol-searchfield__box--line,
+.ol-searchfield__view .ol-searchfield__box--line {
+  border-width: 0 0 var(--stroke-hair);
+}
+
+.ol-searchfield .ol-searchfield__box--line:hover,
+.ol-searchfield__view .ol-searchfield__box--line:hover {
+  background: transparent;
+}
+
+.ol-searchfield__box--line .ol-searchfield__body,
+.ol-searchfield__box--line .ol-combobox__body {
+  padding-inline-start: 0;
+}
+
+/* ---------- Disabled ---------- */
+
+.ol-searchfield__box--disabled,
+.ol-searchfield__box--disabled:not(.ol-combobox):hover,
+.ol-searchfield__trigger:disabled,
+.ol-searchfield__trigger:disabled:hover {
+  color: var(--ink-3);
+  background: transparent;
+  border-color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-searchfield__box--disabled .ol-searchfield__input,
+.ol-searchfield__box--disabled .ol-searchfield__icon,
+.ol-searchfield__box--disabled .ol-searchfield__value,
+.ol-searchfield--disabled .ol-combobox__start {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+/* ---------- Full-screen view: unrolled from the top edge (kakejiku), no scrim ---------- */
+
+.ol-searchfield__view {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100dvh;
+  color: var(--ink);
+  background: var(--paper-3);
+  outline: none;
+}
+
+.ol-searchfield__head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-l);
+  padding-block-start: env(safe-area-inset-top);
+  padding-inline: var(--space-2);
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-searchfield__back {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  height: var(--control-m);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-label);
+  font-size: var(--glyph-l);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-0);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+@media (hover: hover) {
+  .ol-searchfield__back:hover {
+    color: var(--on-ink);
+    background: var(--ink);
+  }
+}
+
+.ol-searchfield__back:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-hair) * -1);
+}
+
+.ol-searchfield__results {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The global ring would draw inside the box; the box carries it instead. */
+.ol-searchfield .ol-searchfield__input:focus-visible,
+.ol-searchfield__view .ol-searchfield__input:focus-visible {
+  outline: none;
+}
+
+/* The active part sits above its neighbour so its ring and border stay whole. */
+.ol-searchfield.ol-searchfield--has-submit > .ol-searchfield__submit:hover,
+.ol-searchfield.ol-searchfield--has-submit > .ol-searchfield__submit:focus-visible,
+.ol-searchfield.ol-searchfield--has-submit > .ol-searchfield__box:focus-within {
+  z-index: var(--z-raised);
+}
+
+/* ---------- System colours ---------- */
+
+@media (forced-colors: active) {
+  .ol-searchfield__box:not(.ol-combobox) {
+    color: FieldText;
+    background: Field;
+    border-color: CanvasText;
+  }
+
+  .ol-searchfield__box:has(.ol-searchfield__input[aria-invalid="true"]) {
+    border-color: Mark;
+  }
+
+  .ol-searchfield__clear {
+    color: ButtonText;
+    border-inline-start-color: CanvasText;
+  }
+
+  .ol-searchfield__box:not(.ol-combobox):has(.ol-searchfield__input:focus-visible),
+  .ol-searchfield__bar:has(.ol-searchfield__trigger:focus-visible),
+  .ol-searchfield__clear:focus-visible,
+  .ol-searchfield__back:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-searchfield__box--disabled,
+  .ol-searchfield__box--disabled .ol-searchfield__input,
+  .ol-searchfield__box--disabled .ol-searchfield__value {
+    color: GrayText;
+    border-color: GrayText;
+  }
+
+  .ol-searchfield__head {
+    border-bottom-color: CanvasText;
+  }
+}

@@ -104,6 +104,14 @@ export {
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export {
+  SearchField,
+  type SearchFieldActions,
+  type SearchFieldChangeReason,
+  type SearchFieldProps,
+  type SearchFieldSubmitDetails,
+  type SearchFieldSubmitSource,
+} from "./components/SearchField";
+export {
   SegmentedControl,
   type SegmentedControlMultipleProps,
   type SegmentedControlOption,
