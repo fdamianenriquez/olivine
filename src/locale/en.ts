@@ -128,4 +128,13 @@ export const en: OlivineLabels = {
   railExpand: "Expand navigation",
   railCollapse: "Collapse navigation",
   stepper: { step: "Step", of: "of", completed: "completed", error: "needs attention" },
+  commandPalette: {
+    name: "Command palette",
+    placeholder: "Search commands",
+    results: "Results",
+    empty: (query) => `Nothing matches: “${query}”`,
+    move: "move",
+    open: "open",
+    close: "close",
+  },
 };

@@ -129,4 +129,13 @@ export const es: OlivineLabels = {
   railExpand: "Expandir navegación",
   railCollapse: "Contraer navegación",
   stepper: { step: "Paso", of: "de", completed: "completado", error: "requiere atención" },
+  commandPalette: {
+    name: "Paleta de comandos",
+    placeholder: "Buscar comandos",
+    results: "Resultados",
+    empty: (query) => `Sin resultados para “${query}”`,
+    move: "mover",
+    open: "abrir",
+    close: "cerrar",
+  },
 };
