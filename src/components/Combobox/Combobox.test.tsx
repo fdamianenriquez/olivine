@@ -553,6 +553,14 @@ describe("Combobox", () => {
       });
     });
 
+    it("stays silent with announceResults false", async () => {
+      const user = userEvent.setup();
+      render(<Single announceResults={false} />);
+      await user.type(input(), "a");
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      expect(status()?.textContent ?? "").toBe("");
+    });
+
     it("does not announce no results while the create row shows", async () => {
       const user = userEvent.setup();
       render(<Single onCreate={() => undefined} />);

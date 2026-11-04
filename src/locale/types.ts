@@ -74,6 +74,16 @@ export interface OlivineLabels {
   comboboxSelected: string;
   /** Combobox (multiple): how to reach the chips from the input. */
   comboboxChipsHint: string;
+  /** SearchField: default name of the field, its Search button and its full-screen view. */
+  search: string;
+  /** SearchField: name of the button that closes the full-screen view. */
+  searchBack: string;
+  /** SearchField: announced after the query is cleared. */
+  searchCleared: string;
+  /** SearchField: announced when `resultCount` is 0. */
+  searchNoResults: string;
+  /** SearchField: announced when `resultCount` settles: "12 results". */
+  searchResultCount: (n: number) => string;
   /** Default accessible name of a split button's menu trigger. */
   moreActions: string;
   /** Presence words for Avatar's status dot. */
