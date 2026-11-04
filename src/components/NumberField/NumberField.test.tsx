@@ -840,6 +840,19 @@ describe("NumberField", () => {
       fireEvent.wheel(input, { deltaY: -100 });
       expect(onValueChange).not.toHaveBeenCalled();
     });
+
+    it.each<[string, NumberFieldProps]>([
+      ["read-only", { readOnly: true }],
+      ["disabled", { disabled: true }],
+    ])("%s ignores a pointer press on a stepper (browsers send it to disabled buttons)", (_, p) => {
+      const { input, onValueChange } = setup({ defaultValue: 4, ...p });
+      for (const b of stepButtons()) {
+        fireEvent.pointerDown(b, { button: 0, pointerType: "mouse" });
+        fireEvent.pointerUp(window);
+      }
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(input).toHaveValue("4");
+    });
   });
 
   describe("wheel", () => {

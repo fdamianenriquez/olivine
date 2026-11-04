@@ -271,6 +271,9 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
   /** Moves by `count` steps of `size`; returns false when the value could not move. */
   const stepBy = useCallback(
     (count: number, size: number): boolean => {
+      // Read-only and disabled fields never step: browsers still send pointer events to a
+      // disabled button, so the steppers cannot rely on `disabled` alone.
+      if (inert) return false;
       let base = latest.current;
       if (dirty.current) {
         const parsed = parseNumber(inputRef.current?.value ?? "", symbols);
@@ -284,7 +287,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
       commitValue(next);
       return moved && next !== (count > 0 ? max : min);
     },
-    [commitValue, grid, max, min, step, symbols],
+    [commitValue, grid, inert, max, min, step, symbols],
   );
 
   const press = usePressRepeat();
@@ -423,7 +426,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
       event.preventDefault();
     },
     onPointerDown: (event: PointerEvent) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || inert) return;
       event.preventDefault();
       // A tap keeps the on-screen keyboard closed; a mouse or pen press moves focus to the field.
       if (event.pointerType !== "touch") inputRef.current?.focus({ preventScroll: true });
