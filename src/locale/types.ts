@@ -135,6 +135,11 @@ export interface OlivineLabels {
   timeEmpty: string;
   /** Label of the TimePicker confirm button. */
   timeDone: string;
+  /** Default name of the NavigationRail landmark. */
+  railLabel: string;
+  /** Name of the NavigationRail toggle while collapsed, and while expanded. */
+  railExpand: string;
+  railCollapse: string;
 }
 
 export interface KbdKeyLabels {

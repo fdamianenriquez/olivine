@@ -1,0 +1,271 @@
+/* The rail: 80px collapsed, three times that expanded. Hairlines share borders. */
+.ol-rail {
+  --ol-rail-width: var(--control-xl);
+  --ol-rail-glyph-scale: 0.43;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: var(--ol-rail-width);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-3) 0;
+  border-inline-end: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-rail--expanded {
+  --ol-rail-width: calc(var(--control-xl) * 3);
+}
+
+/* ---------- Toggle and action ---------- */
+
+.ol-rail__top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.ol-rail--expanded .ol-rail__top {
+  align-items: stretch;
+  padding: 0 var(--space-3);
+}
+
+.ol-rail__toggle {
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-s);
+  height: var(--control-s);
+  padding: 0;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-label);
+  font-size: var(--glyph-l);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-rail--expanded .ol-rail__toggle {
+  align-self: flex-start;
+}
+
+.ol-rail__toggle:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-rail__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-width: var(--control-l);
+  height: var(--control-l);
+  padding: 0;
+  border: var(--stroke-hair) solid var(--olivo);
+  border-radius: var(--radius-0);
+  background: var(--olivo);
+  color: var(--on-olivo);
+  box-shadow: var(--shadow-block);
+  cursor: pointer;
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+  line-height: 1;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect),
+    transform var(--dur-s) var(--ease-move);
+}
+
+/* Room on the right for the block shadow. */
+.ol-rail--expanded .ol-rail__action {
+  justify-content: flex-start;
+  margin-inline-end: var(--space-1);
+  padding-inline-end: var(--space-4);
+}
+
+.ol-rail__action-glyph {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--control-l);
+  font-family: var(--font-label);
+  font-size: calc(var(--control-l) * var(--ol-rail-glyph-scale));
+  font-weight: 400;
+}
+
+.ol-rail__action:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+/* A press sinks the square into its shadow. */
+.ol-rail__action:active {
+  transform: translate(calc(var(--space-1) / 2), calc(var(--space-1) / 2));
+  box-shadow: var(--shadow-press);
+}
+
+/* The ring takes the shadow's place while focused, so it never sits on the shadow's colour. */
+.ol-rail__action:focus-visible {
+  box-shadow: var(--shadow-none);
+}
+
+/* ---------- Destinations ---------- */
+
+.ol-rail__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border-top: var(--stroke-hair) solid var(--line-soft);
+  list-style: none;
+}
+
+.ol-rail__list > li {
+  border-bottom: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-rail__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: var(--space-16);
+  padding: var(--space-2) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-rail--expanded .ol-rail__item {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  min-height: var(--control-m);
+  padding: 0 var(--space-4);
+}
+
+.ol-rail__mark {
+  font-family: var(--text-kanji-s-family);
+  font-size: var(--text-kanji-s-size);
+  line-height: var(--text-kanji-s-leading);
+  letter-spacing: var(--text-kanji-s-tracking);
+  color: inherit;
+}
+
+.ol-rail__label {
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  line-height: var(--text-label-s-leading);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* The word wipes in beside the mark; reduced motion shortens it to 1ms through --dur-m. */
+.ol-rail--expanded .ol-rail__label {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+  line-height: var(--text-label-l-leading);
+  text-align: start;
+  animation: ol-rail-label var(--dur-m) var(--ease-move) both;
+}
+
+@keyframes ol-rail-label {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* Counts: top corner when collapsed, at the end of the row when expanded. */
+.ol-rail__badge {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+}
+
+.ol-rail--expanded .ol-rail__badge {
+  position: static;
+}
+
+.ol-rail__item[aria-current="page"] {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.ol-rail__item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--stroke-heavy);
+  background: var(--olivo);
+}
+
+.ol-rail__item:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* Inside the cell: neighbours share its borders, so an outer ring would be cut. */
+.ol-rail__item:focus-visible {
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* On the ink fill olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-rail__item:hover:focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+.ol-rail__foot {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding: 0 var(--space-3);
+}
+
+@media (forced-colors: active) {
+  /* The current item is marked by its edge bar, so the focus outline stays distinct. */
+  .ol-rail__item[aria-current="page"] {
+    forced-color-adjust: none;
+  }
+
+  .ol-rail__item[aria-current="page"]::before {
+    background: Highlight;
+  }
+
+  .ol-rail__item:hover:focus-visible {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+}
