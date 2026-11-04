@@ -607,7 +607,8 @@ describe("SearchField — shortcut", () => {
     expect(box()).not.toHaveFocus();
     rerender(
       <Root platform="other">
-        <div inert>
+        {/* The attribute, not the prop: React 18 has no `inert` prop. */}
+        <div ref={(node) => node?.setAttribute("inert", "")}>
           <Search shortcut="mod+k" />
         </div>
       </Root>,
