@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { isImeKey } from "../utils/ime";
 import { useLayer } from "./layers";
 
 const TABBABLE = [
@@ -131,7 +132,7 @@ export function useOverlay({
     const onKey = (event: KeyboardEvent) => {
       if (!isTop()) return;
       if (event.key === "Escape") {
-        if (event.defaultPrevented || event.isComposing) return;
+        if (event.defaultPrevented || isImeKey(event)) return;
         if (!close.current) return;
         event.preventDefault();
         close.current();

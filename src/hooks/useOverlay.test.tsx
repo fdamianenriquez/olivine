@@ -58,6 +58,16 @@ describe("useOverlay", () => {
     expect(trigger).toHaveFocus();
   });
 
+  it("ignores an Escape that ends an IME composition (Safari keyCode 229)", () => {
+    const onClose = vi.fn();
+    render(<Demo onClose={onClose} />);
+    fireEvent.click(screen.getByText("open"));
+    fireEvent.keyDown(document, { key: "Escape", keyCode: 229 });
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it("locks scroll and makes the rest of the page inert until it closes", () => {
     const host = document.createElement("div");
     document.body.append(host);
