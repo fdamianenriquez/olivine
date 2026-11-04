@@ -166,6 +166,11 @@
   --text-body-leading: 1.55;
   --text-body-weight: 400;
   --text-body-tracking: 0;
+  --text-input-family: var(--font-sans);
+  --text-input-size: 16px;
+  --text-input-leading: 1.55;
+  --text-input-weight: 400;
+  --text-input-tracking: 0;
   --text-ui-family: var(--font-sans);
   --text-ui-size: 14px;
   --text-ui-leading: 1.45;
