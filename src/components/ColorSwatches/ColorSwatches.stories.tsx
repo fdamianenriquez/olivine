@@ -24,7 +24,7 @@ const FINISHES: ColorSwatchOption[] = [
  */
 function Price({ children }: { children: string }) {
   return (
-    <Text variant="figure-m" dir="ltr">
+    <Text variant="figure-xs" dir="ltr">
       {children}
     </Text>
   );
