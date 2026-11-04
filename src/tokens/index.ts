@@ -207,6 +207,13 @@ export const tokens = {
       fontWeight: 400,
       letterSpacing: "0",
     },
+    input: {
+      family: "sans",
+      fontSize: "16px",
+      lineHeight: 1.55,
+      fontWeight: 400,
+      letterSpacing: "0",
+    },
     ui: {
       family: "sans",
       fontSize: "14px",

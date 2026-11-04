@@ -8,7 +8,7 @@
   height: var(--control-m);
   padding: 0 var(--space-12) 0 var(--space-4);
   font: inherit;
-  font-size: var(--text-body-size);
+  font-size: var(--text-input-size);
   color: var(--ink);
   background-color: transparent;
 

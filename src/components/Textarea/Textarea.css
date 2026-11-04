@@ -4,7 +4,7 @@
   min-height: var(--control-area);
   padding: var(--space-3) var(--space-4);
   font: inherit;
-  font-size: var(--text-body-size);
+  font-size: var(--text-input-size);
   line-height: var(--text-body-l-leading);
   color: var(--ink);
   background: transparent;
