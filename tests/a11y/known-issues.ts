@@ -42,4 +42,10 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     target: /-o-/,
     note: "Not a defect: an option with a description or meta is named by its visible label alone (aria-labelledby) and the extra text is its description (aria-describedby); the name is the visible label, so WCAG 2.5.3 holds, but axe compares the name with all of the option's text.",
   },
+  {
+    stories: /^overlays-commandpalette--/,
+    rule: "scrollable-region-focusable",
+    target: /\.ol-cmd__list$/,
+    note: "Not a defect: the results list scrolls from the search input, which keeps focus and moves the active option with the arrow keys (aria-activedescendant, which scrolls it into view); the list itself is not a tab stop on purpose, but axe only looks for focusable content inside it.",
+  },
 ];
