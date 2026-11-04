@@ -87,7 +87,8 @@ The system is meant to be consistent, so overrides are narrow.
 - Do not set literal colours, sizes or radii on Olivine's `ol-` classes. Fix the token instead.
 - Do not use `maple` for text, a border or a status. It is a fill, always with `ink` text.
 - Do not add radii, blurs or soft shadows. Only `shadow-block` (4px) and `shadow-press` (2px)
-  exist.
+  exist. The one other `box-shadow` is the focus band: a `paper` or `on-ink` band under the
+  focus ring on a selected fill (Calendar days, Listbox rows) so the ring stays visible.
 - Do not depend on the internal BEM elements (such as `ol-btn__label`). Use props, and
   `className` on the component root.
 
