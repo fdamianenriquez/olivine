@@ -146,6 +146,8 @@ export interface OlivineLabels {
   sidebarLabel: string;
   /** Hidden text after a folded Sidebar section or parent that holds the current page. */
   sidebarWithin: string;
+  /** Default name of the Menubar. */
+  menubar: string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
   /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
