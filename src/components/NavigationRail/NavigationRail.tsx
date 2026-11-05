@@ -3,23 +3,11 @@ import { forwardRef, type HTMLAttributes, type MouseEvent, type ReactNode, useId
 import { useControllable } from "../../hooks/useControllable";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
+import type { NavDestination } from "../../utils/navDestination";
 import { Badge } from "../Badge";
 
-export interface NavigationRailItem {
-  /** Identifier passed to `onSelect` and matched against `active`. */
-  key: string;
-  /** Visible name of the destination. It is the accessible name; the mark is decoration. */
-  label: ReactNode;
-  /**
-   * A kanji or a typographic glyph shown above (collapsed) or before (expanded) the label.
-   * Never the only label: it is hidden from assistive tech. Kanji are set in the jp face.
-   */
-  mark: string;
-  /** Target URL. Items with an `href` render as links; items without render as buttons. */
-  href?: string;
-  /** A count shown as a maple badge. Read after the label ("Inbox, 3"). */
-  badge?: ReactNode;
-}
+/** A destination of the rail; the same shape as BottomNav's. */
+export type NavigationRailItem = NavDestination;
 
 /** The one primary action at the top of the rail, drawn as a square accent button. */
 export interface NavigationRailAction {

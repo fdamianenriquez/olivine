@@ -173,3 +173,16 @@
 .ol-has-fab {
   scroll-padding-bottom: calc(var(--control-xl) + var(--space-6) * 2);
 }
+
+/* A scroll container under a BottomNav: content and focused items stop above the bar. */
+.ol-has-bottomnav {
+  padding-block-end: calc(var(--space-16) + var(--stroke-hair) + env(safe-area-inset-bottom, 0px));
+  scroll-padding-bottom: calc(
+    var(--space-16) + var(--stroke-hair) + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+/* A heading that a TableOfContents (or a link to #id) scrolls to: it stops below sticky chrome. */
+.ol-anchor {
+  scroll-margin-block-start: var(--ol-anchor-offset, var(--control-xl));
+}

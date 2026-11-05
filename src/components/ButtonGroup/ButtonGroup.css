@@ -3,7 +3,7 @@
 }
 
 .ol-btngroup > .ol-btn + .ol-btn {
-  margin-left: calc(var(--stroke-hair) * -1);
+  margin-inline-start: calc(var(--stroke-hair) * -1);
 }
 
 .ol-btngroup--v {
@@ -11,8 +11,8 @@
 }
 
 .ol-btngroup--v > .ol-btn + .ol-btn {
-  margin-left: 0;
-  margin-top: calc(var(--stroke-hair) * -1);
+  margin-inline-start: 0;
+  margin-block-start: calc(var(--stroke-hair) * -1);
 }
 
 /* Raise the hovered or focused button so its whole border and focus ring stay visible. */

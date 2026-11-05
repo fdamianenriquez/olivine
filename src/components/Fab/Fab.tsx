@@ -7,11 +7,11 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState,
 } from "react";
 
 import { type MenuCloseReason, useMenu } from "../../hooks/useMenu";
-import { prefersReducedMotion, useReducedMotion } from "../../motion/reducedMotion";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
+import { useReducedMotion } from "../../motion/reducedMotion";
 import { usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
@@ -19,9 +19,6 @@ import { Portal } from "../Portal";
 
 /** The most actions a Fab menu shows; extra ones are ignored. */
 export const FAB_MAX_ACTIONS = 6;
-
-/** Scroll distance in px that counts as a direction change, so jitter does not fold the label. */
-const SCROLL_HYSTERESIS = 4;
 
 /** One related action in the Fab's menu. */
 export interface FabAction {
@@ -172,29 +169,12 @@ export const Fab = forwardRef<HTMLButtonElement, FabProps>(function Fab(
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const anchor = useRef<HTMLSpanElement | null>(null);
   const reduced = useReducedMotion();
-  const [scrolledDown, setScrolledDown] = useState(false);
   const watchScroll = collapseOnScroll && hasLabel;
-  useEffect(() => {
-    if (!watchScroll) return;
-    const element = scrollTarget?.current ?? null;
-    const target: HTMLElement | Window = element ?? window;
-    const top = () => (element ? element.scrollTop : window.scrollY);
-    let last = top();
-    const onScroll = () => {
-      const y = top();
-      if (Math.abs(y - last) < SCROLL_HYSTERESIS) return;
-      const down = y > last;
-      last = y;
-      // Reduced motion: no scroll-linked effects, the label stays.
-      // Checked at the anchor inside the app, so an in-app setting reaches a portalled Fab.
-      if (down && prefersReducedMotion(anchor.current ?? wrapRef.current)) return;
-      setScrolledDown(down);
-    };
-    target.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      target.removeEventListener("scroll", onScroll);
-    };
-  }, [watchScroll, scrollTarget]);
+  const scrolledDown = useScrollDirection({
+    enabled: watchScroll,
+    target: scrollTarget,
+    motionAnchor: anchor,
+  });
 
   const collapsed = watchScroll && scrolledDown && !reduced && !menuOpen;
   const {

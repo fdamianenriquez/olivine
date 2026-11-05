@@ -304,4 +304,32 @@ describe("useRovingFocus", () => {
     expect(moved).toBe(true);
     expect(item("A")).toHaveFocus();
   });
+
+  it("skips hidden items and items inside a hidden or inert ancestor", () => {
+    render(
+      <Group options={{ loop: true }}>
+        <button data-item hidden>
+          A
+        </button>
+        <span hidden>
+          <button data-item>B</button>
+        </span>
+        <span
+          ref={(node) => {
+            node?.setAttribute("inert", "");
+          }}
+        >
+          <button data-item>C</button>
+        </span>
+        <button data-item>D</button>
+        <button data-item>E</button>
+      </Group>,
+    );
+    expect(stops()).toEqual(["D"]);
+    item("D").focus();
+    press("ArrowRight");
+    expect(item("E")).toHaveFocus();
+    press("ArrowRight");
+    expect(item("D")).toHaveFocus();
+  });
 });
