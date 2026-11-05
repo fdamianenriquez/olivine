@@ -184,6 +184,17 @@
     border-color: CanvasText;
   }
 
+  /* The radio dot is a background, which forced colours would replace by the canvas. */
+  .ol-dropdown__lead--radio::before {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .ol-dropdown__item[data-highlighted] .ol-dropdown__lead--radio::before,
+  .ol-dropdown__item[aria-expanded="true"] .ol-dropdown__lead--radio::before {
+    background: HighlightText;
+  }
+
   .ol-dropdown__item[data-highlighted],
   .ol-dropdown__item[aria-expanded="true"] {
     color: HighlightText;
