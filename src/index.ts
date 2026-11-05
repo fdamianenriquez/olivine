@@ -212,6 +212,13 @@ export {
   type ToggleButtonOwnProps,
   type ToggleButtonProps,
 } from "./components/ToggleButton";
+export {
+  Toolbar,
+  type ToolbarActionProps,
+  type ToolbarProps,
+  type ToolbarSeparatorProps,
+  type ToolbarSpacerProps,
+} from "./components/Toolbar";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
 export { VisuallyHidden, type VisuallyHiddenProps } from "./components/VisuallyHidden";
 export {
