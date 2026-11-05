@@ -10,6 +10,11 @@
   align-items: flex-end;
   gap: var(--space-2);
 
+  /* A BottomNav publishes its height as --ol-dock on the app root; the Fab rides above it. The
+   * safe-area inset is already in the offset above, so it is taken out of the lift. */
+  translate: 0 calc(-1 * max(var(--ol-dock, 0px) - env(safe-area-inset-bottom, 0px), 0px));
+  transition: translate var(--dur-m) var(--ease-move);
+
   /* The viewport (or the container when contained) minus the offsets on both sides. */
   max-width: calc(
     100% - var(--space-6) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)

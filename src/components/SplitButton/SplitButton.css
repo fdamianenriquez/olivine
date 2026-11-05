@@ -21,7 +21,7 @@
 
 /* One shared hairline: the trigger's left border lies over the primary's right border. */
 .ol-split > .ol-split__primary + .ol-split__trigger {
-  margin-left: calc(var(--stroke-hair) * -1);
+  margin-inline-start: calc(var(--stroke-hair) * -1);
 }
 
 /* Raise the hovered or focused half so its whole border and focus ring stay visible. */

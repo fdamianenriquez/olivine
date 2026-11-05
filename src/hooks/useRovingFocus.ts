@@ -57,7 +57,11 @@ export interface RovingFocus {
   focusItem: (target: HTMLElement | "first" | "last") => boolean;
 }
 
-const isDisabled = (el: HTMLElement) => el.matches(":disabled") || el.hasAttribute("data-disabled");
+/** Disabled, or out of play: `hidden` itself or inside a `hidden` / `inert` ancestor (a collapsed action). */
+const isDisabled = (el: HTMLElement) =>
+  el.matches(":disabled") ||
+  el.hasAttribute("data-disabled") ||
+  el.closest("[hidden], [inert]") !== null;
 
 /**
  * Roving `tabindex` over items found in the DOM: the root is one tab stop and arrow keys move

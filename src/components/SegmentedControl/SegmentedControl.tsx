@@ -14,6 +14,7 @@ import { useInkWipe } from "../../motion";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
 import { Button } from "../Button";
+import { useToolbar } from "../Toolbar/ToolbarContext";
 
 export interface SegmentedControlOption {
   /** Value reported by `onChange` and submitted with `name`. Unique within the control. */
@@ -143,7 +144,11 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
     };
 
     const root = useRef<HTMLDivElement | null>(null);
+    // Inside a Toolbar the cells are stops of the toolbar's own roving focus: arrows move focus
+    // there and only Space, Enter or a click select.
+    const inToolbar = useToolbar() !== null;
     const roving = useRovingFocus(root, {
+      disabled: inToolbar,
       itemSelector: multiple ? NONE : RADIO,
       orientation: vertical ? "vertical" : "horizontal",
       loop: true,
@@ -245,7 +250,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
         )}
         onKeyDown={(event) => {
           onKeyDown?.(event);
-          if (!multiple && !roving.onKeyDown(event)) crossAxis(event);
+          if (!multiple && !inToolbar && !roving.onKeyDown(event)) crossAxis(event);
         }}
         onFocus={(event) => {
           onFocus?.(event);
