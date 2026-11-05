@@ -57,6 +57,13 @@ export {
 } from "./components/CommandPalette";
 export { Container, type ContainerProps } from "./components/Container";
 export {
+  ContextMenu,
+  type ContextMenuCloseReason,
+  type ContextMenuItem,
+  type ContextMenuOwnProps,
+  type ContextMenuProps,
+} from "./components/ContextMenu";
+export {
   DatePicker,
   type DatePickerMode,
   type DatePickerProps,

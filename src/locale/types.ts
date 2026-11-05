@@ -150,6 +150,8 @@ export interface OlivineLabels {
   menubar: string;
   /** Default name of the TableOfContents landmark. */
   tocLabel: string;
+  /** Default name of a ContextMenu. */
+  contextMenu: string;
   /** Shown in an empty TreeView. */
   treeEmpty: string;
   /** Status after a TreeView branch loaded its children. */
