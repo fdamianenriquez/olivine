@@ -65,7 +65,8 @@
 
 /* One highlighted row: the pointer moves focus, so hover and keyboard never mark two rows.
  * Shortcut caps follow the row: inverted when highlighted, faint when disabled. */
-.ol-dropdown__item[data-highlighted] {
+.ol-dropdown__item[data-highlighted],
+.ol-dropdown__item[aria-expanded="true"] {
   --kbd-fill: transparent;
   --kbd-ink: var(--on-ink);
   --kbd-line: var(--on-ink);
@@ -93,6 +94,56 @@
 .ol-dropdown__item[aria-disabled="true"][data-highlighted] {
   color: var(--ink-3);
   background: none;
+}
+
+/* The mark column: an icon, a check or a radio dot, shared by every row of a level. */
+.ol-dropdown__main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ol-dropdown__lead {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--glyph-xl);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* The one place a circle is allowed besides the radio itself: the dot of a radio item. */
+.ol-dropdown__lead--radio::before {
+  content: "";
+  inline-size: var(--space-2);
+  block-size: var(--space-2);
+  background: currentcolor;
+  border-radius: 50%;
+}
+
+.ol-dropdown__lead--check,
+.ol-dropdown__lead--radio::before {
+  visibility: hidden;
+}
+
+.ol-dropdown__item[aria-checked="true"] .ol-dropdown__lead--check,
+.ol-dropdown__item[aria-checked="true"] .ol-dropdown__lead--radio::before {
+  visibility: visible;
+}
+
+.ol-dropdown__sub {
+  flex: none;
+  font-family: var(--font-label);
+  font-size: var(--glyph-m);
+  line-height: 1;
+}
+
+.ol-dropdown__sub:dir(rtl) {
+  transform: scaleX(-1);
 }
 
 @media (pointer: coarse) {
@@ -133,7 +184,8 @@
     border-color: CanvasText;
   }
 
-  .ol-dropdown__item[data-highlighted] {
+  .ol-dropdown__item[data-highlighted],
+  .ol-dropdown__item[aria-expanded="true"] {
     color: HighlightText;
     background: Highlight;
     outline-color: HighlightText;

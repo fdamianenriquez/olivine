@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
 } from "react";
 
 import { type MenuCloseReason, useMenu } from "../../hooks/useMenu";
@@ -15,6 +16,7 @@ import { cx } from "../../utils/cx";
 import { Button, type ButtonProps } from "../Button";
 import { type DropdownItem } from "../Dropdown";
 import { MenuItems, MenuPopup } from "../Dropdown/Menu";
+import { toolbarMenu, useToolbar } from "../Toolbar/ToolbarContext";
 
 /** One entry of the `items` prop: the same actions, headers and dividers as Dropdown. */
 export type SplitButtonItem = DropdownItem;
@@ -119,15 +121,18 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
   ref,
 ) {
   const labels = useLabels();
+  const [rtl, setRtl] = useState(false);
+  const inToolbar = toolbarMenu(useToolbar(), rtl);
   const menu = useMenu({
+    openOnArrow: inToolbar.openOnArrow,
     ...(open === undefined ? null : { open }),
     defaultOpen,
     ...(onOpenChange ? { onOpenChange } : null),
   });
   const position = useMenuPosition<HTMLDivElement, HTMLUListElement>({
     open: menu.mounted,
-    placement: `${up ? "top" : "bottom"}-${align}`,
-    matchWidth: true,
+    placement: inToolbar.placement ?? `${up ? "top" : "bottom"}-${align}`,
+    matchWidth: inToolbar.placement === null,
   });
 
   const { setTrigger, setOpen, getTriggerProps, triggerRef } = menu;
@@ -141,6 +146,7 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
     (node: HTMLDivElement | null) => {
       rootRef.current = node;
       setAnchor(node);
+      if (node) setRtl(getComputedStyle(node).direction === "rtl");
       if (typeof ref === "function") ref(node);
       else if (ref) ref.current = node;
     },

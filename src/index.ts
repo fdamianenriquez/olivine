@@ -60,10 +60,14 @@ export { Divider, type DividerProps } from "./components/Divider";
 export {
   Dropdown,
   type DropdownActionItem,
+  type DropdownCheckItem,
   type DropdownDividerItem,
   type DropdownHeaderItem,
   type DropdownItem,
   type DropdownProps,
+  type DropdownRadioOption,
+  type DropdownRadiosItem,
+  type DropdownSubmenuItem,
 } from "./components/Dropdown";
 export {
   Fab,

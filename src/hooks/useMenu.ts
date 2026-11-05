@@ -64,8 +64,39 @@ export interface UseMenuOptions {
    * @default true
    */
   restoreFocus?: boolean | ((reason: MenuCloseReason) => boolean | HTMLElement | null);
-  /** Left/Right on an item (a menubar moves to the neighbouring menu). */
+  /**
+   * Left/Right on an item (a menubar moves to the neighbouring menu). It also fires from a leaf
+   * row of a submenu; a submenu's own keys come first (Right on a parent opens it, Left in a
+   * submenu closes it).
+   */
   onArrowOut?: (direction: "prev" | "next") => void;
+  /**
+   * Where focus goes once the popup mounts: `first` / `last` item, the `menu` itself, or `none`
+   * (a hover-opened submenu leaves focus where it is). A ref lets a parent set it for a menu it
+   * opens from outside (a menubar moving to its neighbour); the hook reads and resets it. Pass the same plain object (from `useState`) to every menu that shares it. `null`
+   * keeps the default: an item after a keyboard open, the menu otherwise.
+   */
+  initialFocus?: MenuFocusIntent;
+  /**
+   * A press that counts as inside although it is outside the trigger and the popups (the bar of
+   * a menubar, the area of a context menu). It receives the target and the event.
+   */
+  ignoreOutside?: (target: Node, event: globalThis.PointerEvent) => boolean;
+  /**
+   * The key on the trigger that opens the menu with focus on an item. `down`: ArrowDown / ArrowUp
+   * (a menu button). `inline-end`: ArrowRight, mirrored in RTL (a submenu row, where Up and Down
+   * move between rows). `none`: arrows never open it (a trigger inside a vertical toolbar).
+   * @default "down"
+   */
+  openOnArrow?: "down" | "inline-end" | "none";
+}
+
+/** See `UseMenuOptions.initialFocus`. */
+export type MenuInitialFocus = "first" | "last" | "menu" | "none" | null;
+
+/** A shared, mutable box for `initialFocus`. */
+export interface MenuFocusIntent {
+  mode: MenuInitialFocus;
 }
 
 export interface MenuItemOptions {
@@ -92,6 +123,8 @@ export interface MenuTree {
   closeRoot: (reason: MenuCloseReason) => void;
   /** 0 for the outermost menu. */
   depth: number;
+  /** The root's `onArrowOut`, reachable from a submenu. */
+  arrowOut: (direction: "prev" | "next") => void;
 }
 
 /** Provided by the menu popup, read by a nested `useMenu` (a submenu). */
@@ -127,6 +160,10 @@ const HIGHLIGHT_ATTR = "data-highlighted";
 
 const isSkipped = (el: Element) => el.hasAttribute("data-disabled");
 
+/** The arrow that opens a submenu from its parent row: Right, or Left in RTL. */
+const startKeyOf = (el: Element) =>
+  getComputedStyle(el).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
+
 function compose<E>(user: ((event: E) => void) | undefined, own: (event: E) => void) {
   return (event: E) => {
     user?.(event);
@@ -152,6 +189,9 @@ export function useMenu({
   typeahead = true,
   restoreFocus = true,
   onArrowOut,
+  initialFocus: initialFocusProp,
+  ignoreOutside,
+  openOnArrow = "down",
 }: UseMenuOptions = {}): UseMenuResult {
   const generated = useId();
   const base = idProp ?? generated;
@@ -175,20 +215,37 @@ export function useMenu({
   const menuRef = useRef<HTMLElement | null>(null);
   const [menu, setMenuNode] = useState<HTMLElement | null>(null);
   const { mounted, state, setElement } = usePresence(open);
-  const initialFocus = useRef<"first" | "last" | null>(null);
+  const [ownFocus] = useState<MenuFocusIntent>(() => ({ mode: null }));
+  const initialFocus = initialFocusProp ?? ownFocus;
 
   const parent = useContext(MenuTreeContext);
   const [popups] = useState(() => new Set<HTMLElement>());
   const closeSelf = useRef<(why: MenuCloseReason) => void>(() => undefined);
+  const arrowOutRef = useRef(onArrowOut);
+  useIsomorphicLayoutEffect(() => {
+    arrowOutRef.current = onArrowOut;
+  });
+  const ignoreOutsideRef = useRef(ignoreOutside);
+  useIsomorphicLayoutEffect(() => {
+    ignoreOutsideRef.current = ignoreOutside;
+  });
   const [tree] = useState<MenuTree>(() =>
     parent
-      ? { popups: parent.popups, closeRoot: parent.closeRoot, depth: parent.depth + 1 }
+      ? {
+          popups: parent.popups,
+          closeRoot: parent.closeRoot,
+          depth: parent.depth + 1,
+          arrowOut: parent.arrowOut,
+        }
       : {
           popups,
           closeRoot: (why) => {
             closeSelf.current(why);
           },
           depth: 0,
+          arrowOut: (direction) => {
+            arrowOutRef.current?.(direction);
+          },
         },
   );
 
@@ -277,9 +334,10 @@ export function useMenu({
   // Once open and mounted, focus goes inside: an item after a keyboard open, the menu otherwise.
   useIsomorphicLayoutEffect(() => {
     if (!menu || !open) return;
-    const mode = initialFocus.current;
-    initialFocus.current = null;
-    if (mode) focusItem(mode);
+    const mode = initialFocus.mode;
+    initialFocus.mode = null;
+    if (mode === "none") return;
+    if (mode === "first" || mode === "last") focusItem(mode);
     else menu.focus({ preventScroll: true });
   }, [menu, open]);
 
@@ -301,6 +359,7 @@ export function useMenu({
       const target = event.target as Node | null;
       if (!target || triggerRef.current?.contains(target)) return;
       for (const popup of tree.popups) if (popup.contains(target)) return;
+      if (ignoreOutsideRef.current?.(target, event)) return;
       close("outside");
     };
     document.addEventListener("keydown", onKey);
@@ -320,22 +379,33 @@ export function useMenu({
     "aria-controls": mounted ? menuId : undefined,
     "data-state": open ? "open" : "closed",
     onKeyDown: compose(user.onKeyDown, (event: KeyboardEvent<HTMLElement>) => {
-      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      let which: "first" | "last";
+      if (openOnArrow === "down" && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+        which = event.key === "ArrowUp" ? "last" : "first";
+      } else if (openOnArrow === "inline-end" && event.key === startKeyOf(event.currentTarget)) {
+        which = "first";
+      } else return;
       event.preventDefault();
-      const which = event.key === "ArrowUp" ? "last" : "first";
       if (open) focusItem(which);
       else {
-        initialFocus.current = which;
+        initialFocus.mode = which;
         setOpen(true);
       }
     }),
     onClick: compose(user.onClick, (event: MouseEvent<HTMLElement>) => {
       if (open) {
+        // A submenu row stays open when pressed (it may have opened on hover).
+        if (parent && triggerRole === "menuitem") {
+          if (event.detail === 0) focusItem("first");
+          return;
+        }
         close("trigger");
         return;
       }
       // Keyboard and assistive-technology clicks report no pointer presses.
-      initialFocus.current = event.detail === 0 ? "first" : null;
+      // An initialFocus ref from the caller (a menubar's) keeps what the caller put in it.
+      if (event.detail === 0) initialFocus.mode = "first";
+      else if (!initialFocusProp) initialFocus.mode = null;
       setOpen(true);
     }),
   });
@@ -359,6 +429,7 @@ export function useMenu({
     tabIndex: -1,
     ...(hasTrigger && !label ? { "aria-labelledby": triggerId } : { "aria-label": label }),
     "data-state": state,
+    "data-ol-menu-depth": tree.depth,
     onKeyDown: inside(user.onKeyDown, (event: KeyboardEvent<HTMLElement>) => {
       const root = menuRef.current;
       if (event.target === root) {
@@ -381,11 +452,20 @@ export function useMenu({
         (parent ? parent.closeRoot : close)("tab");
         return;
       }
-      if (onArrowOut && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
-        event.preventDefault();
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         const rtl = root ? getComputedStyle(root).direction === "rtl" : false;
-        onArrowOut((event.key === "ArrowRight") !== rtl ? "next" : "prev");
-        return;
+        const forward = (event.key === "ArrowRight") !== rtl;
+        // In a submenu the way back closes it and leaves focus on its parent row.
+        if (parent && !forward) {
+          event.preventDefault();
+          close("arrow-out");
+          return;
+        }
+        if (tree.depth > 0 || onArrowOut) {
+          event.preventDefault();
+          tree.arrowOut(forward ? "next" : "prev");
+          return;
+        }
       }
       if (typeahead === false) return;
       const active = document.activeElement as HTMLElement | null;
