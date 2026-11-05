@@ -162,10 +162,15 @@ button.ol-stepper__hit:hover .ol-stepper__label {
   padding-inline-start: var(--space-8);
 }
 
+/*
+ * The spine leaves each step's number and runs to the next one, so between two numbers it is a
+ * single stroke in the state of the step it leaves. It reaches into the next step's top padding
+ * (the hit's block padding) and the next number paints over its end.
+ */
 .ol-stepper--vertical .ol-stepper__step::before {
   content: "";
   position: absolute;
-  inset-block: 0;
+  inset-block: var(--space-3) calc(var(--space-3) * -1);
   inset-inline-start: calc(var(--ol-stepper-node) / 2);
   width: var(--ol-stepper-spine);
   margin-inline-start: calc(var(--ol-stepper-spine) / -2);
@@ -173,13 +178,8 @@ button.ol-stepper__hit:hover .ol-stepper__label {
   transition: background-color var(--dur-s) var(--ease-effect);
 }
 
-.ol-stepper--vertical .ol-stepper__step:first-child::before {
-  top: var(--space-4);
-}
-
 .ol-stepper--vertical .ol-stepper__step:last-child::before {
-  bottom: auto;
-  height: var(--space-4);
+  display: none;
 }
 
 .ol-stepper--vertical .ol-stepper__num {
