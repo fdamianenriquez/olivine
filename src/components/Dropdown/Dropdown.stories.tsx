@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 import { Modal } from "../Modal";
 import { Dropdown, type DropdownItem } from "./Dropdown";
@@ -149,4 +150,51 @@ export const InModal: Story = {
       <Dropdown {...args} defaultOpen />
     </Modal>
   ),
+};
+
+/** Checkable items, a radio group, marks and a submenu. The app holds the state; the menu holds none. */
+export const CheckableRadiosAndSubmenu: Story = {
+  render: function Render(args) {
+    const [grid, setGrid] = useState(true);
+    const [rulers, setRulers] = useState(false);
+    const [theme, setTheme] = useState("washi");
+    return (
+      <div style={{ minHeight: 320, minWidth: 420 }}>
+        <Dropdown
+          {...args}
+          label="View"
+          defaultOpen
+          items={[
+            { label: "Show grid", checked: grid, onCheckedChange: setGrid, kbd: "mod+'" },
+            { label: "Show rulers", checked: rulers, onCheckedChange: setRulers },
+            { divider: true },
+            {
+              radios: {
+                label: "Theme",
+                value: theme,
+                onValueChange: setTheme,
+                options: [
+                  { value: "washi", label: "Washi" },
+                  { value: "sumi", label: "Sumi" },
+                  { value: "auto", label: "Match system" },
+                ],
+              },
+            },
+            { divider: true },
+            { label: "Print", icon: "印", kbd: "mod+p" },
+            {
+              label: "Export as",
+              icon: "出",
+              items: [
+                { label: "PNG" },
+                { label: "SVG" },
+                { label: "PDF", kbd: "mod+shift+e" },
+                { label: "More formats", items: [{ label: "WebP" }, { label: "AVIF" }] },
+              ],
+            },
+          ]}
+        />
+      </div>
+    );
+  },
 };

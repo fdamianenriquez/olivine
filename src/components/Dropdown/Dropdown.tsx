@@ -1,15 +1,21 @@
-import { forwardRef, type ReactNode, useCallback } from "react";
+import { forwardRef, type ReactNode, useCallback, useState } from "react";
 
 import { type MenuCloseReason, useMenu } from "../../hooks/useMenu";
 import { useMenuPosition } from "../../hooks/useMenuPosition";
 import { cx } from "../../utils/cx";
 import { Button, type ButtonProps } from "../Button";
+import { toolbarMenu, useToolbar } from "../Toolbar/ToolbarContext";
 import {
   type MenuActionItem,
+  type MenuCheckItem,
   type MenuDividerItem,
   type MenuHeaderItem,
+  type MenuItem,
   MenuItems,
   MenuPopup,
+  type MenuRadioOption,
+  type MenuRadiosItem,
+  type MenuSubmenuItem,
 } from "./Menu";
 
 /** An actionable entry of the menu. */
@@ -21,8 +27,20 @@ export type DropdownHeaderItem = MenuHeaderItem;
 /** A hairline between groups of items. */
 export type DropdownDividerItem = MenuDividerItem;
 
+/** An on/off entry; the app holds the state and passes `checked`. */
+export type DropdownCheckItem = MenuCheckItem;
+
+/** One choice of a radio group. */
+export type DropdownRadioOption = MenuRadioOption;
+
+/** A group of mutually exclusive choices. */
+export type DropdownRadiosItem = MenuRadiosItem;
+
+/** An entry that opens a submenu to the side. */
+export type DropdownSubmenuItem = MenuSubmenuItem;
+
 /** One entry of the `items` prop. */
-export type DropdownItem = DropdownActionItem | DropdownHeaderItem | DropdownDividerItem;
+export type DropdownItem = MenuItem;
 
 /** Why the menu closed: passed to `onOpenChange` and `restoreFocus`. */
 export type DropdownCloseReason = MenuCloseReason;
@@ -33,7 +51,7 @@ export interface DropdownProps extends Omit<
 > {
   /** Text of the trigger button. */
   label: ReactNode;
-  /** Menu entries: actions, group headers and dividers. */
+  /** Menu entries: actions, checkable items, radio groups, submenus, group headers and dividers. */
   items: readonly DropdownItem[];
   /**
    * Which edge of the trigger the menu lines up with.
@@ -83,7 +101,10 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
   },
   ref,
 ) {
+  const [rtl, setRtl] = useState(false);
+  const inToolbar = toolbarMenu(useToolbar(), rtl);
   const menu = useMenu({
+    openOnArrow: inToolbar.openOnArrow,
     ...(open === undefined ? null : { open }),
     defaultOpen,
     ...(onOpenChange ? { onOpenChange } : null),
@@ -92,7 +113,7 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
   });
   const position = useMenuPosition<HTMLButtonElement, HTMLUListElement>({
     open: menu.mounted,
-    placement: `${up ? "top" : "bottom"}-${align}`,
+    placement: inToolbar.placement ?? `${up ? "top" : "bottom"}-${align}`,
   });
 
   const { setTrigger } = menu;
@@ -101,6 +122,7 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
     (node: HTMLButtonElement | null) => {
       setTrigger(node);
       setAnchor(node);
+      if (node) setRtl(getComputedStyle(node).direction === "rtl");
       if (typeof ref === "function") ref(node);
       else if (ref) ref.current = node;
     },

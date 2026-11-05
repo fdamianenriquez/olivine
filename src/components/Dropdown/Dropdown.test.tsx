@@ -374,3 +374,190 @@ describe("Dropdown", () => {
     ).toHaveNoViolations();
   });
 });
+
+describe("Dropdown checkable items, radios, icons and submenus", () => {
+  stubNoAnimations();
+
+  function View({
+    onTheme = vi.fn(),
+    onGrid = vi.fn(),
+    onExport = vi.fn(),
+  }: {
+    onTheme?: (value: string) => void;
+    onGrid?: (value: boolean) => void;
+    onExport?: () => void;
+  }) {
+    const [grid, setGrid] = useState(false);
+    const [theme, setTheme] = useState("washi");
+    return (
+      <Dropdown
+        label="View"
+        items={[
+          {
+            label: "Show grid",
+            checked: grid,
+            onCheckedChange: (next) => {
+              setGrid(next);
+              onGrid(next);
+            },
+          },
+          {
+            radios: {
+              label: "Theme",
+              value: theme,
+              onValueChange: (next) => {
+                setTheme(next);
+                onTheme(next);
+              },
+              options: [
+                { value: "washi", label: "Washi" },
+                { value: "sumi", label: "Sumi" },
+              ],
+            },
+          },
+          { divider: true },
+          { label: "Print", icon: "印" },
+          {
+            label: "Export",
+            items: [
+              { label: "PNG", onSelect: onExport },
+              { label: "SVG", onSelect: onExport },
+            ],
+          },
+        ]}
+      />
+    );
+  }
+
+  const open = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByRole("button", { name: /view/i }));
+    return screen.findByRole("menu");
+  };
+
+  it("toggles a checkbox item without closing and reports the new state", async () => {
+    const user = userEvent.setup();
+    const onGrid = vi.fn();
+    render(<View onGrid={onGrid} />);
+    await open(user);
+    const grid = screen.getByRole("menuitemcheckbox", { name: "Show grid" });
+    expect(grid).toHaveAttribute("aria-checked", "false");
+    await user.click(grid);
+    expect(onGrid).toHaveBeenCalledWith(true);
+    expect(screen.getByRole("menuitemcheckbox", { name: "Show grid" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
+  it("renders radios in a named group and moves the choice", async () => {
+    const user = userEvent.setup();
+    const onTheme = vi.fn();
+    render(<View onTheme={onTheme} />);
+    await open(user);
+    const group = screen.getByRole("group", { name: "Theme" });
+    expect(group).toContainElement(screen.getByRole("menuitemradio", { name: "Washi" }));
+    expect(screen.getByRole("menuitemradio", { name: "Washi" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await user.click(screen.getByRole("menuitemradio", { name: "Sumi" }));
+    expect(onTheme).toHaveBeenCalledWith("sumi");
+    expect(screen.getByRole("menuitemradio", { name: "Sumi" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    expect(screen.getByRole("menuitemradio", { name: "Washi" })).toHaveAttribute(
+      "aria-checked",
+      "false",
+    );
+  });
+
+  it("hides the icon from the accessible name", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    expect(screen.getByRole("menuitem", { name: "Print" })).toBeInTheDocument();
+  });
+
+  it("opens a submenu with Right, focuses its first item and closes it with Left", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    const parent = screen.getByRole("menuitem", { name: "Export" });
+    expect(parent).toHaveAttribute("aria-haspopup", "menu");
+    expect(parent).toHaveAttribute("aria-expanded", "false");
+    parent.focus();
+    await user.keyboard("{ArrowRight}");
+    const png = await screen.findByRole("menuitem", { name: "PNG" });
+    expect(png).toHaveFocus();
+    expect(parent).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("menu", { name: "Export" })).toBeInTheDocument();
+    await user.keyboard("{ArrowLeft}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+    });
+    expect(parent).toHaveFocus();
+    expect(screen.getByRole("menu", { name: "View" })).toBeInTheDocument();
+  });
+
+  it("closes only the submenu on Escape, then the menu", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    screen.getByRole("menuitem", { name: "Export" }).focus();
+    await user.keyboard("{ArrowRight}");
+    await screen.findByRole("menuitem", { name: "PNG" });
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+    });
+    expect(screen.getByRole("menu", { name: "View" })).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).toBeNull();
+    });
+  });
+
+  it("chooses a submenu item and closes the whole menu", async () => {
+    const user = userEvent.setup();
+    const onExport = vi.fn();
+    render(<View onExport={onExport} />);
+    await open(user);
+    await user.click(screen.getByRole("menuitem", { name: "Export" }));
+    await user.click(await screen.findByRole("menuitem", { name: "SVG" }));
+    expect(onExport).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).toBeNull();
+    });
+    expect(screen.getByRole("button", { name: /view/i })).toHaveFocus();
+  });
+
+  it("opens a submenu after the hover intent delay", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    await user.hover(screen.getByRole("menuitem", { name: "Export" }));
+    expect(await screen.findByRole("menuitem", { name: "PNG" })).toBeInTheDocument();
+  });
+
+  it("has no axe violations with a submenu open in both themes", async () => {
+    for (const theme of ["washi", "sumi"] as const) {
+      const user = userEvent.setup();
+      const { unmount } = render(
+        <Root theme={theme}>
+          <main>
+            <View />
+          </main>
+        </Root>,
+      );
+      await open(user);
+      await user.click(screen.getByRole("menuitem", { name: "Export" }));
+      await screen.findByRole("menuitem", { name: "PNG" });
+      expect(
+        await runAxe(document.body, { rules: { region: { enabled: false } } }),
+      ).toHaveNoViolations();
+      unmount();
+    }
+  });
+});

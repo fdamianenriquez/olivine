@@ -303,6 +303,7 @@ describe("useMenu", () => {
 
   it("reports arrows out of the menu, mirrored in RTL", () => {
     const onArrowOut = vi.fn();
+    /* eslint-disable react-hooks/refs -- a bare harness: the getters are read in render by design */
     function Bar({ dir }: { dir: "ltr" | "rtl" }) {
       const { setMenu, getMenuProps, getItemProps } = useMenu({
         defaultOpen: true,
@@ -407,14 +408,98 @@ describe("menu trees", () => {
       </>,
     );
     const nested = screen.getByRole("menuitem", { name: "Nested" });
+    // A leaf in a submenu hands Right to the root's arrow-out too (a menubar moves on).
     fireEvent.keyDown(nested, { key: "ArrowRight" });
-    expect(onArrowOut).not.toHaveBeenCalled();
-    fireEvent.keyDown(screen.getByRole("menuitem", { name: "New" }), { key: "ArrowRight" });
     expect(onArrowOut).toHaveBeenCalledTimes(1);
+    expect(onArrowOut).toHaveBeenLastCalledWith("next");
+    fireEvent.keyDown(screen.getByRole("menuitem", { name: "New" }), { key: "ArrowLeft" });
+    expect(onArrowOut).toHaveBeenCalledTimes(2);
+    expect(onArrowOut).toHaveBeenLastCalledWith("prev");
     // A press inside the submenu is not an outside press for the root.
     fireEvent.pointerDown(nested);
     expect(screen.getByRole("menu", { name: "File" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Elsewhere" }));
     expect(screen.queryByRole("menu", { name: "File" })).toBeNull();
+  });
+});
+
+describe("menu options for bars and context menus", () => {
+  stubNoAnimations();
+
+  function Bar({
+    initial,
+    ignoreOutside,
+    openOnArrow,
+  }: {
+    initial?: "first" | "last" | "menu" | "none";
+    ignoreOutside?: (target: Node) => boolean;
+    openOnArrow?: "down" | "inline-end" | "none";
+  }) {
+    const [box] = useState<{ mode: "first" | "last" | "menu" | "none" | null }>(() => ({
+      mode: initial ?? null,
+    }));
+    const menu = useMenu({
+      ...(initial ? { initialFocus: box } : null),
+      ...(ignoreOutside ? { ignoreOutside } : null),
+      ...(openOnArrow ? { openOnArrow } : null),
+    });
+    return (
+      <>
+        <button type="button" {...menu.getTriggerProps()} ref={menu.setTrigger}>
+          File
+        </button>
+        <div data-testid="bar">sibling</div>
+        <MenuPopup menu={menu}>
+          <MenuItems menu={menu} items={[{ label: "New" }, { label: "Open" }]} />
+        </MenuPopup>
+      </>
+    );
+  }
+
+  /* eslint-enable react-hooks/refs */
+
+  it("focuses where the shared initialFocus box says, then resets it", async () => {
+    const user = userEvent.setup();
+    render(<Bar initial="last" />);
+    await user.click(screen.getByRole("button", { name: "File" }));
+    expect(screen.getByRole("menuitem", { name: "Open" })).toHaveFocus();
+    // Read once: the next open falls back to the default (the menu itself).
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByRole("button", { name: "File" }));
+    expect(screen.getByRole("menu")).toHaveFocus();
+  });
+
+  it("leaves focus alone for initialFocus none", async () => {
+    const user = userEvent.setup();
+    render(<Bar initial="none" />);
+    await user.click(screen.getByRole("button", { name: "File" }));
+    expect(screen.getByRole("menu")).not.toHaveFocus();
+    expect(screen.getByRole("menuitem", { name: "New" })).not.toHaveFocus();
+  });
+
+  it("does not close for a press that ignoreOutside accepts", async () => {
+    const user = userEvent.setup();
+    render(
+      <Bar ignoreOutside={(target) => (target as Element).closest("[data-testid=bar]") !== null} />,
+    );
+    await user.click(screen.getByRole("button", { name: "File" }));
+    await user.click(screen.getByTestId("bar"));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
+  it("opens with Right (not Down) when openOnArrow is inline-end, and never with none", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<Bar openOnArrow="inline-end" />);
+    screen.getByRole("button", { name: "File" }).focus();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.queryByRole("menu")).toBeNull();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByRole("menuitem", { name: "New" })).toHaveFocus();
+    unmount();
+
+    render(<Bar openOnArrow="none" />);
+    screen.getByRole("button", { name: "File" }).focus();
+    await user.keyboard("{ArrowDown}{ArrowRight}");
+    expect(screen.queryByRole("menu")).toBeNull();
   });
 });
