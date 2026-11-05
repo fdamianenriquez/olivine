@@ -133,6 +133,7 @@ export const ja: OlivineLabels = {
   bottomNavLabel: "メイン",
   sidebarLabel: "サイドバー",
   sidebarWithin: "現在のページを含む",
+  menubar: "メニューバー",
   stepper: { step: "ステップ", of: "/", completed: "完了", error: "要確認" },
   commandPalette: {
     name: "コマンドパレット",

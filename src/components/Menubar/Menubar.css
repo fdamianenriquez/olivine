@@ -1,0 +1,121 @@
+/* The bar: cells that share hairlines, as the boxed Nav. */
+.ol-menubar {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--paper);
+}
+
+.ol-menubar__item {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  block-size: var(--control-s);
+  min-inline-size: var(--target-min);
+  margin: 0;
+  padding: 0 var(--space-4);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink);
+  background: none;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  cursor: pointer;
+}
+
+/* Adjacent cells share one border. */
+.ol-menubar__item + .ol-menubar__item {
+  margin-inline-start: calc(var(--stroke-hair) * -1);
+}
+
+@media (pointer: coarse) {
+  .ol-menubar__item {
+    block-size: var(--control-m);
+  }
+}
+
+/* Inset: neighbours share the borders, so an outer ring would be cut. */
+.ol-menubar__item:focus-visible {
+  position: relative;
+  z-index: var(--z-raised);
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-bold) * -1);
+}
+
+/* Open (the menu hangs from this cell) and hovered: the ink fill is the indicator. */
+.ol-menubar__item[aria-expanded="true"]:not([aria-disabled="true"]) {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+/* On the ink fill olivo alone is too faint: an on-ink band sits under the ring. */
+.ol-menubar__item[aria-expanded="true"]:not([aria-disabled="true"]):focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2 - var(--stroke-hair));
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+/* Hover only where a pointer can hover, so a tap does not leave a cell inverted. */
+@media (hover: hover) {
+  .ol-menubar__item:not([aria-disabled="true"]):hover {
+    position: relative;
+    z-index: var(--z-raised);
+    color: var(--on-ink);
+    background: var(--ink);
+  }
+
+  .ol-menubar__item:not([aria-disabled="true"]):hover:focus-visible {
+    outline-offset: calc(var(--stroke-bold) * -2 - var(--stroke-hair));
+    box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+  }
+}
+
+.ol-menubar__item[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: default;
+}
+
+/*
+ * Switching between open menus is instant: neither menu plays its motion (they would overlap),
+ * and with no finite animation left the leaving menu unmounts at once. The selectors outrank
+ * the noren classes (.ol-motion-noren) whatever the order the stylesheets load in.
+ */
+.ol-dropdown__menu.ol-menubar__menu[data-instant],
+.ol-dropdown__menu.ol-menubar__menu[data-instant]::before,
+.ol-dropdown__menu.ol-menubar__menu[data-instant] > * {
+  animation: none;
+}
+
+@media (forced-colors: active) {
+  .ol-menubar__item {
+    border-color: CanvasText;
+  }
+
+  .ol-menubar__item[aria-expanded="true"]:not([aria-disabled="true"]) {
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-menubar__item[aria-expanded="true"]:not([aria-disabled="true"]):focus-visible {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+
+  .ol-menubar__item[aria-disabled="true"] {
+    color: GrayText;
+  }
+}
+
+@media (forced-colors: active) and (hover: hover) {
+  .ol-menubar__item:not([aria-disabled="true"]):hover {
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-menubar__item:not([aria-disabled="true"]):hover:focus-visible {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+}

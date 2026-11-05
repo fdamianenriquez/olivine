@@ -116,6 +116,14 @@ export {
   type ListboxSingleProps,
 } from "./components/Listbox";
 export { ListGroup, type ListGroupItem, type ListGroupProps } from "./components/ListGroup";
+export {
+  Menubar,
+  type MenubarActionItem,
+  type MenubarChangeReason,
+  type MenubarItem,
+  type MenubarMenuItem,
+  type MenubarProps,
+} from "./components/Menubar";
 export { Modal, type ModalProps, type ModalSize } from "./components/Modal";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";
