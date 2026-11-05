@@ -1,5 +1,6 @@
 import {
   type HTMLAttributes,
+  type KeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   type RefObject,
@@ -389,6 +390,9 @@ const SUBMENU_GRACE_DELAY = 320;
 /** Pixels: the submenu overlaps its parent's border by one hairline (1px on every screen). */
 const HAIRLINE = 1;
 
+/** The open submenu of each menu level, so opening one closes its sibling at once. */
+const openSubmenus = new WeakMap<object, () => void>();
+
 interface SubmenuProps {
   parent: UseMenuResult;
   item: MenuSubmenuItem;
@@ -439,11 +443,38 @@ function MenuSubmenu({ parent, item, lead }: SubmenuProps) {
 
   const { open, setOpen } = sub;
   const depth = sub.tree.depth;
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  });
+  // One submenu per level: a newly opened one closes the previous sibling immediately.
+  const parentTree = parent.tree;
+  useEffect(() => {
+    if (!open) return;
+    const mine = () => {
+      setOpen(false);
+    };
+    const previous = openSubmenus.get(parentTree);
+    if (previous) previous();
+    openSubmenus.set(parentTree, mine);
+    return () => {
+      if (openSubmenus.get(parentTree) === mine) openSubmenus.delete(parentTree);
+    };
+  }, [open, parentTree, setOpen]);
   // While open: focus that lands outside the row, its popup and deeper popups closes it.
   useEffect(() => {
     if (!open) return;
     let lastX = 0;
+    const popupOf = () => {
+      const popupId = row.current?.getAttribute("aria-controls");
+      return popupId ? document.getElementById(popupId) : null;
+    };
     const onMove = (event: PointerEvent) => {
+      // The pointer is over the submenu (even a header or divider): it stays.
+      if (event.target instanceof Node && popupOf()?.contains(event.target)) {
+        clearTimeout(closeTimer.current);
+        return;
+      }
       const box = row.current?.getBoundingClientRect();
       if (box) {
         const toward = (event.clientX - lastX) * (rtl ? -1 : 1) > 0;
@@ -486,6 +517,7 @@ function MenuSubmenu({ parent, item, lead }: SubmenuProps) {
     if (open) return;
     clearTimeout(openTimer.current);
     openTimer.current = setTimeout(() => {
+      if (openRef.current) return;
       focusMode.mode = "none";
       setOpen(true);
     }, SUBMENU_OPEN_DELAY);
@@ -494,8 +526,19 @@ function MenuSubmenu({ parent, item, lead }: SubmenuProps) {
   // The handlers read the timers only when the pointer moves, never during render.
   /* eslint-disable react-hooks/refs */
   const trigger = item.disabled
-    ? {}
+    ? {
+        "aria-expanded": false,
+        // A disabled row swallows the open key, so it never reads as the root's arrow-out.
+        onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+          const forward =
+            getComputedStyle(event.currentTarget).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
+          if (event.key === forward) event.preventDefault();
+        },
+      }
     : sub.getTriggerProps({
+        onClick: () => {
+          clearTimeout(openTimer.current);
+        },
         onPointerEnter: hover,
         onPointerLeave: () => {
           clearTimeout(openTimer.current);

@@ -396,7 +396,10 @@ export function useMenu({
       if (open) {
         // A submenu row stays open when pressed (it may have opened on hover).
         if (parent && triggerRole === "menuitem") {
-          if (event.detail === 0) focusItem("first");
+          // A tap on touch toggles it (there is no hover to open it); a mouse click keeps it.
+          if ((event.nativeEvent as { pointerType?: string }).pointerType === "touch") {
+            close("trigger");
+          } else if (event.detail === 0) focusItem("first");
           return;
         }
         close("trigger");

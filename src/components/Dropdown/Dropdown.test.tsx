@@ -560,4 +560,88 @@ describe("Dropdown checkable items, radios, icons and submenus", () => {
       unmount();
     }
   });
+
+  it("opens a submenu with Enter and Space, and Tab closes the whole menu", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    const parent = screen.getByRole("menuitem", { name: "Export" });
+    parent.focus();
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("menuitem", { name: "PNG" })).toHaveFocus();
+    await user.keyboard("{ArrowLeft}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+    });
+    parent.focus();
+    await user.keyboard(" ");
+    expect(await screen.findByRole("menuitem", { name: "PNG" })).toHaveFocus();
+    await user.keyboard("{Tab}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).toBeNull();
+    });
+  });
+
+  it("mirrors the submenu keys in RTL", async () => {
+    const user = userEvent.setup();
+    render(
+      <div dir="rtl">
+        <View />
+      </div>,
+    );
+    await open(user);
+    const parent = screen.getByRole("menuitem", { name: "Export" });
+    parent.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+    await user.keyboard("{ArrowLeft}");
+    expect(await screen.findByRole("menuitem", { name: "PNG" })).toHaveFocus();
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => {
+      expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+    });
+  });
+
+  it("never opens a disabled submenu row", async () => {
+    const user = userEvent.setup();
+    render(
+      <Dropdown
+        label="View"
+        items={[{ label: "Export", disabled: true, items: [{ label: "PNG" }] }, { label: "Print" }]}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /view/i }));
+    const row = await screen.findByRole("menuitem", { name: "Export" });
+    expect(row).toHaveAttribute("aria-expanded", "false");
+    await user.click(row);
+    await user.hover(row);
+    expect(screen.queryByRole("menuitem", { name: "PNG" })).toBeNull();
+  });
+
+  it("hides the check, the radio dot and the submenu arrow from assistive technology", async () => {
+    const user = userEvent.setup();
+    render(<View />);
+    await open(user);
+    const marks = document.querySelectorAll(".ol-dropdown__lead, .ol-dropdown__sub");
+    expect(marks.length).toBeGreaterThan(0);
+    for (const mark of marks) expect(mark).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("has no axe violations with a submenu opened by keyboard", async () => {
+    const user = userEvent.setup();
+    render(
+      <Root>
+        <main>
+          <View />
+        </main>
+      </Root>,
+    );
+    await open(user);
+    screen.getByRole("menuitem", { name: "Export" }).focus();
+    await user.keyboard("{ArrowRight}");
+    await screen.findByRole("menuitem", { name: "PNG" });
+    expect(
+      await runAxe(document.body, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
+  });
 });
