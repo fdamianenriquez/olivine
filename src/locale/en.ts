@@ -131,6 +131,10 @@ export const en: OlivineLabels = {
   sidebarLabel: "Sidebar",
   sidebarWithin: "contains the current page",
   menubar: "Menu bar",
+  treeEmpty: "No items",
+  treeLoaded: (label, n) =>
+    n === 1 ? `1 item loaded in ${label}` : `${String(n)} items loaded in ${label}`,
+  treeLoadFailed: (label) => `Couldn't load ${label}`,
   stepper: { step: "Step", of: "of", completed: "completed", error: "needs attention" },
   commandPalette: {
     name: "Command palette",

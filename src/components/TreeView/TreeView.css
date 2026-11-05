@@ -1,0 +1,316 @@
+/* TreeView: ruled rows with a +/− sign (as Accordion), an optional check mark (the Checkbox box,
+ * drawn, not an input) and a label. Unselected rows fill with paper-2 on hover (the selectable
+ * rule, as Listbox); selected rows are ink; the keyboard focus is the olive inset ring; `current`
+ * is an olive edge on the inline-start side. Selection is instant; a check mark scales in with
+ * --motion-fast. */
+.ol-tree {
+  /* Row height, so `rows` can cap the tree at whole rows. Internal, assigned from tokens. */
+  --ol-tree-row: max(var(--control-s), var(--target-min));
+
+  /* Indent per level. Internal: depth is a layout step, not a design token. */
+  --ol-tree-indent: var(--space-6);
+
+  /* Where the label starts on a row at the start of its level, for the loading and empty rows. */
+  --ol-tree-start: var(--space-2);
+
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: transparent;
+  border-radius: var(--radius-0);
+  outline: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ol-tree--m {
+  --ol-tree-row: var(--control-m);
+}
+
+@media (pointer: coarse) {
+  .ol-tree {
+    --ol-tree-row: var(--control-m);
+  }
+}
+
+.ol-tree--rows {
+  max-height: calc(var(--ol-tree-rows) * var(--ol-tree-row));
+}
+
+.ol-tree--boxed {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tree--boxed.ol-tree--rows {
+  max-height: calc(var(--ol-tree-rows) * var(--ol-tree-row) + var(--stroke-hair) * 2);
+}
+
+.ol-tree__node,
+.ol-tree__group {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ol-tree__item {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-height: var(--ol-tree-row);
+  padding-block: 0;
+  padding-inline: calc(var(--ol-tree-start) + (var(--ol-tree-level) - 1) * var(--ol-tree-indent))
+    var(--space-4);
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-ui-leading);
+  letter-spacing: var(--text-ui-tracking);
+  font-weight: var(--text-ui-weight);
+  color: var(--ink);
+  background: transparent;
+  border-radius: var(--radius-0);
+  outline: none;
+  user-select: none;
+}
+
+.ol-tree__item[data-actionable] {
+  cursor: pointer;
+}
+
+/* The sign is a square the height of the row, so it is an easy target; leaves keep the slot so
+ * the labels line up. */
+.ol-tree__sign {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--ol-tree-row);
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-size: var(--glyph-m);
+  line-height: 1;
+}
+
+/* The check mark has the geometry of the Checkbox box; the state is on the row's aria-checked. */
+.ol-tree__check {
+  display: grid;
+  flex: none;
+  align-self: center;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--check-size);
+  height: var(--check-size);
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tree__check::after {
+  content: "";
+  width: var(--mark-size);
+  height: var(--mark-size);
+  background: var(--ink);
+  transform: scale(0);
+  transition: transform var(--motion-fast);
+}
+
+.ol-tree__item[aria-checked="true"] .ol-tree__check::after {
+  transform: scale(1);
+}
+
+.ol-tree__item[aria-checked="mixed"] .ol-tree__check::after {
+  height: var(--stroke-bold);
+  transform: scale(1);
+}
+
+/* A node that groups and cannot be ticked keeps the slot, with nothing in it. */
+.ol-tree__check[data-state="none"] {
+  visibility: hidden;
+}
+
+.ol-tree__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-block: var(--space-2);
+}
+
+.ol-tree__label {
+  overflow-wrap: anywhere;
+}
+
+.ol-tree__desc {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  letter-spacing: var(--text-body-s-tracking);
+  font-weight: var(--text-body-s-weight);
+  color: var(--ink-2);
+}
+
+.ol-tree__meta {
+  flex: none;
+  align-self: center;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+@media (hover: hover) {
+  .ol-tree__item[data-actionable]:not([aria-selected="true"]):hover {
+    background: var(--paper-2);
+  }
+}
+
+.ol-tree__item[aria-selected="true"] {
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-tree__item[aria-selected="true"] :is(.ol-tree__desc, .ol-tree__meta) {
+  color: var(--on-ink);
+}
+
+/* Where you are: an olive edge on the inline-start side, independent of selection. */
+.ol-tree__item[aria-current]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--stroke-bold);
+  background: var(--olivo);
+}
+
+/* Olivo on ink is too faint to read: the edge of a selected row is on-ink. */
+.ol-tree__item[aria-selected="true"][aria-current]::before {
+  background: var(--on-ink);
+}
+
+.ol-tree__item:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: calc(var(--stroke-bold) * -1);
+}
+
+/* On an ink row olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+.ol-tree__item[aria-selected="true"]:focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+.ol-tree__item[aria-disabled="true"] {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-tree__item[aria-disabled="true"] :is(.ol-tree__desc, .ol-tree__meta) {
+  color: var(--ink-3);
+}
+
+.ol-tree__item[aria-disabled="true"] .ol-tree__check {
+  border-color: var(--ink-3);
+}
+
+.ol-tree__item[aria-disabled="true"] .ol-tree__check::after {
+  background: var(--ink-3);
+}
+
+/* Selected and disabled keeps the ink row: ink-3 on ink would fail contrast. */
+.ol-tree__item[aria-selected="true"][aria-disabled="true"],
+.ol-tree__item[aria-selected="true"][aria-disabled="true"] :is(.ol-tree__desc, .ol-tree__meta) {
+  color: var(--on-ink);
+}
+
+/* The loading and empty rows follow the level of the rows they stand in for. */
+.ol-tree__loading,
+.ol-tree__failed,
+.ol-tree__empty {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  letter-spacing: var(--text-label-tracking);
+  font-weight: var(--text-label-weight);
+  color: var(--ink-2);
+}
+
+.ol-tree__loading,
+.ol-tree__failed {
+  padding-inline-start: calc(
+    var(--ol-tree-start) + (var(--ol-tree-level) - 1) * var(--ol-tree-indent) + var(--ol-tree-row) +
+      var(--space-2)
+  );
+}
+
+@media (forced-colors: active) {
+  .ol-tree--boxed {
+    border-color: CanvasText;
+  }
+
+  .ol-tree__check {
+    border-color: ButtonText;
+  }
+
+  .ol-tree__check::after {
+    background: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  /* Only selection fills; the focus is an outline, so the two never look alike. */
+  .ol-tree__item[aria-selected="true"],
+  .ol-tree__item[aria-selected="true"] :is(.ol-tree__desc, .ol-tree__meta) {
+    /* No Canvas backplate behind the text: it would hide HighlightText on Highlight. */
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  .ol-tree__item[aria-selected="true"] :is(.ol-tree__desc, .ol-tree__meta) {
+    background: none;
+  }
+
+  /* Box-shadow and backgrounds are dropped in forced colours: the edge keeps its own colour. */
+  .ol-tree__item[aria-current]::before {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .ol-tree__item[aria-selected="true"][aria-current]::before {
+    background: HighlightText;
+  }
+
+  .ol-tree__item:focus-visible,
+  .ol-tree__item[aria-selected="true"]:focus-visible {
+    outline: var(--stroke-bold) solid CanvasText;
+    outline-offset: calc(var(--stroke-bold) * -1);
+    box-shadow: none;
+  }
+
+  .ol-tree__item[aria-selected="true"]:focus-visible {
+    outline-color: HighlightText;
+    outline-offset: calc(var(--stroke-bold) * -2);
+  }
+
+  .ol-tree__item[aria-disabled="true"]:not([aria-selected="true"]) {
+    color: GrayText;
+    background: none;
+  }
+
+  .ol-tree__item[aria-disabled="true"]:not([aria-selected="true"])
+    :is(.ol-tree__desc, .ol-tree__meta) {
+    color: GrayText;
+  }
+
+  .ol-tree__item[aria-disabled="true"] .ol-tree__check {
+    border-color: GrayText;
+  }
+
+  .ol-tree__item[aria-disabled="true"] .ol-tree__check::after {
+    background: GrayText;
+  }
+}
