@@ -51,6 +51,7 @@
 @import "../components/Sidebar/Sidebar.css";
 @import "../components/TreeView/TreeView.css";
 @import "../components/Menubar/Menubar.css";
+@import "../components/ContextMenu/ContextMenu.css";
 @import "../components/TableOfContents/TableOfContents.css";
 @import "../components/Stepper/Stepper.css";
 @import "../components/Tabs/Tabs.css";

@@ -1,0 +1,8 @@
+/* The area has no look of its own. While a touch is held it keeps the browser from starting a
+ * text selection or showing its own long-press callout, which would compete with the menu. */
+.ol-context-menu[data-pressing] {
+  -webkit-touch-callout: none;
+  /* stylelint-disable-next-line property-no-vendor-prefix -- Safari needs the prefix */
+  -webkit-user-select: none;
+  user-select: none;
+}

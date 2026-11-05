@@ -132,6 +132,7 @@ export const en: OlivineLabels = {
   sidebarWithin: "contains the current page",
   menubar: "Menu bar",
   tocLabel: "On this page",
+  contextMenu: "Context menu",
   treeEmpty: "No items",
   treeLoaded: (label, n) =>
     n === 1 ? `1 item loaded in ${label}` : `${String(n)} items loaded in ${label}`,
