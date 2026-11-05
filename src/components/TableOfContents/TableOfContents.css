@@ -1,0 +1,139 @@
+.ol-toc {
+  box-sizing: border-box;
+  color: var(--ink);
+}
+
+/*
+ * Stays in view; the list scrolls inside when it is taller than what is left of the viewport.
+ * The inset is --ol-toc-top, else the page's --ol-anchor-offset (the sticky chrome the headings
+ * stop below, see .ol-anchor), else a space token.
+ */
+.ol-toc--sticky {
+  position: sticky;
+  inset-block-start: var(--ol-toc-top, var(--ol-anchor-offset, var(--space-6)));
+  display: flex;
+  flex-direction: column;
+  max-block-size: calc(100dvh - var(--ol-toc-top, var(--ol-anchor-offset, var(--space-6))) * 2);
+  background: var(--paper);
+}
+
+/* A label above the list, not a heading. Sentence case. */
+.ol-toc__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  line-height: var(--text-label-s-leading);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  color: var(--ink-2);
+}
+
+/* The rail and the scroll area. The stroke is positioned against it. */
+.ol-toc__track {
+  --ol-indicator-size: var(--stroke-heavy);
+
+  position: relative;
+}
+
+.ol-toc--sticky .ol-toc__track {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ol-toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The hairline rail runs down the inline start side of the top-level list. */
+.ol-toc__list:not(.ol-toc__list--nested) {
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-toc__link {
+  --ol-toc-level: 1;
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-block-size: var(--control-s);
+  padding-block: var(--space-1);
+  padding-inline: calc(var(--space-4) * var(--ol-toc-level)) var(--space-4);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink-2);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color var(--dur-s) var(--ease-effect);
+}
+
+.ol-toc__link[data-level="2"] {
+  --ol-toc-level: 2;
+}
+
+.ol-toc__link[data-level="3"] {
+  --ol-toc-level: 3;
+}
+
+@media (hover: hover) {
+  .ol-toc__link:hover {
+    color: var(--ink);
+  }
+}
+
+/* The current entry, and the ones that hold it: ink. Only the current one has the stroke. */
+.ol-toc__link[aria-current],
+.ol-toc__link--active,
+.ol-toc__link[data-within] {
+  color: var(--ink);
+}
+
+/* Inside the row: neighbours share the rail, and the scroll area would clip an outer ring. */
+.ol-toc__link:focus-visible {
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* Before the travelling stroke is measured (first paint, no script) the link draws its own edge. */
+.ol-toc__link[aria-current="location"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--stroke-hair) * -1);
+  inline-size: var(--stroke-heavy);
+  background: var(--olivo);
+  pointer-events: none;
+}
+
+.ol-toc__track[data-indicator="ready"] .ol-toc__link::before {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .ol-toc__link {
+    min-block-size: var(--control-m);
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-toc__list:not(.ol-toc__list--nested) {
+    border-inline-start-color: CanvasText;
+  }
+
+  .ol-toc__link,
+  .ol-toc__link[aria-current],
+  .ol-toc__link[data-within] {
+    color: ButtonText;
+  }
+
+  .ol-toc__link[aria-current="location"]::before {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

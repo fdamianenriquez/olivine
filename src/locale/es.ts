@@ -132,6 +132,7 @@ export const es: OlivineLabels = {
   sidebarLabel: "Barra lateral",
   sidebarWithin: "contiene la página actual",
   menubar: "Barra de menús",
+  tocLabel: "En esta página",
   treeEmpty: "Sin elementos",
   treeLoaded: (label, n) =>
     n === 1 ? `1 elemento cargado en ${label}` : `${String(n)} elementos cargados en ${label}`,

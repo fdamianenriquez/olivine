@@ -210,6 +210,14 @@ export {
   type TableSort,
   type TableSortDirection,
 } from "./components/Table";
+export {
+  TableOfContents,
+  type TableOfContentsDepth,
+  type TableOfContentsItem,
+  type TableOfContentsProps,
+  useHeadings,
+  type UseHeadingsOptions,
+} from "./components/TableOfContents";
 export { Tabs, type TabsProps, TabsTab, type TabsTabProps } from "./components/Tabs";
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";

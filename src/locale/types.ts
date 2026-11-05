@@ -148,6 +148,8 @@ export interface OlivineLabels {
   sidebarWithin: string;
   /** Default name of the Menubar. */
   menubar: string;
+  /** Default name of the TableOfContents landmark. */
+  tocLabel: string;
   /** Shown in an empty TreeView. */
   treeEmpty: string;
   /** Status after a TreeView branch loaded its children. */
