@@ -2,6 +2,13 @@ export { Accordion, type AccordionItem, type AccordionProps } from "./components
 export { Alert, type AlertProps, type AlertTone } from "./components/Alert";
 export * from "./components/Avatar";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
+export {
+  BOTTOM_NAV_MAX_ITEMS,
+  BOTTOM_NAV_MIN_ITEMS,
+  BottomNav,
+  type BottomNavItem,
+  type BottomNavProps,
+} from "./components/BottomNav";
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./components/Breadcrumb";
 export { Button, type ButtonOwnProps, type ButtonProps } from "./components/Button";
 export { ButtonGroup, type ButtonGroupProps } from "./components/ButtonGroup";

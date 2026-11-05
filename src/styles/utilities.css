@@ -174,7 +174,8 @@
   scroll-padding-bottom: calc(var(--control-xl) + var(--space-6) * 2);
 }
 
-/* A scroll container under a BottomNav: content and focused items stop above the bar. */
+/* A scroll container under a BottomNav: content and focused items stop above the bar. A minimum:
+ * a bar with two-line labels or large text is taller and covers a little more. */
 .ol-has-bottomnav {
   padding-block-end: calc(var(--space-16) + var(--stroke-hair) + env(safe-area-inset-bottom, 0px));
   scroll-padding-bottom: calc(

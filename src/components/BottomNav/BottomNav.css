@@ -1,0 +1,181 @@
+/* The bar: fixed to the bottom edge, paper under the home indicator, cells share hairlines. */
+.ol-bottomnav {
+  position: fixed;
+  z-index: var(--z-sticky);
+  inset-inline: 0;
+  inset-block-end: 0;
+  box-sizing: border-box;
+
+  /* The paper fills under the home indicator; the side insets keep cells clear of a notch. */
+  padding-block-end: env(safe-area-inset-bottom, 0);
+  padding-inline: env(safe-area-inset-left, 0) env(safe-area-inset-right, 0);
+  border-block-start: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  translate: 0 0;
+  transition: translate var(--dur-m) var(--ease-move);
+}
+
+.ol-bottomnav--contained {
+  position: absolute;
+}
+
+/* Hidden on scroll: it slides below the edge; the items stay in the tab order. */
+.ol-bottomnav--hidden {
+  translate: 0 100%;
+}
+
+/* ---------- Destinations ---------- */
+
+/* Equal columns: the bar grows taller, never wider, with large text or two-line labels. */
+.ol-bottomnav__list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ol-bottomnav__cell {
+  display: flex;
+}
+
+.ol-bottomnav__cell + .ol-bottomnav__cell {
+  border-inline-start: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-bottomnav__item {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  min-block-size: var(--space-16);
+  padding: var(--space-2) var(--space-1);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+.ol-bottomnav__mark {
+  font-family: var(--text-kanji-s-family);
+  font-size: var(--text-kanji-s-size);
+  line-height: var(--text-kanji-s-leading);
+  letter-spacing: var(--text-kanji-s-tracking);
+  color: inherit;
+}
+
+/* Two lines, then an ellipsis; the accessible name stays complete. Marks stay on one line
+ * across the bar because the content starts at the top of the cell. */
+.ol-bottomnav__label {
+  display: -webkit-box;
+  max-inline-size: 100%;
+  overflow: hidden;
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  line-height: var(--text-label-s-leading);
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Counts straddle the top edge at the end corner: even a three-digit count in the narrowest cell
+ * leaves the mark visible below it. Tight padding keeps the badge as narrow as it can be. */
+.ol-bottomnav__badge {
+  position: absolute;
+  inset-block-start: calc(var(--badge-height) / -2);
+  inset-inline-end: 0;
+  padding-inline: var(--space-1);
+}
+
+/* The current edge wipes in from the inline start over the bar's hairline; it is a transition,
+ * so a first render shows it already drawn. */
+.ol-bottomnav__item::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(var(--stroke-hair) * -1);
+  inset-inline: 0;
+  block-size: var(--stroke-heavy);
+  background: var(--olivo);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dur-s) var(--ease-move);
+}
+
+.ol-bottomnav__item:dir(rtl)::before {
+  clip-path: inset(0 0 0 100%);
+}
+
+.ol-bottomnav__item[aria-current="page"] {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.ol-bottomnav__item[aria-current="page"]::before {
+  clip-path: inset(0);
+}
+
+/* Inside the cell: neighbours share its borders, so an outer ring would be cut. */
+.ol-bottomnav__item:focus-visible {
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* Hover only where a pointer can hover, so a tap does not leave the cell inverted. */
+@media (hover: hover) {
+  .ol-bottomnav__item:hover {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  /* On the ink fill olivo alone is too faint: an on-ink band sits under the ring. */
+  .ol-bottomnav__item:hover:focus-visible {
+    outline-offset: calc(var(--stroke-bold) * -2);
+    box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+  }
+}
+
+/* A press inverts too: it is the touch feedback. */
+.ol-bottomnav__item:active {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-bottomnav__item:active:focus-visible {
+  outline-offset: calc(var(--stroke-bold) * -2);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+@media print {
+  .ol-bottomnav {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  /* The current item is marked by its edge; the focus ring keeps the system colour. */
+  .ol-bottomnav__item[aria-current="page"] {
+    forced-color-adjust: none;
+  }
+
+  .ol-bottomnav__item::before {
+    background: Highlight;
+  }
+}
