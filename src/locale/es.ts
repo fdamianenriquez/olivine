@@ -129,6 +129,8 @@ export const es: OlivineLabels = {
   railExpand: "Expandir navegación",
   railCollapse: "Contraer navegación",
   bottomNavLabel: "Principal",
+  sidebarLabel: "Barra lateral",
+  sidebarWithin: "contiene la página actual",
   stepper: { step: "Paso", of: "de", completed: "completado", error: "requiere atención" },
   commandPalette: {
     name: "Paleta de comandos",

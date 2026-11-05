@@ -162,6 +162,15 @@ export {
 } from "./components/SegmentedControl";
 export { Select, type SelectOption, type SelectProps } from "./components/Select";
 export { Sheet, type SheetProps } from "./components/Sheet";
+export {
+  Sidebar,
+  type SidebarItem,
+  type SidebarPlacement,
+  type SidebarProps,
+  type SidebarSection,
+  type SidebarSubItem,
+  type SidebarVariant,
+} from "./components/Sidebar";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
 export {
   SplitButton,
