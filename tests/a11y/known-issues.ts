@@ -43,6 +43,12 @@ export const KNOWN_ISSUES: KnownIssue[] = [
     note: "Not a defect: an option with a description or meta is named by its visible label alone (aria-labelledby) and the extra text is its description (aria-describedby); the name is the visible label, so WCAG 2.5.3 holds, but axe compares the name with all of the option's text.",
   },
   {
+    stories: /^navigation-treeview--/,
+    rule: "label-content-name-mismatch",
+    target: /-n-/,
+    note: "Not a defect: a node with a description or meta is named by its visible label alone (aria-labelledby) and the extra text is its description (aria-describedby); the name is the visible label, so WCAG 2.5.3 holds, but axe compares the name with all of the node's text.",
+  },
+  {
     stories: /^overlays-commandpalette--/,
     rule: "scrollable-region-focusable",
     target: /\.ol-cmd__list$/,

@@ -244,6 +244,17 @@ export {
   type ToolbarSpacerProps,
 } from "./components/Toolbar";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
+export {
+  type CheckState,
+  type TreeActions,
+  type TreeNode,
+  TreeView,
+  type TreeViewCheckboxProps,
+  type TreeViewMultipleProps,
+  type TreeViewNoneProps,
+  type TreeViewProps,
+  type TreeViewSingleProps,
+} from "./components/TreeView";
 export { VisuallyHidden, type VisuallyHiddenProps } from "./components/VisuallyHidden";
 export {
   type LabelOverrides,

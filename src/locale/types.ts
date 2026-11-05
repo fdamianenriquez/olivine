@@ -148,6 +148,12 @@ export interface OlivineLabels {
   sidebarWithin: string;
   /** Default name of the Menubar. */
   menubar: string;
+  /** Shown in an empty TreeView. */
+  treeEmpty: string;
+  /** Status after a TreeView branch loaded its children. */
+  treeLoaded: (label: string, n: number) => string;
+  /** Status when a TreeView branch failed to load. */
+  treeLoadFailed: (label: string) => string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
   /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
