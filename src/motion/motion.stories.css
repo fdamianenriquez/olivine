@@ -435,6 +435,30 @@
   color: var(--ink);
 }
 
+.ol-sb-motion__outline {
+  --ol-indicator-size: var(--stroke-heavy);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__outline-link {
+  height: var(--control-s);
+  padding: 0 var(--space-4);
+  font: inherit;
+  color: var(--ink-2);
+  text-align: start;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.ol-sb-motion__outline-link[data-current] {
+  color: var(--ink);
+}
+
 .ol-sb-motion__screen {
   width: 100%;
   min-height: calc(var(--space-32) + var(--space-8));

@@ -238,9 +238,41 @@ describe("motion.css and motion-extras.css", () => {
     expect(css).toMatch(/:not\(:where\(:has\(> \.ol-ink-wipe__ink\)\)\)\s*\{\s*color:/);
   });
 
+  it("draws the block-axis stroke with two registered edges, leading edge first", () => {
+    for (const name of ["y", "h"]) {
+      expect(css).toMatch(new RegExp(`@property --ol-indicator-${name} \\{[^}]*inherits: true`));
+    }
+    for (const name of ["top", "bottom"]) {
+      expect(css).toMatch(
+        new RegExp(
+          `@property --ol-indicator-${name} \\{[^}]*syntax: "<length>"[^}]*inherits: false`,
+        ),
+      );
+    }
+    const bar = rule(".ol-indicator--block");
+    expect(bar).toMatch(/inset-inline-start:\s*0/);
+    expect(bar).toMatch(/inset-block-start:\s*0/);
+    expect(bar).toMatch(/inline-size:\s*var\(--ol-indicator-size, var\(--stroke-bold\)\)/);
+    expect(bar).toMatch(/clip-path:\s*inset\(var\(--ol-indicator-top\)/);
+    expect(bar).not.toMatch(/(?<![-\w])(?:left|right|top|bottom)\s*:/);
+
+    const down = rule('[data-indicator="ready"] .ol-indicator--block');
+    expect(down).toMatch(/--ol-indicator-bottom var\(--dur-m\) var\(--ease-move\),/);
+    expect(down).toMatch(/--ol-indicator-top var\(--dur-m\) var\(--ease-move\) var\(--stagger\)/);
+    const up = rule('[data-indicator="ready"][data-dir="up"] .ol-indicator--block');
+    expect(up).toMatch(/--ol-indicator-top var\(--dur-m\) var\(--ease-move\),/);
+    expect(up).toMatch(/--ol-indicator-bottom var\(--dur-m\) var\(--ease-move\) var\(--stagger\)/);
+    expect(rule("[data-indicator-still][data-indicator] .ol-indicator--block")).toMatch(
+      /transition:\s*none/,
+    );
+  });
+
   it("follows forced colours: Highlight bar and selection, origami shows the real text", () => {
     const body = allBodies(/@media\s*\(forced-colors:\s*active\)\s*\{/g);
     expect(body).toMatch(/\.ol-indicator\s*\{[^}]*forced-color-adjust:\s*none;[^}]*Highlight/);
+    expect(body).toMatch(
+      /\.ol-indicator--block\s*\{[^}]*forced-color-adjust:\s*none;[^}]*Highlight/,
+    );
     expect(body).toMatch(/\.ol-ink-wipe::before[^{]*\{[^}]*background:\s*Highlight/);
     expect(body).toMatch(/HighlightText/);
     expect(body).toMatch(/\.ol-motion-origami__sheet\s*\{\s*display:\s*none/);
