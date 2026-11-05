@@ -1,0 +1,455 @@
+/*
+ * The sidebar: a 280px column of titled sections beside the content. Hairlines share borders;
+ * the current page is paper-2 with an olivo edge; hover inverts a row to ink, as the rail does.
+ */
+.ol-sidebar,
+.ol-sidebar-drawer {
+  --ol-sidebar-width: calc(var(--control-xl) * 3.5);
+}
+
+.ol-sidebar {
+  /* 1 or -1 for the slide; the clip insets name the inline start and end edges of a row. */
+  --ol-sidebar-dir: 1;
+  --ol-clip-start: 0 100% 0 0;
+  --ol-clip-end: 0 0 0 100%;
+
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--ol-sidebar-width);
+  height: 100%;
+  min-height: 0;
+  border-inline-end: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-sidebar:dir(rtl) {
+  --ol-sidebar-dir: -1;
+  --ol-clip-start: 0 0 0 100%;
+  --ol-clip-end: 0 100% 0 0;
+}
+
+.ol-sidebar--end {
+  border-inline-end: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+/* ---------- Header, footer and the scrolling list ---------- */
+
+.ol-sidebar__header,
+.ol-sidebar__footer {
+  flex: none;
+  padding: var(--space-4);
+}
+
+.ol-sidebar__header {
+  border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sidebar__footer {
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sidebar__nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ol-sidebar__sections,
+.ol-sidebar__list,
+.ol-sidebar__sublist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ol-sidebar__section:not(:last-child) {
+  border-bottom: var(--stroke-hair) solid var(--line-soft);
+}
+
+/* ---------- Section titles ---------- */
+
+.ol-sidebar__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-s);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  line-height: var(--text-label-s-leading);
+  text-align: start;
+}
+
+.ol-sidebar__title--toggle {
+  cursor: pointer;
+}
+
+.ol-sidebar__title-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The +/− sign draws in the label face: the mono face sets glyphs too small. */
+.ol-sidebar__sign {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--space-6);
+  font-family: var(--font-label);
+  font-size: var(--glyph-l);
+  font-weight: var(--text-label-l-weight);
+  line-height: 1;
+}
+
+/* ---------- Rows ---------- */
+
+.ol-sidebar__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--control-m);
+}
+
+.ol-sidebar__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-m);
+  margin: 0;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  letter-spacing: var(--text-label-l-tracking);
+  line-height: var(--text-label-l-leading);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ol-sidebar__item--sub {
+  min-height: var(--control-s);
+  padding-inline-start: calc(var(--space-6) + var(--space-4));
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  line-height: var(--text-label-s-leading);
+}
+
+@media (pointer: coarse) {
+  .ol-sidebar__item--sub {
+    min-height: var(--control-m);
+  }
+}
+
+.ol-sidebar__mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--space-6);
+  font-family: var(--text-kanji-s-family);
+  font-size: var(--text-kanji-s-size);
+  letter-spacing: var(--text-kanji-s-tracking);
+  line-height: var(--text-kanji-s-leading);
+}
+
+.ol-sidebar__label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ol-sidebar__badge {
+  flex: none;
+}
+
+/* The parent's own toggle, beside its link. */
+.ol-sidebar__toggle {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--control-m);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--line-soft);
+  border-radius: var(--radius-0);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+/* One hairline guides the nested rows; the rows themselves span the whole width. */
+.ol-sidebar__sublist {
+  position: relative;
+}
+
+.ol-sidebar__sublist::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--space-6);
+  width: var(--stroke-hair);
+  background: var(--line-soft);
+}
+
+/* ---------- States ---------- */
+
+.ol-sidebar__title--toggle,
+.ol-sidebar__item,
+.ol-sidebar__toggle {
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    color var(--dur-s) var(--ease-effect);
+}
+
+/* Contains the current page while folded shut: ink, with no edge, so it never reads as current. */
+.ol-sidebar__title[data-within],
+.ol-sidebar__item[data-within] {
+  color: var(--ink);
+}
+
+.ol-sidebar__item[aria-current="page"] {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.ol-sidebar__item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--stroke-heavy);
+  background: var(--olivo);
+}
+
+.ol-sidebar__item[aria-disabled="true"],
+.ol-sidebar__item:disabled,
+.ol-sidebar__toggle:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+@media (hover: hover) {
+  .ol-sidebar__title--toggle:hover,
+  .ol-sidebar__item:hover:not([aria-disabled="true"], :disabled),
+  .ol-sidebar__toggle:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+}
+
+/* Inside the row: neighbours share its borders, so an outer ring would be cut. */
+.ol-sidebar__title--toggle:focus-visible,
+.ol-sidebar__item:focus-visible,
+.ol-sidebar__toggle:focus-visible {
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* On the ink fill olivo alone is too faint: an on-ink band sits under the ring (a paper gap). */
+@media (hover: hover) {
+  .ol-sidebar__title--toggle:hover:focus-visible,
+  .ol-sidebar__item:hover:not([aria-disabled="true"], :disabled):focus-visible,
+  .ol-sidebar__toggle:hover:not(:disabled):focus-visible {
+    outline-offset: calc(var(--stroke-bold) * -2);
+    box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+  }
+}
+
+/* ---------- The modal drawer ---------- */
+
+.ol-offcanvas.ol-sidebar-drawer {
+  --ol-offcanvas-width: var(--ol-sidebar-width);
+}
+
+.ol-sidebar-drawer .ol-offcanvas__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ol-sidebar--modal {
+  flex: 1;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+}
+
+/* ---------- Motion ---------- */
+
+/*
+ * Byobu, flat: the rows of a list act as the panels of a folding screen. Each one wipes in from
+ * the inline start edge, the next from the inline end edge, staggered. Only clip-path moves.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .ol-sidebar__list[data-animate] > li,
+  .ol-sidebar__sublist[data-animate] > li {
+    animation: ol-sidebar-reveal-start var(--dur-m) var(--ease-move)
+      calc(var(--ol-i, 0) * var(--stagger)) backwards;
+  }
+
+  .ol-sidebar__list[data-animate] > li:nth-child(even),
+  .ol-sidebar__sublist[data-animate] > li:nth-child(even) {
+    animation-name: ol-sidebar-reveal-end;
+  }
+
+  .ol-sidebar__list[data-animate][data-state="closing"] > li,
+  .ol-sidebar__sublist[data-animate][data-state="closing"] > li {
+    animation: ol-sidebar-hide-start var(--dur-m) var(--ease-move)
+      calc(var(--ol-i, 0) * var(--stagger)) forwards;
+  }
+
+  .ol-sidebar__list[data-animate][data-state="closing"] > li:nth-child(even),
+  .ol-sidebar__sublist[data-animate][data-state="closing"] > li:nth-child(even) {
+    animation-name: ol-sidebar-hide-end;
+  }
+}
+
+@keyframes ol-sidebar-reveal-start {
+  from {
+    clip-path: inset(var(--ol-clip-start));
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes ol-sidebar-reveal-end {
+  from {
+    clip-path: inset(var(--ol-clip-end));
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes ol-sidebar-hide-start {
+  from {
+    clip-path: inset(0);
+  }
+
+  to {
+    clip-path: inset(var(--ol-clip-start));
+  }
+}
+
+@keyframes ol-sidebar-hide-end {
+  from {
+    clip-path: inset(0);
+  }
+
+  to {
+    clip-path: inset(var(--ol-clip-end));
+  }
+}
+
+/* The standard sidebar slides along the inline axis when the app shows or hides it. */
+@media (prefers-reduced-motion: no-preference) {
+  .ol-sidebar[data-animate][data-state="open"]:not(.ol-reduce-motion, .ol-reduce-motion *) {
+    animation: ol-sidebar-in-start var(--motion-slow);
+  }
+
+  .ol-sidebar--end[data-animate][data-state="open"]:not(.ol-reduce-motion, .ol-reduce-motion *) {
+    animation-name: ol-sidebar-in-end;
+  }
+
+  .ol-sidebar[data-animate][data-state="closing"]:not(.ol-reduce-motion, .ol-reduce-motion *) {
+    animation: ol-sidebar-out-start var(--motion-slow) forwards;
+  }
+
+  .ol-sidebar--end[data-animate][data-state="closing"]:not(.ol-reduce-motion, .ol-reduce-motion *) {
+    animation-name: ol-sidebar-out-end;
+  }
+}
+
+@keyframes ol-sidebar-in-start {
+  from {
+    transform: translateX(calc(-100% * var(--ol-sidebar-dir)));
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes ol-sidebar-in-end {
+  from {
+    transform: translateX(calc(100% * var(--ol-sidebar-dir)));
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes ol-sidebar-out-start {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-100% * var(--ol-sidebar-dir)));
+  }
+}
+
+@keyframes ol-sidebar-out-end {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(100% * var(--ol-sidebar-dir)));
+  }
+}
+
+@media (forced-colors: active) {
+  .ol-sidebar,
+  .ol-sidebar__header,
+  .ol-sidebar__footer,
+  .ol-sidebar__section,
+  .ol-sidebar__toggle {
+    border-color: CanvasText;
+  }
+
+  .ol-sidebar__sublist::before {
+    background: CanvasText;
+  }
+
+  /* The edge bar keeps its own colour; the row itself follows the system colours. */
+  .ol-sidebar__item[aria-current="page"]::before {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .ol-sidebar__item[aria-disabled="true"],
+  .ol-sidebar__item:disabled,
+  .ol-sidebar__toggle:disabled {
+    color: GrayText;
+  }
+}

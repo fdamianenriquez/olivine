@@ -142,6 +142,10 @@ export interface OlivineLabels {
   railCollapse: string;
   /** Default name of the BottomNav landmark. */
   bottomNavLabel: string;
+  /** Default name of the Sidebar landmark and of its modal drawer. */
+  sidebarLabel: string;
+  /** Hidden text after a folded Sidebar section or parent that holds the current page. */
+  sidebarWithin: string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
   /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
