@@ -47,6 +47,7 @@
 @import "../components/Navbar/Navbar.css";
 @import "../components/Nav/Nav.css";
 @import "../components/NavigationRail/NavigationRail.css";
+@import "../components/BottomNav/BottomNav.css";
 @import "../components/Stepper/Stepper.css";
 @import "../components/Tabs/Tabs.css";
 @import "../components/Breadcrumb/Breadcrumb.css";
