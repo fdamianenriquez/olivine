@@ -152,6 +152,9 @@ describe("useIndicator", () => {
     expect(list.style.getPropertyValue("--ol-indicator-x")).toBe("80px");
     expect(list.style.getPropertyValue("--ol-indicator-w")).toBe("120px");
     expect(list.style.getPropertyValue("--ol-indicator-track")).toBe("0px");
+    expect(list.style.getPropertyValue("--ol-indicator-y")).toBe("");
+    expect(list.style.getPropertyValue("--ol-indicator-h")).toBe("");
+    expect(list).not.toHaveAttribute("data-dir");
     expect(observe).toHaveBeenCalledWith(list);
     await waitFor(() => {
       expect(list).toHaveAttribute("data-indicator", "ready");
@@ -167,6 +170,110 @@ describe("useIndicator", () => {
   it("hides the bar when nothing matches", () => {
     render(<Tabs active={0} selector="[aria-current]" />);
     expect(screen.getByTestId("list").style.getPropertyValue("--ol-indicator-w")).toBe("0px");
+  });
+});
+
+describe("useIndicator on the block axis", () => {
+  function List({ active }: { active: number }) {
+    const ref = useIndicator<HTMLDivElement>(active, {
+      axis: "block",
+      selector: '[aria-current="true"]',
+    });
+    return (
+      <div ref={ref} data-testid="track">
+        {["One", "Two", "Three"].map((label, index) => (
+          <button key={label} type="button" aria-current={index === active ? "true" : undefined}>
+            {label}
+          </button>
+        ))}
+        <span className="ol-indicator ol-indicator--block" />
+      </div>
+    );
+  }
+
+  function place(el: Element, top: number, height: number) {
+    vi.spyOn(el, "getBoundingClientRect").mockReturnValue({ top, height } as DOMRect);
+  }
+
+  function stubObserver() {
+    let resize: () => void = () => undefined;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          resize = callback;
+        }
+        observe = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    return () => {
+      resize();
+    };
+  }
+
+  it("writes the block pair only, then turns on sliding", async () => {
+    const { rerender } = render(<List active={0} />);
+    const track = screen.getByTestId("track");
+    place(track, 100, 300);
+    rerender(<List active={1} />);
+    expect(track.style.getPropertyValue("--ol-indicator-x")).toBe("");
+    expect(track.style.getPropertyValue("--ol-indicator-w")).toBe("");
+    await waitFor(() => {
+      expect(track).toHaveAttribute("data-indicator", "ready");
+    });
+  });
+
+  it("measures from the container's top edge and takes a direction from the move", () => {
+    const { rerender } = render(<List active={0} />);
+    const track = screen.getByTestId("track");
+    const items = Array.from(track.querySelectorAll("button"));
+    place(track, 100, 300);
+    items.forEach((item, index) => {
+      place(item, 100 + index * 50, 40 + index * 10);
+    });
+
+    rerender(<List active={2} />);
+    expect(track.style.getPropertyValue("--ol-indicator-y")).toBe("100px");
+    expect(track.style.getPropertyValue("--ol-indicator-h")).toBe("60px");
+    expect(track.style.getPropertyValue("--ol-indicator-track")).toBe("0px");
+    expect(track).toHaveAttribute("data-dir", "down");
+
+    rerender(<List active={1} />);
+    expect(track.style.getPropertyValue("--ol-indicator-y")).toBe("50px");
+    expect(track.style.getPropertyValue("--ol-indicator-h")).toBe("50px");
+    expect(track).toHaveAttribute("data-dir", "up");
+
+    rerender(<List active={2} />);
+    expect(track).toHaveAttribute("data-dir", "down");
+  });
+
+  it("jumps instead of travelling when only the layout changes", async () => {
+    const resize = stubObserver();
+    const { rerender } = render(<List active={0} />);
+    const track = screen.getByTestId("track");
+    const [one] = Array.from(track.querySelectorAll("button"));
+    place(track, 0, 300);
+    if (one) place(one, 0, 40);
+    rerender(<List active={0} />);
+    expect(track).not.toHaveAttribute("data-indicator-still");
+
+    if (one) place(one, 20, 50);
+    act(() => {
+      resize();
+    });
+    expect(track.style.getPropertyValue("--ol-indicator-y")).toBe("20px");
+    expect(track.style.getPropertyValue("--ol-indicator-h")).toBe("50px");
+    expect(track).toHaveAttribute("data-indicator-still");
+    expect(track).not.toHaveAttribute("data-dir");
+    await waitFor(() => {
+      expect(track).not.toHaveAttribute("data-indicator-still");
+    });
+  });
+
+  it("collapses the stroke when nothing matches", () => {
+    render(<List active={-1} />);
+    expect(screen.getByTestId("track").style.getPropertyValue("--ol-indicator-h")).toBe("0px");
   });
 });
 

@@ -710,6 +710,44 @@ export const SlidingBar: Story = {
   render: () => <BothThemes>{() => <SlidingBarDemo />}</BothThemes>,
 };
 
+const OUTLINE = ["Overview", "Install", "Usage", "Accessibility", "Motion"];
+
+function SlidingStrokeDemo() {
+  const [active, setActive] = useState(1);
+  const ref = useIndicator<HTMLDivElement>(active, { axis: "block", selector: "[data-current]" });
+  return (
+    <div ref={ref} className="ol-sb-motion__outline" role="group" aria-label="Outline">
+      {OUTLINE.map((entry, index) => (
+        <button
+          key={entry}
+          type="button"
+          className="ol-sb-motion__outline-link"
+          data-current={index === active ? "" : undefined}
+          onClick={() => {
+            setActive(index);
+          }}
+        >
+          {entry}
+        </button>
+      ))}
+      <span className="ol-indicator ol-indicator--block" aria-hidden="true" />
+    </div>
+  );
+}
+
+export const SlidingStroke: Story = {
+  name: "Sliding stroke (block axis)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`useIndicator(active, { axis: 'block' })` with `.ol-indicator--block`: a stroke along a vertical list. The leading edge reaches the new entry first and the trailing edge follows after `--stagger`; the stroke sits on the inline-start edge. Width: `--ol-indicator-size`.",
+      },
+    },
+  },
+  render: () => <BothThemes>{() => <SlidingStrokeDemo />}</BothThemes>,
+};
+
 const WORKS = [
   { id: "a", title: "Kitchen 04", place: "Meguro, Tokyo" },
   { id: "b", title: "Andén shelf", place: "Roma Norte, CDMX" },

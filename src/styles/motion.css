@@ -862,6 +862,78 @@
   transition: clip-path var(--dur-m) var(--ease-standard);
 }
 
+/*
+ * Block axis (shodō stroke on a vertical list): add .ol-indicator--block next to .ol-indicator,
+ * or use it alone, and call useIndicator(active, { axis: "block" }). The hook writes the active
+ * item's top and height (--ol-indicator-y, --ol-indicator-h), the track height
+ * (--ol-indicator-track) and data-dir="down|up" on the container. The bar spans the track and
+ * is clipped to the item by two registered edges that transition separately: the leading edge
+ * (bottom going down, top going up) travels first and the trailing edge follows after --stagger,
+ * so the stroke stretches like a loaded brush and then contracts onto the new item. Only
+ * clip-path is painted. The stroke width is --ol-indicator-size (default --stroke-bold) and sits
+ * on the inline-start edge in both writing directions. Where @property is unsupported the
+ * stroke jumps to the item.
+ */
+@property --ol-indicator-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --ol-indicator-h {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --ol-indicator-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-indicator-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.ol-indicator--block {
+  --ol-indicator-top: var(--ol-indicator-y);
+  --ol-indicator-bottom: calc(var(--ol-indicator-y) + var(--ol-indicator-h));
+
+  position: absolute;
+  inset-block: auto;
+  inset-block-start: 0;
+  inset-inline: auto;
+  inset-inline-start: 0;
+  inline-size: var(--ol-indicator-size, var(--stroke-bold));
+  block-size: var(--ol-indicator-track, 100%);
+  width: auto;
+  height: auto;
+  background: var(--ol-indicator-color, var(--olivo));
+  clip-path: inset(var(--ol-indicator-top) 0 calc(100% - var(--ol-indicator-bottom)) 0);
+  pointer-events: none;
+}
+
+/* Going down (the default) the bottom edge leads; going up the top edge leads. */
+[data-indicator="ready"] .ol-indicator--block {
+  transition:
+    --ol-indicator-bottom var(--dur-m) var(--ease-move),
+    --ol-indicator-top var(--dur-m) var(--ease-move) var(--stagger);
+}
+
+[data-indicator="ready"][data-dir="up"] .ol-indicator--block {
+  transition:
+    --ol-indicator-top var(--dur-m) var(--ease-move),
+    --ol-indicator-bottom var(--dur-m) var(--ease-move) var(--stagger);
+}
+
+/* A resize or a font load moves the item without a change of selection: no travel. */
+[data-indicator-still][data-indicator] .ol-indicator--block {
+  transition: none;
+}
+
 /* ---------- Container transform and shoji (View Transitions) ---------- */
 
 /* Give the card and its detail the same view-transition-name; startViewTransition() swaps them. */
@@ -1017,6 +1089,11 @@
 
 @media (forced-colors: active) {
   .ol-indicator {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .ol-indicator--block {
     forced-color-adjust: none;
     background: Highlight;
   }
