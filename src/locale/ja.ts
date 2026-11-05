@@ -134,6 +134,7 @@ export const ja: OlivineLabels = {
   sidebarLabel: "サイドバー",
   sidebarWithin: "現在のページを含む",
   menubar: "メニューバー",
+  tocLabel: "このページの内容",
   treeEmpty: "項目がありません",
   treeLoaded: (label, n) => `${label}に${String(n)}件を読み込みました`,
   treeLoadFailed: (label) => `${label}を読み込めませんでした`,

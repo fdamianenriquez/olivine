@@ -183,7 +183,9 @@
   );
 }
 
-/* A heading that a TableOfContents (or a link to #id) scrolls to: it stops below sticky chrome. */
+/* A heading that a TableOfContents (or a link to #id) scrolls to: it stops below sticky chrome.
+ * Pair it with `html { scroll-padding-block-start: var(--ol-anchor-offset) }` so controls reached
+ * by Tab are not hidden under the same chrome either. */
 .ol-anchor {
   scroll-margin-block-start: var(--ol-anchor-offset, var(--control-xl));
 }
