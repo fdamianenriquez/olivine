@@ -1,0 +1,201 @@
+/*
+ * A ruled bar of controls. Inner padding is the focus ring width plus its offset, so the
+ * ring of an edge item is never cut, not even when the bar scrolls. Items carry their own
+ * borders and states; the bar only frames them.
+ */
+.ol-toolbar {
+  --ol-toolbar-pad: var(--space-1);
+  --ol-toolbar-offset: var(--space-6);
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--ol-toolbar-pad);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ol-toolbar--v {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* The bar must fit: items keep their size and never squeeze. */
+.ol-toolbar > * {
+  flex: none;
+}
+
+/* ---------- Docked: a full-width strip, ruled on the edges that face content ---------- */
+
+.ol-toolbar--docked {
+  width: 100%;
+  border-block: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-toolbar--docked.ol-toolbar--v {
+  width: fit-content;
+  border-block: 0;
+  border-inline: var(--stroke-hair) solid var(--rule);
+}
+
+/* ---------- Floating: a raised block that only takes the room of its items ---------- */
+
+.ol-toolbar--floating {
+  width: fit-content;
+  max-width: 100%;
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  background: var(--paper-3);
+  box-shadow: var(--shadow-block);
+}
+
+/* ---------- Anchored: pinned to a viewport edge, safe-area aware ---------- */
+
+.ol-toolbar--anchor-top,
+.ol-toolbar--anchor-bottom,
+.ol-toolbar--anchor-start,
+.ol-toolbar--anchor-end {
+  position: fixed;
+  z-index: var(--z-sticky);
+}
+
+/* Docked bars span the edge and have no offset. */
+.ol-toolbar--docked.ol-toolbar--anchor-top,
+.ol-toolbar--docked.ol-toolbar--anchor-bottom {
+  inset-inline: 0;
+  width: auto;
+  padding-inline: calc(
+    var(--ol-toolbar-pad) + max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))
+  );
+}
+
+.ol-toolbar--docked.ol-toolbar--anchor-top {
+  inset-block-start: 0;
+  border-block-start: 0;
+  padding-block-start: calc(var(--ol-toolbar-pad) + env(safe-area-inset-top, 0px));
+}
+
+.ol-toolbar--docked.ol-toolbar--anchor-bottom {
+  inset-block-end: 0;
+  border-block-end: 0;
+  padding-block-end: calc(var(--ol-toolbar-pad) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Floating bars sit at space-6 from the edge; top and bottom centre on the inline axis. */
+.ol-toolbar--floating.ol-toolbar--anchor-top,
+.ol-toolbar--floating.ol-toolbar--anchor-bottom {
+  inset-inline: 0;
+  margin-inline: auto;
+  max-width: calc(
+    100% - var(--ol-toolbar-offset) * 2 - env(safe-area-inset-left, 0px) -
+      env(safe-area-inset-right, 0px)
+  );
+}
+
+.ol-toolbar--floating.ol-toolbar--anchor-top {
+  inset-block-start: calc(var(--ol-toolbar-offset) + env(safe-area-inset-top, 0px));
+}
+
+.ol-toolbar--floating.ol-toolbar--anchor-bottom {
+  inset-block-end: calc(var(--ol-toolbar-offset) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Start and end centre on the block axis. The larger side inset serves both text directions. */
+.ol-toolbar--floating.ol-toolbar--anchor-start,
+.ol-toolbar--floating.ol-toolbar--anchor-end {
+  inset-block: 0;
+  margin-block: auto;
+  height: fit-content;
+  max-height: calc(
+    100% - var(--ol-toolbar-offset) * 2 - env(safe-area-inset-top, 0px) -
+      env(safe-area-inset-bottom, 0px)
+  );
+}
+
+.ol-toolbar--floating.ol-toolbar--anchor-start {
+  inset-inline-start: calc(
+    var(--ol-toolbar-offset) + max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))
+  );
+}
+
+.ol-toolbar--floating.ol-toolbar--anchor-end {
+  inset-inline-end: calc(
+    var(--ol-toolbar-offset) + max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))
+  );
+}
+
+/* ---------- Overflow ---------- */
+
+.ol-toolbar--wrap {
+  flex-wrap: wrap;
+}
+
+.ol-toolbar--scroll {
+  overflow: auto hidden;
+  overscroll-behavior: contain;
+}
+
+.ol-toolbar--scroll.ol-toolbar--v {
+  overflow: hidden auto;
+}
+
+/* ---------- Parts ---------- */
+
+/* A hairline between groups; the gap on each side keeps focus rings off it. */
+.ol-toolbar__sep {
+  flex: none;
+  align-self: stretch;
+  margin: 0;
+}
+
+.ol-toolbar__spacer {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* One text field, last: it takes the room that is left; in a column it fills the width. */
+.ol-toolbar > .ol-input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: calc(var(--control-xl) * 2);
+}
+
+.ol-toolbar--v > .ol-input {
+  flex: none;
+  min-width: 0;
+}
+
+/* A scrolling bar keeps the field at its natural width; a wrapping one lets it fill its row. */
+.ol-toolbar--scroll > .ol-input {
+  flex: none;
+}
+
+/* Forced colours: borders carry the frame; the shadow is dropped. */
+@media (forced-colors: active) {
+  .ol-toolbar {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .ol-toolbar--docked,
+  .ol-toolbar--floating {
+    border-color: CanvasText;
+  }
+
+  .ol-toolbar--floating {
+    box-shadow: none;
+  }
+}
+
+@media print {
+  .ol-toolbar--anchor-top,
+  .ol-toolbar--anchor-bottom,
+  .ol-toolbar--anchor-start,
+  .ol-toolbar--anchor-end {
+    display: none;
+  }
+}

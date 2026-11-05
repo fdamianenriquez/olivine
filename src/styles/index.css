@@ -68,6 +68,7 @@
 @import "../components/Alert/Alert.css";
 @import "../components/Toast/Toast.css";
 @import "../components/ToastStack/ToastStack.css";
+@import "../components/Toolbar/Toolbar.css";
 @import "../components/Tooltip/Tooltip.css";
 @import "../components/Popover/Popover.css";
 @import "../components/Modal/Modal.css";
