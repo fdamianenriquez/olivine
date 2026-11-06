@@ -12,8 +12,12 @@
 
   /* A long menu stops at the viewport edge and scrolls (the room is measured by useFloating). */
   max-height: var(--ol-float-available-height, none);
-  overflow-y: auto;
+  overflow-y: clip; /* a menu that fits never scrolls, not even by a sub-pixel */
   overscroll-behavior: contain;
+}
+
+.ol-dropdown__menu[data-constrained] {
+  overflow-y: auto;
 }
 
 /* The menu is a container, not an item: it holds focus only after a pointer open or when the

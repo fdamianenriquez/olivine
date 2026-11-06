@@ -28,6 +28,8 @@ export interface MenuPosition<A extends HTMLElement, M extends HTMLElement> {
     "data-side": OverlaySide;
     "data-align": "start" | "end" | "center";
     "data-positioned"?: "";
+    /** Present when the menu is taller than the room and scrolls. */
+    "data-constrained"?: "";
     "data-match-width"?: "";
   };
 }
@@ -61,6 +63,7 @@ export function useMenuPosition<A extends HTMLElement, M extends HTMLElement>({
       "data-side": sideOf(floating.placement),
       "data-align": align === "start" || align === "end" ? align : "center",
       ...(floating.positioned ? { "data-positioned": "" } : null),
+      ...(floating.constrained ? { "data-constrained": "" } : null),
       ...(matchWidth ? { "data-match-width": "" } : null),
     },
   };

@@ -934,6 +934,125 @@
   transition: none;
 }
 
+/*
+ * Disclosure fold: a list that opens like a folding screen. Put .ol-fold on the list that
+ * appears and disappears (a section of links, the children of a tree node), .ol-fold__row on each
+ * of its items and .ol-fold__face on the box of the item that is seen (the row itself, or the part
+ * of it that is painted). Set data-fold and data-state="open|closing" while it moves: the first six
+ * rows swing from edge-on to flat, one after the other, hinged on the row above, each darker
+ * (an ink wash that fades) while it turns away from the light. Closing folds them back together
+ * with no stagger; the caller keeps the list mounted until the animation ends (usePresence).
+ * Only transform and opacity animate. Reduced motion collapses every duration and stagger.
+ */
+.ol-fold {
+  --ol-fold-angle: 90deg;
+  --ol-fold-shade: 0.14;
+}
+
+.ol-fold__face {
+  position: relative;
+}
+
+@keyframes ol-fold-open {
+  from {
+    transform: rotateX(var(--ol-fold-angle));
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes ol-fold-close {
+  from {
+    transform: none;
+  }
+
+  to {
+    transform: rotateX(var(--ol-fold-angle));
+  }
+}
+
+@keyframes ol-fold-shade-open {
+  from {
+    opacity: var(--ol-fold-shade);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ol-fold-shade-close {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: var(--ol-fold-shade);
+  }
+}
+
+.ol-fold[data-fold] {
+  perspective: var(--ol-motion-perspective);
+}
+
+.ol-fold[data-fold] > .ol-fold__row {
+  transform-origin: 50% 0;
+  animation: ol-fold-open var(--dur-s) var(--ease-move) both;
+}
+
+.ol-fold[data-fold] > .ol-fold__row > .ol-fold__face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  animation: ol-fold-shade-open var(--dur-s) var(--ease-move) both;
+}
+
+.ol-fold[data-fold][data-state="closing"] > .ol-fold__row {
+  animation-name: ol-fold-close;
+}
+
+.ol-fold[data-fold][data-state="closing"] > .ol-fold__row > .ol-fold__face::after {
+  animation-name: ol-fold-shade-close;
+}
+
+/* Opening staggers the first six rows; the rest follow the sixth. */
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(2),
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(2) > .ol-fold__face::after {
+  animation-delay: var(--stagger);
+}
+
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(3),
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(3) > .ol-fold__face::after {
+  animation-delay: calc(var(--stagger) * 2);
+}
+
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(4),
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(4) > .ol-fold__face::after {
+  animation-delay: calc(var(--stagger) * 3);
+}
+
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(5),
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(5) > .ol-fold__face::after {
+  animation-delay: calc(var(--stagger) * 4);
+}
+
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(n + 6),
+.ol-fold[data-fold][data-state="open"] > .ol-fold__row:nth-child(n + 6) > .ol-fold__face::after {
+  animation-delay: calc(var(--stagger) * 5);
+}
+
+@supports not (transform-style: preserve-3d) {
+  .ol-fold[data-fold] > .ol-fold__row,
+  .ol-fold[data-fold] > .ol-fold__row > .ol-fold__face::after {
+    animation: none;
+  }
+}
+
 /* ---------- Container transform and shoji (View Transitions) ---------- */
 
 /* Give the card and its detail the same view-transition-name; startViewTransition() swaps them. */
