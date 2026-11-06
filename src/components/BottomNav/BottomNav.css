@@ -20,9 +20,10 @@
   position: absolute;
 }
 
-/* Hidden on scroll: it slides below the edge; the items stay in the tab order. */
+/* Hidden on scroll: it slides below the edge, far enough to take the count badges and the
+ * scroll hint (which stand above the bar) with it; the items stay in the tab order. */
 .ol-bottomnav--hidden {
-  translate: 0 100%;
+  translate: 0 calc(100% + var(--badge-height));
 }
 
 /* ---------- Destinations ---------- */
@@ -105,6 +106,37 @@
   inset-block-start: calc(var(--badge-height) / -2);
   inset-inline-end: 0;
   padding-inline: var(--space-1);
+}
+
+/* The scroll hint: a paper tab on the top edge, open at the bottom so the bar's hairline runs
+ * under it. It is a decoration: no pointer events, and it fades with the data attribute. */
+.ol-bottomnav__hint {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 100%;
+  box-sizing: border-box;
+  inline-size: fit-content;
+  margin-inline: auto;
+  padding: 0 var(--space-2);
+  border: var(--stroke-hair) solid var(--rule);
+  border-block-end: 0;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-family: var(--font-label);
+  font-size: var(--glyph-m);
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-s) var(--ease-effect);
+}
+
+.ol-bottomnav[data-more="true"] .ol-bottomnav__hint {
+  opacity: 1;
+}
+
+/* A bar that is sliding away takes the hint with it. */
+.ol-bottomnav--hidden[data-more] .ol-bottomnav__hint {
+  opacity: 0;
 }
 
 /* The current edge wipes in from the inline start over the bar's hairline; it is a transition,
