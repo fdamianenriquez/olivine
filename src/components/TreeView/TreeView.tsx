@@ -84,10 +84,12 @@ interface TreeViewBaseProps extends Omit<
    */
   announce?: boolean | undefined;
   /**
-   * Opens and closes a branch like a folding screen (byōbu). Needs the opt-in stylesheet
-   * `olivine/motion-extras.css` (import it after `olivine/styles.css`); without it, and under
-   * reduced motion, branches open and close at once. Only a user's click or key animates.
-   * @default false
+   * Opens and closes a branch like a folding screen (byōbu): the first rows swing flat one after
+   * the other, and fold back together on close. It comes with the core stylesheet and honours
+   * reduced motion through the motion tokens. Only a user's click or key (Enter, Left, Right)
+   * animates a branch of 40 children or fewer; the first render, `*`, `expandAll`, controlled
+   * changes and bigger branches are instant. `false` turns it off: branches open and close at once.
+   * @default true
    */
   fold?: boolean | undefined;
   /** Receives `{ focus(id), scrollTo(id), expandAll(), collapseAll() }`. */
@@ -174,7 +176,8 @@ interface TreeContext {
  * through the visible nodes, Right and Left open, close and climb, Home and End jump, typing
  * finds a node and `*` opens its siblings. It selects one node, several, or ticks checkboxes
  * whose parents follow their children; children can load on demand. Selected rows are ink, the
- * keyboard focus is the olive inset ring and `current` is an olive edge.
+ * keyboard focus is the olive inset ring and `current` is an olive edge. Branches open and close
+ * like a folding screen unless `fold={false}`.
  */
 export const TreeView = forwardRef<HTMLUListElement, TreeViewProps>(function TreeView(props, ref) {
   const {
@@ -203,7 +206,7 @@ export const TreeView = forwardRef<HTMLUListElement, TreeViewProps>(function Tre
     disabled = false,
     name,
     announce = true,
-    fold = false,
+    fold = true,
     actionRef,
     className,
     style,
@@ -303,7 +306,6 @@ export const TreeView = forwardRef<HTMLUListElement, TreeViewProps>(function Tre
           size === "m" && "ol-tree--m",
           boxed && "ol-tree--boxed",
           rows !== undefined && "ol-tree--rows",
-          fold && "ol-tree--fold",
           className,
         )}
         style={rowsStyle ? { ...rowsStyle, ...style } : style}
@@ -404,10 +406,10 @@ function TreeItem({ entry, ctx }: { entry: TreeEntry; ctx: TreeContext }) {
   const checkState = itemProps["aria-checked"];
 
   return (
-    <li role="none" className="ol-tree__node">
+    <li role="none" className="ol-tree__node ol-fold__row">
       <div
         {...itemProps}
-        className="ol-tree__item"
+        className="ol-tree__item ol-fold__face"
         style={{ "--ol-tree-level": level } as CSSProperties}
         aria-labelledby={labelId}
         aria-describedby={[descId, metaId].filter(Boolean).join(" ") || undefined}
@@ -450,7 +452,7 @@ function TreeItem({ entry, ctx }: { entry: TreeEntry; ctx: TreeContext }) {
         <ul
           id={tree.groupId(id)}
           role="group"
-          className="ol-tree__group"
+          className="ol-tree__group ol-fold"
           ref={animated ? presence.setElement : undefined}
           data-state={closing ? "closing" : "open"}
           data-fold={animated ? "" : undefined}

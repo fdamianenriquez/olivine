@@ -399,6 +399,204 @@ describe("BottomNav", () => {
     });
   });
 
+  describe("scroll hint", () => {
+    const metrics = (scrollHeight: number, clientHeight: number) => {
+      Object.defineProperty(document.documentElement, "scrollHeight", {
+        value: scrollHeight,
+        configurable: true,
+      });
+      Object.defineProperty(document.documentElement, "clientHeight", {
+        value: clientHeight,
+        configurable: true,
+      });
+    };
+    const more = () => nav().getAttribute("data-more");
+
+    beforeEach(() => {
+      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+        callback(0);
+        return 0;
+      });
+      vi.stubGlobal("cancelAnimationFrame", () => undefined);
+      vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(64);
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      Reflect.deleteProperty(document.documentElement, "scrollHeight");
+      Reflect.deleteProperty(document.documentElement, "clientHeight");
+    });
+
+    it("is off by default: no hint and no data attribute", () => {
+      metrics(2000, 800);
+      render(bar());
+      expect(more()).toBeNull();
+      expect(document.querySelector(".ol-bottomnav__hint")).toBeNull();
+    });
+
+    it("shows while there is more content below and hides at the end", () => {
+      metrics(2000, 800);
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("true");
+      setScrollY(600);
+      expect(more()).toBe("true");
+      setScrollY(1200);
+      expect(more()).toBe("false");
+      setScrollY(900);
+      expect(more()).toBe("true");
+    });
+
+    it("counts the last pixel as the end", () => {
+      metrics(2000, 800);
+      render(bar({ scrollHint: true }));
+      setScrollY(1199);
+      expect(more()).toBe("false");
+      setScrollY(1198);
+      expect(more()).toBe("true");
+    });
+
+    it("stays hidden when everything fits", () => {
+      metrics(800, 800);
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("false");
+    });
+
+    it("shows nothing without layout", () => {
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("false");
+    });
+
+    it("measures again when the content or the viewport changes size", () => {
+      const notifiers: (() => void)[] = [];
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          constructor(callback: () => void) {
+            notifiers.push(callback);
+          }
+          observe = vi.fn();
+          disconnect = vi.fn();
+        },
+      );
+      metrics(800, 800);
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("false");
+      metrics(2000, 800);
+      act(() => {
+        for (const notify of notifiers) notify();
+      });
+      expect(more()).toBe("true");
+      metrics(800, 800);
+      act(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+      expect(more()).toBe("false");
+    });
+
+    it("measures again when the content changes", async () => {
+      metrics(800, 800);
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("false");
+      metrics(2000, 800);
+      document.body.append(document.createElement("div"));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(more()).toBe("true");
+    });
+
+    it("watches the scrollTarget instead of the window", () => {
+      function Page() {
+        const ref = useRef<HTMLDivElement>(null);
+        return (
+          <div ref={ref} data-testid="scroller">
+            {bar({ scrollHint: true, scrollTarget: ref })}
+          </div>
+        );
+      }
+      metrics(5000, 800);
+      render(<Page />);
+      const scroller = screen.getByTestId("scroller");
+      Object.defineProperty(scroller, "scrollHeight", { value: 600, configurable: true });
+      Object.defineProperty(scroller, "clientHeight", { value: 400, configurable: true });
+      fireEvent.scroll(scroller);
+      expect(more()).toBe("true");
+      scroller.scrollTop = 200;
+      fireEvent.scroll(scroller);
+      expect(more()).toBe("false");
+      scroller.scrollTop = 100;
+      fireEvent.scroll(scroller);
+      expect(more()).toBe("true");
+    });
+
+    it("is decorative: hidden from assistive tech, not focusable, no pointer events", () => {
+      metrics(2000, 800);
+      render(bar({ scrollHint: true }));
+      const hint = document.querySelector<HTMLElement>(".ol-bottomnav__hint");
+      expect(hint).toHaveAttribute("aria-hidden", "true");
+      expect(hint).toHaveTextContent("↓");
+      expect(hint?.parentElement).toBe(nav());
+      expect(hint?.querySelector("a, button, [tabindex]")).toBeNull();
+      expect(hint).not.toHaveAttribute("tabindex");
+      expect(nav()).toHaveAccessibleName("Main");
+      expect(screen.queryByText("↓")).not.toBeNull();
+      expect(within(nav()).getAllByRole("listitem")).toHaveLength(items.length);
+    });
+
+    it("still shows under reduced motion, where the fade takes 1ms through the tokens", () => {
+      mockReducedMotion(true);
+      metrics(2000, 800);
+      render(bar({ scrollHint: true }));
+      expect(more()).toBe("true");
+      const css = readFileSync("src/components/BottomNav/BottomNav.css", "utf8");
+      expect(css).toMatch(
+        /\.ol-bottomnav__hint \{[^}]*transition: opacity var\(--dur-s\) var\(--ease-effect\)/,
+      );
+    });
+
+    it("leaves with the bar when it hides on scroll", () => {
+      metrics(3000, 800);
+      render(bar({ scrollHint: true, hideOnScroll: true }));
+      setScrollY(300);
+      expect(nav()).toHaveClass("ol-bottomnav--hidden");
+      expect(more()).toBe("true");
+      const css = readFileSync("src/components/BottomNav/BottomNav.css", "utf8");
+      expect(css).toMatch(
+        /\.ol-bottomnav--hidden\[data-more\] \.ol-bottomnav__hint \{[^}]*opacity: 0/,
+      );
+      expect(css).toMatch(/\.ol-bottomnav--hidden \{[^}]*calc\(100% \+ var\(--badge-height\)\)/);
+    });
+
+    it("sits on the top edge, centred, as a paper tab with a hairline and no shadow", () => {
+      const css = readFileSync("src/components/BottomNav/BottomNav.css", "utf8");
+      const rule = /\.ol-bottomnav__hint \{[^}]*\}/.exec(css)?.[0] ?? "";
+      expect(rule).toMatch(/inset-block-end: 100%/);
+      expect(rule).toMatch(/margin-inline: auto/);
+      expect(rule).toMatch(/pointer-events: none/);
+      expect(rule).toMatch(/background: var\(--paper\)/);
+      expect(rule).toMatch(/border: var\(--stroke-hair\) solid var\(--rule\)/);
+      expect(rule).toMatch(/font-size: var\(--glyph-m\)/);
+      expect(rule).not.toMatch(/shadow|gradient|blur|radius/);
+    });
+
+    it.each(["washi", "sumi"] as const)(
+      "has no axe violations with the hint (%s)",
+      async (theme) => {
+        metrics(2000, 800);
+        render(
+          <Root theme={theme}>
+            <main>
+              <h1>Orders</h1>
+              {bar({ scrollHint: true, active: "orders" })}
+            </main>
+          </Root>,
+        );
+        expect(nav()).toHaveAttribute("data-more", "true");
+        expect(await runAxe(document.body)).toHaveNoViolations();
+      },
+    );
+  });
+
   describe("--ol-dock", () => {
     let resize: (() => void) | undefined;
     let disconnect: ReturnType<typeof vi.fn>;
@@ -621,7 +819,8 @@ describe("BottomNav", () => {
     it("moves only with motion tokens, on transform and colours", () => {
       const timings = css.match(/(animation|transition)[^;]*;/g) ?? [];
       for (const line of timings) expect(line).not.toMatch(/\d(ms|s)\b/);
-      expect(css).not.toMatch(/cubic-bezier|steps\(|!important|opacity/);
+      expect(css.replace(/\.ol-bottomnav__hint[\s\S]*?\n\}/g, "")).not.toMatch(/opacity/);
+      expect(css).not.toMatch(/cubic-bezier|steps\(|!important/);
       expect(css).toMatch(/transition: translate var\(--dur-m\) var\(--ease-move\)/);
       expect(css).toMatch(/transition: clip-path var\(--dur-s\) var\(--ease-move\)/);
     });
