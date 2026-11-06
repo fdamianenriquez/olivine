@@ -302,6 +302,9 @@
  * core motion stylesheet): the rows swing from edge-on to flat and wash darker while they turn.
  * Rows are the faces, so the wash covers each row's whole width.
  */
+.ol-sidebar .ol-fold {
+  --ol-fold-shade: 0.2;
+}
 
 /* The standard sidebar slides along the inline axis when the app shows or hides it. */
 @media (prefers-reduced-motion: no-preference) {

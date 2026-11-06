@@ -1,6 +1,5 @@
 import {
   createContext,
-  type CSSProperties,
   forwardRef,
   type HTMLAttributes,
   type MouseEvent,
@@ -150,15 +149,9 @@ function useSidebar(): SidebarContextValue {
 
 const CJK = /[぀-ヿ㐀-鿿]/;
 const ITEMS_KEY = "items";
-const MAX_STAGGER = 6;
 
 function hasContent(node: ReactNode): boolean {
   return node != null && node !== false && node !== "";
-}
-
-/** Sets the position in the unfold; the stylesheet turns it into a delay. */
-function fold(index: number): CSSProperties {
-  return { "--ol-i": Math.min(index, MAX_STAGGER) } as CSSProperties;
 }
 
 function isCollapsible(section: SidebarSection): boolean {
@@ -182,7 +175,7 @@ function ancestorsOf(groups: readonly SidebarSection[], active: string | undefin
 
 /**
  * Presence for a list that folds open and shut. `animate` turns on after the first change, so a
- * list that starts open does not play its unfold on mount.
+ * list that starts open does not play its fold on mount.
  */
 function useFold<T extends HTMLElement>(open: boolean, ownerId?: string) {
   // A list that folds while focus is inside it hands focus back to the control that owns it.
@@ -224,6 +217,7 @@ function Row({ item, id, sub = false, within = false, toggles }: RowProps) {
   const disabled = item.disabled === true;
   const className = cx(
     "ol-sidebar__item",
+    "ol-fold__face",
     sub && "ol-sidebar__item--sub",
     toggles && "ol-sidebar__item--parent",
   );
@@ -333,7 +327,7 @@ function Entry({ item, path }: { item: SidebarItem; path: string }) {
           toggles={{ open, controls, onToggle: toggle }}
         />
       ) : (
-        <div className="ol-sidebar__row">
+        <div className="ol-sidebar__row ol-fold__face">
           <Row item={item} id={rowId} within={within} />
           <button
             type="button"
@@ -355,12 +349,12 @@ function Entry({ item, path }: { item: SidebarItem; path: string }) {
         <ul
           ref={setElement}
           id={listId}
-          className="ol-sidebar__sublist"
+          className="ol-sidebar__sublist ol-fold"
           data-state={state}
-          data-animate={animate ? "" : undefined}
+          data-fold={animate ? "" : undefined}
         >
           {children.map((child, index) => (
-            <li key={child.key} style={fold(index)}>
+            <li key={child.key} className="ol-fold__row">
               <Row item={child} id={`${rowId}-${String(index)}`} sub />
             </li>
           ))}
@@ -416,13 +410,13 @@ function Section({ section, index }: { section: SidebarSection; index: number })
         <ul
           ref={setElement}
           id={listId}
-          className="ol-sidebar__list"
+          className="ol-sidebar__list ol-fold"
           aria-labelledby={titled ? titleId : undefined}
           data-state={state}
-          data-animate={animate ? "" : undefined}
+          data-fold={animate ? "" : undefined}
         >
           {section.items.map((item, itemIndex) => (
-            <li key={item.key} className="ol-sidebar__entry" style={fold(itemIndex)}>
+            <li key={item.key} className="ol-sidebar__entry ol-fold__row">
               <Entry item={item} path={`s${String(index)}-i${String(itemIndex)}`} />
             </li>
           ))}

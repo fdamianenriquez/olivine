@@ -591,41 +591,45 @@ describe("Sidebar", () => {
   });
 
   describe("folding motion", () => {
-    it("does not play the unfold on first render", () => {
+    it("does not play the fold on first render", () => {
       render(sidebar({ defaultExpanded: ["library", "tokens"] }));
-      expect(document.querySelector("[data-animate]")).toBeNull();
+      expect(document.querySelector("[data-fold]")).toBeNull();
     });
 
-    it("unfolds the rows of an opened list, staggered and capped at six", async () => {
-      const many: SidebarSection[] = [
-        {
-          key: "many",
-          title: "Many",
-          collapsible: true,
-          items: Array.from({ length: 9 }, (_, i) => ({
-            key: `r${String(i)}`,
-            label: `Row ${String(i)}`,
-            href: `#r${String(i)}`,
-          })),
-        },
-      ];
-      render(<Sidebar sections={many} label="Docs" defaultExpanded={[]} />);
-      await userEvent.click(screen.getByRole("button", { name: "Many" }));
-      const list = screen.getByRole("list", { name: "Many" });
-      expect(list).toHaveAttribute("data-animate");
-      expect(list).toHaveAttribute("data-state", "open");
-      const rows = [...list.children] as HTMLElement[];
-      expect(rows.map((row) => row.style.getPropertyValue("--ol-i"))).toEqual([
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "6",
-        "6",
-      ]);
+    it("puts the shared fold classes on every list, row and face", () => {
+      render(sidebar({ defaultExpanded: ["library", "components", "tokens"] }));
+      const lists = [...document.querySelectorAll(".ol-sidebar__list, .ol-sidebar__sublist")];
+      expect(lists).toHaveLength(4);
+      for (const list of lists) {
+        expect(list).toHaveClass("ol-fold");
+        for (const row of list.children) {
+          expect(row).toHaveClass("ol-fold__row");
+          // The face is the painted row, a direct child of the row.
+          expect(row.firstElementChild).toHaveClass("ol-fold__face");
+        }
+      }
+    });
+
+    it("marks a section list and a nested list for the fold after a user toggle", async () => {
+      render(sidebar({ defaultExpanded: [] }));
+      await userEvent.click(screen.getByRole("button", { name: "Library" }));
+      const section = screen.getByRole("list", { name: "Library" });
+      expect(section).toHaveAttribute("data-fold");
+      expect(section).toHaveAttribute("data-state", "open");
+      await userEvent.click(screen.getByRole("button", { name: "Tokens" }));
+      const nested = document.querySelector(".ol-sidebar__sublist");
+      expect(nested).toHaveAttribute("data-fold");
+      expect(nested).toHaveAttribute("data-state", "open");
+      expect(nested).toHaveClass("ol-fold");
+      expect(nested?.querySelectorAll(":scope > .ol-fold__row")).toHaveLength(2);
+    });
+
+    it("folds a list shut with the same marks", () => {
+      render(sidebar());
+      fireEvent.click(screen.getByRole("button", { name: "Archive" }));
+      const list = screen.getByRole("list", { name: "Archive" });
+      expect(list).toHaveAttribute("data-fold");
+      expect(list).toHaveAttribute("data-state", "closing");
     });
 
     it("keeps a closing list mounted and inert until the exit ends", () => {
@@ -1048,6 +1052,7 @@ describe("Sidebar", () => {
 
   describe("styles", () => {
     const css = readFileSync("src/components/Sidebar/Sidebar.css", "utf8");
+    const motionCss = readFileSync("src/styles/motion.css", "utf8");
     const rule = (selector: string) =>
       new RegExp(`${selector.replace(/[.[\]()*+?^$|]/g, "\\$&")} \\{[^}]*\\}`).exec(css)?.[0] ?? "";
 
@@ -1105,25 +1110,27 @@ describe("Sidebar", () => {
       expect(declarations).not.toMatch(/(?:padding|margin|gap|width|height)[^;:]*:[^;]*\d+px/);
     });
 
-    it("animates only clip-path and transform, with motion tokens only", () => {
+    it("leaves the fold to the shared motion stylesheet", () => {
+      expect(css).not.toMatch(/clip-path|--ol-i\b|--ol-clip|reveal|hide-/);
+      expect(css).toMatch(/\.ol-sidebar \.ol-fold \{\s*--ol-fold-shade: 0\.2/);
+      const fold = motionCss.slice(motionCss.indexOf("Disclosure fold"));
+      expect(fold).toMatch(/animation: ol-fold-open var\(--dur-s\) var\(--ease-move\) both/);
+      expect(fold).toMatch(/animation-delay: calc\(var\(--stagger\) \* 2\)/);
+      expect(motionCss).toMatch(
+        /@media \(prefers-reduced-motion: reduce\) \{\s*:root \{[^}]*--dur-s: 1ms[^}]*--stagger: 0ms/,
+      );
+    });
+
+    it("slides with motion tokens only, animating transform alone", () => {
       const timings = css.match(/(animation|transition)[^;]*;/g) ?? [];
       for (const line of timings) expect(line).not.toMatch(/\d(ms|s)\b/);
       expect(css).not.toMatch(/cubic-bezier|steps\(|!important/);
-      for (const name of ["reveal-start", "reveal-end", "hide-start", "hide-end"]) {
-        const frames =
-          new RegExp(`@keyframes ol-sidebar-${name} \\{[\\s\\S]*?\\n\\}`).exec(css)?.[0] ?? "";
-        expect(frames).toMatch(/clip-path/);
-        expect(frames).not.toMatch(/width|height|margin|padding|opacity|blur|scale|rotate/);
-      }
       for (const name of ["in-start", "in-end", "out-start", "out-end"]) {
         const frames =
           new RegExp(`@keyframes ol-sidebar-${name} \\{[\\s\\S]*?\\n\\}`).exec(css)?.[0] ?? "";
         expect(frames).toMatch(/transform/);
         expect(frames).not.toMatch(/clip-path|width|height|opacity/);
       }
-      expect(rule(".ol-sidebar__list[data-animate] > li") || css).toMatch(
-        /var\(--dur-m\) var\(--ease-move\)\s*calc\(var\(--ol-i, 0\) \* var\(--stagger\)\)/,
-      );
       expect(css).toMatch(/animation: ol-sidebar-in-start var\(--motion-slow\)/);
     });
 
@@ -1148,9 +1155,8 @@ describe("Sidebar", () => {
       expect(rule(".ol-sidebar__sign")).toMatch(/font-weight: var\(--text-label-l-weight\)/);
     });
 
-    it("flips the slide and the clip edges under right-to-left", () => {
+    it("flips the slide under right-to-left", () => {
       expect(css).toMatch(/\.ol-sidebar:dir\(rtl\) \{\s*--ol-sidebar-dir: -1/);
-      expect(css).toMatch(/--ol-clip-start: 0 0 0 100%/);
     });
 
     it("derives the width from tokens and sizes the drawer with it", () => {
