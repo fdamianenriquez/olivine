@@ -8,10 +8,8 @@
 }
 
 .ol-sidebar {
-  /* 1 or -1 for the slide; the clip insets name the inline start and end edges of a row. */
+  /* 1 or -1: the direction of the slide along the inline axis. */
   --ol-sidebar-dir: 1;
-  --ol-clip-start: 0 100% 0 0;
-  --ol-clip-end: 0 0 0 100%;
 
   display: flex;
   flex: none;
@@ -27,8 +25,6 @@
 
 .ol-sidebar:dir(rtl) {
   --ol-sidebar-dir: -1;
-  --ol-clip-start: 0 0 0 100%;
-  --ol-clip-end: 0 100% 0 0;
 }
 
 .ol-sidebar--end {
@@ -200,12 +196,12 @@
   cursor: pointer;
 }
 
-/* One hairline guides the nested rows; the rows themselves span the whole width. */
-.ol-sidebar__sublist {
+/* One hairline guides the nested rows; each row draws its piece so the guide folds with them. */
+.ol-sidebar__sublist > li {
   position: relative;
 }
 
-.ol-sidebar__sublist::before {
+.ol-sidebar__sublist > li::before {
   content: "";
   position: absolute;
   inset-block: 0;
@@ -302,72 +298,10 @@
 /* ---------- Motion ---------- */
 
 /*
- * Byobu, flat: the rows of a list act as the panels of a folding screen. Each one wipes in from
- * the inline start edge, the next from the inline end edge, staggered. Only clip-path moves.
+ * Sections and nested lists fold open and shut with the shared disclosure fold (.ol-fold in the
+ * core motion stylesheet): the rows swing from edge-on to flat and wash darker while they turn.
+ * Rows are the faces, so the wash covers each row's whole width.
  */
-@media (prefers-reduced-motion: no-preference) {
-  .ol-sidebar__list[data-animate] > li,
-  .ol-sidebar__sublist[data-animate] > li {
-    animation: ol-sidebar-reveal-start var(--dur-m) var(--ease-move)
-      calc(var(--ol-i, 0) * var(--stagger)) backwards;
-  }
-
-  .ol-sidebar__list[data-animate] > li:nth-child(even),
-  .ol-sidebar__sublist[data-animate] > li:nth-child(even) {
-    animation-name: ol-sidebar-reveal-end;
-  }
-
-  .ol-sidebar__list[data-animate][data-state="closing"] > li,
-  .ol-sidebar__sublist[data-animate][data-state="closing"] > li {
-    animation: ol-sidebar-hide-start var(--dur-m) var(--ease-move)
-      calc(var(--ol-i, 0) * var(--stagger)) forwards;
-  }
-
-  .ol-sidebar__list[data-animate][data-state="closing"] > li:nth-child(even),
-  .ol-sidebar__sublist[data-animate][data-state="closing"] > li:nth-child(even) {
-    animation-name: ol-sidebar-hide-end;
-  }
-}
-
-@keyframes ol-sidebar-reveal-start {
-  from {
-    clip-path: inset(var(--ol-clip-start));
-  }
-
-  to {
-    clip-path: inset(0);
-  }
-}
-
-@keyframes ol-sidebar-reveal-end {
-  from {
-    clip-path: inset(var(--ol-clip-end));
-  }
-
-  to {
-    clip-path: inset(0);
-  }
-}
-
-@keyframes ol-sidebar-hide-start {
-  from {
-    clip-path: inset(0);
-  }
-
-  to {
-    clip-path: inset(var(--ol-clip-start));
-  }
-}
-
-@keyframes ol-sidebar-hide-end {
-  from {
-    clip-path: inset(0);
-  }
-
-  to {
-    clip-path: inset(var(--ol-clip-end));
-  }
-}
 
 /* The standard sidebar slides along the inline axis when the app shows or hides it. */
 @media (prefers-reduced-motion: no-preference) {
@@ -437,7 +371,7 @@
     border-color: CanvasText;
   }
 
-  .ol-sidebar__sublist::before {
+  .ol-sidebar__sublist > li::before {
     background: CanvasText;
   }
 

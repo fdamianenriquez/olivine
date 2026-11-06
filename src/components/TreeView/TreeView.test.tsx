@@ -1542,49 +1542,128 @@ describe("TreeView", () => {
   });
 
   describe("fold", () => {
-    it("adds the fold class and marks the group of a user toggle", async () => {
+    const groupOf = (name: string) => within(parentOf(item(name))).getByRole("group");
+
+    it("is on by default: the group, rows and faces carry the shared fold classes", async () => {
       const user = userEvent.setup();
-      render(<Files fold />);
-      expect(screen.getByRole("tree")).toHaveClass("ol-tree--fold");
+      render(<Files />);
+      expect(screen.getByRole("tree")).not.toHaveClass("ol-tree--fold");
       await user.click(item("Documents"));
-      const group = within(parentOf(item("Documents"))).getByRole("group");
+      const group = groupOf("Documents");
+      expect(group).toHaveClass("ol-fold");
       expect(group).toHaveAttribute("data-fold");
       expect(group).toHaveAttribute("data-state", "open");
+      expect(group.querySelector(":scope > li")).toHaveClass("ol-fold__row");
+      expect(item("Report")).toHaveClass("ol-fold__face");
+    });
+
+    it("marks a user toggle by sign, Enter and Right", async () => {
+      const user = userEvent.setup();
+      render(<Single />);
+      await user.click(sign("Documents"));
+      expect(groupOf("Documents")).toHaveAttribute("data-fold");
+      focus("Source");
+      await user.keyboard("{Enter}");
+      expect(groupOf("Source")).toHaveAttribute("data-fold");
+      focus("Components");
+      await user.keyboard("{ArrowRight}");
+      expect(groupOf("Components")).toHaveAttribute("data-fold");
     });
 
     it("opens instantly for * and for the first render", async () => {
       const user = userEvent.setup();
-      render(<Files fold defaultExpanded={["docs"]} />);
-      const first = within(parentOf(item("Documents"))).getByRole("group");
-      expect(first).not.toHaveAttribute("data-fold");
+      render(<Files defaultExpanded={["docs"]} />);
+      expect(groupOf("Documents")).not.toHaveAttribute("data-fold");
       focus("Documents");
       await user.keyboard("*");
-      const second = within(parentOf(item("Source"))).getByRole("group");
-      expect(second).not.toHaveAttribute("data-fold");
+      expect(groupOf("Source")).not.toHaveAttribute("data-fold");
     });
 
-    it("keeps the group mounted and inert while it folds closed, then removes it", async () => {
+    it("is instant for expandAll and a controlled change", () => {
+      const ref = createRef<TreeActions>();
+      const { rerender } = render(<Files actionRef={ref} expanded={[]} />);
+      rerender(<Files actionRef={ref} expanded={["docs"]} />);
+      expect(groupOf("Documents")).not.toHaveAttribute("data-fold");
+      act(() => {
+        ref.current?.expandAll();
+      });
+      expect(document.querySelector("[data-fold]")).toBeNull();
+    });
+
+    it("does not fold a branch of more than 40 children", async () => {
       const user = userEvent.setup();
-      render(<Files fold />);
+      const big: TreeNode[] = [
+        {
+          id: "big",
+          label: "Big",
+          children: Array.from({ length: 41 }, (_, i) => ({
+            id: `c${String(i)}`,
+            label: `C${String(i)}`,
+          })),
+        },
+        {
+          id: "small",
+          label: "Small",
+          children: Array.from({ length: 40 }, (_, i) => ({
+            id: `s${String(i)}`,
+            label: `S${String(i)}`,
+          })),
+        },
+      ];
+      render(<Files items={big} />);
+      await user.click(item("Big"));
+      expect(groupOf("Big")).not.toHaveAttribute("data-fold");
+      await user.click(item("Small"));
+      expect(groupOf("Small")).toHaveAttribute("data-fold");
+    });
+
+    it("keeps the group mounted and inert while it folds closed, then unmounts it", async () => {
+      const user = userEvent.setup();
+      render(<Files />);
       await user.click(item("Documents"));
       await user.click(item("Documents"));
       const closing = document.querySelector('.ol-tree__group[data-state="closing"]');
       expect(closing).not.toBeNull();
       expect(closing).toHaveAttribute("inert");
       expect(isOpen("Documents")).toBe(false);
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1100));
-      });
-      expect(document.querySelector(".ol-tree__group")).toBeNull();
+      // jsdom runs no animations: the presence falls back to its timeout.
+      await waitFor(
+        () => {
+          expect(document.querySelector(".ol-tree__group")).toBeNull();
+        },
+        { timeout: 3000 },
+      );
     }, 5000);
 
-    it("without fold nothing is marked and a close removes the group at once", async () => {
+    it("moves focus to the parent row when its focused child folds away", async () => {
       const user = userEvent.setup();
-      render(<Files />);
+      render(<Files defaultExpanded={["docs"]} />);
+      focus("Report");
+      await user.click(sign("Documents"));
+      expect(item("Documents")).toHaveFocus();
+    });
+
+    it("fold={false} marks nothing and closes at once", async () => {
+      const user = userEvent.setup();
+      render(<Files fold={false} />);
       await user.click(item("Documents"));
       expect(document.querySelector("[data-fold]")).toBeNull();
       await user.click(item("Documents"));
       expect(document.querySelector(".ol-tree__group")).toBeNull();
+    });
+
+    it("a failed load closes the node at once", async () => {
+      const user = userEvent.setup();
+      render(
+        <TreeView
+          label="Lazy"
+          items={[{ id: "r", label: "Remote", hasChildren: true }]}
+          onLoadChildren={() => Promise.reject(new Error("offline"))}
+        />,
+      );
+      await user.click(item("Remote"));
+      await failedRow();
+      expect(document.querySelector('[data-state="closing"]')).toBeNull();
     });
   });
 
@@ -1659,7 +1738,7 @@ describe("TreeView", () => {
 
       it("fold, open and closing", async () => {
         const user = userEvent.setup();
-        const { container } = render(wrap(<Files fold />));
+        const { container } = render(wrap(<Files />));
         await user.click(item("Documents"));
         expect(await runAxe(container)).toHaveNoViolations();
         await user.click(item("Documents"));

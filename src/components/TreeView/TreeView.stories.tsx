@@ -52,7 +52,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: `TreeView is an expandable hierarchy of ruled rows: a +/− sign, an optional check mark, a label with an optional description and meta, indented by level. It has one tab stop; Up and Down move through the visible nodes, Right and Left open, close and climb, Home and End jump, typing finds a node by its first letters and \`*\` opens all siblings. It can select one node, several, or tick checkboxes whose parents follow their children and show a mixed mark; children can load on demand. Selected rows are ink, the keyboard focus is the olive inset ring and \`current\` marks where you are with an olive edge. Use \`Accordion\` for independent sections, \`Listbox\` for a flat list of choices, \`Nav\` or \`Sidebar\` for navigation.
+        component: `TreeView is an expandable hierarchy of ruled rows: a +/− sign, an optional check mark, a label with an optional description and meta, indented by level. It has one tab stop; Up and Down move through the visible nodes, Right and Left open, close and climb, Home and End jump, typing finds a node by its first letters and \`*\` opens all siblings. A branch folds open and closed like a folding screen (\`fold\`, on by default, instant under reduced motion). It can select one node, several, or tick checkboxes whose parents follow their children and show a mixed mark; children can load on demand. Selected rows are ink, the keyboard focus is the olive inset ring and \`current\` marks where you are with an olive edge. Use \`Accordion\` for independent sections, \`Listbox\` for a flat list of choices, \`Nav\` or \`Sidebar\` for navigation.
 
 - Do name the tree (\`label\`) and give every node a stable, unique \`id\`.
 - Do use \`checkboxes\` for "tick many, parents follow", and \`selectionMode="single"\` for "pick one thing".
@@ -63,7 +63,7 @@ const meta = {
 - Don't put buttons, links or inputs inside a node label: the whole row is the control.
 - Don't render thousands of open rows at once: there is no virtualisation.
 - Don't use selection and \`current\` to mean the same thing: \`current\` is where you are, selection is what you picked.
-- Don't rely on \`fold\` to explain a change: the sign and \`aria-expanded\` already do.`,
+- Don't rely on the fold to explain a change: the sign and \`aria-expanded\` already do. Pass \`fold={false}\` where branches should open at once.`,
       },
     },
   },
@@ -456,16 +456,41 @@ export const Japanese: Story = {
   ),
 };
 
-/** `fold`: a branch opens like a folding screen, hinged on the row above. Only a click or a key animates; `*` and Expand all are instant. */
+const FOLDING: TreeNode[] = [
+  {
+    id: "sheets",
+    label: "Drawing sheets",
+    children: Array.from({ length: 10 }, (_, i) => ({
+      id: `sheet-${String(i)}`,
+      label: `Sheet A-${String(100 + i)}`,
+      meta: `rev ${String(i + 1)}`,
+    })),
+  },
+  { id: "models", label: "Models", children: FILES[1]?.children ?? [] },
+];
+
+/**
+ * A branch folds open and closed like a folding screen (on by default): its first six rows swing
+ * flat one after the other, hinged on the row above, and fold back together on close. Open
+ * "Drawing sheets" with a click, Enter or Right. `*`, Expand all and the first render are instant.
+ */
 export const Fold: Story = {
+  render: (args) => (
+    <div style={column}>
+      <TreeView label={args.label} items={FOLDING} boxed selectionMode="single" expandOn="row" />
+    </div>
+  ),
+};
+
+/** `fold={false}`: branches open and close at once. */
+export const NoFold: Story = {
   render: (args) => (
     <div style={column}>
       <TreeView
         label={args.label}
-        items={FILES}
+        items={FOLDING}
         boxed
-        fold
-        defaultExpanded={["materials"]}
+        fold={false}
         selectionMode="single"
         expandOn="row"
       />
@@ -473,11 +498,11 @@ export const Fold: Story = {
   ),
 };
 
-/** Under reduced motion the fold is instant; the tree is correct without it. */
+/** Under reduced motion the fold is instant (the durations and the stagger collapse to nothing). */
 export const ReducedMotion: Story = {
   render: (args) => (
     <div className={REDUCE_MOTION_CLASS} style={column}>
-      <TreeView label={args.label} items={FILES} boxed fold />
+      <TreeView label={args.label} items={FOLDING} boxed />
     </div>
   ),
 };

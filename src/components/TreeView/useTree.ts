@@ -300,6 +300,8 @@ export function useTree({
     requested.current.delete(id);
     setFailed((prev) => new Set(prev).add(id));
     const { expandedList: list, setExpandedList: set } = latest.current;
+    // A failed load closes the node at once; the cue under it is what the reader needs.
+    setFolding(null);
     if (list.includes(id)) set(list.filter((x) => x !== id));
   };
   const load = (node: TreeNode) => {
