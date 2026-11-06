@@ -151,7 +151,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'BottomNav is the primary navigation of a tool on compact screens (below 720px, `bp-md`): a bar fixed to the bottom edge with 3 to 5 destinations, each a mark with its word under it. The word is always visible. It does not switch itself: render it or the NavigationRail (`useMediaQuery`), never both.\n\n**Props** — `items` (`[{key, label, mark, href, badge}]`, the same shape as NavigationRail), `active`, `onSelect(key, event)`, `label`, `hideOnScroll`, `scrollTarget`, `contained`; other props go to the `nav`, `ref` points to it.\n\n- The current destination is `paper-2` with a 3px olivo edge along the top of its cell and `aria-current="page"`. It is never bold and never a pill.\n- Cells share hairlines. Hover (pointer devices only) and press invert a cell to ink.\n- `mark` is a kanji or a typographic glyph, hidden from assistive tech: the label is always the name. Labels wrap to two lines, then end in an ellipsis.\n- A `badge` is a maple count read after the label ("Orders, 3"). Counts only: no dot-only badge.\n- Items with an `href` are links; call `event.preventDefault()` in `onSelect` to route on the client.\n- Tab moves through the destinations; Enter activates a link, Enter or Space a button. There is no arrow roving: it is a list of links, not tabs.\n- The bar adds the safe-area insets as padding. The page needs `viewport-fit=cover` for them to be non-zero.\n- Give the scroll container `ol-has-bottomnav` so the last content and a focused control are never covered.\n- `hideOnScroll` (off by default) slides the bar away while scrolling down past its own height. It returns on scroll up, at the top, or when focus enters it, and its items stay in the tab order. It never hides under reduced motion.\n- The bar publishes its rendered height as `--ol-dock` (`0px` while hidden) so a Fab rides above it and slides with it.\n- Not portalled. A `transform` or `filter` on an ancestor becomes the containing block of the fixed bar: put it outside, or use `contained`.\n- Hidden in print.\n\n- Do keep to 3–5 destinations of equal importance, with one-word labels, in the same order as the NavigationRail.\n- Don\'t add a "More" tab, actions (use Fab or Toolbar), in-page tabs (use Tabs), or a disabled destination.\n- Don\'t show a bottom Toast: it would cover the bar. Use the top.',
+          'BottomNav is the primary navigation of a tool on compact screens (below 720px, `bp-md`): a bar fixed to the bottom edge with 3 to 5 destinations, each a mark with its word under it. The word is always visible. It does not switch itself: render it or the NavigationRail (`useMediaQuery`), never both.\n\n**Props** — `items` (`[{key, label, mark, href, badge}]`, the same shape as NavigationRail), `active`, `onSelect(key, event)`, `label`, `hideOnScroll`, `scrollTarget`, `contained`, `scrollHint`; other props go to the `nav`, `ref` points to it.\n\n- The current destination is `paper-2` with a 3px olivo edge along the top of its cell and `aria-current="page"`. It is never bold and never a pill.\n- Cells share hairlines. Hover (pointer devices only) and press invert a cell to ink.\n- `mark` is a kanji or a typographic glyph, hidden from assistive tech: the label is always the name. Labels wrap to two lines, then end in an ellipsis.\n- A `badge` is a maple count read after the label ("Orders, 3"). Counts only: no dot-only badge.\n- Items with an `href` are links; call `event.preventDefault()` in `onSelect` to route on the client.\n- Tab moves through the destinations; Enter activates a link, Enter or Space a button. There is no arrow roving: it is a list of links, not tabs.\n- The bar adds the safe-area insets as padding. The page needs `viewport-fit=cover` for them to be non-zero.\n- Give the scroll container `ol-has-bottomnav` so the last content and a focused control are never covered.\n- `hideOnScroll` (off by default) slides the bar away while scrolling down past its own height. It returns on scroll up, at the top, or when focus enters it, and its items stay in the tab order. It never hides under reduced motion.\n- `scrollHint` (off by default) shows a small ↓ tab on the top edge of the bar, centred, while there is more content below the viewport (or the `scrollTarget`). It fades out at the end of the content or when everything fits, and is decorative: nothing is announced. Use it when a page scrolls and nothing else says so.\n- The bar publishes its rendered height as `--ol-dock` (`0px` while hidden) so a Fab rides above it and slides with it.\n- Not portalled. A `transform` or `filter` on an ancestor becomes the containing block of the fixed bar: put it outside, or use `contained`.\n- Hidden in print.\n\n- Do keep to 3–5 destinations of equal importance, with one-word labels, in the same order as the NavigationRail.\n- Don\'t add a "More" tab, actions (use Fab or Toolbar), in-page tabs (use Tabs), or a disabled destination.\n- Don\'t show a bottom Toast: it would cover the bar. Use the top.',
       },
     },
   },
@@ -205,6 +205,41 @@ export const Narrow: Story = {
     <div lang="es">
       <Phone width={320}>{() => <Bar {...args} />}</Phone>
     </div>
+  ),
+};
+
+/** Long content in a contained frame: the ↓ tab on the bar's edge says there is more below. */
+export const ScrollHint: Story = {
+  render: (args) => (
+    <Phone rows={6}>{(scroll) => <Bar {...args} scrollHint scrollTarget={scroll} />}</Phone>
+  ),
+};
+
+/** The same page without the hint, for contrast: nothing says it scrolls. */
+export const WithoutScrollHint: Story = {
+  render: (args) => <Phone rows={6}>{(scroll) => <Bar {...args} scrollTarget={scroll} />}</Phone>,
+};
+
+/** At 320px the hint, a count on the middle destination and an extended Fab all fit. */
+export const ScrollHintNarrow: Story = {
+  args: { items: five.map((item) => (item.key === "stock" ? { ...item, badge: 7 } : item)) },
+  render: (args) => (
+    <Phone width={320} rows={6}>
+      {(scroll) => (
+        <>
+          <Bar {...args} scrollHint scrollTarget={scroll} />
+          <Fab label="Start a build" contained />
+        </>
+      )}
+    </Phone>
+  ),
+};
+
+export const ScrollHintSumi: Story = {
+  render: (args) => (
+    <Phone theme="sumi" rows={6}>
+      {(scroll) => <Bar {...args} scrollHint scrollTarget={scroll} />}
+    </Phone>
   ),
 };
 

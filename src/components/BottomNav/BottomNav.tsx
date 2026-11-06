@@ -52,7 +52,17 @@ export interface BottomNavProps extends Omit<HTMLAttributes<HTMLElement>, "onSel
    * @default false
    */
   contained?: boolean;
+  /**
+   * Shows a small "↓" tab on the top edge of the bar, centred, while the page (or the
+   * `scrollTarget`) has more content below. It disappears at the end or when everything fits.
+   * It is decorative and non-interactive: nothing is announced.
+   * @default false
+   */
+  scrollHint?: boolean;
 }
+
+/** Pixels of content left below that still count as the end of the page. */
+const SCROLL_END_TOLERANCE = 1;
 
 const CJK = /[぀-ヿ㐀-鿿]/;
 
@@ -94,7 +104,8 @@ function releaseDock(node: HTMLElement, entry: DockEntry): void {
  * on the nearest `.ol` element, and on the document root unless `contained`, so a Fab can ride
  * above it. Give the scroll container `ol-has-bottomnav` so content is never covered; its
  * reserve is a minimum (one-line labels), so a bar grown by two-line labels or large text
- * covers a little more. Don't render it inside an ancestor with a `transform` or `filter`: use
+ * covers a little more. With `scrollHint` a small "↓" tab sits on the bar's top edge while
+ * there is more content below, so a scrollable page reads as one. Don't render it inside an ancestor with a `transform` or `filter`: use
  * `contained` there.
  */
 export const BottomNav = forwardRef<HTMLElement, BottomNavProps>(function BottomNav(
@@ -106,6 +117,7 @@ export const BottomNav = forwardRef<HTMLElement, BottomNavProps>(function Bottom
     hideOnScroll = false,
     scrollTarget,
     contained = false,
+    scrollHint = false,
     className,
     onFocus,
     onBlur,
@@ -164,6 +176,54 @@ export const BottomNav = forwardRef<HTMLElement, BottomNavProps>(function Bottom
   }, [hideOnScroll, scrollTarget]);
   const hidden = hideOnScroll && scrolledDown && pastBar && !reduced && !focusWithin;
 
+  // Scroll hint: is there more content below the viewport (or the scroll element)?
+  const [moreBelow, setMoreBelow] = useState(false);
+  useEffect(() => {
+    if (!scrollHint) return;
+    const element = scrollTarget?.current ?? null;
+    const doc = (navRef.current ?? document.documentElement).ownerDocument;
+    const measure = () => {
+      const remaining = element
+        ? element.scrollHeight - element.clientHeight - element.scrollTop
+        : doc.documentElement.scrollHeight - doc.documentElement.clientHeight - window.scrollY;
+      setMoreBelow(remaining > SCROLL_END_TOLERANCE);
+    };
+    let frame = 0;
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        measure();
+      });
+    };
+    const sized = element ? [element] : [doc.documentElement, doc.body];
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+    // Content that grows or shrinks changes the scroll height without resizing the scroller.
+    const watch = () => {
+      resizeObserver?.disconnect();
+      for (const node of sized) {
+        resizeObserver?.observe(node);
+        for (const child of node.children) resizeObserver?.observe(child);
+      }
+      schedule();
+    };
+    const mutationObserver =
+      typeof MutationObserver === "undefined" ? null : new MutationObserver(watch);
+    for (const node of sized) mutationObserver?.observe(node, { childList: true });
+    const source: HTMLElement | Window = element ?? window;
+    source.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    watch();
+    return () => {
+      cancelAnimationFrame(frame);
+      source.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+    };
+  }, [scrollHint, scrollTarget]);
+
   // Publish the rendered height so a Fab (or anything docked above the bar) can ride above it.
   const hiddenRef = useRef(hidden);
   const republish = useRef<() => void>(() => undefined);
@@ -216,10 +276,16 @@ export const BottomNav = forwardRef<HTMLElement, BottomNavProps>(function Bottom
         className,
       )}
       data-state={hidden ? "hidden" : "visible"}
+      data-more={scrollHint ? String(moreBelow) : undefined}
       onFocus={handleFocus}
       onBlur={handleBlur}
       {...rest}
     >
+      {scrollHint && (
+        <span className="ol-bottomnav__hint" aria-hidden="true">
+          ↓
+        </span>
+      )}
       <ul className="ol-bottomnav__list">
         {shown.map((item) => {
           const current = item.key === active;
