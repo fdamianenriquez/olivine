@@ -59,7 +59,7 @@ const ANIMATABLE = new Set([
   "stroke-dashoffset",
   "animation-timing-function",
 ]);
-const ROTATING = /^@keyframes\s+ol-(shishi|tree-fold)-/;
+const ROTATING = /^@keyframes\s+ol-(shishi|fold)-/;
 const OPT_IN = ["byobu", "noren", "kumiko", "shishi", "sumi", "shoji", "origami"];
 
 /** Every at-rule body matching the pattern, joined (a block may be split across both files). */
@@ -124,7 +124,7 @@ describe("motion.css and motion-extras.css", () => {
     }
   });
 
-  it("never scales past 1.02, and rotates only in byōbu, shishi-odoshi, origami and the tree fold", () => {
+  it("never scales past 1.02, and rotates only in byōbu, shishi-odoshi, origami and the disclosure fold", () => {
     for (const [property, value = ""] of declarations(css)) {
       if (property !== "transform") continue;
       for (const [, amount = ""] of value.matchAll(/scale[XY]?\(([^)]+)\)/g)) {
@@ -141,7 +141,7 @@ describe("motion.css and motion-extras.css", () => {
       .map(([, selector = ""]) => selector.trim())
       .filter((selector) => !/^(from|to|\d)/.test(selector));
     for (const selector of rotating) {
-      expect(selector).toMatch(/ol-motion-(byobu|shishi|origami)|ol-tree--fold/);
+      expect(selector).toMatch(/ol-motion-(byobu|shishi|origami)|ol-fold/);
     }
   });
 

@@ -73,6 +73,8 @@ export interface FloatingResult<R extends HTMLElement, F extends HTMLElement> {
   placement: Placement;
   /** False until the first position is known; hide the element until then. */
   positioned: boolean;
+  /** True when the content is taller than the room left (only then does a menu scroll). */
+  constrained: boolean;
 }
 
 /**
@@ -97,6 +99,7 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
     placement: Placement;
     availableHeight?: number;
     anchorWidth?: number;
+    constrained?: boolean;
   } | null>(null);
 
   const setReference = useCallback((node: R | null) => {
@@ -115,7 +118,8 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
       setState(null);
       return;
     }
-    let measured: { availableHeight: number; anchorWidth: number } | undefined;
+    let measured:
+      { availableHeight: number; anchorWidth: number; constrained: boolean } | undefined;
     const middleware: Middleware[] = [
       offset({ mainAxis: gap, crossAxis: crossOffset }),
       flip({ padding: EDGE }),
@@ -125,8 +129,16 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
       middleware.push(
         size({
           padding: EDGE,
-          apply({ availableHeight, rects }) {
-            measured = { availableHeight, anchorWidth: rects.reference.width };
+          apply({ availableHeight, rects, elements }) {
+            // Whether the content is taller than the room: only then does the surface scroll
+            // (a sub-pixel of overflow must not make it scrollable).
+            const box = elements.floating;
+            const natural = box.scrollHeight + (box.offsetHeight - box.clientHeight);
+            measured = {
+              availableHeight,
+              anchorWidth: rects.reference.width,
+              constrained: natural > availableHeight + 1,
+            };
           },
         }),
       );
@@ -155,5 +167,6 @@ export function useFloating<R extends HTMLElement, F extends HTMLElement>({
     } as CSSProperties,
     placement: state?.placement ?? placement,
     positioned: state !== null,
+    constrained: state?.constrained ?? false,
   };
 }
