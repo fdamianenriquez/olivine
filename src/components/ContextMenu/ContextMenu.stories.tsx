@@ -90,7 +90,7 @@ const meta = {
   tags: ["autodocs"],
   args: { items: fileItems, label: "File actions", menuClassName: "ol-motion-noren" },
   parameters: {
-    layout: "centered",
+    layout: "fullscreen",
     docs: {
       description: {
         component:
@@ -149,7 +149,7 @@ export const FileList: Story = {
 };
 
 export const FileListOpen: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <OpenOnMount at={[60, 12]}>
       <div style={{ ...boxStyle, minWidth: 360, minHeight: 320 }}>
@@ -215,7 +215,7 @@ export const CheckableRadiosAndSubmenu: Story = {
 };
 
 export const CheckableRadiosAndSubmenuOpen: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <OpenOnMount at={[80, 40]}>
       <div style={{ minHeight: 420, minWidth: 560 }}>
@@ -227,7 +227,7 @@ export const CheckableRadiosAndSubmenuOpen: Story = {
 
 /** Opened from the keyboard: the menu hangs from the focused row and takes the first item. */
 export const FromKeyboard: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <OpenOnMount how="keyboard">
       <div style={{ minHeight: 320, minWidth: 420 }}>
@@ -261,7 +261,7 @@ export const Disabled: Story = {
 
 /** A sumi panel on a washi page: the menu copies the island's theme into its portal. */
 export const SumiIsland: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <OpenOnMount>
       <div style={{ minHeight: 360, minWidth: 420, padding: "var(--space-4)" }}>
@@ -278,7 +278,7 @@ export const SumiIsland: Story = {
 
 /** In right-to-left text the menu opens to the left of the pointer. */
 export const RightToLeft: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <OpenOnMount at={[300, 20]}>
       <div dir="rtl" style={{ minHeight: 320, minWidth: 420 }}>
@@ -318,8 +318,9 @@ export const NearViewportEdge: Story = {
           display: "grid",
           justifyContent: "end",
           alignContent: "end",
-          minHeight: "100vh",
-          padding: "var(--space-4)",
+          // The canvas already pads the viewport by space-6 on each side and fills it.
+          boxSizing: "border-box",
+          minHeight: "calc(100vh - var(--space-6) * 2)",
         }}
       >
         <ContextMenu
@@ -337,24 +338,26 @@ export const NearViewportEdge: Story = {
 
 /** Both themes side by side, menus open. */
 export const Themes: Story = {
-  parameters: { layout: "padded" },
+  parameters: { layout: "fullscreen" },
   render: (args) => (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
-      {(["washi", "sumi"] as const).map((theme) => (
-        <div
-          key={theme}
-          className="ol"
-          data-theme={theme}
-          style={{ minHeight: 360, padding: "var(--space-4)", background: "var(--paper)" }}
-        >
-          <OpenOnMount>
-            <ContextMenu {...args} style={withActions} tabIndex={0}>
-              <p style={hint}>{theme}</p>
-              <Actions items={args.items} />
-            </ContextMenu>
-          </OpenOnMount>
-        </div>
-      ))}
+    <div style={{ padding: "var(--space-4)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
+        {(["washi", "sumi"] as const).map((theme) => (
+          <div
+            key={theme}
+            className="ol"
+            data-theme={theme}
+            style={{ minHeight: 360, padding: "var(--space-4)", background: "var(--paper)" }}
+          >
+            <OpenOnMount>
+              <ContextMenu {...args} style={withActions} tabIndex={0}>
+                <p style={hint}>{theme}</p>
+                <Actions items={args.items} />
+              </ContextMenu>
+            </OpenOnMount>
+          </div>
+        ))}
+      </div>
     </div>
   ),
 };

@@ -118,7 +118,14 @@ const pointAnchor = (x: number, y: number, area: Element): VirtualAnchor => ({
   contextElement: area,
 });
 
-/** The part of a box that is inside the viewport (the box itself when none of it is). */
+/** Share of the viewport height a keyboard anchor may take: the menu hangs from its top part. */
+const ANCHOR_MAX_SHARE = 1 / 3;
+
+/**
+ * The part of a box that is inside the viewport, at most a third of its height from the top
+ * (the box itself when none of it is visible). A tall element would otherwise leave no room
+ * below or above it, and the menu would be squeezed to a few pixels.
+ */
 export function visibleRect(rect: DOMRect): DOMRect {
   const { clientWidth, clientHeight } = document.documentElement;
   if (clientWidth === 0 || clientHeight === 0) return rect;
@@ -127,7 +134,7 @@ export function visibleRect(rect: DOMRect): DOMRect {
   const right = Math.min(rect.right, clientWidth);
   const bottom = Math.min(rect.bottom, clientHeight);
   if (right <= left || bottom <= top) return rect;
-  return rectAt(left, top, right - left, bottom - top);
+  return rectAt(left, top, right - left, Math.min(bottom - top, clientHeight * ANCHOR_MAX_SHARE));
 }
 
 /**

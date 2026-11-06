@@ -1258,11 +1258,18 @@ describe("ContextMenu", () => {
       });
     });
 
-    it("measures only the visible part of a tall focused element", () => {
+    it("measures only the visible, top part of a tall focused element", () => {
       const tall = document.createElement("div");
       tall.getBoundingClientRect = () => box(50, -500, 400, 2000);
       const rect = elementAnchor(tall).getBoundingClientRect();
-      expect([rect.left, rect.top, rect.right, rect.bottom]).toEqual([50, 0, 400, 800]);
+      // The viewport is 1000 x 800: the top third of it at most.
+      expect([rect.left, rect.top, rect.right]).toEqual([50, 0, 400]);
+      expect(rect.bottom).toBeCloseTo(800 / 3);
+
+      const short = document.createElement("div");
+      short.getBoundingClientRect = () => box(50, 100, 400, 140);
+      const kept = elementAnchor(short).getBoundingClientRect();
+      expect([kept.top, kept.bottom]).toEqual([100, 140]);
 
       const off = document.createElement("div");
       off.getBoundingClientRect = () => box(50, -900, 400, -500);
@@ -1281,8 +1288,8 @@ describe("ContextMenu", () => {
       await waitFor(() => expect(menu).toHaveAttribute("data-positioned"));
       const y = Number.parseFloat(point(menu).y);
       expect(y).toBeGreaterThanOrEqual(0);
-      // Hangs from the bottom of the visible part (800), not from the element's own bottom (2000).
-      expect(y).toBeLessThanOrEqual(800 + 8);
+      // Hangs from the top part of what is visible, not from the element's own bottom (2000).
+      expect(y).toBeLessThanOrEqual(800 / 3 + 8);
     });
 
     it("names the menu with the default when the label is empty", async () => {
