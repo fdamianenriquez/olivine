@@ -1,0 +1,100 @@
+/*
+ * Ruby: furigana over Japanese text. Readings sit at half the base size (JLREQ) in ink-2, over
+ * the base in horizontal text and to its right in vertical text. Line height leaves room for
+ * them so a reading never collides with the line above.
+ */
+.ol-ruby {
+  --ruby-base: var(--text-body-l-size);
+
+  font-family: var(--font-jp);
+  font-size: var(--ruby-base);
+  line-height: 2.1;
+  color: var(--ink);
+}
+
+.ol-ruby--kanji {
+  --ruby-base: var(--text-kanji-size);
+}
+
+.ol-ruby--display {
+  /* A 64px type size taken from the spacing scale until a type token exists. */
+  --ruby-base: var(--space-16);
+
+  line-height: 1.7;
+}
+
+.ol-ruby ruby {
+  ruby-align: space-around;
+}
+
+.ol-ruby rt {
+  font-family: var(--font-jp);
+  font-size: 0.5em;
+  line-height: 1;
+  color: var(--ink-2);
+  letter-spacing: 0;
+}
+
+/* The Latin line: a flex stack under the base, in the label voice, never below label-s. */
+.ol-ruby__stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: bottom;
+}
+
+.ol-ruby__row {
+  white-space: nowrap;
+}
+
+.ol-ruby__romaji {
+  font-family: var(--text-label-s-family);
+  font-weight: var(--text-label-s-weight);
+  font-size: max(var(--text-label-s-size), 0.3em);
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+}
+
+.ol-ruby--vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  line-height: 2.2;
+}
+
+/* Learner mode: readings stay in the DOM and appear on hover or focus. */
+.ol-ruby--reveal {
+  cursor: help;
+  text-decoration: underline dotted var(--rule);
+  text-decoration-thickness: var(--stroke-hair);
+  text-underline-offset: 0.3em;
+}
+
+.ol-ruby--reveal rt,
+.ol-ruby--reveal .ol-ruby__romaji {
+  opacity: 0;
+  transition: opacity var(--dur-s) var(--ease-effect);
+}
+
+.ol-ruby--reveal:is(:hover, :focus-within) :is(rt, .ol-ruby__romaji) {
+  opacity: 1;
+}
+
+.ol-ruby--reveal:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-ruby--reveal rt,
+  .ol-ruby--reveal .ol-ruby__romaji {
+    transition: none;
+  }
+}
+
+/* The dotted marker and the readings are drawn with ink, which forced colours keep. */
+@media (forced-colors: active) {
+  .ol-ruby--reveal {
+    text-decoration-color: CanvasText;
+  }
+}
