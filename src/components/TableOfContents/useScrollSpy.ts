@@ -19,7 +19,7 @@ export interface ScrollSpyOptions {
    * The entry a click or a hash change made current. While set, the spy does not move the mark;
    * the next scroll the reader makes (wheel, touch, keys, scrollbar) clears it.
    */
-  pin: RefObject<string | null>;
+  pin: { current: string | null };
 }
 
 /** Runs the check again now, forgetting what was reported. A no-op while the spy is off. */

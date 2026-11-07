@@ -202,7 +202,11 @@ describe("useHeadings", () => {
         <section aria-hidden="true">
           <h2 id="b">B</h2>
         </section>
-        <section inert>
+        <section
+          ref={(node) => {
+            node?.setAttribute("inert", "");
+          }}
+        >
           <h2 id="c">C</h2>
         </section>
         <h2 id="d" hidden>
