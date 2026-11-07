@@ -133,6 +133,7 @@ export const en: OlivineLabels = {
   menubar: "Menu bar",
   tocLabel: "On this page",
   contextMenu: "Context menu",
+  emptyValue: "Not provided",
   emptyNoDataTitle: "Nothing here yet",
   emptyNoResultsTitle: "No results",
   emptyNoResultsText: "Try a different search or clear the filters.",
