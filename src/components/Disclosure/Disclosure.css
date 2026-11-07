@@ -1,0 +1,120 @@
+.ol-disclosure {
+  border-block: var(--stroke-hair) solid var(--rule);
+}
+
+/* Stacked ruled disclosures share one line. */
+.ol-disclosure:not(.ol-disclosure--bare) + .ol-disclosure:not(.ol-disclosure--bare) {
+  border-top: 0;
+}
+
+.ol-disclosure--bare {
+  border: 0;
+}
+
+.ol-disclosure__head {
+  margin: 0;
+}
+
+.ol-disclosure__trigger {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr var(--target-min);
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-4) 0;
+  cursor: pointer;
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  font-weight: var(--text-h3-weight);
+  line-height: var(--text-h3-leading);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-disclosure__trigger:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+.ol-disclosure__trigger:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.ol-disclosure__sign {
+  font-family: var(--font-label); /* glyphs: Xanh Mono draws them too small */
+  font-weight: 400;
+  font-size: var(--glyph-xl);
+  text-align: center;
+}
+
+.ol-disclosure--bare .ol-disclosure__trigger {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: var(--space-2);
+  width: auto;
+  min-height: var(--control-s);
+  padding: 0;
+  color: var(--ink-2);
+  font-family: var(--text-label-l-family);
+  font-size: var(--text-label-l-size);
+  font-weight: var(--text-label-l-weight);
+  line-height: var(--text-label-l-leading);
+  letter-spacing: var(--text-label-l-tracking);
+}
+
+.ol-disclosure--bare .ol-disclosure__trigger:disabled {
+  color: var(--ink-3);
+}
+
+@media (hover: hover) {
+  .ol-disclosure--bare .ol-disclosure__trigger:hover:not(:disabled) {
+    color: var(--ink);
+  }
+}
+
+.ol-disclosure--bare .ol-disclosure__sign {
+  font-size: var(--glyph-l);
+}
+
+/*
+ * No padding, border or margin on the panel: a closed hidden="until-found" panel keeps its box,
+ * so spacing lives on the body, which that state clips away.
+ */
+.ol-disclosure__body {
+  max-width: 72ch;
+  padding-bottom: var(--space-6);
+  color: var(--ink-2);
+}
+
+.ol-disclosure--bare .ol-disclosure__body {
+  padding-top: var(--space-2);
+}
+
+@media (forced-colors: active) {
+  .ol-disclosure {
+    border-color: CanvasText;
+  }
+
+  .ol-disclosure__trigger:focus-visible {
+    outline-color: Highlight;
+  }
+
+  .ol-disclosure__trigger:disabled {
+    color: GrayText;
+  }
+
+  .ol-disclosure__sign {
+    color: CanvasText;
+  }
+
+  .ol-disclosure--bare .ol-disclosure__trigger:disabled {
+    color: GrayText;
+  }
+
+  .ol-disclosure__trigger:disabled .ol-disclosure__sign {
+    color: GrayText;
+  }
+}
