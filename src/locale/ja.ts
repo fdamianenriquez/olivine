@@ -136,6 +136,7 @@ export const ja: OlivineLabels = {
   menubar: "メニューバー",
   tocLabel: "このページの内容",
   contextMenu: "コンテキストメニュー",
+  emptyValue: "記載なし",
   emptyNoDataTitle: "まだ何もありません",
   emptyNoResultsTitle: "結果がありません",
   emptyNoResultsText: "検索条件を変えるか、絞り込みを解除してください。",

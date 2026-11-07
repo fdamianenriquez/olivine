@@ -152,6 +152,8 @@ export interface OlivineLabels {
   tocLabel: string;
   /** Default name of a ContextMenu. */
   contextMenu: string;
+  /** DescriptionList: spoken text for a missing value, which is drawn as a dash. */
+  emptyValue: string;
   /** EmptyState: default titles and descriptions of the three variants. */
   emptyNoDataTitle: string;
   emptyNoResultsTitle: string;
