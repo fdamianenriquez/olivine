@@ -28,6 +28,7 @@ export { CheckGroup, type CheckGroupProps } from "./components/CheckGroup";
 export { Chip, type ChipProps, type ChipRemoveEvent } from "./components/Chip";
 export { ChipGroup, type ChipGroupActions, type ChipGroupProps } from "./components/ChipGroup";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";
+export * from "./components/Code";
 export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
 export {
   ColorSwatches,
