@@ -990,11 +990,14 @@ describe("Sidebar", () => {
       expect(screen.queryByRole("dialog")).toBeNull();
       expect(screen.queryByRole("navigation")).toBeNull();
 
-      await userEvent.click(screen.getByRole("button", { name: "Menu" }));
+      fireEvent.click(screen.getByRole("button", { name: "Menu" }));
       expect(screen.getByRole("dialog", { name: "Docs" })).toBeInTheDocument();
 
       media.set(false);
-      expect(spy).toHaveBeenLastCalledWith(true);
+      // React 18 renders the store change a tick later than 19 does.
+      await waitFor(() => {
+        expect(spy).toHaveBeenLastCalledWith(true);
+      });
       expect(screen.queryByRole("dialog")).toBeNull();
       expect(nav()).toBeInTheDocument();
       expect(spy).toHaveBeenCalledTimes(2);
