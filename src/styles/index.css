@@ -83,6 +83,7 @@
 @import "../components/Offcanvas/Offcanvas.css";
 @import "../components/Progress/Progress.css";
 @import "../components/Spinner/Spinner.css";
+@import "../components/EmptyState/EmptyState.css";
 
 /* Utilities */
 @import "./utilities.css";

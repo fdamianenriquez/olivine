@@ -152,6 +152,12 @@ export interface OlivineLabels {
   tocLabel: string;
   /** Default name of a ContextMenu. */
   contextMenu: string;
+  /** EmptyState: default titles and descriptions of the three variants. */
+  emptyNoDataTitle: string;
+  emptyNoResultsTitle: string;
+  emptyNoResultsText: string;
+  emptyErrorTitle: string;
+  emptyErrorText: string;
   /** Shown in an empty TreeView. */
   treeEmpty: string;
   /** Status after a TreeView branch loaded its children. */

@@ -84,6 +84,15 @@ export {
   type DropdownSubmenuItem,
 } from "./components/Dropdown";
 export {
+  EmptyState,
+  type EmptyStateAlign,
+  type EmptyStateAnnounce,
+  type EmptyStateHeadingLevel,
+  type EmptyStateProps,
+  type EmptyStateSize,
+  type EmptyStateVariant,
+} from "./components/EmptyState";
+export {
   Fab,
   FAB_MAX_ACTIONS,
   type FabAction,
