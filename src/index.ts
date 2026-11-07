@@ -168,6 +168,14 @@ export { Placeholder, type PlaceholderProps } from "./components/Placeholder";
 export { Popover, type PopoverPlacement, type PopoverProps } from "./components/Popover";
 export { Portal, type PortalProps } from "./components/Portal";
 export { Progress, type ProgressProps } from "./components/Progress";
+export {
+  InlineQuote,
+  type InlineQuoteProps,
+  Quote,
+  type QuoteProps,
+  type QuoteSize,
+  type QuoteVariant,
+} from "./components/Quote";
 export { Radio, type RadioProps } from "./components/Radio";
 export {
   Range,
