@@ -195,6 +195,13 @@ export {
   type RubySize,
 } from "./components/Ruby";
 export {
+  Seal,
+  type SealInk,
+  type SealProps,
+  type SealShape,
+  type SealVariant,
+} from "./components/Seal";
+export {
   SearchField,
   type SearchFieldActions,
   type SearchFieldChangeReason,
