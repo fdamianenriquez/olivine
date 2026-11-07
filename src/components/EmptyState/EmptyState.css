@@ -1,0 +1,72 @@
+/* EmptyState: a plain column of media, title, text and one action. Unframed by default; the
+   variants share one look. Nothing here animates or changes colour. */
+.ol-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+  min-width: 0;
+  padding: var(--space-12);
+  color: var(--ink);
+}
+
+.ol-empty-state--s {
+  padding: var(--space-6);
+}
+
+.ol-empty-state--l {
+  padding: var(--space-24);
+}
+
+.ol-empty-state--center {
+  align-items: center;
+  text-align: center;
+}
+
+.ol-empty-state--framed {
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+}
+
+/* A glyph or kanji is plain text in the mono face; Text styles inside keep their own. */
+.ol-empty-state__media {
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--text-h1-size);
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.ol-empty-state__media :is(img, svg, video, picture) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: var(--control-area);
+}
+
+.ol-empty-state__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 48ch;
+  min-width: 0;
+}
+
+.ol-empty-state__action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  max-width: 100%;
+}
+
+@media (forced-colors: active) {
+  .ol-empty-state,
+  .ol-empty-state__media {
+    color: CanvasText;
+  }
+
+  .ol-empty-state--framed {
+    border-color: CanvasText;
+  }
+}

@@ -133,6 +133,11 @@ export const en: OlivineLabels = {
   menubar: "Menu bar",
   tocLabel: "On this page",
   contextMenu: "Context menu",
+  emptyNoDataTitle: "Nothing here yet",
+  emptyNoResultsTitle: "No results",
+  emptyNoResultsText: "Try a different search or clear the filters.",
+  emptyErrorTitle: "Could not load this",
+  emptyErrorText: "Try again in a moment.",
   treeEmpty: "No items",
   treeLoaded: (label, n) =>
     n === 1 ? `1 item loaded in ${label}` : `${String(n)} items loaded in ${label}`,
