@@ -5,10 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { REDUCE_MOTION_CLASS } from "../../motion";
 import { runAxe } from "../../test/axe";
+import { graphemes } from "../../utils/script";
 import { Root } from "../Root";
 import { Tooltip } from "../Tooltip";
 import { Avatar, AvatarGroup } from "./Avatar";
-import { deriveInitials, graphemes } from "./initials";
+import { deriveInitials } from "./initials";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -58,7 +59,7 @@ describe("initials", () => {
     // @ts-expect-error -- simulate an engine without Intl.Segmenter
     delete Intl.Segmenter;
     try {
-      const fresh = await import("./initials");
+      const fresh = await import("../../utils/script");
       expect(fresh.graphemes("𠮷野")).toEqual(["𠮷", "野"]);
     } finally {
       Object.defineProperty(Intl, "Segmenter", {
