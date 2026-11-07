@@ -69,6 +69,7 @@
 @import "../components/Carousel/Carousel.css";
 @import "../components/Stat/Stat.css";
 @import "../components/Placeholder/Placeholder.css";
+@import "../components/Ruby/Ruby.css";
 
 /* Feedback and overlays */
 @import "../components/Alert/Alert.css";

@@ -161,6 +161,13 @@ export {
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
 export {
+  Ruby,
+  type RubyPair,
+  type RubyProps,
+  type RubyReveal,
+  type RubySize,
+} from "./components/Ruby";
+export {
   SearchField,
   type SearchFieldActions,
   type SearchFieldChangeReason,
