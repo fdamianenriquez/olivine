@@ -1054,7 +1054,8 @@ describe("Sidebar", () => {
     const css = readFileSync("src/components/Sidebar/Sidebar.css", "utf8");
     const motionCss = readFileSync("src/styles/motion.css", "utf8");
     const rule = (selector: string) =>
-      new RegExp(`${selector.replace(/[.[\]()*+?^$|]/g, "\\$&")} \\{[^}]*\\}`).exec(css)?.[0] ?? "";
+      new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{[^}]*\\}`).exec(css)?.[0] ??
+      "";
 
     it("draws the current item with an olivo edge on the inline start side", () => {
       expect(rule('.ol-sidebar__item[aria-current="page"]::before')).toMatch(

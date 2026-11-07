@@ -349,7 +349,7 @@ export const ContextMenu = forwardRefAs<"div", ContextMenuOwnProps>(function Con
       areaRef.current = node;
       const forwarded = ref as Ref<HTMLElement> | null;
       if (typeof forwarded === "function") forwarded(node);
-      else if (forwarded) forwarded.current = node;
+      else if (forwarded) (forwarded as { current: HTMLElement | null }).current = node;
     },
     [ref],
   );

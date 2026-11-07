@@ -5,7 +5,6 @@ import {
   type MouseEvent,
   type ReactNode,
   type Ref,
-  type RefObject,
   useCallback,
   useContext,
   useEffect,
@@ -439,7 +438,7 @@ interface PanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "onSelect" | "
   animate?: boolean;
   rootRef: Ref<HTMLDivElement>;
   /** Set when the panel unmounts with focus inside it. */
-  lostFocusRef: RefObject<boolean>;
+  lostFocusRef: { current: boolean };
 }
 
 function Panel({
