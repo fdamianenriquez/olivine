@@ -182,6 +182,8 @@ export interface OlivineLabels {
   treeLoadFailed: (label: string) => string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
+  /** Timeline: the words read after the title of an entry before and after the current one. */
+  timeline: { completed: string; upcoming: string };
   /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
   commandPalette: {
     name: string;

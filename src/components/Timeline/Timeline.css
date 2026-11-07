@@ -1,0 +1,299 @@
+.ol-timeline {
+  --ol-timeline-node: var(--space-6);
+  --ol-timeline-dot: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ol-timeline;
+}
+
+/* ---------- Entry ---------- */
+
+.ol-timeline__item {
+  --ol-timeline-spine: var(--stroke-hair);
+  --ol-timeline-line: var(--rule);
+  --ol-timeline-fill: var(--ink);
+  --ol-timeline-text: var(--ink);
+  --ol-timeline-frame: var(--ink);
+
+  position: relative;
+  padding-block: var(--space-3);
+  padding-inline-start: var(--space-8);
+  counter-increment: ol-timeline;
+}
+
+/*
+ * The spine leaves each marker and runs to the next one, so it is one stroke in the state of the
+ * entry it leaves. It reaches into the next entry's top padding and the next marker paints over
+ * its end. The last entry has no segment.
+ */
+.ol-timeline__item::before {
+  content: "";
+  position: absolute;
+  inset-block: calc(var(--space-3) + var(--ol-timeline-node) / 2)
+    calc((var(--space-3) + var(--ol-timeline-node) / 2) * -1);
+  inset-inline-start: calc(var(--ol-timeline-node) / 2);
+  width: var(--ol-timeline-spine);
+  margin-inline-start: calc(var(--ol-timeline-spine) / -2);
+  background: var(--ol-timeline-line);
+  transition: background-color var(--dur-s) var(--ease-effect);
+}
+
+.ol-timeline__item:last-child::before {
+  display: none;
+}
+
+/* ---------- Marker ---------- */
+
+/* A dot sits on the spine; a figure, a glyph or a custom marker gets a hairline box. */
+.ol-timeline__marker {
+  --ol-timeline-mark: var(--ol-timeline-dot);
+
+  position: absolute;
+  inset-block-start: calc(var(--space-3) + (var(--ol-timeline-node) - var(--ol-timeline-mark)) / 2);
+  inset-inline-start: calc((var(--ol-timeline-node) - var(--ol-timeline-mark)) / 2);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--ol-timeline-mark);
+  height: var(--ol-timeline-mark);
+  overflow: hidden;
+  border: var(--stroke-hair) solid var(--ol-timeline-fill);
+  background: var(--ol-timeline-fill);
+  color: var(--ol-timeline-text);
+  font-family: var(--font-mono);
+  font-size: var(--glyph-m);
+  line-height: 1;
+  transition:
+    background-color var(--dur-s) var(--ease-effect),
+    border-color var(--dur-s) var(--ease-effect);
+}
+
+.ol-timeline__marker:not([data-kind="dot"]) {
+  --ol-timeline-mark: var(--ol-timeline-node);
+
+  border-color: var(--ol-timeline-frame);
+  background: var(--paper);
+}
+
+.ol-timeline__marker[data-kind="glyph"] {
+  font-size: var(--glyph-xl);
+}
+
+.ol-timeline__marker[data-kind="number"]::before {
+  content: counter(ol-timeline, decimal-leading-zero);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--glyph-l);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+}
+
+.ol-timeline__item[data-status="info"] .ol-timeline__marker[data-kind="glyph"] {
+  color: var(--ai);
+}
+
+.ol-timeline__item[data-status="success"] .ol-timeline__marker[data-kind="glyph"] {
+  color: var(--matsu);
+}
+
+.ol-timeline__item[data-status="warning"] .ol-timeline__marker[data-kind="glyph"] {
+  color: var(--kitsune);
+}
+
+/* The multiplication sign is drawn small in the mono face: it gets a larger size to match the others. */
+.ol-timeline__item[data-status="danger"] .ol-timeline__marker[data-kind="glyph"] {
+  color: var(--beni);
+  font-size: calc(var(--glyph-xl) * 1.5);
+}
+
+/* ---------- Text ---------- */
+
+.ol-timeline__body {
+  min-width: 0;
+  overflow-wrap: break-word;
+  color: var(--ol-timeline-text);
+}
+
+.ol-timeline__date {
+  display: flex;
+  align-items: center;
+  min-height: var(--ol-timeline-node);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  line-height: var(--text-label-s-leading);
+  font-weight: var(--text-label-s-weight);
+  letter-spacing: var(--text-label-s-tracking);
+  color: var(--ink-2);
+}
+
+.ol-timeline__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+  min-height: var(--ol-timeline-node);
+}
+
+.ol-timeline__title {
+  margin: 0;
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-leading);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-timeline__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ol-timeline__link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: var(--underline-weight);
+  text-underline-offset: var(--underline-offset);
+}
+
+.ol-timeline__meta {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink-2);
+}
+
+.ol-timeline__desc {
+  margin: 0;
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+  color: var(--ink-2);
+}
+
+.ol-timeline__content {
+  margin-block-start: var(--space-3);
+}
+
+/* ---------- Progress ---------- */
+
+.ol-timeline__item[data-state="done"] {
+  --ol-timeline-spine: var(--stroke-bold);
+  --ol-timeline-line: var(--ink);
+}
+
+/* Upcoming: a hollow marker and quieter text. */
+.ol-timeline__item[data-state="upcoming"] {
+  --ol-timeline-fill: var(--rule);
+  --ol-timeline-text: var(--ink-2);
+  --ol-timeline-frame: var(--rule);
+}
+
+.ol-timeline__item[data-state="upcoming"] .ol-timeline__marker[data-kind="dot"] {
+  background: var(--paper);
+}
+
+.ol-timeline__item[data-state="current"] {
+  --ol-timeline-spine: var(--stroke-heavy);
+  --ol-timeline-line: var(--olivo);
+  --ol-timeline-fill: var(--olivo);
+  --ol-timeline-frame: var(--olivo);
+}
+
+.ol-timeline__item[data-state="current"] .ol-timeline__marker[data-kind="dot"] {
+  --ol-timeline-mark: var(--space-3);
+}
+
+.ol-timeline__item[data-state="current"] .ol-timeline__marker:not([data-kind="dot"]) {
+  border-width: var(--stroke-bold);
+}
+
+/* ---------- Entrance: the line is drawn (jo), the entries print (ha), the current marker lands (kyū) ---------- */
+
+@keyframes ol-timeline-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* useEntrance() holds these until the list is in view; the class is dropped once they have ended. */
+.ol-timeline--draw .ol-timeline__item::before {
+  animation: ol-timeline-draw var(--dur-m) var(--ease-move) backwards;
+  animation-delay: calc(var(--ol-i, 0) * var(--stagger));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-timeline--draw :is(.ol-timeline__marker, .ol-timeline__body) {
+  animation: ol-rise var(--dur-m) var(--ease-move) backwards;
+  animation-delay: calc(var(--dur-s) + var(--ol-i, 0) * var(--stagger));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+.ol-timeline--draw .ol-timeline__item[data-state="current"] .ol-timeline__marker {
+  animation: ol-land var(--dur-m) var(--ease-move) backwards;
+  animation-delay: calc(var(--dur-s) + var(--ol-last, 0) * var(--stagger) + var(--dur-m));
+  animation-play-state: var(--ol-enter-state, running);
+}
+
+/* ---------- Forced colours ---------- */
+
+@media (forced-colors: active) {
+  .ol-timeline__item::before {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .ol-timeline__item[data-state="upcoming"]::before {
+    background: GrayText;
+  }
+
+  .ol-timeline__item[data-state="current"]::before {
+    background: Highlight;
+  }
+
+  .ol-timeline__marker {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+    background: CanvasText;
+    color: CanvasText;
+  }
+
+  .ol-timeline__marker:not([data-kind="dot"]) {
+    background: Canvas;
+  }
+
+  .ol-timeline__item[data-state="current"] .ol-timeline__marker {
+    border-color: Highlight;
+    background: Highlight;
+  }
+
+  .ol-timeline__item[data-state="upcoming"] .ol-timeline__marker {
+    border-color: GrayText;
+    background: Canvas;
+  }
+
+  .ol-timeline__item[data-state="upcoming"] .ol-timeline__marker[data-kind="dot"] {
+    background: Canvas;
+  }
+
+  .ol-timeline__item[data-state="current"] .ol-timeline__marker:not([data-kind="dot"]) {
+    background: Canvas;
+  }
+
+  .ol-timeline__item[data-status] .ol-timeline__marker[data-kind="glyph"] {
+    color: CanvasText;
+  }
+
+  .ol-timeline__item[data-state="upcoming"]
+    :is(.ol-timeline__body, .ol-timeline__date, .ol-timeline__desc, .ol-timeline__meta) {
+    color: GrayText;
+  }
+}

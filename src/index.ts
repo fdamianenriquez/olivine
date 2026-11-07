@@ -272,6 +272,13 @@ export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export { type ThemeName, ThemeSwitch, type ThemeSwitchProps } from "./components/ThemeSwitch";
 export {
+  Timeline,
+  type TimelineItem,
+  type TimelineLabels,
+  type TimelineProps,
+  type TimelineStatus,
+} from "./components/Timeline";
+export {
   type HourCycle,
   TimePicker,
   type TimePickerProps,
