@@ -81,6 +81,7 @@ export {
   type DescriptionListTermWidth,
   type DescriptionListVariant,
 } from "./components/DescriptionList";
+export { Disclosure, type DisclosureProps } from "./components/Disclosure";
 export { Divider, type DividerProps } from "./components/Divider";
 export {
   Dropdown,
