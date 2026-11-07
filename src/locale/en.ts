@@ -151,6 +151,7 @@ export const en: OlivineLabels = {
     n === 1 ? `1 item loaded in ${label}` : `${String(n)} items loaded in ${label}`,
   treeLoadFailed: (label) => `Couldn't load ${label}`,
   stepper: { step: "Step", of: "of", completed: "completed", error: "needs attention" },
+  timeline: { completed: "completed", upcoming: "upcoming" },
   commandPalette: {
     name: "Command palette",
     placeholder: "Search commands",

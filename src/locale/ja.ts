@@ -153,6 +153,7 @@ export const ja: OlivineLabels = {
   treeLoaded: (label, n) => `${label}に${String(n)}件を読み込みました`,
   treeLoadFailed: (label) => `${label}を読み込めませんでした`,
   stepper: { step: "ステップ", of: "/", completed: "完了", error: "要確認" },
+  timeline: { completed: "完了", upcoming: "予定" },
   commandPalette: {
     name: "コマンドパレット",
     placeholder: "コマンドを検索",
