@@ -351,6 +351,7 @@ export const tokens = {
     "badge-height": "22px",
     "kbd-size": "22px",
     "kbd-pad": "5px",
+    "code-tab-size": "2",
     "thumb-width": "12px",
     "thumb-height": "20px",
     "switch-width": "48px",

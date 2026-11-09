@@ -152,6 +152,28 @@ export interface OlivineLabels {
   tocLabel: string;
   /** Default name of a ContextMenu. */
   contextMenu: string;
+  /** CodeBlock: name of the scrollable region when there is no title or label. */
+  codeRegion: string;
+  /** CodeBlock: visible label of the copy button. */
+  codeCopy: string;
+  /** CodeBlock: visible label after a successful copy. */
+  codeCopied: string;
+  /** CodeBlock: visible label after a failed copy. */
+  codeCopyFailed: string;
+  /** CodeBlock: accessible name of the copy button; `title` is the block's file name or caption. */
+  codeCopyLabel: (title?: string) => string;
+  /** CodeBlock: announced after a successful copy. */
+  codeCopiedStatus: string;
+  /** CodeBlock: announced when the clipboard refused and the code was selected instead. */
+  codeCopyFailedStatus: string;
+  /** DescriptionList: spoken text for a missing value, which is drawn as a dash. */
+  emptyValue: string;
+  /** EmptyState: default titles and descriptions of the three variants. */
+  emptyNoDataTitle: string;
+  emptyNoResultsTitle: string;
+  emptyNoResultsText: string;
+  emptyErrorTitle: string;
+  emptyErrorText: string;
   /** Shown in an empty TreeView. */
   treeEmpty: string;
   /** Status after a TreeView branch loaded its children. */
@@ -160,6 +182,8 @@ export interface OlivineLabels {
   treeLoadFailed: (label: string) => string;
   /** The words of the Stepper count line and of each step's spoken name. */
   stepper: { step: string; of: string; completed: string; error: string };
+  /** Timeline: the words read after the title of an entry before and after the current one. */
+  timeline: { completed: string; upcoming: string };
   /** Words of the CommandPalette: dialog name, placeholder, list name, empty state, footer hints. */
   commandPalette: {
     name: string;
