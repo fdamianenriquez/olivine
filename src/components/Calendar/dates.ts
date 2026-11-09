@@ -3,6 +3,10 @@
  * at midnight; every name, week start and format comes from `Intl`, with no runtime dependency.
  */
 
+import { formatter, intlTag } from "../../utils/date";
+
+export { intlTag };
+
 /** Day of the week, 0 = Sunday … 6 = Saturday (as `Date#getDay`). */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -10,14 +14,6 @@ export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export interface DateRange {
   start: Date | null;
   end: Date | null;
-}
-
-/** Intl tags of the built-in locales: `es` follows CLDR's default (Monday first). */
-const BUILT_IN_TAGS: Readonly<Record<string, string>> = { en: "en-US", es: "es", ja: "ja-JP" };
-
-/** Resolves a built-in name (`"en"`, `"es"`, `"ja"`) or any BCP 47 tag to an `Intl` tag. */
-export function intlTag(locale: string): string {
-  return BUILT_IN_TAGS[locale] ?? locale;
 }
 
 /** True for a Japanese locale, which shows the era year (令和) and narrow weekday names. */
@@ -148,18 +144,6 @@ export const dayOfWeekIndex = (d: Date, weekStartsOn: Weekday): number =>
 
 // ---------------------------------------------------------------------------------------------
 // Names and formats
-
-const formatters = new Map<string, Intl.DateTimeFormat>();
-
-function formatter(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
-  const key = `${locale}|${JSON.stringify(options)}`;
-  let f = formatters.get(key);
-  if (!f) {
-    f = new Intl.DateTimeFormat(intlTag(locale), options);
-    formatters.set(key, f);
-  }
-  return f;
-}
 
 /** Month name: `"October"`, `"octubre"`, `"10月"`. */
 export const monthName = (

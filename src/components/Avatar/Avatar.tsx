@@ -15,8 +15,9 @@ import {
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { cjkLanguage, graphemes } from "../../utils/script";
 import { AvatarGroupContext, type AvatarSize } from "./AvatarGroupContext";
-import { cjkLanguage, deriveInitials, graphemes } from "./initials";
+import { deriveInitials } from "./initials";
 
 export type { AvatarSize } from "./AvatarGroupContext";
 export type AvatarInk = "shu" | "ink" | "olivo";

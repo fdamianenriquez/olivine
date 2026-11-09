@@ -370,6 +370,33 @@ describe("motion.css and motion-extras.css", () => {
     }
   });
 
+  it("holds the hanko and the pressed stamp for useEntrance, with token timing only", () => {
+    const body = rule(".ol-hanko,\n.ol-stamp--press");
+    expect(body).toMatch(/animation:\s*ol-hanko var\(--dur-m\) var\(--ease-move\) backwards;/);
+    expect(body).toMatch(/animation-delay:\s*var\(--ol-hanko-delay, 0ms\);/);
+    // After the shorthand, which would reset it.
+    expect(body).toMatch(
+      /animation:[^;]*;[\s\S]*animation-play-state:\s*var\(--ol-enter-state, running\);/,
+    );
+    // No literal duration but the 0ms default delay; no literal curve.
+    expect(body.replace("var(--ol-hanko-delay, 0ms)", "")).not.toMatch(
+      /\d+m?s\b|cubic-bezier|linear\(/,
+    );
+    expect(rule('[data-enter="wait"]')).toContain("--ol-enter-state: paused;");
+  });
+
+  it("runs no kakejiku animation on a panel kept hidden after its exit", () => {
+    expect(rule('.ol-kakejiku.ol-kakejiku[data-state="closed"]')).toMatch(/animation:\s*none;/);
+    expect(
+      rule(
+        '.ol-kakejiku--from-right[data-state="closed"]::after,\n.ol-kakejiku--from-left[data-state="closed"]::after',
+      ),
+    ).toMatch(/animation:\s*none;/);
+    // After every direction rule: the later rule wins at equal specificity.
+    const last = css.lastIndexOf('.ol-kakejiku--from-left[data-state="closing"]::after');
+    expect(css.indexOf('.ol-kakejiku.ol-kakejiku[data-state="closed"]')).toBeGreaterThan(last);
+  });
+
   it("prints everything in its end state", () => {
     const body = allBodies(/@media\s+print\s*\{/g);
     expect(body).toMatch(/animation:\s*none !important/);

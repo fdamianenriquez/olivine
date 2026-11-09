@@ -501,6 +501,8 @@
 
 /* ---------- Hanko: the seal drops in one pass and stops dead ---------- */
 
+/* useEntrance() (press="view") holds the drop until the seal is in view; reduced motion collapses --dur-m to 1ms. */
+
 @keyframes ol-hanko {
   0% {
     opacity: 0;
@@ -521,6 +523,7 @@
 .ol-stamp--press {
   animation: ol-hanko var(--dur-m) var(--ease-move) backwards;
   animation-delay: var(--ol-hanko-delay, 0ms);
+  animation-play-state: var(--ol-enter-state, running);
 }
 
 /* ---------- Kakejiku / emakimono: unrolled with a clip-path, a rod on the moving edge ---------- */
@@ -600,6 +603,20 @@
 
 .ol-kakejiku--from-left[data-state="closing"]::after {
   animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
+}
+
+/*
+ * A panel kept in the DOM after its exit (usePresence keepMounted) reports data-state="closed":
+ * no animation while hidden, so opening again starts a fresh unroll even when the element kept
+ * its box (hidden="until-found"). The doubled class lifts it over the direction rules above.
+ */
+.ol-kakejiku.ol-kakejiku[data-state="closed"] {
+  animation: none;
+}
+
+.ol-kakejiku--from-right[data-state="closed"]::after,
+.ol-kakejiku--from-left[data-state="closed"]::after {
+  animation: none;
 }
 
 @keyframes ol-unroll-down {
