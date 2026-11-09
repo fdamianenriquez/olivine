@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useLayoutEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { stubNoAnimations } from "../test/animations";
 import { runAxe } from "../test/axe";
 import { type PresenceOptions, usePresence } from "./usePresence";
 
@@ -17,6 +18,7 @@ function Panel({
       ref={attach ? presence.setElement : undefined}
       data-testid="panel"
       data-state={presence.state}
+      hidden={presence.hidden}
     >
       <button type="button">Inside</button>
     </div>
@@ -274,5 +276,141 @@ describe("usePresence", () => {
     exit.resolve();
     await flush();
     expect(onExited).toHaveBeenCalledTimes(1);
+  });
+
+  describe("keepMounted", () => {
+    stubNoAnimations();
+
+    it("is off by default: the element unmounts and hidden stays false", async () => {
+      const { rerender } = render(<Panel open />);
+      expect(screen.getByTestId("panel")).not.toHaveAttribute("hidden");
+      rerender(<Panel open={false} />);
+      await flush();
+      expect(screen.queryByTestId("panel")).toBeNull();
+    });
+
+    it("starts mounted and hidden when it begins closed, with no exit motion", () => {
+      const onExited = vi.fn();
+      render(<Panel open={false} keepMounted onExited={onExited} />);
+      const panel = screen.getByTestId("panel");
+      expect(panel).toHaveAttribute("data-state", "closed");
+      expect(panel).toHaveAttribute("hidden");
+      expect(onExited).not.toHaveBeenCalled();
+    });
+
+    it("rolls up, then hides instead of unmounting, on the same finish signal", async () => {
+      const onExited = vi.fn();
+      const { rerender } = render(<Panel open keepMounted onExited={onExited} />);
+      const panel = screen.getByTestId("panel");
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).not.toHaveAttribute("hidden");
+
+      const exit = animation(300);
+      Object.defineProperty(panel, "getAnimations", { value: () => [exit.value] });
+      rerender(<Panel open={false} keepMounted onExited={onExited} />);
+      await flush();
+      // Still visible and inert while the exit plays.
+      expect(panel).toHaveAttribute("data-state", "closing");
+      expect(panel).toHaveAttribute("inert");
+      expect(panel).not.toHaveAttribute("hidden");
+      expect(onExited).not.toHaveBeenCalled();
+
+      exit.resolve();
+      await flush();
+      expect(screen.getByTestId("panel")).toBe(panel);
+      expect(panel).toHaveAttribute("data-state", "closed");
+      expect(panel).toHaveAttribute("hidden");
+      expect(panel).not.toHaveAttribute("inert");
+      expect(onExited).toHaveBeenCalledTimes(1);
+    });
+
+    it("hides after the timeout when the exit never reports an end", () => {
+      vi.useFakeTimers();
+      const { rerender } = render(<Panel open keepMounted timeout={400} />);
+      rerender(<Panel open={false} keepMounted timeout={400} />);
+      act(() => {
+        vi.advanceTimersByTime(399);
+      });
+      expect(screen.getByTestId("panel")).not.toHaveAttribute("hidden");
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.getByTestId("panel")).toHaveAttribute("hidden");
+    });
+
+    it("opens again from hidden", async () => {
+      const { rerender } = render(<Panel open keepMounted />);
+      rerender(<Panel open={false} keepMounted />);
+      await flush();
+      const panel = screen.getByTestId("panel");
+      expect(panel).toHaveAttribute("hidden");
+
+      rerender(<Panel open keepMounted />);
+      expect(screen.getByTestId("panel")).toBe(panel);
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).not.toHaveAttribute("hidden");
+    });
+
+    it("reopens mid-close without hiding, and the stale exit never hides it later", async () => {
+      const onExited = vi.fn();
+      const { rerender } = render(<Panel open keepMounted onExited={onExited} />);
+      const panel = screen.getByTestId("panel");
+      const exit = animation(300);
+      Object.defineProperty(panel, "getAnimations", { value: () => [exit.value] });
+      rerender(<Panel open={false} keepMounted onExited={onExited} />);
+      await flush();
+      expect(panel).toHaveAttribute("inert");
+
+      rerender(<Panel open keepMounted onExited={onExited} />);
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).not.toHaveAttribute("inert");
+      expect(panel).not.toHaveAttribute("hidden");
+
+      exit.resolve();
+      await flush();
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).not.toHaveAttribute("hidden");
+      expect(onExited).not.toHaveBeenCalled();
+    });
+
+    it("hides at once under reduced motion, where the exit lasts 1ms", async () => {
+      const { rerender } = render(<Panel open keepMounted />);
+      const panel = screen.getByTestId("panel");
+      const exit = animation(1);
+      Object.defineProperty(panel, "getAnimations", { value: () => [exit.value] });
+      rerender(<Panel open={false} keepMounted />);
+      exit.resolve();
+      await flush();
+      expect(panel).toHaveAttribute("hidden");
+    });
+
+    it("moves focus out before it goes inert, as without keepMounted", () => {
+      const trigger = document.createElement("button");
+      document.body.append(trigger);
+      const { rerender } = render(<Panel open keepMounted returnFocus={trigger} />);
+      screen.getByRole("button", { name: "Inside" }).focus();
+      rerender(<Panel open={false} keepMounted returnFocus={trigger} />);
+      expect(trigger).toHaveFocus();
+      trigger.remove();
+    });
+
+    it("has no axe violations open, closing and hidden", async () => {
+      const { container, rerender } = render(
+        <main>
+          <Panel open keepMounted />
+        </main>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+      rerender(
+        <main>
+          <Panel open={false} keepMounted />
+        </main>,
+      );
+      expect(screen.getByTestId("panel")).toHaveAttribute("data-state", "closing");
+      expect(await runAxe(container)).toHaveNoViolations();
+      await flush();
+      expect(screen.getByTestId("panel")).toHaveAttribute("hidden");
+      expect(await runAxe(container)).toHaveNoViolations();
+    });
   });
 });

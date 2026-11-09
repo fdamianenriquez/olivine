@@ -1,0 +1,208 @@
+/*
+ * Code: a fragment of code in running text, a mono hairline box on paper-2. Hosts recolour it
+ * through three custom properties (ink grounds, selected rows); the defaults are:
+ *   --code-fill  background  (paper-2)
+ *   --code-ink   text        (ink)
+ *   --code-line  border      (rule)
+ */
+.ol-code {
+  padding-inline: var(--space-1);
+  border: var(--stroke-hair) solid var(--code-line, var(--rule));
+  background: var(--code-fill, var(--paper-2));
+  color: var(--code-ink, var(--ink));
+  font-family: var(--text-mono-family);
+  font-size: var(--text-mono-size);
+  font-weight: var(--text-mono-weight);
+  letter-spacing: var(--text-mono-tracking);
+
+  /* The surrounding sentence sets the line height: a 13px box must not push its lines apart. */
+  line-height: inherit;
+  tab-size: var(--code-tab-size);
+  overflow-wrap: anywhere;
+  box-decoration-break: clone;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Ink grounds: tooltips, selected or hovered rows. */
+.ol-code--inverse {
+  --code-fill: transparent;
+  --code-ink: var(--on-ink);
+  --code-line: var(--on-ink);
+}
+
+/*
+ * CodeBlock: a hairline frame on paper-2. The bar is the first row of the frame's grid (title,
+ * language, copy); the scroller is the second and draws the bar's bottom line itself, so a bar
+ * without a title still has one unbroken rule.
+ */
+.ol-codeblock {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.ol-codeblock__title,
+.ol-codeblock__lang {
+  display: flex;
+  align-items: center;
+  grid-row: 1;
+  min-block-size: calc(var(--control-s) + var(--space-2));
+  margin: 0;
+  padding-inline: var(--space-3);
+}
+
+.ol-codeblock__title {
+  grid-column: 1;
+  min-inline-size: 0;
+
+  /* A long path wraps instead of being cut: there is no tooltip to show the rest. */
+  overflow-wrap: anywhere;
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: var(--ink);
+  font-family: var(--text-mono-family);
+  font-size: var(--text-mono-size);
+  font-weight: var(--text-mono-weight);
+  line-height: var(--text-mono-leading);
+  letter-spacing: var(--text-mono-tracking);
+}
+
+.ol-codeblock__lang {
+  grid-column: 2;
+  padding-inline-end: var(--space-2);
+  color: var(--ink-2);
+  font-family: var(--text-label-s-family);
+  font-size: var(--text-label-s-size);
+  font-weight: var(--text-label-s-weight);
+  line-height: var(--text-label-s-leading);
+  letter-spacing: var(--text-label-s-tracking);
+  white-space: nowrap;
+}
+
+/* Without a title the language leads the bar. */
+.ol-codeblock--untitled .ol-codeblock__lang {
+  grid-column: 1;
+  padding-inline-end: var(--space-3);
+}
+
+.ol-codeblock__copy {
+  grid-row: 1;
+  grid-column: 3;
+  align-self: center;
+  margin: var(--space-1);
+}
+
+/* The three labels share one cell: the longest sets the width, so the button never resizes. */
+.ol-codeblock__states {
+  display: inline-grid;
+  justify-items: center;
+}
+
+.ol-codeblock__state {
+  grid-area: 1 / 1;
+}
+
+.ol-codeblock__state[data-active="false"] {
+  visibility: hidden;
+}
+
+.ol-codeblock__glyph {
+  font-family: var(--font-symbols);
+}
+
+/* The scroller. It sits inside the frame (no clipping), so its focus ring is never cut off. */
+.ol-codeblock__pre {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+  min-inline-size: 0;
+  margin: 0;
+
+  /* Horizontal padding lives on each line, so the sticky gutter covers the text that passes
+     under it instead of leaving a strip at the edge. */
+  padding: var(--space-4) 0;
+  overflow: auto;
+  font-family: var(--text-mono-family);
+  font-size: var(--text-mono-size);
+  font-weight: var(--text-mono-weight);
+  line-height: var(--text-mono-leading);
+  letter-spacing: var(--text-mono-tracking);
+  tab-size: var(--code-tab-size);
+  white-space: pre;
+
+  /* Code reads left to right in any page direction; the bar around it follows the page. */
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ol-codeblock--bar .ol-codeblock__pre {
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+/* Wide enough for its longest line, so the scroller measures the true width. */
+.ol-codeblock__code {
+  display: block;
+  min-inline-size: max-content;
+  font: inherit;
+}
+
+.ol-codeblock__line {
+  display: block;
+}
+
+.ol-codeblock__text {
+  display: block;
+  padding-inline: var(--space-4);
+}
+
+/* Line numbers: a fixed gutter, one divider, not selectable, pinned while scrolling sideways. */
+.ol-codeblock--numbered .ol-codeblock__line {
+  display: grid;
+  grid-template-columns: calc(var(--ol-code-digits) * 1ch + var(--space-3) * 2) 1fr;
+}
+
+.ol-codeblock__no {
+  position: sticky;
+  inset-inline-start: 0;
+  box-sizing: border-box;
+  padding-inline: var(--space-3);
+  border-inline-end: var(--stroke-hair) solid var(--line-soft);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  text-align: end;
+
+  /* stylelint-disable-next-line property-no-vendor-prefix -- Safari needs the prefix */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ol-codeblock--numbered .ol-codeblock__text {
+  padding-inline-start: var(--space-3);
+}
+
+/* Wrapping keeps the indent visible by breaking anywhere instead of scrolling. */
+.ol-codeblock--wrap .ol-codeblock__pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ol-codeblock--wrap .ol-codeblock__code {
+  min-inline-size: 0;
+}
+
+@media (forced-colors: active) {
+  .ol-code,
+  .ol-codeblock,
+  .ol-codeblock--bar .ol-codeblock__pre,
+  .ol-codeblock__no {
+    border-color: currentcolor;
+  }
+}
