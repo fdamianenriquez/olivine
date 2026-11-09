@@ -28,6 +28,7 @@ export { CheckGroup, type CheckGroupProps } from "./components/CheckGroup";
 export { Chip, type ChipProps, type ChipRemoveEvent } from "./components/Chip";
 export { ChipGroup, type ChipGroupActions, type ChipGroupProps } from "./components/ChipGroup";
 export { CloseButton, type CloseButtonProps } from "./components/CloseButton";
+export * from "./components/Code";
 export { Col, type ColProps, type ColSpan, type ColSpans } from "./components/Col";
 export {
   ColorSwatches,
@@ -70,6 +71,17 @@ export {
   type DatePickerRangeProps,
   type DatePickerSingleProps,
 } from "./components/DatePicker";
+export {
+  DescriptionList,
+  type DescriptionListDescriptionProps,
+  type DescriptionListEntry,
+  type DescriptionListItemProps,
+  type DescriptionListProps,
+  type DescriptionListTermProps,
+  type DescriptionListTermWidth,
+  type DescriptionListVariant,
+} from "./components/DescriptionList";
+export { Disclosure, type DisclosureProps } from "./components/Disclosure";
 export { Divider, type DividerProps } from "./components/Divider";
 export {
   Dropdown,
@@ -83,6 +95,15 @@ export {
   type DropdownRadiosItem,
   type DropdownSubmenuItem,
 } from "./components/Dropdown";
+export {
+  EmptyState,
+  type EmptyStateAlign,
+  type EmptyStateAnnounce,
+  type EmptyStateHeadingLevel,
+  type EmptyStateProps,
+  type EmptyStateSize,
+  type EmptyStateVariant,
+} from "./components/EmptyState";
 export {
   Fab,
   FAB_MAX_ACTIONS,
@@ -149,6 +170,14 @@ export { Placeholder, type PlaceholderProps } from "./components/Placeholder";
 export { Popover, type PopoverPlacement, type PopoverProps } from "./components/Popover";
 export { Portal, type PortalProps } from "./components/Portal";
 export { Progress, type ProgressProps } from "./components/Progress";
+export {
+  InlineQuote,
+  type InlineQuoteProps,
+  Quote,
+  type QuoteProps,
+  type QuoteSize,
+  type QuoteVariant,
+} from "./components/Quote";
 export { Radio, type RadioProps } from "./components/Radio";
 export {
   Range,
@@ -160,6 +189,20 @@ export {
 } from "./components/Range";
 export { Ratio, type RatioProps } from "./components/Ratio";
 export { Root, type RootProps } from "./components/Root";
+export {
+  Ruby,
+  type RubyPair,
+  type RubyProps,
+  type RubyReveal,
+  type RubySize,
+} from "./components/Ruby";
+export {
+  Seal,
+  type SealInk,
+  type SealProps,
+  type SealShape,
+  type SealVariant,
+} from "./components/Seal";
 export {
   SearchField,
   type SearchFieldActions,
@@ -229,6 +272,13 @@ export { Tabs, type TabsProps, TabsTab, type TabsTabProps } from "./components/T
 export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export { type ThemeName, ThemeSwitch, type ThemeSwitchProps } from "./components/ThemeSwitch";
+export {
+  Timeline,
+  type TimelineItem,
+  type TimelineLabels,
+  type TimelineProps,
+  type TimelineStatus,
+} from "./components/Timeline";
 export {
   type HourCycle,
   TimePicker,

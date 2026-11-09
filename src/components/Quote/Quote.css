@@ -1,0 +1,191 @@
+/* Quote: words from another voice. Static; every value comes from a token. */
+.ol-quote {
+  --ol-quote-measure-pull: 28ch;
+  --ol-quote-measure-block: 65ch;
+
+  margin: 0;
+  color: var(--ink);
+}
+
+/* Only the figure lays out body and caption; a bare quote is the blockquote itself. */
+.ol-quote:not(.ol-quote__body) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ol-quote--pull:not(.ol-quote__body) {
+  gap: var(--space-6);
+}
+
+.ol-quote--framed {
+  padding: var(--space-8);
+  border: var(--stroke-hair) solid var(--rule);
+  background: var(--paper);
+}
+
+/* Body: the blockquote. It is the root itself when there is no attribution. */
+.ol-quote__body {
+  margin: 0;
+  color: var(--ink);
+  quotes: auto;
+  overflow-wrap: break-word;
+}
+
+.ol-quote__body > p {
+  margin: 0;
+}
+
+.ol-quote__body > p + p {
+  margin-block-start: var(--space-3);
+}
+
+/* Inline: the browser draws the marks; only the language pairs below are added. */
+.ol-quote-inline {
+  quotes: auto;
+}
+
+/* The mark pairs follow the language of the quoted text, so every engine draws the same ones. */
+.ol-quote__body:lang(en),
+.ol-quote-inline:lang(en) {
+  quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+.ol-quote__body:lang(es),
+.ol-quote-inline:lang(es) {
+  quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+.ol-quote__body:lang(ja),
+.ol-quote-inline:lang(ja) {
+  quotes: "\300C" "\300D" "\300E" "\300F";
+}
+
+/* block */
+:is(.ol-quote--block.ol-quote__body, .ol-quote--block .ol-quote__body) {
+  max-inline-size: var(--ol-quote-measure-block);
+  font-family: var(--text-body-l-family);
+  font-size: var(--text-body-l-size);
+  line-height: var(--text-body-l-leading);
+  font-weight: var(--text-body-l-weight);
+  letter-spacing: var(--text-body-l-tracking);
+  text-wrap: pretty;
+}
+
+:is(
+  .ol-quote--block:not(.ol-quote--framed).ol-quote__body,
+  .ol-quote--block:not(.ol-quote--framed) .ol-quote__body
+) {
+  padding-inline-start: var(--space-6);
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+/* pull */
+:is(.ol-quote--pull.ol-quote__body, .ol-quote--pull .ol-quote__body) {
+  max-inline-size: var(--ol-quote-measure-pull);
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-leading);
+  font-weight: var(--text-h1-weight);
+  letter-spacing: var(--text-h1-tracking);
+  text-wrap: balance;
+}
+
+:is(
+  .ol-quote--pull.ol-quote--size-l.ol-quote__body,
+  .ol-quote--pull.ol-quote--size-l .ol-quote__body
+) {
+  font-family: var(--text-display-m-family);
+  font-size: var(--text-display-m-size);
+  line-height: var(--text-display-m-leading);
+  font-weight: var(--text-display-m-weight);
+  letter-spacing: var(--text-display-m-tracking);
+}
+
+/*
+ * Big Shoulders has no kana or kanji: a pull quote with its own lang="ja" uses the brush face at
+ * the same size. A Latin quote inside a Japanese page keeps Big Shoulders, so this matches the
+ * attribute and not :lang(), which would follow an inherited language.
+ */
+:is(.ol-quote--pull.ol-quote__body, .ol-quote--pull .ol-quote__body)[lang|="ja"] {
+  font-family: var(--text-kanji-family);
+  font-weight: var(--text-kanji-weight);
+}
+
+/* Quotation marks: generated, with an empty alternative text so they are not read or copied. */
+:is(.ol-quote--marks.ol-quote__body, .ol-quote--marks .ol-quote__body) > :first-child::before,
+:is(.ol-quote--marks.ol-quote__body, .ol-quote--marks .ol-quote__body) > :last-child::after {
+  color: var(--ink-2);
+}
+
+:is(.ol-quote--marks.ol-quote__body, .ol-quote--marks .ol-quote__body) > :first-child::before {
+  content: open-quote;
+  content: open-quote / "";
+}
+
+:is(.ol-quote--marks.ol-quote__body, .ol-quote--marks .ol-quote__body) > :last-child::after {
+  content: close-quote;
+  content: close-quote / "";
+}
+
+/* Caption: one line in the label style, author in ink, the rest in ink-2. */
+.ol-quote__caption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--ink-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+/* block: the caption lines up with the text, inside the edge. */
+.ol-quote--block:not(.ol-quote--framed) .ol-quote__caption {
+  padding-inline-start: calc(var(--space-6) + var(--stroke-hair));
+}
+
+.ol-quote__avatar {
+  display: inline-flex;
+  flex: none;
+}
+
+.ol-quote__author {
+  color: var(--ink);
+}
+
+.ol-quote__source {
+  font-style: normal;
+}
+
+/* A very long unbroken word in the attribution wraps instead of overflowing a narrow frame. */
+.ol-quote__who {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A real space keeps the spoken name readable; the dot's margin is the visual gap. */
+.ol-quote__space {
+  font-size: 0;
+}
+
+.ol-quote__who
+  > :is(.ol-quote__author, .ol-quote__detail)
+  + .ol-quote__space
+  + :is(.ol-quote__detail, .ol-quote__source)::before {
+  content: "\00B7";
+  content: "\00B7" / "";
+  margin-inline: var(--space-2);
+}
+
+.ol-quote--pull .ol-quote__who::before {
+  content: "\2014";
+  content: "\2014" / "";
+  margin-inline-end: var(--space-2);
+}
+
+/* With an avatar the dash is not needed. */
+.ol-quote--pull .ol-quote__avatar + .ol-quote__who::before {
+  content: none;
+}

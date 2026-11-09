@@ -3,7 +3,10 @@ import { type RefCallback, useRef, useState } from "react";
 import { useIsomorphicLayoutEffect } from "../hooks/useFloating";
 import { devWarn } from "../utils/dev";
 
-/** `open` while shown, `closing` while the exit motion plays, `closed` once unmounted. */
+/**
+ * `open` while shown, `closing` while the exit motion plays, `closed` once it has finished:
+ * unmounted, or (with `keepMounted`) still in the DOM and to be hidden.
+ */
 export type PresenceState = "open" | "closing" | "closed";
 
 export interface PresenceOptions {
@@ -13,7 +16,18 @@ export interface PresenceOptions {
    * `--dur-xl` read from the element, or 1000 when the token is missing.
    */
   timeout?: number;
-  /** Called once the exit has finished and the element is about to unmount. */
+  /**
+   * Keep the element in the DOM after the exit instead of unmounting it (a closed panel that
+   * stays `hidden`, or `hidden="until-found"` for find-in-page). The state goes
+   * `open` -> `closing` -> `closed` as usual and `onExited` fires on the same finish signal
+   * (animations, `animationend`/`transitionend`, or `timeout`), but `mounted` stays true and
+   * `hidden` turns true once the exit is done. Render the element always and put
+   * `hidden={hidden}` (or `hidden="until-found"` while `hidden`) on it. It also starts
+   * mounted-and-hidden when `open` is false on the first render, with no exit motion.
+   * Reopening, even mid-close, behaves as without it. Default false.
+   */
+  keepMounted?: boolean;
+  /** Called once the exit has finished and the element is about to unmount (or be hidden). */
   onExited?: () => void;
   /**
    * Where focus goes when the element starts closing while it holds focus. `inert` would
@@ -26,8 +40,13 @@ export interface PresenceOptions {
 }
 
 export interface Presence<T extends HTMLElement> {
-  /** Render the element while this is true. */
+  /** Render the element while this is true. Always true with `keepMounted`. */
   mounted: boolean;
+  /**
+   * With `keepMounted`: true once the element is closed (never during the exit), the moment to
+   * set `hidden`. Always false without it, since the element is unmounted instead.
+   */
+  hidden: boolean;
   /** Put this on the element as `data-state`; the motion classes read it. */
   state: PresenceState;
   /** Callback ref for the element whose motion marks the exit. */
@@ -75,12 +94,17 @@ function exitAnimations(node: Element): Animation[] | null {
 /**
  * Keeps an element mounted through its exit motion. While closing it is `inert`, so it can't
  * be focused or clicked (focus inside it moves to `returnFocus` first), and it unmounts when every finite animation on it has finished, on
- * `animationend`/`transitionend` where `getAnimations` is missing, or after `timeout`.
+ * `animationend`/`transitionend` where `getAnimations` is missing, or after `timeout`. With
+ * `keepMounted` it stays in the DOM at the end of the exit and reports `hidden` instead.
  *
  * ```tsx
  * // Destructure: the React Compiler treats an object whose member is used as a ref as a ref.
  * const { mounted, state, setElement } = usePresence<HTMLUListElement>(open);
  * {mounted && <ul ref={setElement} data-state={state} className="ol-kakejiku" />}
+ *
+ * // Kept in the DOM, hidden once rolled up:
+ * const { hidden, state, setElement } = usePresence<HTMLDivElement>(open, { keepMounted: true });
+ * <div ref={setElement} data-state={state} hidden={hidden} className="ol-kakejiku" />
  * ```
  */
 export function usePresence<T extends HTMLElement = HTMLElement>(
@@ -92,7 +116,7 @@ export function usePresence<T extends HTMLElement = HTMLElement>(
   const onExited = useRef(options.onExited);
   const returnFocus = useRef(options.returnFocus);
   const opener = useRef<Element | null>(null);
-  const { timeout } = options;
+  const { timeout, keepMounted = false } = options;
 
   // Before the closing effect below, so it sees this render's options.
   useIsomorphicLayoutEffect(() => {
@@ -156,5 +180,10 @@ export function usePresence<T extends HTMLElement = HTMLElement>(
     };
   }, [state, node, timeout]);
 
-  return { mounted: state !== "closed", state, setElement: setNode };
+  return {
+    mounted: keepMounted || state !== "closed",
+    hidden: keepMounted && state === "closed",
+    state,
+    setElement: setNode,
+  };
 }

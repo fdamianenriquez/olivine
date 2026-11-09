@@ -1,0 +1,243 @@
+/*
+ * DescriptionList: the spec sheet. A Table turned sideways without a header: rules above, below
+ * and between rows, a quiet term column and a value column.
+ *
+ * The base layout is the stacked one (term above value). The side-by-side layout is added by one
+ * container query, so a narrow container falls back to the stacked layout by itself.
+ */
+.ol-dl {
+  --ol-dl-term: var(--space-32);
+  --ol-dl-pad-y: var(--space-3);
+  --ol-dl-pad-x: var(--space-4);
+
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+  container-type: inline-size;
+  border-block-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-dl--term-s {
+  --ol-dl-term: var(--space-24);
+}
+
+.ol-dl--term-l {
+  --ol-dl-term: calc(var(--space-32) + var(--space-16));
+}
+
+.ol-dl--dense {
+  --ol-dl-pad-y: var(--space-1);
+  --ol-dl-pad-x: var(--space-3);
+}
+
+/* One row: a grid of one column (stacked) or of term and value (side by side). */
+.ol-dl__item {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-block-end: var(--stroke-hair) solid var(--line-soft);
+}
+
+.ol-dl__item:last-child {
+  border-block-end-color: var(--rule);
+}
+
+/*
+ * Terms and values. Block padding goes on the first and last cell of each kind, so several
+ * terms or several values of one row sit space-1 apart and a sunk term band stays unbroken.
+ */
+.ol-dl__term,
+.ol-dl__desc {
+  box-sizing: border-box;
+  min-inline-size: 0;
+  margin: 0;
+  padding-block: var(--space-1) 0;
+  padding-inline: var(--ol-dl-pad-x);
+  overflow-wrap: anywhere;
+}
+
+.ol-dl__term {
+  color: var(--ink-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-dl__desc {
+  color: var(--ink);
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+  font-weight: var(--text-body-weight);
+  letter-spacing: var(--text-body-tracking);
+}
+
+.ol-dl__term:first-of-type {
+  padding-block-start: var(--ol-dl-pad-y);
+}
+
+.ol-dl__term:last-of-type {
+  padding-block-end: var(--space-1);
+}
+
+.ol-dl__desc:first-of-type {
+  padding-block-start: 0;
+}
+
+.ol-dl__desc:last-of-type {
+  padding-block-end: var(--ol-dl-pad-y);
+}
+
+.ol-dl--dense > .ol-dl__item > .ol-dl__desc {
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+}
+
+/* Amounts and quantities: figure face, never below 16px, at the inline end of the value. */
+.ol-dl__desc--numeric {
+  text-align: end;
+}
+
+.ol-dl__fig {
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-dl--dense > .ol-dl__item > .ol-dl__desc .ol-dl__fig {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  letter-spacing: var(--text-figure-xs-tracking);
+}
+
+/* Words and units sit beside the figure in the label face. */
+.ol-dl__unit {
+  color: var(--ink-2);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-dl__desc--mono {
+  font-family: var(--text-mono-family);
+  font-size: var(--text-mono-size);
+  line-height: var(--text-mono-leading);
+  font-weight: var(--text-mono-weight);
+  letter-spacing: var(--text-mono-tracking);
+}
+
+.ol-dl__empty {
+  color: var(--ink-2);
+}
+
+/* Plain: no lines, no outer inline padding, for a Card, Modal or Offcanvas that frames it. */
+.ol-dl--plain {
+  border: 0;
+}
+
+.ol-dl--plain > .ol-dl__item {
+  border: 0;
+}
+
+.ol-dl--plain > .ol-dl__item > .ol-dl__term {
+  padding-inline-start: 0;
+}
+
+.ol-dl--plain > .ol-dl__item > .ol-dl__desc {
+  padding-inline: 0;
+}
+
+/* Bordered: a full rule frame; the term cell is sunk on paper-2. Rows share the frame. */
+.ol-dl--bordered {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-dl--bordered > .ol-dl__item {
+  border-block-end-color: var(--rule);
+}
+
+.ol-dl--bordered > .ol-dl__item:last-child {
+  border-block-end: 0;
+}
+
+.ol-dl--bordered > .ol-dl__item > .ol-dl__term {
+  background: var(--paper-2);
+}
+
+/* Without backgrounds the stacked term needs a line above its value. */
+@media (forced-colors: active) {
+  .ol-dl--bordered > .ol-dl__item > .ol-dl__term:last-of-type {
+    border-block-end: var(--stroke-hair) solid CanvasText;
+  }
+}
+
+/*
+ * Side by side. The width is a literal because a custom property cannot be used in a container
+ * query: this is the one value in the component that does not come from a token.
+ */
+@container (min-width: 30rem) {
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item {
+    grid-template-columns: var(--ol-dl-term) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    align-items: baseline;
+
+    /* The row carries the block padding, so a tall term or value never stretches its neighbour. */
+    padding-block: var(--ol-dl-pad-y);
+  }
+
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__term {
+    grid-column: 1;
+  }
+
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__desc {
+    grid-column: 2;
+  }
+
+  .ol-dl--plain:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__desc {
+    padding-inline-start: var(--ol-dl-pad-x);
+  }
+
+  /* The sunk term column is drawn by the row, so it runs the full height of a tall value. */
+  .ol-dl--bordered:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__term {
+    background: none;
+  }
+
+  @media (forced-colors: active) {
+    .ol-dl--bordered:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__term:last-of-type {
+      border-block-end: 0;
+    }
+  }
+
+  .ol-dl--bordered:not(.ol-dl--vertical) > .ol-dl__item::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-block: 0;
+    inset-inline-start: 0;
+    box-sizing: border-box;
+    inline-size: var(--ol-dl-term);
+    background: var(--paper-2);
+    border-inline-end: var(--stroke-hair) solid var(--rule);
+  }
+
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__term:first-of-type,
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__desc:first-of-type {
+    padding-block-start: 0;
+  }
+
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__term:last-of-type,
+  .ol-dl:not(.ol-dl--vertical) > .ol-dl__item > .ol-dl__desc:last-of-type {
+    padding-block-end: 0;
+  }
+}
