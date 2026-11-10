@@ -36,7 +36,8 @@ export function measureScrollEdges(box: HTMLElement): ScrollEdges {
   const y = maxY > EDGE_TOLERANCE;
   // In RTL `scrollLeft` runs from 0 to -max; its absolute value is the distance from the start.
   const left = Math.abs(box.scrollLeft);
-  const top = box.scrollTop;
+  // Same for `scrollTop` when the block direction runs backwards (vertical writing with RTL).
+  const top = Math.abs(box.scrollTop);
   return {
     x,
     y,
