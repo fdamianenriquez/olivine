@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { isImeKey } from "../utils/ime";
 import { useLayer } from "./layers";
+import { useIsomorphicLayoutEffect } from "./useFloating";
 
 const TABBABLE = [
   "a[href]",
@@ -119,7 +120,10 @@ export function useOverlay({
     setDialog(node);
   }, []);
 
-  useEffect(() => {
+  // A layout effect, so closing releases the trap, inert and scroll lock and restores focus
+  // before an exit motion (usePresence) makes the still-mounted dialog inert; otherwise a
+  // close outside an event handler leaves focus on <body> for a frame.
+  useIsomorphicLayoutEffect(() => {
     if (!open || !dialog) return;
     const previous = document.activeElement as HTMLElement | null;
     const unlock = lockScroll();
@@ -160,7 +164,7 @@ export function useOverlay({
     const onFocusIn = (event: FocusEvent) => {
       if (!isTop()) return;
       const next = event.target as Element | null;
-      if (!next || dialog.contains(next)) return;
+      if (!next || dialog.contains(next) || dialog.closest("[inert]")) return;
       // Menus, popovers and toasts opened from inside the dialog live in their own portal
       // layer; they register as layers only after they take focus, so let them have it.
       if (next.closest(".ol-portal")) return;
@@ -176,8 +180,6 @@ export function useOverlay({
       unlock();
       if (restoreFocus && previous?.isConnected) previous.focus({ preventScroll: true });
     };
-    // isTop only reads a ref
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, dialog, restoreFocus]);
 
   return ref;
