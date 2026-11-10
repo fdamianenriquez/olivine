@@ -10,8 +10,10 @@
 @import "../components/Col/Col.css";
 @import "../components/Stack/Stack.css";
 @import "../components/Divider/Divider.css";
+@import "../components/Splitter/Splitter.css";
 @import "../components/Ratio/Ratio.css";
 @import "../components/Sheet/Sheet.css";
+@import "../components/ScrollArea/ScrollArea.css";
 
 /* Actions */
 @import "../components/Button/Button.css";

@@ -197,6 +197,12 @@ export {
   type RubySize,
 } from "./components/Ruby";
 export {
+  ScrollArea,
+  type ScrollAreaFocusable,
+  type ScrollAreaOrientation,
+  type ScrollAreaProps,
+} from "./components/ScrollArea";
+export {
   Seal,
   type SealInk,
   type SealProps,
@@ -237,6 +243,15 @@ export {
   type SplitButtonItem,
   type SplitButtonProps,
 } from "./components/SplitButton";
+export {
+  Splitter,
+  type SplitterActions,
+  type SplitterLength,
+  type SplitterOrientation,
+  SplitterPanel,
+  type SplitterPanelProps,
+  type SplitterProps,
+} from "./components/Splitter";
 export { Stack, type StackProps } from "./components/Stack";
 export {
   Stat,
@@ -256,7 +271,10 @@ export { Switch, type SwitchProps } from "./components/Switch";
 export {
   Table,
   type TableColumn,
+  type TableColumnAlign,
+  type TableKey,
   type TableProps,
+  type TableSelectionMode,
   type TableSort,
   type TableSortDirection,
 } from "./components/Table";

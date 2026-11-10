@@ -26,6 +26,18 @@ export interface OlivineLabels {
   sort: string;
   sortedAscending: string;
   sortedDescending: string;
+  /** Header checkbox of a selectable Table. */
+  tableSelectAll: string;
+  /** A Table row's selection control; `label` comes from `rowLabel`. */
+  tableSelectRow: (label: string) => string;
+  /** Row name when a selectable Table has no `rowLabel` (1-based). */
+  tableRowFallback: (n: number) => string;
+  /** Hidden header of a Table's radio column. */
+  tableSelectColumn: string;
+  /** Splitter: name of a resize handle; `label` is the panel before it. */
+  splitterResize: (label?: string) => string;
+  /** Splitter: value text of a handle whose panel is collapsed. */
+  splitterCollapsed: string;
   currentPage: string;
   play: string;
   pause: string;

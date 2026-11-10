@@ -71,7 +71,11 @@ interface TreeViewBaseProps extends Omit<
   typeahead?: boolean | undefined;
   /** Shows the loading row under the nodes and marks the tree busy. */
   loading?: boolean | undefined;
-  /** Shown when there are no nodes. @default the locale's "No items" */
+  /**
+   * Shown when there are no nodes. Accepts an `EmptyState size="s"`; leave its `announce` off,
+   * because the tree already announces its own changes.
+   * @default the locale's "No items"
+   */
   empty?: ReactNode;
   /** Disables every node; the tree is no longer a tab stop. */
   disabled?: boolean | undefined;

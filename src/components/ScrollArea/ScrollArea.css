@@ -1,0 +1,125 @@
+/* ScrollArea: a bounded box whose content scrolls natively. The scrollbar skin is the shared
+ * `.ol-scrollbar` utility on the viewport; this file only lays out the box, the frame and the
+ * edge hints. The root never clips, so the viewport's focus ring is drawn whole. */
+
+.ol-scrollarea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-block-size: 0;
+  min-inline-size: 0;
+  border-radius: var(--radius-0);
+}
+
+/* The viewport takes the root's bounded size: it fills a fixed height and shrinks to a
+ * `max-height`, so the content scrolls inside it. */
+.ol-scrollarea__viewport {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: auto;
+
+  /* Scrolling is never animated by the component. */
+  scroll-behavior: auto;
+}
+
+.ol-scrollarea--gutter > .ol-scrollarea__viewport {
+  scrollbar-gutter: stable;
+}
+
+.ol-scrollarea--contain > .ol-scrollarea__viewport {
+  overscroll-behavior: contain;
+}
+
+.ol-scrollarea[data-orientation="vertical"] > .ol-scrollarea__viewport {
+  overflow: hidden auto;
+}
+
+.ol-scrollarea[data-orientation="horizontal"] > .ol-scrollarea__viewport {
+  overflow: auto hidden;
+}
+
+.ol-scrollarea--bordered {
+  /* With a frame, the hint lines sit over it, so the 2px line replaces the hairline on that
+   * edge instead of doubling it. */
+  --ol-scrollarea-edge: calc(var(--stroke-hair) * -1);
+
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+/* ---------- Edge hints ---------- */
+
+/* A 2px ink line on each edge of the main axis, shown while there is more content beyond it.
+ * Drawn as a border so forced colours keep it. Decoration only: no pointer events.
+ * The lines use physical sides: the axes are physical, and a root in a vertical writing mode
+ * (Japanese set vertical-rl scrolls sideways) would turn logical sides by a quarter. */
+.ol-scrollarea--hints::before,
+.ol-scrollarea--hints::after {
+  content: "";
+  position: absolute;
+  z-index: var(--z-raised);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-s) var(--ease-effect);
+}
+
+/* Vertical and both: the top and bottom edges. */
+.ol-scrollarea--hints:not([data-orientation="horizontal"])::before,
+.ol-scrollarea--hints:not([data-orientation="horizontal"])::after {
+  right: var(--ol-scrollarea-edge, 0);
+  left: var(--ol-scrollarea-edge, 0);
+  border-top: var(--stroke-bold) solid var(--ink);
+}
+
+.ol-scrollarea--hints:not([data-orientation="horizontal"])::before {
+  top: var(--ol-scrollarea-edge, 0);
+}
+
+.ol-scrollarea--hints:not([data-orientation="horizontal"])::after {
+  bottom: var(--ol-scrollarea-edge, 0);
+}
+
+.ol-scrollarea--hints[data-overflow-y-start]:not([data-orientation="horizontal"])::before,
+.ol-scrollarea--hints[data-overflow-y-end]:not([data-orientation="horizontal"])::after {
+  opacity: 1;
+}
+
+/* Horizontal: `::before` marks the side where scrolling starts, `::after` the side where it
+ * ends. That is the left, or the right in RTL and in right-to-left vertical writing
+ * (`--start-right`, measured by the component). */
+.ol-scrollarea--hints[data-orientation="horizontal"]::before,
+.ol-scrollarea--hints[data-orientation="horizontal"]::after {
+  top: var(--ol-scrollarea-edge, 0);
+  bottom: var(--ol-scrollarea-edge, 0);
+  border-left: var(--stroke-bold) solid var(--ink);
+}
+
+.ol-scrollarea--hints[data-orientation="horizontal"]::before,
+.ol-scrollarea--hints.ol-scrollarea--start-right[data-orientation="horizontal"]::after {
+  right: auto;
+  left: var(--ol-scrollarea-edge, 0);
+}
+
+.ol-scrollarea--hints[data-orientation="horizontal"]::after,
+.ol-scrollarea--hints.ol-scrollarea--start-right[data-orientation="horizontal"]::before {
+  right: var(--ol-scrollarea-edge, 0);
+  left: auto;
+}
+
+.ol-scrollarea--hints[data-orientation="horizontal"][data-overflow-x-start]::before,
+.ol-scrollarea--hints[data-orientation="horizontal"][data-overflow-x-end]::after {
+  opacity: 1;
+}
+
+@media (forced-colors: active) {
+  .ol-scrollarea--bordered {
+    border-color: currentcolor;
+  }
+
+  .ol-scrollarea--hints::before,
+  .ol-scrollarea--hints::after {
+    border-color: currentcolor;
+  }
+}
