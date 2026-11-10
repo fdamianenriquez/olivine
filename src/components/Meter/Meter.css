@@ -1,0 +1,192 @@
+/* Meter: a reading on a ruled ink gauge. The fill and the needle move with one transform driven
+   by --ol-meter-n (0–1), stepped with the print curve; nothing moves on mount. Status colour
+   lives only in the state Badge: fill, needle and blocks stay ink in every band. */
+.ol-meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ol-meter__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.ol-meter__read {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.ol-meter__value {
+  color: var(--ink);
+  font-family: var(--text-figure-s-family);
+  font-size: var(--text-figure-s-size);
+  line-height: var(--text-figure-s-leading);
+  font-weight: var(--text-figure-s-weight);
+  letter-spacing: var(--text-figure-s-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-meter--s .ol-meter__value {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  letter-spacing: var(--text-figure-xs-tracking);
+}
+
+.ol-meter--l .ol-meter__value {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  line-height: var(--text-figure-m-leading);
+  font-weight: var(--text-figure-m-weight);
+  letter-spacing: var(--text-figure-m-tracking);
+}
+
+/* ---------- Bar: hairline box, ink fill, needle ---------- */
+
+.ol-meter__track {
+  --ol-meter-shift: calc((var(--ol-meter-n, 0) - 1) * 100%);
+  --ol-meter-height: var(--space-2);
+
+  position: relative;
+  height: var(--ol-meter-height);
+  border: var(--stroke-hair) solid var(--rule);
+
+  /* The needle sticks out above and below; only the inline axis is clipped. */
+  overflow-x: clip;
+}
+
+.ol-meter--s .ol-meter__track {
+  --ol-meter-height: var(--space-1);
+}
+
+.ol-meter--l .ol-meter__track {
+  --ol-meter-height: var(--space-4);
+}
+
+.ol-meter__track:dir(rtl) {
+  --ol-meter-shift: calc((1 - var(--ol-meter-n, 0)) * 100%);
+}
+
+/* Fill and needle layer span the width minus the needle, so the fill ends where the needle
+   starts and the needle stays inside the box at both ends. */
+.ol-meter__fill,
+.ol-meter__hand {
+  position: absolute;
+  inset-inline-start: 0;
+  width: calc(100% - var(--stroke-heavy));
+  transform: translateX(var(--ol-meter-shift));
+  transition: transform var(--dur-s) var(--ease-print);
+}
+
+.ol-meter__fill {
+  inset-block: 0;
+  background: var(--ink);
+}
+
+.ol-meter__hand {
+  inset-block: calc(var(--space-1) * -1 - var(--stroke-hair));
+}
+
+.ol-meter__needle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 100%;
+  width: var(--stroke-heavy);
+  background: var(--ink);
+}
+
+/* ---------- Segments: a row of ink blocks ---------- */
+
+.ol-meter--segments .ol-meter__track {
+  --ol-meter-height: var(--space-4);
+
+  display: grid;
+  grid-template-columns: repeat(var(--ol-seg, 10), 1fr);
+  gap: var(--space-1);
+  border: 0;
+  overflow-x: visible;
+}
+
+.ol-meter--segments.ol-meter--s .ol-meter__track {
+  --ol-meter-height: var(--space-3);
+}
+
+.ol-meter--segments.ol-meter--l .ol-meter__track {
+  --ol-meter-height: var(--space-6);
+}
+
+.ol-meter__seg {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-meter__seg--on {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* Newly lit blocks print one after another (.ol-print-block, motion.css). */
+.ol-meter__seg.ol-print-block {
+  animation-delay: calc(var(--ol-i, 0) * var(--stagger));
+}
+
+/* ---------- Scale: ticks at the thresholds, the good band drawn heavier ---------- */
+
+.ol-meter__scale {
+  position: relative;
+  height: var(--space-1);
+  border-block-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-meter__band {
+  position: absolute;
+  inset-block-start: calc(var(--stroke-hair) * -1);
+  inset-inline-start: calc(var(--ol-band-from, 0) * 100%);
+  width: calc((var(--ol-band-to, 1) - var(--ol-band-from, 0)) * 100%);
+  border-block-start: var(--stroke-bold) solid var(--ink);
+}
+
+.ol-meter__tick {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--ol-tick, 0) * 100%);
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-meter__fill,
+  .ol-meter__hand {
+    transition: none;
+  }
+}
+
+.ol-reduce-motion .ol-meter__fill,
+.ol-reduce-motion .ol-meter__hand {
+  transition: none;
+}
+
+@media (forced-colors: active) {
+  .ol-meter__fill,
+  .ol-meter__seg--on {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  .ol-meter__needle {
+    background: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .ol-meter__track,
+  .ol-meter__seg,
+  .ol-meter__scale,
+  .ol-meter__band,
+  .ol-meter__tick {
+    border-color: CanvasText;
+  }
+}
