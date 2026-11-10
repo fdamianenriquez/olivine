@@ -197,6 +197,12 @@ export {
   type RubySize,
 } from "./components/Ruby";
 export {
+  ScrollArea,
+  type ScrollAreaFocusable,
+  type ScrollAreaOrientation,
+  type ScrollAreaProps,
+} from "./components/ScrollArea";
+export {
   Seal,
   type SealInk,
   type SealProps,

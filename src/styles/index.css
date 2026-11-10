@@ -12,6 +12,7 @@
 @import "../components/Divider/Divider.css";
 @import "../components/Ratio/Ratio.css";
 @import "../components/Sheet/Sheet.css";
+@import "../components/ScrollArea/ScrollArea.css";
 
 /* Actions */
 @import "../components/Button/Button.css";

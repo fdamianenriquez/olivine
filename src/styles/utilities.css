@@ -208,6 +208,10 @@
       background: var(--paper);
       border: var(--stroke-hair) solid var(--rule);
       border-radius: var(--radius-0);
+
+      /* The thumb's long side never shrinks below the minimum target, even on very long content. */
+      min-width: var(--target-min);
+      min-height: var(--target-min);
     }
 
     .ol-scrollbar::-webkit-scrollbar-thumb:hover,
