@@ -66,7 +66,7 @@ describe("useScrollEdges", () => {
     let seen: ScrollEdges | undefined;
     let el: HTMLElement | null = null;
     function Probe() {
-      const ref = useRef<HTMLDivElement>(null);
+      const ref = useRef<HTMLDivElement | null>(null);
       seen = useScrollEdges(ref);
       return (
         <div
