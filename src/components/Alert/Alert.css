@@ -71,11 +71,6 @@
   color: var(--beni);
 }
 
-.ol-alert .ol-close {
-  color: var(--ink);
-  border-color: var(--rule);
-}
-
 /* The tag fill is a background colour; keep it a visible, bordered word. */
 @media (forced-colors: active) {
   .ol-alert {
@@ -97,10 +92,5 @@
   .ol-alert__body,
   .ol-alert__text {
     color: CanvasText;
-  }
-
-  .ol-alert .ol-close {
-    color: ButtonText;
-    border-color: ButtonText;
   }
 }
