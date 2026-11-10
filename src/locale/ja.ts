@@ -113,6 +113,7 @@ export const ja: OlivineLabels = {
   meter: { good: "良好", fair: "普通", poor: "不良" },
   meterValue: (value, state) => (state ? `${value}、${state}` : value),
   banner: { label: "お知らせ" },
+  alertDialog: { confirm: "OK", cancel: "キャンセル", caution: "注意" },
   prevMonth: "前の月",
   nextMonth: "次の月",
   prevYear: "前の年",

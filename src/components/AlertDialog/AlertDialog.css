@@ -1,0 +1,53 @@
+/* AlertDialog is a Modal (frame, scrim, kakejiku motion); this adds the message and the danger word. */
+
+.ol-alertdialog__desc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* The same word tag as Alert's danger tone. */
+.ol-alertdialog__tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-height);
+  padding: 0 var(--space-2);
+  background: var(--beni);
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-alertdialog__tag span {
+  color: var(--on-status);
+}
+
+.ol-alertdialog__text {
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+  letter-spacing: var(--text-body-s-tracking);
+  color: var(--ink-2);
+}
+
+/* Long labels wrap instead of overflowing; the primary action stays last. */
+.ol-alertdialog .ol-modal__foot {
+  flex-wrap: wrap;
+}
+
+/* The tag fill is a background colour; keep it a visible, bordered word. */
+@media (forced-colors: active) {
+  .ol-alertdialog__tag {
+    border: var(--stroke-hair) solid CanvasText;
+    background: Canvas;
+  }
+
+  .ol-alertdialog__tag span,
+  .ol-alertdialog__text {
+    color: CanvasText;
+  }
+}
