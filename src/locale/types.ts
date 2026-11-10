@@ -34,6 +34,10 @@ export interface OlivineLabels {
   tableRowFallback: (n: number) => string;
   /** Hidden header of a Table's radio column. */
   tableSelectColumn: string;
+  /** Splitter: name of a resize handle; `label` is the panel before it. */
+  splitterResize: (label?: string) => string;
+  /** Splitter: value text of a handle whose panel is collapsed. */
+  splitterCollapsed: string;
   currentPage: string;
   play: string;
   pause: string;

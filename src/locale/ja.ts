@@ -31,6 +31,8 @@ export const ja: OlivineLabels = {
   tableSelectRow: (label) => `${label}を選択`,
   tableRowFallback: (n) => `${String(n)}行目`,
   tableSelectColumn: "選択",
+  splitterResize: (label) => (label ? `${label}のサイズを変更` : "サイズを変更"),
+  splitterCollapsed: "折りたたみ済み",
   currentPage: "現在のページ",
   play: "再生",
   pause: "一時停止",
