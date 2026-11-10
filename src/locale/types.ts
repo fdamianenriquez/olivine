@@ -114,6 +114,8 @@ export interface OlivineLabels {
   meter: { good: string; fair: string; poor: string };
   /** Meter aria-valuetext: the formatted value, then the band word when there is one. */
   meterValue: (value: string, state?: string) => string;
+  /** Banner: default accessible name of the region when it has no title. */
+  banner: { label: string };
   /** Calendar navigation buttons. */
   prevMonth: string;
   nextMonth: string;
@@ -254,11 +256,12 @@ export type LocaleName = "en" | "es" | "ja";
 
 /** Partial overrides of a dictionary; the object-valued groups merge one level deep. */
 export type LabelOverrides = Partial<
-  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes" | "meter">
+  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes" | "meter" | "banner">
 > & {
   tags?: Partial<OlivineLabels["tags"]>;
   avatarStatus?: Partial<OlivineLabels["avatarStatus"]>;
   keys?: Partial<OlivineLabels["keys"]>;
   themes?: Partial<OlivineLabels["themes"]>;
   meter?: Partial<OlivineLabels["meter"]>;
+  banner?: Partial<OlivineLabels["banner"]>;
 };
