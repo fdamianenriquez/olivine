@@ -108,6 +108,8 @@ export const es: OlivineLabels = {
   },
   theme: "Tema",
   themes: { washi: "Claro", sumi: "Oscuro", auto: "Auto" },
+  meter: { good: "Bien", fair: "Regular", poor: "Mal" },
+  meterValue: (value, state) => (state ? `${value}, ${state}` : value),
   prevMonth: "Mes anterior",
   nextMonth: "Mes siguiente",
   prevYear: "Año anterior",

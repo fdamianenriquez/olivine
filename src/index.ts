@@ -152,6 +152,14 @@ export {
   type MenubarMenuItem,
   type MenubarProps,
 } from "./components/Menubar";
+export {
+  Meter,
+  type MeterLabels,
+  type MeterProps,
+  type MeterReading,
+  type MeterState,
+  readMeter,
+} from "./components/Meter";
 export { Modal, type ModalProps, type ModalSize } from "./components/Modal";
 export { Nav, type NavItem, type NavProps } from "./components/Nav";
 export { Navbar, type NavbarLink, type NavbarProps } from "./components/Navbar";

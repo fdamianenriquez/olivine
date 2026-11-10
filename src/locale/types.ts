@@ -110,6 +110,10 @@ export interface OlivineLabels {
   theme: string;
   /** Visible names of the themes in a ThemeSwitch (washi is light, sumi is dark). */
   themes: { washi: string; sumi: string; auto: string };
+  /** Meter: the band words shown in the state Badge and read after the value. */
+  meter: { good: string; fair: string; poor: string };
+  /** Meter aria-valuetext: the formatted value, then the band word when there is one. */
+  meterValue: (value: string, state?: string) => string;
   /** Calendar navigation buttons. */
   prevMonth: string;
   nextMonth: string;
@@ -248,12 +252,13 @@ export interface KbdKeyLabels {
 /** Built-in locales. */
 export type LocaleName = "en" | "es" | "ja";
 
-/** Partial overrides of a dictionary; `tags`, `keys` and `avatarStatus` merge one level deep. */
+/** Partial overrides of a dictionary; the object-valued groups merge one level deep. */
 export type LabelOverrides = Partial<
-  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes">
+  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes" | "meter">
 > & {
   tags?: Partial<OlivineLabels["tags"]>;
   avatarStatus?: Partial<OlivineLabels["avatarStatus"]>;
   keys?: Partial<OlivineLabels["keys"]>;
   themes?: Partial<OlivineLabels["themes"]>;
+  meter?: Partial<OlivineLabels["meter"]>;
 };

@@ -110,6 +110,8 @@ export const ja: OlivineLabels = {
   },
   theme: "テーマ",
   themes: { washi: "ライト", sumi: "ダーク", auto: "自動" },
+  meter: { good: "良好", fair: "普通", poor: "不良" },
+  meterValue: (value, state) => (state ? `${value}、${state}` : value),
   prevMonth: "前の月",
   nextMonth: "次の月",
   prevYear: "前の年",
