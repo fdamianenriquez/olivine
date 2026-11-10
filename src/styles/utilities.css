@@ -189,3 +189,42 @@
 .ol-anchor {
   scroll-margin-block-start: var(--ol-anchor-offset, var(--control-xl));
 }
+
+/* Scrollbar skin for any native scroller (ScrollArea, Table region, …): a square thumb drawn as a
+ * hairline box on paper over a paper-2 track, inverting to ink on hover and drag. Chromium and
+ * WebKit draw it with the pseudo-elements; other engines get the thin standard bar in the same
+ * colours. The two paths live in separate feature queries so Chromium never sees
+ * `scrollbar-color` (which would switch its pseudo-elements off). Forced colours keep the
+ * system bar. */
+@media (forced-colors: none) {
+  @supports selector(::-webkit-scrollbar) {
+    .ol-scrollbar::-webkit-scrollbar {
+      width: var(--scrollbar-size);
+      height: var(--scrollbar-size);
+      background: var(--paper-2);
+    }
+
+    .ol-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--paper);
+      border: var(--stroke-hair) solid var(--rule);
+      border-radius: var(--radius-0);
+    }
+
+    .ol-scrollbar::-webkit-scrollbar-thumb:hover,
+    .ol-scrollbar::-webkit-scrollbar-thumb:active {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .ol-scrollbar::-webkit-scrollbar-corner {
+      background: var(--paper-2);
+    }
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    .ol-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--rule) var(--paper-2);
+    }
+  }
+}

@@ -7,12 +7,12 @@ import {
   useRef,
 } from "react";
 
+import { useOverflow } from "../../hooks/useOverflow";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
 import { Button } from "../Button";
 import { useCopy } from "./useCopy";
-import { useOverflow } from "./useOverflow";
 
 export interface CodeBlockProps extends Omit<
   HTMLAttributes<HTMLElement>,

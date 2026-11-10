@@ -353,6 +353,7 @@ export const tokens = {
     "kbd-pad": "5px",
     "code-tab-size": "2",
     "thumb-width": "12px",
+    "scrollbar-size": "12px",
     "thumb-height": "20px",
     "switch-width": "48px",
     "switch-height": "24px",
