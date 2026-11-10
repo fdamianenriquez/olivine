@@ -73,7 +73,11 @@ interface ListboxBaseProps extends Omit<
   autoFocus?: boolean | undefined;
   /** Shows the loading row under the options and marks the list busy. */
   loading?: boolean | undefined;
-  /** Shown when there are no options. @default the locale's "No options" */
+  /**
+   * Shown when there are no options. Accepts an `EmptyState size="s"`; leave its `announce` off,
+   * because the list already announces its own changes.
+   * @default the locale's "No options"
+   */
   empty?: ReactNode;
   /** Renders one hidden input per selected value for native forms. */
   name?: string | undefined;
