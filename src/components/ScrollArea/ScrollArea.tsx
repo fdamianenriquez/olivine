@@ -71,7 +71,7 @@ export interface ScrollAreaProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 
 function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
   if (typeof ref === "function") ref(value);
-  else if (ref) ref.current = value;
+  else if (ref) (ref as { current: T | null }).current = value;
 }
 
 /**
