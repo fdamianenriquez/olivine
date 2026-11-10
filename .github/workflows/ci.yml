@@ -153,7 +153,7 @@ jobs:
     # The baselines are rendered in this image (see `pnpm visual:update`). Keep its tag equal to
     # the installed @playwright/test; `pnpm check:playwright` enforces it.
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
       options: --ipc=host
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
