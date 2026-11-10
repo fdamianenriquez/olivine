@@ -1,0 +1,254 @@
+/* Panels share the space left after the hairline handles, in proportion to their percent.
+   The --ol-splitter-* properties are reset on every root, so a nested splitter starts clean. */
+.ol-splitter {
+  --ol-splitter-hit: var(--target-min);
+  --ol-splitter-grip-along: var(--thumb-height);
+  --ol-splitter-grip-across: var(--thumb-width);
+  --ol-splitter-grip-fill: var(--ink);
+
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.ol-splitter--vertical {
+  flex-direction: column;
+}
+
+.ol-splitter--bordered {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+/* Without a grip, the block shrinks to the centre segment of the line and only shows state. */
+.ol-splitter--gripless {
+  --ol-splitter-grip-across: var(--stroke-hair);
+  --ol-splitter-grip-fill: transparent;
+}
+
+/* The pointer is captured by the handle while dragging; text under it must not select. */
+.ol-splitter[data-dragging] {
+  user-select: none;
+}
+
+.ol-splitter__panel {
+  flex: var(--ol-splitter-size) 1 0;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+}
+
+/* Collapsed content stays mounted (inert) but is not drawn. */
+.ol-splitter__panel--collapsed {
+  visibility: hidden;
+  overflow: hidden;
+}
+
+/* The handle is one hairline wide, so the panels on each side share its line. */
+.ol-splitter__handle {
+  --ol-splitter-line: var(--rule);
+  --ol-splitter-weight: var(--stroke-hair);
+  --ol-splitter-grip: var(--ol-splitter-grip-fill);
+  --ol-splitter-grip-weight: var(--ol-splitter-grip-across);
+
+  position: relative;
+  z-index: var(--z-raised);
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--stroke-hair);
+  outline: none;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/* Hit area: a strip centred on the line, 24px wide (WCAG 2.5.8), 44px on touch screens. */
+.ol-splitter__handle::before {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc((var(--ol-splitter-hit) - var(--stroke-hair)) / -2);
+  content: "";
+}
+
+/* The line, as the Divider draws it; a bolder state line stays centred so nothing shifts. */
+.ol-splitter__handle::after {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc((var(--stroke-hair) - var(--ol-splitter-weight)) / 2);
+  inline-size: var(--ol-splitter-weight);
+  content: "";
+  background: var(--ol-splitter-line);
+}
+
+/* The grip: the Range thumb block, long along the line. */
+.ol-splitter__grip {
+  position: relative;
+  z-index: var(--z-raised);
+  flex: none;
+  inline-size: var(--ol-splitter-grip-weight);
+  block-size: var(--ol-splitter-grip-along);
+  background: var(--ol-splitter-grip);
+  border-radius: var(--radius-0);
+}
+
+/* Stacked panels: the handle is a horizontal line. */
+.ol-splitter--vertical > .ol-splitter__handle {
+  inline-size: auto;
+  block-size: var(--stroke-hair);
+  cursor: row-resize;
+}
+
+.ol-splitter--vertical > .ol-splitter__handle::before {
+  inset-inline: 0;
+  inset-block: calc((var(--ol-splitter-hit) - var(--stroke-hair)) / -2);
+}
+
+.ol-splitter--vertical > .ol-splitter__handle::after {
+  inset-inline: 0;
+  inset-block: calc((var(--stroke-hair) - var(--ol-splitter-weight)) / 2) auto;
+  inline-size: auto;
+  block-size: var(--ol-splitter-weight);
+}
+
+.ol-splitter--vertical > .ol-splitter__handle > .ol-splitter__grip {
+  inline-size: var(--ol-splitter-grip-along);
+  block-size: var(--ol-splitter-grip-weight);
+}
+
+@media (pointer: coarse) {
+  .ol-splitter {
+    --ol-splitter-hit: var(--control-m);
+  }
+}
+
+/* Hover inverts the line to ink. */
+@media (hover: hover) {
+  .ol-splitter__handle:hover {
+    --ol-splitter-line: var(--ink);
+  }
+}
+
+/* Dragging takes the olivo marker on the line and grip. */
+.ol-splitter__handle[data-dragging] {
+  --ol-splitter-line: var(--olivo);
+  --ol-splitter-weight: var(--stroke-bold);
+  --ol-splitter-grip: var(--olivo);
+}
+
+/* Focus adds the ring around the grip, not the whole strip, so panel content stays uncovered. */
+.ol-splitter__handle:focus-visible {
+  --ol-splitter-line: var(--olivo);
+  --ol-splitter-weight: var(--stroke-bold);
+  --ol-splitter-grip: var(--olivo);
+}
+
+.ol-splitter--gripless > .ol-splitter__handle:focus-visible,
+.ol-splitter--gripless > .ol-splitter__handle[data-dragging] {
+  --ol-splitter-grip-weight: var(--stroke-bold);
+}
+
+/* The global ring would frame the whole strip; the grip carries it instead. */
+.ol-splitter > .ol-splitter__handle:focus-visible {
+  outline: none;
+}
+
+.ol-splitter__handle:focus-visible > .ol-splitter__grip {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+/* A pointer drag shows the olivo line and grip only, without the keyboard ring. */
+.ol-splitter > .ol-splitter__handle[data-dragging] > .ol-splitter__grip {
+  outline: none;
+}
+
+/* An outer panel collapsed to nothing: the handle line lies on the frame, one hairline that can
+   still change state, and the grip keeps to the inner side so it never overhangs the frame. */
+.ol-splitter > .ol-splitter__handle[data-edge="start"] {
+  justify-content: flex-start;
+}
+
+.ol-splitter > .ol-splitter__handle[data-edge="end"] {
+  justify-content: flex-end;
+}
+
+.ol-splitter--vertical > .ol-splitter__handle[data-edge="start"] {
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.ol-splitter--vertical > .ol-splitter__handle[data-edge="end"] {
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.ol-splitter--bordered > .ol-splitter__handle[data-edge="start"] {
+  margin-inline-start: calc(var(--stroke-hair) * -1);
+}
+
+.ol-splitter--bordered > .ol-splitter__handle[data-edge="end"] {
+  margin-inline-end: calc(var(--stroke-hair) * -1);
+}
+
+.ol-splitter--bordered.ol-splitter--vertical > .ol-splitter__handle[data-edge="start"] {
+  margin-inline-start: 0;
+  margin-block-start: calc(var(--stroke-hair) * -1);
+}
+
+.ol-splitter--bordered.ol-splitter--vertical > .ol-splitter__handle[data-edge="end"] {
+  margin-inline-end: 0;
+  margin-block-end: calc(var(--stroke-hair) * -1);
+}
+
+/* Disabled: a static separator. */
+.ol-splitter[data-disabled] > .ol-splitter__handle {
+  --ol-splitter-line: var(--ink-3);
+
+  cursor: not-allowed;
+}
+
+.ol-splitter[data-disabled]:not(.ol-splitter--gripless) > .ol-splitter__handle {
+  --ol-splitter-grip: var(--ink-3);
+}
+
+/* System colours keep the line, grip and focus visible. */
+@media (forced-colors: active) {
+  .ol-splitter {
+    --ol-splitter-grip-fill: ButtonText;
+  }
+
+  .ol-splitter--gripless {
+    --ol-splitter-grip-fill: transparent;
+  }
+
+  .ol-splitter__handle {
+    --ol-splitter-line: CanvasText;
+  }
+
+  .ol-splitter__handle:hover,
+  .ol-splitter__handle[data-dragging],
+  .ol-splitter__handle:focus-visible {
+    --ol-splitter-line: Highlight;
+    --ol-splitter-grip: Highlight;
+  }
+
+  .ol-splitter__handle:focus-visible > .ol-splitter__grip {
+    outline-color: Highlight;
+  }
+
+  .ol-splitter[data-disabled] > .ol-splitter__handle {
+    --ol-splitter-line: GrayText;
+  }
+
+  .ol-splitter[data-disabled]:not(.ol-splitter--gripless) > .ol-splitter__handle {
+    --ol-splitter-grip: GrayText;
+  }
+}
+
+/* On paper the lines still frame the panels; grips mean nothing there. */
+@media print {
+  .ol-splitter__grip {
+    display: none;
+  }
+}

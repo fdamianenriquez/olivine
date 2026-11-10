@@ -243,6 +243,15 @@ export {
   type SplitButtonItem,
   type SplitButtonProps,
 } from "./components/SplitButton";
+export {
+  Splitter,
+  type SplitterActions,
+  type SplitterLength,
+  type SplitterOrientation,
+  SplitterPanel,
+  type SplitterPanelProps,
+  type SplitterProps,
+} from "./components/Splitter";
 export { Stack, type StackProps } from "./components/Stack";
 export {
   Stat,
