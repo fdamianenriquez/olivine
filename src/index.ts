@@ -262,7 +262,10 @@ export { Switch, type SwitchProps } from "./components/Switch";
 export {
   Table,
   type TableColumn,
+  type TableColumnAlign,
+  type TableKey,
   type TableProps,
+  type TableSelectionMode,
   type TableSort,
   type TableSortDirection,
 } from "./components/Table";

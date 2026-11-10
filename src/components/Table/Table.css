@@ -3,6 +3,17 @@
   overflow-x: auto;
 }
 
+/* A height-limited region (`maxHeight`, or sized by the layout with `stickyHeader`): it scrolls on
+ * both axes and is its own stacking context, so the sticky header never rises above popups. The
+ * scroll padding is the header's measured height: Tab never leaves a control under it. */
+.ol-tablewrap--scroll {
+  overflow: auto;
+  max-block-size: var(--ol-table-max-height, 100%);
+  min-block-size: 0;
+  isolation: isolate;
+  scroll-padding-block-start: var(--ol-table-head);
+}
+
 .ol-table {
   width: 100%;
   border-collapse: collapse;
@@ -50,13 +61,23 @@
   background: var(--paper-2);
 }
 
-.ol-table--hover tbody tr:hover td {
+.ol-table tbody tr:last-child td {
+  border-bottom-color: var(--rule);
+}
+
+/* Selected rows are ink rows, as Listbox and TreeView. Selected wins over striped. */
+.ol-table .ol-table__row[aria-selected="true"] td {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover td {
   background: var(--ink);
   color: var(--on-ink);
 }
 
 /* Links and controls inside an inverted row follow the row's colour. */
-.ol-table--hover tbody tr:hover :is(a, button) {
+.ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover :is(a, button) {
   color: inherit;
 }
 
@@ -74,8 +95,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-.ol-table tbody tr:last-child td {
-  border-bottom-color: var(--rule);
+/* Alignment only, never the face. After `.ol-num` so an explicit `align` wins over its default. */
+.ol-table :is(th, td).ol-table__cell--start {
+  text-align: left;
+}
+
+.ol-table :is(th, td).ol-table__cell--center {
+  text-align: center;
+}
+
+.ol-table :is(th, td).ol-table__cell--end {
+  text-align: right;
 }
 
 .ol-table caption {
@@ -112,10 +142,138 @@
   outline-offset: var(--focus-offset);
 }
 
+/* Selection column: the 24px control plus space-3 on each side; the 20px box sits where the first
+ * line of text starts, so a selectable row is no taller than a plain one. */
+.ol-table .ol-table__select {
+  inline-size: var(--target-min);
+  padding-block: calc(var(--space-3) - (var(--target-min) - var(--check-size)) / 2);
+  padding-inline: var(--space-3);
+}
+
+.ol-table--dense .ol-table__select {
+  padding-block: calc(var(--space-1) - (var(--target-min) - var(--check-size)) / 2);
+}
+
+.ol-table__select .ol-check {
+  display: flex;
+}
+
+/* Selectable rows: unselected rows fill with paper-2 on hover (the selectable rule, as Listbox);
+ * only when the rows react (`hover` or `selectOnRowClick`). */
+@media (hover: hover) {
+  :is(.ol-table--hover, .ol-table--rowselect).ol-table--selectable
+    tbody
+    .ol-table__row:not([aria-selected="true"], [data-disabled]):hover
+    td {
+    background: var(--paper-2);
+  }
+}
+
+.ol-table--rowselect .ol-table__row:not([data-disabled]) {
+  cursor: pointer;
+}
+
+.ol-table .ol-table__row[aria-selected="true"] :is(a, button) {
+  color: inherit;
+}
+
+@media (forced-colors: none) {
+  /* Outline badges take their status colour from the page ground; on an ink row they keep a
+   * paper ground so the word stays legible. */
+  .ol-table__row[aria-selected="true"]
+    .ol-badge:not(.ol-badge--solid, .ol-badge--accent, .ol-badge--olivo) {
+    background: var(--paper);
+  }
+
+  /* A solid badge is an ink box: on an ink row an on-ink hairline keeps its edge. */
+  .ol-table__row[aria-selected="true"] .ol-badge--solid {
+    border-color: var(--on-ink);
+  }
+}
+
+/* The control on an ink row: box and mark in on-ink, disabled or not (ink-3 on ink fails). */
+.ol-table .ol-table__row[aria-selected="true"] .ol-check__box {
+  border-color: var(--on-ink);
+}
+
+.ol-table .ol-table__row[aria-selected="true"] .ol-check__box::after {
+  background: var(--on-ink);
+}
+
+/* On an ink row olivo alone is too faint: an on-ink band fills the gap under the ring, for the
+ * row's control and for any link or button a column renders. */
+.ol-table .ol-table__row[aria-selected="true"] :focus-visible,
+.ol-table .ol-table__row[aria-selected="true"] .ol-check input:focus-visible + .ol-check__box {
+  box-shadow: 0 0 0 var(--focus-offset) var(--on-ink);
+}
+
+/* Sticky header. Collapsed borders do not travel with sticky cells, so this variant separates
+ * them and draws each hairline on one side only. */
+.ol-table--sticky {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ol-table--sticky thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-raised);
+  background: var(--paper);
+}
+
+.ol-table--sticky.ol-table--bordered :is(th, td) {
+  border-block-start: 0;
+  border-inline-start: 0;
+}
+
+.ol-table--sticky.ol-table--bordered thead th {
+  border-block-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-table--sticky.ol-table--bordered tr > :first-child {
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+/* One full-width cell for the `empty` slot (an EmptyState). */
+.ol-table .ol-table__empty {
+  padding: var(--space-4);
+}
+
 @media (forced-colors: active) {
-  .ol-table--hover tbody tr:hover td {
+  .ol-table .ol-table__row[aria-selected="true"] td {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+
+  .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover td {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .ol-table .ol-table__row[aria-selected="true"] .ol-check__box {
+    border-color: HighlightText;
+  }
+
+  .ol-table .ol-table__row[aria-selected="true"] .ol-check__box::after {
+    background: HighlightText;
+  }
+
+  .ol-table .ol-table__row[aria-selected="true"] :focus-visible,
+  .ol-table .ol-table__row[aria-selected="true"] .ol-check input:focus-visible + .ol-check__box {
+    outline-color: HighlightText;
+    box-shadow: none;
+  }
+
+  /* The row opts out of forced colours, so badges inside it are set back to system colours. */
+  .ol-table .ol-table__row[aria-selected="true"] .ol-badge {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+
+  .ol-table--sticky thead th {
+    background: Canvas;
   }
 }
