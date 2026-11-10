@@ -2,6 +2,7 @@ export { Accordion, type AccordionItem, type AccordionProps } from "./components
 export { Alert, type AlertProps, type AlertTone } from "./components/Alert";
 export * from "./components/Avatar";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
+export { Banner, type BannerLive, type BannerProps, type BannerTone } from "./components/Banner";
 export {
   BOTTOM_NAV_MAX_ITEMS,
   BOTTOM_NAV_MIN_ITEMS,

@@ -80,6 +80,7 @@
 
 /* Feedback and overlays */
 @import "../components/Alert/Alert.css";
+@import "../components/Banner/Banner.css";
 @import "../components/Toast/Toast.css";
 @import "../components/ToastStack/ToastStack.css";
 @import "../components/Toolbar/Toolbar.css";

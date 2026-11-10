@@ -1,0 +1,158 @@
+/*
+ * Banner: a full-width ruled strip in the page flow. Only the bottom edge is ruled, so a Navbar
+ * above (its own bottom rule) or a second banner below share one line. The layout follows the
+ * banner's own width (container query), so it also works inside a Card, Modal or Sheet.
+ */
+.ol-banner {
+  /* The unroll's clip leaves room for focus rings. */
+  --ol-motion-overhang: var(--space-2);
+
+  container-type: inline-size;
+  border-bottom: var(--stroke-hair) solid currentcolor;
+  color: var(--ink);
+  background: var(--paper-2);
+}
+
+.ol-banner--info {
+  color: var(--ai);
+}
+
+.ol-banner--success {
+  color: var(--matsu);
+}
+
+.ol-banner--warning {
+  color: var(--kitsune);
+}
+
+.ol-banner--danger {
+  color: var(--beni);
+}
+
+/* Narrow (stacked): tag and dismiss on the first row, message and actions below. */
+.ol-banner__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-3) var(--space-4);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-3) var(--space-4);
+}
+
+.ol-banner__tag {
+  grid-column: 1;
+  grid-row: 1;
+  place-self: center start;
+  display: inline-flex;
+  align-items: center;
+  height: var(--badge-height);
+  padding: 0 var(--space-2);
+  background: currentcolor;
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+}
+
+.ol-banner__tag span {
+  color: var(--on-status);
+}
+
+.ol-banner--neutral .ol-banner__tag span {
+  color: var(--on-ink);
+}
+
+.ol-banner__body {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--text-body-s-family);
+  font-size: var(--text-body-s-size);
+  line-height: var(--text-body-s-leading);
+  font-weight: var(--text-body-s-weight);
+  overflow-wrap: anywhere;
+}
+
+/* Without a tag the message takes the first row, beside the dismiss button. */
+.ol-banner--untagged .ol-banner__body {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.ol-banner__title {
+  font-family: var(--text-h3-family);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.ol-banner__actions {
+  grid-column: 1 / -1;
+  color: var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ol-banner__close {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Wide: tag, message, actions and dismiss on one row, aligned with the page container. */
+@container (min-width: 40rem) {
+  .ol-banner__inner {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    padding-inline: var(--space-6);
+  }
+
+  .ol-banner__body {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .ol-banner--untagged .ol-banner__body {
+    grid-column: 1 / 3;
+  }
+
+  .ol-banner__actions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+
+  .ol-banner__close {
+    grid-column: 4;
+  }
+}
+
+/* The tag fill is a background colour; keep it a visible, bordered word. */
+@media (forced-colors: active) {
+  .ol-banner {
+    border-color: CanvasText;
+    color: CanvasText;
+    background: Canvas;
+  }
+
+  .ol-banner__tag {
+    border: var(--stroke-hair) solid CanvasText;
+    background: Canvas;
+  }
+
+  .ol-banner__tag span,
+  .ol-banner--neutral .ol-banner__tag span {
+    color: CanvasText;
+  }
+
+  .ol-banner__body {
+    color: CanvasText;
+  }
+
+  .ol-banner__body a {
+    color: LinkText;
+  }
+}
