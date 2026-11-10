@@ -26,6 +26,14 @@ export interface OlivineLabels {
   sort: string;
   sortedAscending: string;
   sortedDescending: string;
+  /** Header checkbox of a selectable Table. */
+  tableSelectAll: string;
+  /** A Table row's selection control; `label` comes from `rowLabel`. */
+  tableSelectRow: (label: string) => string;
+  /** Row name when a selectable Table has no `rowLabel` (1-based). */
+  tableRowFallback: (n: number) => string;
+  /** Hidden header of a Table's radio column. */
+  tableSelectColumn: string;
   currentPage: string;
   play: string;
   pause: string;
