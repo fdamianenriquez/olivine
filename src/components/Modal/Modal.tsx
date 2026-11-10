@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useOverlay } from "../../hooks/useOverlay";
+import { usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
 import { pad } from "../../utils/pad";
@@ -18,10 +19,20 @@ import { Portal } from "../Portal";
 export type ModalSize = "s" | "m" | "l" | "full";
 
 export interface ModalOwnProps {
-  /** Whether the dialog is shown. Nothing renders while it is `false`. */
+  /**
+   * Whether the dialog is shown. When it turns `false` the dialog rolls back up, inert, and
+   * unmounts once the motion has finished; nothing renders after that.
+   */
   open: boolean;
   /** Called on Escape, on the close button and on a scrim click. Without it the close button is hidden. */
   onClose?: () => void;
+  /**
+   * Show the "×" close button in the head. With `false` there is no button even when `onClose`
+   * is set; Escape (and the scrim, see `closeOnScrim`) still call `onClose`. Give the dialog
+   * another way out, such as a Cancel button in the footer.
+   * @default true
+   */
+  closeButton?: boolean;
   /** Heading of the dialog. It also names the dialog for assistive tech. */
   title?: ReactNode;
   /** Eyebrow above the title. A number is zero-padded ("3" → "03"); a string is shown as is. */
@@ -49,12 +60,14 @@ export type ModalProps = ModalOwnProps & Omit<ComponentPropsWithoutRef<"div">, k
 
 /**
  * A centred dialog over the scrim. It renders in a portal, traps focus, closes on Escape, makes
- * the rest of the page inert and locks its scroll.
+ * the rest of the page inert and locks its scroll. It unrolls downwards on open (kakejiku) and
+ * rolls back up on close; during the exit it is inert and focus is already back on the opener.
  */
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   {
     open,
     onClose,
+    closeButton = true,
     title,
     index,
     size = "m",
@@ -70,13 +83,16 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   const anchor = useRef<HTMLSpanElement>(null);
   const pressedScrim = useRef(false);
   const overlayRef = useOverlay({ open, onClose });
+  // Destructured: the React Compiler would treat the whole object as a ref.
+  const { mounted, state, setElement } = usePresence<HTMLDivElement>(open);
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
       overlayRef(node);
+      setElement(node);
       if (typeof ref === "function") ref(node);
       else if (ref) ref.current = node;
     },
-    [overlayRef, ref],
+    [overlayRef, setElement, ref],
   );
 
   const hasTitle = title != null && title !== false && title !== "";
@@ -91,9 +107,12 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     }
   }, [open, unnamed]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
-  const hasHead = hasTitle || index != null || onClose !== undefined;
+  const showClose = closeButton && onClose !== undefined;
+  const hasHead = hasTitle || index != null || showClose;
+  // `closed` never renders (the presence unmounts first); keep the exit state until then.
+  const motionState = state === "open" ? "open" : "closing";
 
   return (
     <>
@@ -104,13 +123,15 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
         <div
           className="ol-scrim"
+          data-state={motionState}
           onPointerDown={(event) => {
             pressedScrim.current = event.target === event.currentTarget;
           }}
           onClick={(event) => {
             const started = pressedScrim.current;
             pressedScrim.current = false;
-            if (closeOnScrim && started && event.target === event.currentTarget) onClose?.();
+            if (!open || !closeOnScrim || !started) return;
+            if (event.target === event.currentTarget) onClose?.();
           }}
         >
           <div
@@ -118,10 +139,16 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
             aria-modal="true"
             aria-labelledby={hasTitle && !userNamed ? titleId : undefined}
             tabIndex={-1}
-            data-state="open"
             {...rest}
+            // The motion classes read it, so it is not overridable.
+            data-state={motionState}
             ref={setRef}
-            className={cx("ol-modal", size !== "m" && `ol-modal--${size}`, className)}
+            className={cx(
+              "ol-modal",
+              "ol-kakejiku",
+              size !== "m" && `ol-modal--${size}`,
+              className,
+            )}
           >
             {hasHead && (
               <div className="ol-modal__head">
@@ -137,7 +164,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
                     </h2>
                   )}
                 </div>
-                {onClose && <CloseButton onClick={onClose} />}
+                {showClose && <CloseButton onClick={onClose} />}
               </div>
             )}
             <div className="ol-modal__body">{children}</div>

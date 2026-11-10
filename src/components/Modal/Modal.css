@@ -1,3 +1,4 @@
+/* Shared with Offcanvas, which still fades its scrim in with ol-scrim-in until it migrates. */
 .ol-scrim {
   position: fixed;
   inset: 0;
@@ -7,6 +8,18 @@
   padding: var(--space-6);
   background: var(--scrim);
   animation: ol-scrim-in var(--motion-base);
+}
+
+/* The Modal's scrim carries the presence state: it fades in, and out while the dialog rolls up. */
+.ol-scrim[data-state] {
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
+.ol-scrim[data-state="closing"] {
+  pointer-events: none;
+
+  /* Stays until the dialog has rolled back up (it is the dialog's parent). */
+  animation: ol-fade-out var(--dur-l) var(--ease-effect) forwards;
 }
 
 .ol-modal {
@@ -20,7 +33,8 @@
   background: var(--paper-3);
   color: var(--ink);
   box-shadow: var(--shadow-block);
-  animation: ol-modal-in var(--motion-slow);
+
+  /* Motion: .ol-kakejiku unrolls it downwards on open and rolls it back up on close. */
 }
 
 .ol-modal:focus-visible {
@@ -85,16 +99,9 @@
   }
 }
 
-@keyframes ol-modal-in {
-  from {
-    opacity: 0;
-    transform: translateY(var(--space-2));
-  }
-}
-
+/* Reduced motion: the motion tokens collapse to almost nothing, so the dialog appears and goes at once. */
 @media (prefers-reduced-motion: reduce) {
-  .ol-scrim,
-  .ol-modal {
+  .ol-scrim:not([data-state]) {
     animation: none;
   }
 }
