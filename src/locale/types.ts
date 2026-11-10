@@ -116,6 +116,8 @@ export interface OlivineLabels {
   meterValue: (value: string, state?: string) => string;
   /** Banner: default accessible name of the region when it has no title. */
   banner: { label: string };
+  /** AlertDialog: default button labels and the word shown on a danger confirmation. */
+  alertDialog: { confirm: string; cancel: string; caution: string };
   /** Calendar navigation buttons. */
   prevMonth: string;
   nextMonth: string;
@@ -256,7 +258,10 @@ export type LocaleName = "en" | "es" | "ja";
 
 /** Partial overrides of a dictionary; the object-valued groups merge one level deep. */
 export type LabelOverrides = Partial<
-  Omit<OlivineLabels, "tags" | "keys" | "avatarStatus" | "themes" | "meter" | "banner">
+  Omit<
+    OlivineLabels,
+    "tags" | "keys" | "avatarStatus" | "themes" | "meter" | "banner" | "alertDialog"
+  >
 > & {
   tags?: Partial<OlivineLabels["tags"]>;
   avatarStatus?: Partial<OlivineLabels["avatarStatus"]>;
@@ -264,4 +269,5 @@ export type LabelOverrides = Partial<
   themes?: Partial<OlivineLabels["themes"]>;
   meter?: Partial<OlivineLabels["meter"]>;
   banner?: Partial<OlivineLabels["banner"]>;
+  alertDialog?: Partial<OlivineLabels["alertDialog"]>;
 };

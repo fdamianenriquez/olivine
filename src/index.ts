@@ -1,5 +1,11 @@
 export { Accordion, type AccordionItem, type AccordionProps } from "./components/Accordion";
 export { Alert, type AlertProps, type AlertTone } from "./components/Alert";
+export {
+  AlertDialog,
+  type AlertDialogCloseReason,
+  type AlertDialogProps,
+  type AlertDialogTone,
+} from "./components/AlertDialog";
 export * from "./components/Avatar";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
 export { Banner, type BannerLive, type BannerProps, type BannerTone } from "./components/Banner";
