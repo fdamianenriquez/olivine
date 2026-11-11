@@ -125,8 +125,10 @@
 }
 
 .ol-toast__timer {
-  height: var(--stroke-bold);
-  background: var(--olivo);
+  height: var(--stroke-heavy);
+
+  /* A maple fill (never text or a status): it has to stand out as time running. */
+  background: var(--maple);
   transform-origin: left;
 
   /* A clock, not a movement: the drain is linear on purpose. */
