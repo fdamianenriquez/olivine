@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 
+import { CONTROLS, SLOP } from "../../hooks/gesture";
 import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { useOverlay } from "../../hooks/useOverlay";
 import { useSheetDrag } from "../../hooks/useSheetDrag";
@@ -180,7 +181,12 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
   const panelRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLButtonElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const zone = useRef<"head" | "body">("body");
+  // The body was scrolled to the top of its content when the press began.
+  const bodyAtStart = useRef(true);
+  // Height of the layout viewport the software keyboard covers, in px.
+  const keyboardInset = useRef(0);
   const lastRequested = useRef<OffcanvasSnapPoint | undefined>(undefined);
   const prevSnap = useRef(snap);
   const labels = useLabels().offcanvas;
@@ -242,7 +248,7 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     if (!node || !body) return;
     const computed = getComputedStyle(node);
     const max = px(computed.maxHeight);
-    const available = max > 0 ? max : window.innerHeight;
+    const available = max > 0 ? max : window.innerHeight - keyboardInset.current;
     const rem = px(getComputedStyle(document.documentElement).fontSize) || 16;
     // The natural height: everything above the body, the body's full content, and below it.
     const content =
@@ -289,6 +295,62 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     };
   }, [panel, bottom, measure]);
 
+  // A bottom sheet sits above the software keyboard: the part of the layout viewport the visual
+  // viewport no longer shows is written as --ol-keyboard-inset, which lifts the sheet and lowers
+  // its height cap. Kept through the roll-down so the sheet does not drop while it leaves.
+  // A non-modal sheet only rises while focus is inside it, so it never covers a page field.
+  // A pinch zoom also shrinks the visual viewport; it is not a keyboard, so it changes nothing.
+  useIsomorphicLayoutEffect(() => {
+    if (!panel || !bottom || typeof window === "undefined") return;
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    let frame = 0;
+    let keyboard = 0;
+    const update = () => {
+      if (Math.abs(viewport.scale - 1) < 0.01) {
+        keyboard = Math.max(
+          0,
+          Math.round(window.innerHeight - (viewport.height + viewport.offsetTop)),
+        );
+      }
+      const active = document.activeElement;
+      const inset = modal || (active !== null && panel.contains(active)) ? keyboard : 0;
+      if (inset === keyboardInset.current) return;
+      keyboardInset.current = inset;
+      panel.style.setProperty("--ol-keyboard-inset", `${String(inset)}px`);
+      measure();
+      if (inset === 0) return;
+      // Once the smaller sheet has rendered, the field being typed in stays in view.
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const active = document.activeElement;
+        if (!active || active === panel || !panel.contains(active)) return;
+        revealRef.current(active);
+        active.scrollIntoView({ block: "nearest" });
+      });
+    };
+    // Focus moving between the page and a non-modal sheet; focusout settles after the event.
+    const refocus = () => {
+      queueMicrotask(update);
+    };
+    update();
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    if (!modal) {
+      document.addEventListener("focusin", refocus);
+      document.addEventListener("focusout", refocus);
+    }
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+      document.removeEventListener("focusin", refocus);
+      document.removeEventListener("focusout", refocus);
+      cancelAnimationFrame(frame);
+      keyboardInset.current = 0;
+      panel.style.removeProperty("--ol-keyboard-inset");
+    };
+  }, [panel, bottom, modal, measure]);
+
   const request = (target: number, reason: "drag" | "handle" | "keyboard" | "focus") => {
     const point = points[target];
     if (!point || target === index) return;
@@ -317,10 +379,13 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     onDismiss: () => {
       onClose?.();
     },
-    canDragBody: () => {
+    // Called once the pointer has moved, with the direction. An overflowing body at the tallest
+    // point scrolls, except for a pull down that starts at the top of its content.
+    canDragBody: (direction: "up" | "down") => {
       if (zone.current === "head" || !atTop) return true;
       const body = bodyRef.current;
-      return !body || body.scrollHeight <= body.clientHeight;
+      if (!body || body.scrollHeight <= body.clientHeight) return true;
+      return direction === "down" && bodyAtStart.current && body.scrollTop <= 0;
     },
     disabled: !draggable || state !== "open" || geometry === null,
   });
@@ -338,6 +403,75 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     },
   });
   const phase = bottom ? sheetPhase : swipe.phase;
+
+  // The body marks when it is scrolled to the top (CSS lets the browser pan only upward then), and
+  // a touch that pulls down from there is kept from scrolling so the sheet can follow it. Browsers
+  // without directional touch-action rely on the touchmove being cancelled. Never while the drag
+  // itself would be refused.
+  const canPull = useRef(false);
+  useEffect(() => {
+    canPull.current = draggable && state === "open" && geometry !== null;
+  });
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!panel || !body || !bottom) return;
+    const mark = () => {
+      body.toggleAttribute("data-scroll-start", body.scrollTop <= 0);
+    };
+    mark();
+    let touch: { x: number; y: number; lock: "sheet" | "scroll" | null } | null = null;
+    const onStart = (event: TouchEvent) => {
+      const point = event.touches[0];
+      const pulls =
+        event.touches.length === 1 &&
+        canPull.current &&
+        body.scrollTop <= 0 &&
+        panel.classList.contains("ol-offcanvas--draggable") &&
+        panel.hasAttribute("data-snap-top") &&
+        panel.hasAttribute("data-overflow") &&
+        !(event.target instanceof Element && event.target.closest(CONTROLS));
+      touch = pulls && point ? { x: point.clientX, y: point.clientY, lock: null } : null;
+    };
+    const onMove = (event: TouchEvent) => {
+      const point = event.touches[0];
+      if (!touch || !point || event.touches.length > 1) return;
+      if (touch.lock === null) {
+        const dy = point.clientY - touch.y;
+        const dx = point.clientX - touch.x;
+        if (Math.abs(dy) < SLOP && Math.abs(dx) < SLOP) return;
+        touch.lock = dy > 0 && dy >= Math.abs(dx) ? "sheet" : "scroll";
+      }
+      if (touch.lock === "sheet" && event.cancelable) event.preventDefault();
+    };
+    const onEnd = () => {
+      touch = null;
+    };
+    body.addEventListener("scroll", mark, { passive: true });
+    body.addEventListener("touchstart", onStart, { passive: true });
+    body.addEventListener("touchmove", onMove, { passive: false });
+    body.addEventListener("touchend", onEnd);
+    body.addEventListener("touchcancel", onEnd);
+    return () => {
+      body.removeEventListener("scroll", mark);
+      body.removeEventListener("touchstart", onStart);
+      body.removeEventListener("touchmove", onMove);
+      body.removeEventListener("touchend", onEnd);
+      body.removeEventListener("touchcancel", onEnd);
+    };
+  }, [panel, bottom]);
+
+  // The scrim fades with a drag below the lowest point: 1 there, 0 with the sheet off-screen.
+  // Written on the scrim straight from the drag offset, after the drag handlers ran.
+  const fadeScrim = () => {
+    const scrim = scrimRef.current;
+    const node = panelRef.current;
+    if (!scrim || !node || !bottom) return;
+    const lowest = points[0]?.px ?? 0;
+    const travel = px(node.style.getPropertyValue("--ol-swipe-y"));
+    const visible = (points[index]?.px ?? 0) - travel;
+    const fade = travel > 0 && lowest > 0 && visible < lowest ? Math.max(0, visible / lowest) : 1;
+    scrim.style.setProperty("--ol-scrim-fade", String(Math.round(fade * 1000) / 1000));
+  };
 
   // Focus on something a lower point hides raises the sheet to the lowest point showing it.
   const revealFocus = (target: Element) => {
@@ -475,9 +609,9 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
         if (draggable) measure();
       }}
       onPointerDown={chain(sideHandlers?.onPointerDown, onPointerDown)}
-      onPointerMove={chain(sideHandlers?.onPointerMove, onPointerMove)}
-      onPointerUp={chain(sideHandlers?.onPointerUp, onPointerUp)}
-      onPointerCancel={chain(sideHandlers?.onPointerCancel, onPointerCancel)}
+      onPointerMove={chain(chain(sideHandlers?.onPointerMove, fadeScrim), onPointerMove)}
+      onPointerUp={chain(chain(sideHandlers?.onPointerUp, fadeScrim), onPointerUp)}
+      onPointerCancel={chain(chain(sideHandlers?.onPointerCancel, fadeScrim), onPointerCancel)}
       // The motion classes read these, so they are not overridable.
       data-state={motionState}
       data-swipe={phase === "idle" ? undefined : phase}
@@ -520,6 +654,7 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
         {...(draggable ? sheet.bodyProps : null)}
         onPointerDownCapture={() => {
           zone.current = "body";
+          bodyAtStart.current = (bodyRef.current?.scrollTop ?? 0) <= 0;
         }}
       >
         {children}
@@ -541,8 +676,10 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
           // The scrim is a pointer-only convenience; Escape and the close button are the keyboard paths.
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <div
+            ref={scrimRef}
             className="ol-scrim ol-scrim--edge"
             data-state={motionState}
+            data-swipe={bottom && phase !== "idle" ? phase : undefined}
             onPointerDown={(event) => {
               pressedScrim.current = event.target === event.currentTarget;
             }}
