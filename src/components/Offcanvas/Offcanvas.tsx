@@ -506,9 +506,9 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
           }}
         >
           {hasTitle && (
-            <span id={titleId} className="ol-offcanvas__title ol-label">
+            <h2 id={titleId} className="ol-offcanvas__title ol-label">
               {title}
-            </span>
+            </h2>
           )}
           {showClose && <CloseButton onClick={onClose} data-autofocus={modal ? "" : undefined} />}
         </div>
