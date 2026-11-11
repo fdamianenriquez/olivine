@@ -28,8 +28,11 @@ export interface SheetDragOptions {
   onSnap: (index: number) => void;
   /** Called once when a release dismisses. */
   onDismiss: () => void;
-  /** Called before a body drag starts; return `false` to leave the press to scrolling. */
-  canDragBody?: (() => boolean) | undefined;
+  /**
+   * Called when a body drag would start, once the pointer has passed the slop along the drag
+   * axis, with the direction it moved; return `false` to leave the gesture to scrolling.
+   */
+  canDragBody?: ((direction: "up" | "down") => boolean) | undefined;
   /** Turns dragging off. */
   disabled?: boolean | undefined;
 }
@@ -162,7 +165,6 @@ export function useSheetDrag({
     if (zone === "body") {
       if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
       if (event.target instanceof Element && event.target.closest(CONTROLS)) return;
-      if (latest.current.canDragBody?.() === false) return;
     }
     swallowClick.current = false;
     drag.current = {
@@ -187,6 +189,13 @@ export function useSheetDrag({
       if (Math.abs(dy) < SLOP && Math.abs(dx) < SLOP) return;
       // Across the axis first: leave it to scrolling or selection.
       if (Math.abs(dx) > Math.abs(dy)) {
+        drag.current = null;
+        return;
+      }
+      if (
+        current.zone === "body" &&
+        latest.current.canDragBody?.(dy > 0 ? "down" : "up") === false
+      ) {
         drag.current = null;
         return;
       }
