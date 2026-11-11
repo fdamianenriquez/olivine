@@ -122,6 +122,8 @@ export interface OlivineLabels {
   toastActionHint: (key: string) => string;
   /** AlertDialog: default button labels and the word shown on a danger confirmation. */
   alertDialog: { confirm: string; cancel: string; caution: string };
+  /** Offcanvas bottom-sheet handle: its name, and the status read after a snap. */
+  offcanvas: { expand: string; collapse: string; size: (index: number, total: number) => string };
   /** Calendar navigation buttons. */
   prevMonth: string;
   nextMonth: string;
@@ -264,7 +266,7 @@ export type LocaleName = "en" | "es" | "ja";
 export type LabelOverrides = Partial<
   Omit<
     OlivineLabels,
-    "tags" | "keys" | "avatarStatus" | "themes" | "meter" | "banner" | "alertDialog"
+    "tags" | "keys" | "avatarStatus" | "themes" | "meter" | "banner" | "alertDialog" | "offcanvas"
   >
 > & {
   tags?: Partial<OlivineLabels["tags"]>;
@@ -274,4 +276,5 @@ export type LabelOverrides = Partial<
   meter?: Partial<OlivineLabels["meter"]>;
   banner?: Partial<OlivineLabels["banner"]>;
   alertDialog?: Partial<OlivineLabels["alertDialog"]>;
+  offcanvas?: Partial<OlivineLabels["offcanvas"]>;
 };

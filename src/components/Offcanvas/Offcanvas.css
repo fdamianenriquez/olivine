@@ -3,6 +3,10 @@
   padding: 0;
 }
 
+/*
+ * The panel. Motion: .ol-kakejiku unrolls it on open and rolls it back up on close, with the rod
+ * on the moving edge for start and end (--from-start / --from-end follow the direction).
+ */
 .ol-offcanvas {
   --ol-offcanvas-width: var(--offcanvas-width);
 
@@ -10,13 +14,10 @@
   z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   border: 0 solid var(--rule);
   background: var(--paper-3);
   color: var(--ink);
-}
-
-.ol-offcanvas:dir(rtl) {
-  --ol-offcanvas-dir: -1;
 }
 
 .ol-offcanvas:focus-visible {
@@ -27,35 +28,117 @@
 .ol-offcanvas--start {
   inset-block: 0;
   width: min(var(--ol-offcanvas-width), calc(100% - var(--space-6)));
+  padding-block: env(safe-area-inset-top, 0) env(safe-area-inset-bottom, 0);
 }
 
 .ol-offcanvas--end {
   inset-inline-end: 0;
   border-inline-start-width: var(--stroke-hair);
-  animation: ol-offcanvas-in-end var(--motion-slow);
+  padding-right: env(safe-area-inset-right, 0);
 }
 
 .ol-offcanvas--start {
   inset-inline-start: 0;
   border-inline-end-width: var(--stroke-hair);
-  animation: ol-offcanvas-in-start var(--motion-slow);
+  padding-left: env(safe-area-inset-left, 0);
 }
 
+/* Right to left, end and start touch the other physical edge. */
+.ol-offcanvas--end:dir(rtl) {
+  padding-right: 0;
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+.ol-offcanvas--start:dir(rtl) {
+  padding-right: env(safe-area-inset-right, 0);
+  padding-left: 0;
+}
+
+/*
+ * The bottom sheet. Its box is as tall as the tallest snap point (--ol-sheet-height, written by
+ * the component); a lower point is the same box moved down by --ol-sheet-rest. A drag adds
+ * --ol-swipe-y. Only the transform moves, so nothing re-lays out.
+ */
 .ol-offcanvas--bottom {
   inset-inline: 0;
   inset-block-end: 0;
-  max-height: calc(100dvh - var(--space-12));
+  height: var(--ol-sheet-height, auto);
+  max-height: calc(100dvh - var(--space-12) - env(safe-area-inset-top, 0px));
+  padding: 0 env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
   border-block-start-width: var(--stroke-hair);
-  animation: ol-offcanvas-in-bottom var(--motion-slow);
+  transform: translateY(calc(var(--ol-sheet-rest, 0px) + var(--ol-swipe-y, 0px)));
+}
+
+/* Wide screens: capped at the large modal width and centred. 720px is the --bp-md token value. */
+@media (width >= 720px) {
+  .ol-offcanvas--bottom {
+    width: min(var(--modal-width-l), 100%);
+    margin-inline: auto;
+    border-inline-width: var(--stroke-hair);
+  }
+}
+
+/* Travel between snap points (shoji): a translate that stops dead. */
+.ol-offcanvas--bottom[data-travel] {
+  transition: transform var(--dur-m) var(--ease-move);
+}
+
+/* After a release the finger already gave it speed. */
+.ol-offcanvas--bottom[data-travel="release"] {
+  transition-timing-function: var(--ease-standard);
+}
+
+/* Side panels swipe toward their edge. */
+.ol-offcanvas--swipe {
+  touch-action: pan-y pinch-zoom;
+}
+
+.ol-offcanvas--swipe[data-swipe] {
+  transform: translateX(var(--ol-swipe-x, 0));
+  transition: transform var(--dur-s) var(--ease-standard);
+}
+
+.ol-offcanvas[data-swipe="drag"] {
+  transition: none;
+  user-select: none;
+}
+
+/* The grab bar: a 32 × 3 px ink-2 bar in an 80 × 32 px target. */
+.ol-offcanvas__handle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  align-self: center;
+  width: var(--control-xl);
+  height: var(--control-s);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+}
+
+.ol-offcanvas__handle::before {
+  content: "";
+  width: var(--space-8);
+  height: var(--stroke-heavy);
+  background: currentcolor;
 }
 
 .ol-offcanvas__head {
   display: flex;
+  flex: none;
   gap: var(--space-4);
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-4) var(--space-4) var(--space-6);
   border-bottom: var(--stroke-hair) solid var(--rule);
+}
+
+/* Under the handle the head needs less room above. */
+.ol-offcanvas__handle + .ol-offcanvas__head {
+  padding-block-start: 0;
 }
 
 .ol-offcanvas__title {
@@ -66,30 +149,114 @@
   flex: 1;
   padding: var(--space-6);
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
-/* The slide is a transform; the direction factor flips the horizontal offset in RTL. */
-@keyframes ol-offcanvas-in-end {
+/* A sheet's body only takes the room its content needs, so "content" can be measured. */
+.ol-offcanvas--bottom .ol-offcanvas__body {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+/* Only a sheet that can be dragged offers a grab. */
+.ol-offcanvas--draggable .ol-offcanvas__handle {
+  cursor: grab;
+}
+
+/* The drag zones: the handle, the head, and the body while it does not scroll. */
+.ol-offcanvas--draggable .ol-offcanvas__handle,
+.ol-offcanvas--draggable .ol-offcanvas__head,
+.ol-offcanvas--draggable .ol-offcanvas__body {
+  touch-action: pinch-zoom;
+}
+
+/* Below the tallest point the body is clipped; the part shown is the top of it. */
+.ol-offcanvas--draggable:not([data-snap-top]) .ol-offcanvas__body {
+  overflow: hidden;
+}
+
+/* At the tallest point an overflowing body scrolls natively. */
+.ol-offcanvas--draggable[data-snap-top][data-overflow] .ol-offcanvas__body {
+  touch-action: pan-y pinch-zoom;
+}
+
+button.ol-offcanvas__handle:hover,
+.ol-offcanvas[data-swipe="drag"] .ol-offcanvas__handle {
+  color: var(--ink);
+}
+
+.ol-offcanvas[data-swipe="drag"] .ol-offcanvas__handle {
+  cursor: grabbing;
+}
+
+/*
+ * The bottom sheet unrolls upward from the screen edge rather than from the bottom of its box,
+ * which a lower snap point moves below the screen.
+ */
+.ol-offcanvas--bottom.ol-kakejiku:not([data-state="closing"]) {
+  animation-name: ol-offcanvas-unroll-up;
+}
+
+.ol-offcanvas--bottom.ol-kakejiku[data-state="closing"] {
+  animation-name: ol-offcanvas-roll-down;
+}
+
+/* A swiped panel continues from where the finger left it; the rod leaves with it. */
+.ol-offcanvas[data-swipe="out"]::after {
+  animation: none;
+}
+
+.ol-offcanvas.ol-kakejiku[data-state="closing"][data-swipe="out"] {
+  animation: ol-offcanvas-swipe-out var(--dur-s) var(--ease-move) forwards;
+}
+
+.ol-offcanvas--bottom.ol-kakejiku[data-state="closing"][data-swipe="out"] {
+  animation-name: ol-offcanvas-swipe-out-y;
+}
+
+@keyframes ol-offcanvas-unroll-up {
   from {
-    transform: translateX(calc(100% * var(--ol-offcanvas-dir)));
+    clip-path: inset(
+      calc(100% - var(--ol-sheet-rest, 0px)) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+        var(--ol-kakejiku-o)
+    );
+  }
+
+  to {
+    clip-path: inset(var(--ol-kakejiku-o));
   }
 }
 
-@keyframes ol-offcanvas-in-start {
+@keyframes ol-offcanvas-roll-down {
   from {
-    transform: translateX(calc(-100% * var(--ol-offcanvas-dir)));
+    clip-path: inset(var(--ol-kakejiku-o));
+  }
+
+  to {
+    clip-path: inset(
+      calc(100% - var(--ol-sheet-rest, 0px)) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+        var(--ol-kakejiku-o)
+    );
   }
 }
 
-@keyframes ol-offcanvas-in-bottom {
+@keyframes ol-offcanvas-swipe-out {
   from {
-    transform: translateY(100%);
+    transform: translateX(var(--ol-swipe-x, 0));
+  }
+
+  to {
+    transform: translateX(var(--ol-swipe-end-x, 0));
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ol-offcanvas {
-    animation: none;
+@keyframes ol-offcanvas-swipe-out-y {
+  from {
+    transform: translateY(calc(var(--ol-sheet-rest, 0px) + var(--ol-swipe-y, 0px)));
+  }
+
+  to {
+    transform: translateY(calc(var(--ol-sheet-rest, 0px) + var(--ol-swipe-end-y, 0px)));
   }
 }
 
@@ -97,5 +264,9 @@
   .ol-offcanvas,
   .ol-offcanvas__head {
     border-color: CanvasText;
+  }
+
+  .ol-offcanvas__handle::before {
+    background: CanvasText;
   }
 }

@@ -179,7 +179,13 @@ export {
   type NavigationRailProps,
 } from "./components/NavigationRail";
 export { NumberField, type NumberFieldProps } from "./components/NumberField";
-export { Offcanvas, type OffcanvasPlacement, type OffcanvasProps } from "./components/Offcanvas";
+export {
+  Offcanvas,
+  type OffcanvasPlacement,
+  type OffcanvasProps,
+  type OffcanvasSnapPoint,
+  type OffcanvasSnapReason,
+} from "./components/Offcanvas";
 export { Pagination, type PaginationProps } from "./components/Pagination";
 export { type PinCharset, PinInput, type PinInputProps } from "./components/PinInput";
 export { Placeholder, type PlaceholderProps } from "./components/Placeholder";

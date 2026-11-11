@@ -116,6 +116,11 @@ export const ja: OlivineLabels = {
   notifications: "通知",
   toastActionHint: (key) => `${key} キーで操作に移動できます`,
   alertDialog: { confirm: "OK", cancel: "キャンセル", caution: "注意" },
+  offcanvas: {
+    expand: "パネルを展開",
+    collapse: "パネルを折りたたむ",
+    size: (index, total) => `サイズ ${String(index)}/${String(total)}`,
+  },
   prevMonth: "前の月",
   nextMonth: "次の月",
   prevYear: "前の年",
