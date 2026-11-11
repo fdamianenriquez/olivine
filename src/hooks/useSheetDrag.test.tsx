@@ -13,7 +13,7 @@ function Sheet({
   canDragBody,
 }: {
   dismissible?: boolean;
-  canDragBody?: () => boolean;
+  canDragBody?: (direction: "up" | "down") => boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
@@ -139,6 +139,28 @@ describe("useSheetDrag", () => {
       drag(screen.getByTestId("body"), -300);
     });
     expect(panel()).toHaveAttribute("data-index", "0");
+  });
+
+  it("asks canDragBody for a body drag once it knows the direction, never for the handle", () => {
+    const canDragBody = vi.fn((direction: "up" | "down") => direction === "down");
+    render(<Sheet canDragBody={canDragBody} />);
+    const body = screen.getByTestId("body");
+    act(() => {
+      drag(body, -300);
+    });
+    expect(canDragBody).toHaveBeenLastCalledWith("up");
+    expect(panel()).toHaveAttribute("data-index", "0");
+    expect(panel()).not.toHaveAttribute("data-swipe");
+    act(() => {
+      drag(body, 300);
+    });
+    expect(canDragBody).toHaveBeenLastCalledWith("down");
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    canDragBody.mockClear();
+    act(() => {
+      drag(handle(), -300);
+    });
+    expect(canDragBody).not.toHaveBeenCalled();
   });
 
   it("leaves a sideways press to scrolling", () => {
