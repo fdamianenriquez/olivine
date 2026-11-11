@@ -119,6 +119,23 @@
   border-left: var(--stroke-hair) solid var(--rule);
 }
 
+/* Logical drawers: placed by the stage's writing direction, like Offcanvas start / end. */
+.ol-sb-motion__drawer--end,
+.ol-sb-motion__drawer--start {
+  right: auto;
+  border-left: 0;
+}
+
+.ol-sb-motion__drawer--end {
+  inset-inline-end: 0;
+  border-inline-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-sb-motion__drawer--start {
+  inset-inline-start: 0;
+  border-inline-end: var(--stroke-hair) solid var(--rule);
+}
+
 .ol-sb-motion__anchor {
   position: relative;
 }

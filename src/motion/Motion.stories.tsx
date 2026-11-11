@@ -584,6 +584,83 @@ export const Kakejiku: Story = {
   render: () => <BothThemes>{() => <KakejikuDemo />}</BothThemes>,
 };
 
+/** One side panel per logical edge; the stage's `dir` decides which screen edge that is. */
+function LogicalDrawer({ side, open }: { side: "end" | "start"; open: boolean }) {
+  const { mounted, state, setElement } = usePresence(open);
+  if (!mounted) return null;
+  return (
+    <aside
+      ref={setElement}
+      aria-label={side === "end" ? "Filters" : "Sections"}
+      className={`ol-kakejiku ol-kakejiku--from-${side} ol-sb-motion__drawer ol-sb-motion__drawer--${side}`}
+      data-state={state}
+    >
+      <Label>{side === "end" ? "Filters" : "Sections"}</Label>
+      <Text as="p">{side === "end" ? "--from-end" : "--from-start"}</Text>
+    </aside>
+  );
+}
+
+function KakejikuLogicalStage({ dir }: { dir: "ltr" | "rtl" }) {
+  const [side, setSide] = useState<"end" | "start" | null>(null);
+  const toggle = (next: "end" | "start") => {
+    setSide((current) => (current === next ? null : next));
+  };
+  return (
+    <div dir={dir} className="ol-sb-motion__stack">
+      <Label muted>{dir === "ltr" ? "Left to right" : 'Right to left (dir="rtl")'}</Label>
+      <div className="ol-sb-motion__row">
+        <button
+          type="button"
+          className="ol-sb-motion__btn"
+          aria-expanded={side === "start"}
+          onClick={() => {
+            toggle("start");
+          }}
+        >
+          From start
+        </button>
+        <button
+          type="button"
+          className="ol-sb-motion__btn"
+          aria-expanded={side === "end"}
+          onClick={() => {
+            toggle("end");
+          }}
+        >
+          From end
+        </button>
+      </div>
+      <div className="ol-sb-motion__stage">
+        <LogicalDrawer side="start" open={side === "start"} />
+        <LogicalDrawer side="end" open={side === "end"} />
+      </div>
+    </div>
+  );
+}
+
+function KakejikuLogicalDemo() {
+  return (
+    <div className="ol-sb-motion__stack">
+      <KakejikuLogicalStage dir="ltr" />
+      <KakejikuLogicalStage dir="rtl" />
+    </div>
+  );
+}
+
+export const KakejikuLogical: Story = {
+  name: "Kakejiku (start / end, RTL)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`.ol-kakejiku--from-end` / `--from-start` follow the writing direction: in LTR they equal `--from-right` / `--from-left`; under `:dir(rtl)` (the element's own `dir` or an ancestor's, which Portal copies) the clip, the rod's side and its travel swap, so the rod always sits on the moving edge. Where `:dir()` is unsupported, a `[dir=\"rtl\"]` ancestor stands in. Same tokens and reduced-motion behaviour as the physical classes.",
+      },
+    },
+  },
+  render: () => <BothThemes>{() => <KakejikuLogicalDemo />}</BothThemes>,
+};
+
 /* ---------- Effects: ink wipe, hairline draw, sliding bar, container transform ---------- */
 
 const SIZES = ["Small", "Medium", "Large", "Extra large"];
@@ -1221,6 +1298,7 @@ export const ReducedMotion: Story = {
           <Shishi />
           <div className="ol-motion-kumiko" role="status" aria-label="Loading image" />
           <KakejikuDemo />
+          <KakejikuLogicalDemo />
         </div>
       )}
     </BothThemes>

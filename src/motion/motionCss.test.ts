@@ -215,8 +215,67 @@ describe("motion.css and motion-extras.css", () => {
   it("hangs the kakejiku rod outside the moving edge of horizontal unrolls only", () => {
     expect(css).not.toMatch(/\.ol-kakejiku(\[[^\]]*\])*::after/);
     expect(css).not.toContain("ol-kakejiku--rodless");
-    expect(rule(".ol-kakejiku--from-right::after")).toContain("calc(var(--stroke-heavy) * -1)");
-    expect(rule(".ol-kakejiku--from-left::after")).toContain("calc(var(--stroke-heavy) * -1)");
+    const right = rule(".ol-kakejiku--from-right::after,\n.ol-kakejiku--from-end::after");
+    expect(right).toContain("inset: 0 0 0 calc(var(--stroke-heavy) * -1);");
+    expect(right).toContain("border-left-width: var(--stroke-heavy);");
+    const left = rule(".ol-kakejiku--from-left::after,\n.ol-kakejiku--from-start::after");
+    expect(left).toContain("inset: 0 calc(var(--stroke-heavy) * -1) 0 0;");
+    expect(left).toContain("border-right-width: var(--stroke-heavy);");
+  });
+
+  it("gives the logical kakejiku classes the physical motion in LTR", () => {
+    const pairs: [string, string, string][] = [
+      ['.ol-kakejiku--from-right:not([data-state="closing"])', "end", "ol-unroll-left"],
+      ['.ol-kakejiku--from-right[data-state="closing"]', "end", "ol-roll-right"],
+      ['.ol-kakejiku--from-left:not([data-state="closing"])', "start", "ol-unroll-right"],
+      ['.ol-kakejiku--from-left[data-state="closing"]', "start", "ol-roll-left"],
+    ];
+    for (const [physical, side, name] of pairs) {
+      const logical = physical.replace(/from-(right|left)/, `from-${side}`);
+      expect(rule(`${physical},\n${logical}`), logical).toContain(`animation-name: ${name};`);
+      expect(rule(`${physical}::after,\n${logical}::after`), `${logical}::after`).toMatch(
+        /animation: ol-rod-[\w-]+ var\(--dur-l\) var\(--ease-move\) (backwards|forwards);/,
+      );
+    }
+  });
+
+  it("swaps the logical kakejiku clip, rod side and rod travel under :dir(rtl), with a fallback", () => {
+    const rtl: [string, string][] = [
+      [
+        '.ol-kakejiku--from-end{rtl}:not([data-state="closing"])',
+        "animation-name: ol-unroll-right;",
+      ],
+      ['.ol-kakejiku--from-end{rtl}:not([data-state="closing"])::after', "ol-rod-right-in"],
+      ['.ol-kakejiku--from-end{rtl}[data-state="closing"]', "animation-name: ol-roll-left;"],
+      ['.ol-kakejiku--from-end{rtl}[data-state="closing"]::after', "ol-rod-left-out"],
+      [".ol-kakejiku--from-end{rtl}::after", "border-width: 0 var(--stroke-heavy) 0 0;"],
+      [
+        '.ol-kakejiku--from-start{rtl}:not([data-state="closing"])',
+        "animation-name: ol-unroll-left;",
+      ],
+      ['.ol-kakejiku--from-start{rtl}:not([data-state="closing"])::after', "ol-rod-left-in"],
+      ['.ol-kakejiku--from-start{rtl}[data-state="closing"]', "animation-name: ol-roll-right;"],
+      ['.ol-kakejiku--from-start{rtl}[data-state="closing"]::after', "ol-rod-right-out"],
+      [".ol-kakejiku--from-start{rtl}::after", "border-width: 0 0 0 var(--stroke-heavy);"],
+    ];
+    const [, fallback = ""] = atRules(/@supports\s+not\s+selector\(:dir\(rtl\)\)\s*\{/g)[0] ?? [];
+    for (const [template, expected] of rtl) {
+      const native = template.replace("{rtl}", ":where(:dir(rtl))");
+      expect(rule(native), native).toContain(expected);
+      const attr = template.replace("{rtl}", ':where([dir="rtl"], [dir="rtl"] *)');
+      expect(fallback, attr).toContain(`${attr} {`);
+    }
+    // Zero-specificity direction test, so data-state="closed" (later, doubled class) still wins.
+    expect(css).not.toMatch(/\.ol-kakejiku--from-(end|start):dir\(/);
+    // Token timing only, like the physical rules.
+    for (const [, body] of atRules(/@supports\s+not\s+selector\(:dir\(rtl\)\)\s*\{/g)) {
+      expect(body).not.toMatch(/\d+m?s\b|cubic-bezier|linear\(/);
+    }
+    const firstRtl = css.indexOf(
+      '.ol-kakejiku--from-end:where(:dir(rtl)):not([data-state="closing"])',
+    );
+    const lastLtr = css.lastIndexOf('.ol-kakejiku--from-start[data-state="closing"]::after {');
+    expect(firstRtl).toBeGreaterThan(lastLtr);
   });
 
   it("gives every shishi-odoshi loop a curve; only the drip runs linear", () => {
@@ -389,11 +448,19 @@ describe("motion.css and motion-extras.css", () => {
     expect(rule('.ol-kakejiku.ol-kakejiku[data-state="closed"]')).toMatch(/animation:\s*none;/);
     expect(
       rule(
-        '.ol-kakejiku--from-right[data-state="closed"]::after,\n.ol-kakejiku--from-left[data-state="closed"]::after',
+        [
+          '.ol-kakejiku--from-right[data-state="closed"]::after',
+          '.ol-kakejiku--from-left[data-state="closed"]::after',
+          '.ol-kakejiku--from-end[data-state="closed"]::after',
+          '.ol-kakejiku--from-start[data-state="closed"]::after',
+        ].join(",\n"),
       ),
     ).toMatch(/animation:\s*none;/);
-    // After every direction rule: the later rule wins at equal specificity.
-    const last = css.lastIndexOf('.ol-kakejiku--from-left[data-state="closing"]::after');
+    // After every direction rule, RTL included: the later rule wins at equal specificity.
+    const last = css.lastIndexOf(
+      '[data-state="closing"]::after {\n    animation: ol-rod-right-out',
+    );
+    expect(last).toBeGreaterThan(0);
     expect(css.indexOf('.ol-kakejiku.ol-kakejiku[data-state="closed"]')).toBeGreaterThan(last);
   });
 
