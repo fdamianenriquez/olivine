@@ -113,6 +113,7 @@ export const en: OlivineLabels = {
   notifications: "Notifications",
   toastActionHint: (key) => `Press ${key} to reach the action`,
   alertDialog: { confirm: "Confirm", cancel: "Cancel", caution: "Caution" },
+  tour: { next: "Next", back: "Back", skip: "Skip tour", done: "Done", label: "Tour" },
   offcanvas: {
     expand: "Expand panel",
     collapse: "Collapse panel",

@@ -368,6 +368,17 @@ export {
   type TooltipVariant,
 } from "./components/Tooltip";
 export {
+  Tour,
+  type TourCloseReason,
+  type TourLabels,
+  type TourOwnProps,
+  type TourPlacement,
+  type TourProps,
+  type TourStep,
+  type TourStepReason,
+  type TourTarget,
+} from "./components/Tour";
+export {
   type CheckState,
   type TreeActions,
   type TreeNode,

@@ -87,6 +87,7 @@
 @import "../components/Tooltip/Tooltip.css";
 @import "../components/Popover/Popover.css";
 @import "../components/HoverCard/HoverCard.css";
+@import "../components/Tour/Tour.css";
 @import "../components/Modal/Modal.css";
 @import "../components/AlertDialog/AlertDialog.css";
 @import "../components/CommandPalette/CommandPalette.css";

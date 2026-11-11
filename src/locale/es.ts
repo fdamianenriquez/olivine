@@ -114,6 +114,13 @@ export const es: OlivineLabels = {
   notifications: "Notificaciones",
   toastActionHint: (key) => `Pulsa ${key} para ir a la acción`,
   alertDialog: { confirm: "Confirmar", cancel: "Cancelar", caution: "Atención" },
+  tour: {
+    next: "Siguiente",
+    back: "Atrás",
+    skip: "Omitir recorrido",
+    done: "Listo",
+    label: "Recorrido",
+  },
   offcanvas: {
     expand: "Ampliar panel",
     collapse: "Contraer panel",
