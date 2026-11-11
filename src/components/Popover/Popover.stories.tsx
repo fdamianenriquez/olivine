@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 import { Button } from "../Button";
 import { Field } from "../Field";
@@ -24,7 +25,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Popover is a click-toggled raised panel with a title row and close button. It is a non-modal dialog: focus moves into it on open, Escape and the close button return focus to the trigger, and an outside press closes it without moving focus.\n\nThe panel renders in a portal and flips or shifts at the viewport edge.\n\n- Do use it for short supporting detail or a small form tied to one control.\n- Do give it a `title`, or an `aria-label` when there is none.\n- Don't put essential information in it that the page needs to work; use inline text.\n- Don't use it for a short hint; use Tooltip.",
+          'Popover is a click-toggled raised panel with a title row and close button. It is a non-modal dialog: focus moves into it on open, Escape and the close button return focus to the trigger, and an outside press closes it without moving focus.\n\nThe panel renders in a portal and flips or shifts at the viewport edge.\n\n**Actions** — `actions` adds a footer row under a hairline for one or two `ghost` / `s` Buttons, right-aligned; Tab goes close button, body, actions. `showClose={false}` hides the close button: the popover is then dismissed by an action, Escape or a press outside. An action can only close it when `open` is controlled: set it to `false` from the action, and focus returns to the trigger. This is the home of the "rich tooltip with an action": a click-opened dialog with a title, body and action buttons.\n\n- Do use it as the "info" pattern: an `i` button that opens a Popover.\n- Don\'t expect touch users to reach a Tooltip.\n- Do use it for short supporting detail or a small form tied to one control.\n- Do give it a `title`, or an `aria-label` when there is none.\n- Don\'t put essential information in it that the page needs to work; use inline text.\n- Don\'t use it for a short hint; use Tooltip.',
       },
     },
   },
@@ -79,6 +80,44 @@ export const RichContent: Story = {
         </Button>
       </form>
     ),
+  },
+};
+
+/**
+ * A footer of actions and no close button: an action, Escape or a press outside dismisses it.
+ * The actions close it through a controlled `open`.
+ */
+export const WithActions: Story = {
+  render: function WithActions(args) {
+    const [open, setOpen] = useState(true);
+    const close = () => {
+      setOpen(false);
+    };
+    return (
+      <Popover
+        {...args}
+        title="Reorder rows"
+        content="Drag a row by its handle, or focus it and use Alt with the arrow keys."
+        trigger={
+          <Button size="s" arrow="i">
+            How to reorder
+          </Button>
+        }
+        open={open}
+        onOpenChange={setOpen}
+        showClose={false}
+        actions={
+          <>
+            <Button variant="ghost" size="s" onClick={close}>
+              Later
+            </Button>
+            <Button variant="ghost" size="s" onClick={close}>
+              Got it
+            </Button>
+          </>
+        }
+      />
+    );
   },
 };
 

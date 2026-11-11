@@ -294,6 +294,157 @@ describe("Popover", () => {
     warn.mockRestore();
   });
 
+  describe("actions and showClose", () => {
+    const withActions = (props: Partial<PopoverProps> = {}) =>
+      setup({
+        actions: (
+          <>
+            <button type="button">Dismiss</button>
+            <button type="button">Learn more</button>
+          </>
+        ),
+        ...props,
+      });
+
+    it("renders the actions in a footer row after the body", async () => {
+      const user = userEvent.setup();
+      withActions();
+      await user.click(trigger());
+      const panel = await screen.findByRole("dialog");
+      const foot = panel.querySelector(".ol-popover__foot");
+      expect(foot).not.toBeNull();
+      expect(foot?.previousElementSibling).toHaveClass("ol-popover__body");
+      expect(foot).toContainElement(screen.getByRole("button", { name: "Learn more" }));
+    });
+
+    it("renders no footer without actions", async () => {
+      setup({ defaultOpen: true });
+      const panel = await screen.findByRole("dialog");
+      expect(panel.querySelector(".ol-popover__foot")).toBeNull();
+    });
+
+    it("tabs from the close button through the body to the actions, then out", async () => {
+      const user = userEvent.setup();
+      withActions();
+      await user.click(trigger());
+      await screen.findByRole("dialog");
+      await user.tab();
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole("textbox")).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole("button", { name: "Apply" })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole("button", { name: "Dismiss" })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole("button", { name: "Learn more" })).toHaveFocus();
+      await user.tab();
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
+    });
+
+    it("hides the close button with showClose false and keeps the title as the name", async () => {
+      const user = userEvent.setup();
+      withActions({ showClose: false });
+      await user.click(trigger());
+      const panel = await screen.findByRole("dialog", { name: "Filters" });
+      expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
+      expect(panel.querySelector(".ol-popover__head")).toHaveClass("ol-popover__head--bare");
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(trigger()).toHaveFocus();
+    });
+
+    it("lets an action close a controlled popover", async () => {
+      const user = userEvent.setup();
+      function Controlled() {
+        const [open, setOpen] = useState(true);
+        return (
+          <Popover
+            title="Tip"
+            content="Drag rows to reorder them."
+            open={open}
+            onOpenChange={setOpen}
+            showClose={false}
+            trigger={<button type="button">Open</button>}
+            actions={
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Got it
+              </button>
+            }
+          />
+        );
+      }
+      render(<Controlled />);
+      await user.click(await screen.findByRole("button", { name: "Got it" }));
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(trigger()).toHaveFocus();
+    });
+
+    it("returns focus to the trigger when a keyboard-activated action closes it", async () => {
+      const user = userEvent.setup();
+      function Controlled() {
+        const [open, setOpen] = useState(false);
+        return (
+          <>
+            <Popover
+              title="Tip"
+              content="Drag rows to reorder them."
+              open={open}
+              onOpenChange={setOpen}
+              showClose={false}
+              trigger={<button type="button">Open</button>}
+              actions={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                >
+                  Got it
+                </button>
+              }
+            />
+            <p>Outside text</p>
+          </>
+        );
+      }
+      render(<Controlled />);
+      await user.click(trigger());
+      await screen.findByRole("dialog");
+      await user.tab();
+      expect(screen.getByRole("button", { name: "Got it" })).toHaveFocus();
+      await user.keyboard("{Enter}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(trigger()).toHaveFocus();
+    });
+
+    it("still leaves focus alone on an outside press with actions", async () => {
+      const user = userEvent.setup();
+      withActions();
+      await user.click(trigger());
+      await screen.findByRole("dialog");
+      await user.click(screen.getByText("Outside text"));
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(trigger()).not.toHaveFocus();
+    });
+
+    it("has no axe violations open with actions and no close button", async () => {
+      const user = userEvent.setup();
+      withActions({ showClose: false });
+      await user.click(trigger());
+      await screen.findByRole("dialog");
+      expect(
+        await runAxe(document.body, { rules: { region: { enabled: false } } }),
+      ).toHaveNoViolations();
+    });
+  });
+
   describe("inside a modal", () => {
     const renderInModal = () =>
       render(
