@@ -534,11 +534,18 @@
  * Horizontal, from a screen edge: .ol-kakejiku--from-right or --from-left; the rod (jiku) sits
  * just outside the moving edge and stays after unrolling (Offcanvas). The logical
  * --from-end / --from-start equal --from-right / --from-left in LTR and swap under :dir(rtl).
+ *
+ * --ol-kakejiku-start is the inset of the fully rolled scroll on its moving side: where the
+ * unroll begins and the roll ends, measured from the far edge (default 100%, nothing showing).
+ * Set it on the element itself, e.g. a bottom sheet resting below its box starts from the
+ * screen edge with calc(100% - var(--ol-sheet-rest, 0px)). It is reset on every .ol-kakejiku
+ * so a nested scroll never inherits it.
  */
 :where(.ol-kakejiku) {
   position: relative;
 
   --ol-kakejiku-o: calc(var(--ol-motion-overhang) * -1);
+  --ol-kakejiku-start: 100%;
 }
 
 .ol-kakejiku:not([data-state="closing"]) {
@@ -732,7 +739,9 @@
 
 @keyframes ol-unroll-down {
   from {
-    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o)
+    );
   }
 
   to {
@@ -746,13 +755,17 @@
   }
 
   to {
-    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o)
+    );
   }
 }
 
 @keyframes ol-unroll-up {
   from {
-    clip-path: inset(100% var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+    );
   }
 
   to {
@@ -766,13 +779,17 @@
   }
 
   to {
-    clip-path: inset(100% var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+    );
   }
 }
 
 @keyframes ol-unroll-left {
   from {
-    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100%);
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%)
+    );
   }
 
   to {
@@ -786,13 +803,17 @@
   }
 
   to {
-    clip-path: inset(var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) 100%);
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%)
+    );
   }
 }
 
 @keyframes ol-unroll-right {
   from {
-    clip-path: inset(var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+    );
   }
 
   to {
@@ -806,7 +827,9 @@
   }
 
   to {
-    clip-path: inset(var(--ol-kakejiku-o) 100% var(--ol-kakejiku-o) var(--ol-kakejiku-o));
+    clip-path: inset(
+      var(--ol-kakejiku-o) var(--ol-kakejiku-start, 100%) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
+    );
   }
 }
 

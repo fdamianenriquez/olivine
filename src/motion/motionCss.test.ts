@@ -464,6 +464,22 @@ describe("motion.css and motion-extras.css", () => {
     expect(css.indexOf('.ol-kakejiku.ol-kakejiku[data-state="closed"]')).toBeGreaterThan(last);
   });
 
+  it("rolls every kakejiku direction from the shared --ol-kakejiku-start inset", () => {
+    // Reset on each scroll (zero specificity) so a nested one never inherits a sheet's value.
+    expect(rule(":where(.ol-kakejiku)")).toContain("--ol-kakejiku-start: 100%;");
+    const names = ["down", "up", "left", "right"].flatMap((d) => [
+      `ol-unroll-${d}`,
+      `ol-roll-${d}`,
+    ]);
+    for (const name of names) {
+      const found = keyframes.find(([prelude]) => prelude === `@keyframes ${name} {`);
+      expect(found, name).toBeDefined();
+      const body = found?.[1] ?? "";
+      expect(body, name).toContain("var(--ol-kakejiku-start, 100%)");
+      expect(body.replace(/var\(--ol-kakejiku-start, 100%\)/g, ""), name).not.toMatch(/100%/);
+    }
+  });
+
   it("prints everything in its end state", () => {
     const body = allBodies(/@media\s+print\s*\{/g);
     expect(body).toMatch(/animation:\s*none !important/);
