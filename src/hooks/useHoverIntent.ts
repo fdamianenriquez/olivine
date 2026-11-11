@@ -298,7 +298,8 @@ export function useHoverIntent({
       own.onBlur?.(event);
       pointerFocus.current = false;
       sources.current.focus = false;
-      hide(closeDelay);
+      // Close at once so the content never covers the next focused element (WCAG 2.4.11).
+      hide(0);
     },
   });
 
