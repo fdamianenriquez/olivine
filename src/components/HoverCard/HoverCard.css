@@ -1,0 +1,70 @@
+/* The Popover surface without a title row: paper fill, hairline, block shadow. */
+.ol-hover-card {
+  z-index: var(--z-dropdown);
+  width: var(--popover-width);
+  max-width: calc(100vw - 2 * var(--space-4));
+  background: var(--paper-3);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-block);
+  text-align: left;
+}
+
+/* Hidden until the first position is known, so it never flashes at 0,0. */
+.ol-hover-card[data-state="pending"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+ * Hover bridge: a transparent strip over the gap on the side that faces the link, so the pointer
+ * stays on the card while it travels from the link.
+ */
+.ol-hover-card::before {
+  content: "";
+  position: absolute;
+}
+
+.ol-hover-card[data-placement="bottom"]::before,
+.ol-hover-card[data-placement="top"]::before {
+  left: calc(-1 * var(--stroke-hair));
+  right: calc(-1 * var(--stroke-hair));
+  height: calc(var(--space-1) + var(--stroke-hair));
+}
+
+.ol-hover-card[data-placement="bottom"]::before {
+  bottom: 100%;
+}
+
+.ol-hover-card[data-placement="top"]::before {
+  top: 100%;
+}
+
+.ol-hover-card[data-placement="right"]::before,
+.ol-hover-card[data-placement="left"]::before {
+  top: calc(-1 * var(--stroke-hair));
+  bottom: calc(-1 * var(--stroke-hair));
+  width: calc(var(--space-1) + var(--stroke-hair));
+}
+
+.ol-hover-card[data-placement="right"]::before {
+  right: 100%;
+}
+
+.ol-hover-card[data-placement="left"]::before {
+  left: 100%;
+}
+
+.ol-hover-card__body {
+  padding: var(--space-4);
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-body-leading);
+  color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .ol-hover-card {
+    border-color: CanvasText;
+  }
+}
