@@ -526,23 +526,140 @@ describe("Offcanvas", () => {
       expect(onSnapChange).toHaveBeenCalledWith(1, "drag");
     });
 
-    it("leaves an overflowing body at the tallest point to scrolling", () => {
+    it("leaves an overflowing body at the tallest point to scrolling, but a pull down from its top drags", () => {
       vi.useFakeTimers();
       vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(2000);
       vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(600);
+      const scrollTop = vi.spyOn(HTMLElement.prototype, "scrollTop", "get").mockReturnValue(0);
       const onSnapChange = vi.fn();
       render(<Offcanvas open title="T" {...SHEET} defaultSnap={1} onSnapChange={onSnapChange} />);
       const dialog = screen.getByRole("dialog");
       expect(dialog).toHaveAttribute("data-overflow");
       const body = bodyOf();
+      // Up from the top scrolls the content.
+      act(() => {
+        drag(body, -380);
+      });
+      expect(onSnapChange).not.toHaveBeenCalled();
+      // Down once the content is scrolled scrolls it back.
+      scrollTop.mockReturnValue(120);
       act(() => {
         drag(body, 380);
       });
       expect(onSnapChange).not.toHaveBeenCalled();
+      // Down from the top drags the sheet to the lower point.
+      scrollTop.mockReturnValue(0);
+      act(() => {
+        drag(body, 380);
+      });
+      expect(onSnapChange).toHaveBeenCalledWith(0.5, "drag");
+      expect(dialog).toHaveAttribute("data-swipe", "return");
+    });
+
+    it("dismisses with a pull down from the top of an overflowing body", () => {
+      vi.useFakeTimers();
+      vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(2000);
+      vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(600);
+      const onClose = vi.fn();
+      render(<Offcanvas open title="T" {...SHEET} defaultSnap={1} onClose={onClose} />);
+      act(() => {
+        drag(bodyOf(), 700);
+      });
+      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("dialog")).toHaveAttribute("data-swipe", "out");
+    });
+
+    it("drags the head of an overflowing sheet in both directions", () => {
+      vi.useFakeTimers();
+      vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(2000);
+      vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(600);
+      vi.spyOn(HTMLElement.prototype, "scrollTop", "get").mockReturnValue(120);
+      const onSnapChange = vi.fn();
+      render(<Offcanvas open title="T" {...SHEET} defaultSnap={1} onSnapChange={onSnapChange} />);
       act(() => {
         drag(headOf(), 380);
       });
       expect(onSnapChange).toHaveBeenCalledWith(0.5, "drag");
+    });
+
+    it("keeps a pull down from the top of an overflowing body from scrolling the content", () => {
+      vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(2000);
+      vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(600);
+      const scrollTop = vi.spyOn(HTMLElement.prototype, "scrollTop", "get").mockReturnValue(0);
+      render(
+        <Offcanvas open title="T" {...SHEET} defaultSnap={1} onClose={() => undefined}>
+          <p>Text</p>
+          <button>Apply</button>
+        </Offcanvas>,
+      );
+      const body = bodyOf();
+      const touch = (target: Element, dy: number, dx = 0) => {
+        fireEvent.touchStart(target, { touches: [{ clientX: 0, clientY: 500 }] });
+        const first = fireEvent.touchMove(target, {
+          touches: [{ clientX: dx, clientY: 500 + dy }],
+        });
+        // Once the gesture is the sheet's, it keeps it in both directions.
+        const second = fireEvent.touchMove(target, { touches: [{ clientX: dx, clientY: 500 }] });
+        fireEvent.touchEnd(target, { touches: [] });
+        return [first, second];
+      };
+      const text = screen.getByText("Text");
+      // fireEvent returns false when the default (native scrolling) was prevented.
+      expect(touch(text, 20)).toEqual([false, false]);
+      expect(touch(text, -20)).toEqual([true, true]);
+      expect(touch(text, 10, 30)).toEqual([true, true]);
+      expect(touch(screen.getByRole("button", { name: "Apply" }), 20)).toEqual([true, true]);
+      expect(body).toHaveAttribute("data-scroll-start");
+      scrollTop.mockReturnValue(120);
+      fireEvent.scroll(body);
+      expect(body).not.toHaveAttribute("data-scroll-start");
+      expect(touch(text, 20)).toEqual([true, true]);
+    });
+
+    it("waits for the slop before taking a pull, and never takes a two-finger touch", () => {
+      vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(2000);
+      vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(600);
+      vi.spyOn(HTMLElement.prototype, "scrollTop", "get").mockReturnValue(0);
+      render(
+        <Offcanvas open title="T" {...SHEET} defaultSnap={1} onClose={() => undefined}>
+          <p>Text</p>
+        </Offcanvas>,
+      );
+      const text = screen.getByText("Text");
+      fireEvent.touchStart(text, { touches: [{ clientX: 0, clientY: 500 }] });
+      expect(fireEvent.touchMove(text, { touches: [{ clientX: 0, clientY: 504 }] })).toBe(true);
+      expect(fireEvent.touchMove(text, { touches: [{ clientX: 0, clientY: 520 }] })).toBe(false);
+      fireEvent.touchEnd(text, { touches: [] });
+      const two = [
+        { clientX: 0, clientY: 500 },
+        { clientX: 80, clientY: 500 },
+      ];
+      fireEvent.touchStart(text, { touches: two });
+      expect(
+        fireEvent.touchMove(text, {
+          touches: two.map((t) => ({ ...t, clientY: 540 })),
+        }),
+      ).toBe(true);
+      fireEvent.touchEnd(text, { touches: [] });
+      // A second finger joining a pull is left to the browser (pinch zoom).
+      fireEvent.touchStart(text, { touches: [two[0]] });
+      expect(
+        fireEvent.touchMove(text, {
+          touches: two.map((t) => ({ ...t, clientY: 540 })),
+        }),
+      ).toBe(true);
+      fireEvent.touchEnd(text, { touches: [] });
+    });
+
+    it("lets the browser pan only upward at the top of the body and contains its overscroll", () => {
+      const css = readFileSync(
+        join(process.cwd(), "src/components/Offcanvas/Offcanvas.css"),
+        "utf8",
+      );
+      expect(css).toMatch(/\.ol-offcanvas__body \{[^}]*overscroll-behavior: contain/);
+      expect(css).toMatch(
+        /@supports \(touch-action: pan-down\)[^}]*\[data-overflow\] \.ol-offcanvas__body\[data-scroll-start\] \{\s*touch-action: pan-down pinch-zoom;/,
+      );
     });
 
     it("dismisses on a swipe down past the lowest point and runs out from there", () => {
@@ -580,6 +697,326 @@ describe("Offcanvas", () => {
         drag(handleOf(), -380, "mouse");
       });
       expect(onSnapChange).toHaveBeenCalledWith(1, "drag");
+    });
+  });
+
+  describe("scrim fade", () => {
+    const fade = () => scrimOf().style.getPropertyValue("--ol-scrim-fade");
+    const press = (target: Element) => {
+      fireEvent.pointerDown(target, {
+        pointerId: 1,
+        pointerType: "touch",
+        button: 0,
+        clientX: 0,
+        clientY: 500,
+      });
+    };
+    const moveTo = (target: Element, dy: number) => {
+      vi.advanceTimersByTime(50);
+      fireEvent.pointerMove(target, {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: 0,
+        clientY: 500 + dy,
+      });
+    };
+    const release = (target: Element, dy: number) => {
+      vi.advanceTimersByTime(200);
+      fireEvent.pointerUp(target, {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: 0,
+        clientY: 500 + dy,
+      });
+    };
+
+    it("follows a drag below the lowest point and comes back on a release that keeps the sheet", () => {
+      vi.useFakeTimers();
+      render(<Offcanvas open title="T" {...SHEET} onClose={() => undefined} />);
+      const head = headOf();
+      act(() => {
+        press(head);
+        moveTo(head, 96);
+      });
+      // 384px lowest point, 288px still shown.
+      expect(fade()).toBe("0.75");
+      expect(scrimOf()).toHaveAttribute("data-swipe", "drag");
+      act(() => {
+        moveTo(head, 192);
+      });
+      expect(fade()).toBe("0.5");
+      act(() => {
+        moveTo(head, 40);
+        release(head, 40);
+      });
+      expect(fade()).toBe("1");
+      expect(scrimOf()).toHaveAttribute("data-swipe", "return");
+    });
+
+    it("keeps its faded value when the release dismisses, so the exit continues it", () => {
+      vi.useFakeTimers();
+      const onClose = vi.fn();
+      render(<Offcanvas open title="T" {...SHEET} onClose={onClose} />);
+      act(() => {
+        drag(headOf(), 300);
+      });
+      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(fade()).toBe("0.219");
+      expect(scrimOf()).toHaveAttribute("data-swipe", "out");
+    });
+
+    it("stays full for upward drags and drags between the points", () => {
+      vi.useFakeTimers();
+      render(<Offcanvas open title="T" {...SHEET} defaultSnap={1} onClose={() => undefined} />);
+      const head = headOf();
+      act(() => {
+        press(head);
+        moveTo(head, 300);
+      });
+      expect(fade()).toBe("1");
+      act(() => {
+        release(head, 300);
+      });
+      expect(screen.getByRole("dialog")).toHaveAttribute("data-snap-index", "0");
+      act(() => {
+        press(head);
+        moveTo(head, -200);
+      });
+      expect(fade()).toBe("1");
+    });
+
+    it("fades the tint layer only, with the return timing tokens and no transition while dragging", () => {
+      const css = readFileSync(
+        join(process.cwd(), "src/components/Offcanvas/Offcanvas.css"),
+        "utf8",
+      );
+      expect(css).toMatch(/\.ol-scrim\.ol-scrim--edge \{\s*background: none;/);
+      expect(css).toMatch(
+        /\.ol-scrim--edge::before \{[^}]*background: var\(--scrim\);[^}]*opacity: var\(--ol-scrim-fade, 1\);/,
+      );
+      expect(css).toMatch(
+        /\.ol-scrim--edge\[data-swipe="return"\]::before \{\s*transition: opacity var\(--dur-m\) var\(--ease-standard\);/,
+      );
+      // The only transition on the tint is the return one.
+      expect(css.match(/::before \{[^}]*transition/g)).toHaveLength(1);
+    });
+
+    it("follows the drag under reduced motion too", () => {
+      vi.useFakeTimers();
+      render(
+        <div className={REDUCE_MOTION_CLASS}>
+          <Offcanvas open title="T" {...SHEET} onClose={() => undefined} />
+        </div>,
+      );
+      const head = headOf();
+      act(() => {
+        press(head);
+        moveTo(head, 192);
+      });
+      expect(fade()).toBe("0.5");
+    });
+
+    it("has no axe violations mid-drag, with the scrim faded", async () => {
+      render(
+        <Offcanvas open title="T" {...SHEET} onClose={() => undefined}>
+          <button>Apply</button>
+        </Offcanvas>,
+      );
+      const head = headOf();
+      const at = (clientY: number) => ({ pointerId: 1, pointerType: "touch", clientX: 0, clientY });
+      fireEvent.pointerDown(head, { ...at(500), button: 0 });
+      fireEvent.pointerMove(head, at(600));
+      fireEvent.pointerMove(head, at(692));
+      expect(scrimOf()).toHaveAttribute("data-swipe", "drag");
+      expect(fade()).toBe("0.5");
+      expect(await runAxe(document.body)).toHaveNoViolations();
+    });
+
+    it("is not written without a scrim", () => {
+      vi.useFakeTimers();
+      render(<Offcanvas open title="T" {...SHEET} modal={false} onClose={() => undefined} />);
+      act(() => {
+        drag(headOf(), 100);
+      });
+      expect(document.querySelector(".ol-scrim")).toBeNull();
+    });
+  });
+
+  describe("software keyboard", () => {
+    class FakeViewport extends EventTarget {
+      height = window.innerHeight;
+      offsetTop = 0;
+      scale = 1;
+    }
+    let viewport: FakeViewport;
+
+    const install = () => {
+      viewport = new FakeViewport();
+      Object.defineProperty(window, "visualViewport", { configurable: true, value: viewport });
+    };
+    afterEach(() => {
+      Reflect.deleteProperty(window, "visualViewport");
+      Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+    });
+
+    const inset = () => panelEl().style.getPropertyValue("--ol-keyboard-inset");
+    const keyboard = (height: number, offsetTop = 0, type = "resize") => {
+      viewport.height = height;
+      viewport.offsetTop = offsetTop;
+      act(() => {
+        viewport.dispatchEvent(new Event(type));
+      });
+    };
+
+    it("lifts the sheet above the keyboard, shrinks its points to fit and keeps the field in view", async () => {
+      install();
+      const scrollIntoView = vi.fn();
+      Object.defineProperty(Element.prototype, "scrollIntoView", {
+        configurable: true,
+        value: scrollIntoView,
+      });
+      render(
+        <Offcanvas open title="T" {...SHEET} defaultSnap={1}>
+          <input aria-label="Search" />
+        </Offcanvas>,
+      );
+      const dialog = screen.getByRole("dialog");
+      expect(inset()).toBe("");
+      expect(dialog.style.getPropertyValue("--ol-sheet-height")).toBe("768px");
+      const field = screen.getByRole("textbox", { name: "Search" });
+      field.focus();
+      keyboard(468);
+      expect(inset()).toBe("300px");
+      expect(dialog.style.getPropertyValue("--ol-sheet-height")).toBe("468px");
+      await waitFor(() => {
+        expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+      });
+      expect(scrollIntoView.mock.contexts[0]).toBe(field);
+      // The visual viewport scrolled down within the page: less of it is covered.
+      keyboard(468, 100, "scroll");
+      expect(inset()).toBe("200px");
+      keyboard(window.innerHeight);
+      expect(inset()).toBe("0px");
+      expect(dialog.style.getPropertyValue("--ol-sheet-height")).toBe("768px");
+    });
+
+    it("never writes a negative inset", () => {
+      install();
+      render(<Offcanvas open title="T" placement="bottom" />);
+      keyboard(window.innerHeight + 40);
+      expect(inset()).toBe("");
+    });
+
+    it("stops listening and clears the inset on unmount", () => {
+      install();
+      const remove = vi.spyOn(viewport, "removeEventListener");
+      const { rerender } = render(<Offcanvas open title="T" placement="bottom" />);
+      keyboard(468);
+      expect(inset()).toBe("300px");
+      const panel = panelEl();
+      rerender(<Offcanvas open title="T" placement="end" />);
+      expect(panel.style.getPropertyValue("--ol-keyboard-inset")).toBe("");
+      expect(remove).toHaveBeenCalledWith("resize", expect.any(Function));
+      expect(remove).toHaveBeenCalledWith("scroll", expect.any(Function));
+    });
+
+    it("leaves side panels alone", () => {
+      install();
+      const add = vi.spyOn(viewport, "addEventListener");
+      render(<Offcanvas open title="T" placement="end" />);
+      keyboard(468);
+      expect(add).not.toHaveBeenCalled();
+      expect(inset()).toBe("");
+    });
+
+    it("lifts a non-modal sheet only while focus is inside it", async () => {
+      install();
+      Object.defineProperty(Element.prototype, "scrollIntoView", {
+        configurable: true,
+        value: vi.fn(),
+      });
+      render(
+        <>
+          <input aria-label="Page field" />
+          <Offcanvas open title="T" {...SHEET} modal={false}>
+            <input aria-label="Sheet field" />
+          </Offcanvas>
+        </>,
+      );
+      act(() => {
+        screen.getByRole("textbox", { name: "Page field" }).focus();
+      });
+      keyboard(468);
+      // The page field keeps the strip above the keyboard.
+      expect(inset()).toBe("");
+      act(() => {
+        screen.getByRole("textbox", { name: "Sheet field" }).focus();
+      });
+      await waitFor(() => {
+        expect(inset()).toBe("300px");
+      });
+      act(() => {
+        screen.getByRole("textbox", { name: "Page field" }).focus();
+      });
+      await waitFor(() => {
+        expect(inset()).toBe("0px");
+      });
+    });
+
+    it("does not take a pinch zoom for a keyboard", () => {
+      install();
+      render(<Offcanvas open title="T" {...SHEET} />);
+      const dialog = screen.getByRole("dialog");
+      viewport.scale = 2;
+      keyboard(window.innerHeight / 2, 100);
+      expect(inset()).toBe("");
+      expect(dialog.style.getPropertyValue("--ol-sheet-height")).toBe("768px");
+      // Back at scale 1 the keyboard counts again; a later zoom keeps that value.
+      viewport.scale = 1;
+      keyboard(468);
+      expect(inset()).toBe("300px");
+      viewport.scale = 1.5;
+      keyboard(200, 40, "scroll");
+      expect(inset()).toBe("300px");
+    });
+
+    it("has no axe violations with the keyboard up", async () => {
+      install();
+      Object.defineProperty(Element.prototype, "scrollIntoView", {
+        configurable: true,
+        value: vi.fn(),
+      });
+      render(
+        <Offcanvas open title="T" {...SHEET} onClose={() => undefined}>
+          <input aria-label="Search" />
+        </Offcanvas>,
+      );
+      screen.getByRole("textbox", { name: "Search" }).focus();
+      keyboard(468);
+      expect(inset()).toBe("300px");
+      expect(await runAxe(document.body)).toHaveNoViolations();
+    });
+
+    it("does nothing without visualViewport", () => {
+      Reflect.deleteProperty(window, "visualViewport");
+      render(<Offcanvas open title="T" {...SHEET} />);
+      expect(inset()).toBe("");
+      expect(screen.getByRole("dialog").style.getPropertyValue("--ol-sheet-height")).toBe("768px");
+    });
+
+    it("lowers the sheet's height cap and drops the home-indicator inset by the keyboard", () => {
+      const css = readFileSync(
+        join(process.cwd(), "src/components/Offcanvas/Offcanvas.css"),
+        "utf8",
+      );
+      expect(css).toMatch(/inset-block-end: var\(--ol-keyboard-inset, 0\);/);
+      expect(css).toMatch(/max-height: calc\([^;]*- var\(--ol-keyboard-inset, 0px\)\s*\);/);
+      expect(css).toMatch(
+        /max\(env\(safe-area-inset-bottom, 0px\) - var\(--ol-keyboard-inset, 0px\), 0px\)/,
+      );
+      expect(css).toMatch(
+        /\.ol-offcanvas__body :focus \{\s*scroll-margin-block: var\(--space-2\);/,
+      );
     });
   });
 

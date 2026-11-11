@@ -4,6 +4,30 @@
 }
 
 /*
+ * The scrim's tint is a layer of its own so a drag toward dismissal can fade it alone
+ * (--ol-scrim-fade, written by the component) without fading the sheet inside it.
+ */
+.ol-scrim.ol-scrim--edge {
+  background: none;
+}
+
+.ol-scrim--edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  opacity: var(--ol-scrim-fade, 1);
+}
+
+/*
+ * A release that keeps the sheet brings the tint back with the sheet's own return: the same
+ * duration and curve as the release travel (not ease-effect), so tint and height stay in step.
+ */
+.ol-scrim--edge[data-swipe="return"]::before {
+  transition: opacity var(--dur-m) var(--ease-standard);
+}
+
+/*
  * The panel. Motion: .ol-kakejiku unrolls it on open and rolls it back up on close, with the rod
  * on the moving edge for start and end (--from-start / --from-end follow the direction).
  */
@@ -55,16 +79,21 @@
 }
 
 /*
- * The bottom sheet. Its box is as tall as the tallest snap point (--ol-sheet-height, written by
- * the component); a lower point is the same box moved down by --ol-sheet-rest. A drag adds
- * --ol-swipe-y. Only the transform moves, so nothing re-lays out.
+ * The bottom sheet. It stands on the software keyboard (--ol-keyboard-inset, written by the
+ * component from the visual viewport), which also covers the home-indicator inset. Its box is
+ * as tall as the tallest snap point (--ol-sheet-height, written by the component); a lower point
+ * is the same box moved down by --ol-sheet-rest. A drag adds --ol-swipe-y. Only the transform
+ * moves, so nothing re-lays out.
  */
 .ol-offcanvas--bottom {
   inset-inline: 0;
-  inset-block-end: 0;
+  inset-block-end: var(--ol-keyboard-inset, 0);
   height: var(--ol-sheet-height, auto);
-  max-height: calc(100dvh - var(--space-12) - env(safe-area-inset-top, 0px));
-  padding: 0 env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0)
+  max-height: calc(
+    100dvh - var(--space-12) - env(safe-area-inset-top, 0px) - var(--ol-keyboard-inset, 0px)
+  );
+  padding: 0 env(safe-area-inset-right, 0)
+    max(env(safe-area-inset-bottom, 0px) - var(--ol-keyboard-inset, 0px), 0px)
     env(safe-area-inset-left, 0);
   border-block-start-width: var(--stroke-hair);
   transform: translateY(calc(var(--ol-sheet-rest, 0px) + var(--ol-swipe-y, 0px)));
@@ -160,6 +189,11 @@
   min-height: 0;
 }
 
+/* A field scrolled into view above the keyboard keeps its focus ring and offset in view. */
+.ol-offcanvas--bottom .ol-offcanvas__body :focus {
+  scroll-margin-block: var(--space-2);
+}
+
 /* Only a sheet that can be dragged offers a grab. */
 .ol-offcanvas--draggable .ol-offcanvas__handle {
   cursor: grab;
@@ -180,6 +214,13 @@
 /* At the tallest point an overflowing body scrolls natively. */
 .ol-offcanvas--draggable[data-snap-top][data-overflow] .ol-offcanvas__body {
   touch-action: pan-y pinch-zoom;
+}
+
+/* Scrolled to the top, a pull down drags the sheet: the browser only pans the other way. */
+@supports (touch-action: pan-down) {
+  .ol-offcanvas--draggable[data-snap-top][data-overflow] .ol-offcanvas__body[data-scroll-start] {
+    touch-action: pan-down pinch-zoom;
+  }
 }
 
 button.ol-offcanvas__handle:hover,

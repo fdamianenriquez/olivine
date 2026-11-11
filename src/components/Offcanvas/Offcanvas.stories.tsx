@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
+import { Input } from "../Input";
 import { Root } from "../Root";
 import { Offcanvas, type OffcanvasProps } from "./Offcanvas";
 
@@ -23,7 +24,10 @@ const meta = {
           "- A non-modal sheet does not move focus when it opens: the app moves focus into it from the trigger (a ref on the sheet and `focus()`), so a keyboard user who opened it lands inside. Escape then closes it and focus goes back.\n" +
           "- A touch or pen swipe toward the edge dismisses (`closeOnSwipe`); the close button and Escape always remain.\n" +
           "- Travel between points is a translate that stops dead; reduced motion makes it instant, and a drag still follows the finger.\n" +
-          "- Safe-area insets pad the panel and `100dvh` sets the available height (add `viewport-fit=cover` to the page).\n\n" +
+          "- Safe-area insets pad the panel and `100dvh` sets the available height (add `viewport-fit=cover` to the page).\n" +
+          "- A bottom sheet stands on the software keyboard: it follows the visual viewport, its height cap shrinks to fit, and the field being typed in stays in view.\n" +
+          "- At the tallest point an overflowing body scrolls; a pull down that starts at the top of its content drags the sheet down instead, to a lower point or out.\n" +
+          "- A modal sheet's scrim fades as it is dragged below its lowest point, and comes back if the sheet is released and stays.\n\n" +
           '**Do** — use `bottom` for short, thumb-reachable content on small screens. Give a sheet with snap points a title. Put the primary action inside the sheet at the lowest point that shows it. Use `"content"` as the lowest point for a summary. Pad the page under a non-modal sheet.\n\n' +
           "**Don't** — put a blocking decision in a sheet (use `AlertDialog`). Use a sheet for desktop navigation (use `Sidebar`). Hide the only way to a function behind a drag. Set `closeButton={false}` without another way out. Nest forms with software-keyboard fields in a lower snap point.",
       },
@@ -79,6 +83,50 @@ export const Bottom: Story = { render: () => <Demo placement="bottom" /> };
 export const BottomSheetSnapPoints: Story = {
   name: "Bottom sheet with snap points",
   render: () => <Demo placement="bottom" snapPoints={["content", 0.5, 1]} startOpen />,
+};
+
+function SearchDemo() {
+  const [open, setOpen] = useState(true);
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        Search
+      </Button>
+      <Offcanvas
+        title="Search filters"
+        placement="bottom"
+        snapPoints={[0.5, 1]}
+        defaultSnap={1}
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        <div style={{ display: "grid", gap: "var(--space-4)" }}>
+          <Input aria-label="Filter by name" placeholder="Search" />
+          {[1, 2, 3].flatMap((round) =>
+            FILTERS.map((name) => (
+              <Checkbox key={`${name}-${String(round)}`} label={`${name} ${String(round)}`} />
+            )),
+          )}
+        </div>
+      </Offcanvas>
+    </div>
+  );
+}
+
+/**
+ * A field and a long list at the tallest point. On a phone, the sheet rises above the software
+ * keyboard while the field has focus; the list scrolls, and a pull down from its top drags the
+ * sheet to half height or out, with the scrim fading as it leaves.
+ */
+export const BottomSheetSearch: Story = {
+  name: "Bottom sheet with a field and a long list",
+  render: () => <SearchDemo />,
 };
 
 function NonModalDemo() {
