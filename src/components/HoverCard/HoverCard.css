@@ -16,6 +16,11 @@
   pointer-events: none;
 }
 
+/* The overlay entrance shared with Tooltip: an opacity-only fade in, no exit motion. */
+.ol-hover-card[data-state="open"] {
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
 /*
  * Hover bridge: a transparent strip over the gap on the side that faces the link, so the pointer
  * stays on the card while it travels from the link.

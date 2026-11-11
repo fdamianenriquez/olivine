@@ -16,6 +16,11 @@
   pointer-events: none;
 }
 
+/* The overlay entrance shared with Tooltip: an opacity-only fade in, no exit motion. */
+.ol-popover[data-state="open"] {
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
 .ol-popover__head {
   display: flex;
   justify-content: space-between;
