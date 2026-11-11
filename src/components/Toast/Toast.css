@@ -126,7 +126,7 @@
 
 .ol-toast__timer {
   height: var(--stroke-bold);
-  background: var(--ink);
+  background: var(--olivo);
   transform-origin: left;
 
   /* A clock, not a movement: the drain is linear on purpose. */
