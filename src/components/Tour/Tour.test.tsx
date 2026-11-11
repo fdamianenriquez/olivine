@@ -960,6 +960,24 @@ describe("Tour", () => {
     }
   });
 
+  it("leaves from its target, not from the centre, when it closes", async () => {
+    const tour = (open: boolean) => (
+      <Root>
+        <Page />
+        <Tour steps={[WOOD]} open={open} />
+      </Root>
+    );
+    const { rerender } = render(tour(true));
+    await waitFor(() => {
+      expect(dialog()).toHaveAttribute("data-state", "open");
+    });
+    rerender(tour(false));
+    const card = el(".ol-tour");
+    expect(card).toHaveAttribute("data-state", "closing");
+    expect(card).not.toHaveAttribute("data-placement", "center");
+    expect(card).not.toHaveClass("ol-tour--center");
+  });
+
   it("keeps the theme of the island it was rendered in", async () => {
     render(
       <Root theme="sumi">

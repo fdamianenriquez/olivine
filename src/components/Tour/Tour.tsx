@@ -282,9 +282,14 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     [index, setStepState, onStepChange],
   );
 
-  const { element: target, status } = useTourTarget(current?.target, active, index, layer);
+  const { mounted, state, setElement } = usePresence<HTMLDivElement>(active);
+  // While the exit runs the card keeps following its target, so it leaves from where it was
+  // instead of falling back to the centre for a frame.
+  const live = active || mounted;
+  const { element: target, status } = useTourTarget(current?.target, live, index, layer);
   const shown = active && (status === "found" || status === "none");
-  const rectAnchor = useTargetRect(target, shown, surface, edge);
+  const placed = live && (status === "found" || status === "none");
+  const rectAnchor = useTargetRect(target, placed, surface, edge);
 
   const stepPlacement = current?.placement ?? placement;
   const centred = stepPlacement === "center" || status === "none";
@@ -294,7 +299,7 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     placement: actual,
     positioned,
   } = useFloating<HTMLElement, HTMLDivElement>({
-    open: active && !centred && status === "found",
+    open: live && !centred && status === "found",
     placement: centred ? "bottom" : stepPlacement,
     anchor: rectAnchor,
     size: true,
@@ -376,7 +381,6 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     },
     modal,
   });
-  const { mounted, state, setElement } = usePresence<HTMLDivElement>(active);
 
   // Non-modal: Tab hands focus to the page, so Escape must end the tour from there too (the
   // card can cover the focused control). Inside the card `useOverlay` answers; inside another
