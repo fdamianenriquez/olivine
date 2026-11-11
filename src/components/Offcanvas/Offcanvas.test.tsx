@@ -121,7 +121,8 @@ describe("Offcanvas", () => {
     expect(dialog).toHaveAttribute("aria-modal", "true");
     expect(dialog).toHaveAttribute("data-testid", "o");
     expect(dialog).toHaveAttribute("data-state", "open");
-    expect(screen.getByText("Filters").id).toBe(dialog.getAttribute("aria-labelledby"));
+    const heading = screen.getByRole("heading", { level: 2, name: "Filters" });
+    expect(heading.id).toBe(dialog.getAttribute("aria-labelledby"));
     expect(document.querySelector(".ol-scrim")).toHaveClass("ol-scrim--edge");
     expect(scrimOf()).toHaveAttribute("data-state", "open");
   });
