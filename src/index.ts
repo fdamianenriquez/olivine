@@ -353,7 +353,14 @@ export {
   type ToolbarSeparatorProps,
   type ToolbarSpacerProps,
 } from "./components/Toolbar";
-export { Tooltip, type TooltipPlacement, type TooltipProps } from "./components/Tooltip";
+export {
+  Tooltip,
+  type TooltipPlacement,
+  type TooltipProps,
+  TooltipProvider,
+  type TooltipProviderProps,
+  type TooltipVariant,
+} from "./components/Tooltip";
 export {
   type CheckState,
   type TreeActions,

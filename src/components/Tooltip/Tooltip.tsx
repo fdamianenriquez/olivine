@@ -1,9 +1,6 @@
 import {
   cloneElement,
-  type FocusEvent,
   forwardRef,
-  type MouseEvent,
-  type PointerEvent,
   type ReactElement,
   type ReactNode,
   type Ref,
@@ -11,36 +8,60 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
 } from "react";
 
 import { useControllable } from "../../hooks/useControllable";
+import { useDelayGroup } from "../../hooks/useDelayGroup";
 import { useDismiss } from "../../hooks/useDismiss";
-import { useFloating } from "../../hooks/useFloating";
+import { useFloating, useIsomorphicLayoutEffect } from "../../hooks/useFloating";
+import { type TriggerHandlers, useHoverIntent } from "../../hooks/useHoverIntent";
 import { cx } from "../../utils/cx";
+import { devWarn } from "../../utils/dev";
 import { getElementRef } from "../../utils/elementRef";
 import { Portal } from "../Portal";
+import { accessibleName, repeatsName } from "./accessibleName";
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
 
+export type TooltipVariant = "plain" | "rich";
+
 export interface TooltipProps {
-  /** Short text shown in the tooltip. Keep it to a few words; never put essential information or links here. */
+  /**
+   * Short text (plain) or supporting text (rich). Keep it to a few words; never put essential
+   * information, links or buttons here. Empty (`null`, `false`, `""`) renders no tooltip.
+   */
   content: ReactNode;
+  /** Heading of a rich tooltip. Setting it makes the tooltip rich. */
+  title?: ReactNode;
+  /**
+   * `plain`: a few words in an ink box. `rich`: a raised paper box with an optional title and a
+   * short supporting text.
+   * @default "rich" when `title` is set, else "plain"
+   */
+  variant?: TooltipVariant;
   /**
    * Preferred side of the trigger. It flips when there is no room.
    * @default "top"
    */
   placement?: TooltipPlacement;
   /**
-   * Milliseconds the pointer must rest on the trigger before the tooltip opens. Keyboard focus opens it at once.
-   * @default 300
+   * Milliseconds the pointer must rest on the trigger before the tooltip opens. Keyboard focus
+   * opens it at once. Inside a warm group (a tooltip was just shown) it opens at once too.
+   * @default the group's `openDelay` (300)
    */
   openDelay?: number;
   /**
-   * Milliseconds to wait before closing after the pointer leaves. The pointer always gets a short grace
-   * period to travel from the trigger to the tooltip.
-   * @default 0
+   * Milliseconds to wait before closing after the pointer and focus have left. The pointer
+   * always gets a short grace period to travel from the trigger to the tooltip.
+   * @default the group's `closeDelay` (0)
    */
   closeDelay?: number;
+  /**
+   * Never opens. The trigger is left untouched.
+   * @default false
+   */
+  disabled?: boolean;
   /** Controlled open state. */
   open?: boolean;
   /**
@@ -56,40 +77,16 @@ export interface TooltipProps {
   children: ReactElement;
 }
 
-/** Pointer travel time between trigger and tooltip (WCAG 1.4.13 hoverable). */
-const HOVER_GRACE_MS = 100;
-/** Touch press duration that opens the tooltip. */
-const LONG_PRESS_MS = 500;
-/** Time after a press ends before its focus and click side effects are forgotten. */
-const SETTLE_MS = 400;
-
-interface ChildProps {
+interface ChildProps extends TriggerHandlers {
   "aria-describedby"?: string | undefined;
-  "aria-label"?: string | undefined;
-  children?: ReactNode;
-  onPointerEnter?: (event: PointerEvent<HTMLElement>) => void;
-  onPointerLeave?: (event: PointerEvent<HTMLElement>) => void;
-  onPointerDown?: (event: PointerEvent<HTMLElement>) => void;
-  onPointerUp?: (event: PointerEvent<HTMLElement>) => void;
-  onPointerCancel?: (event: PointerEvent<HTMLElement>) => void;
-  onFocus?: (event: FocusEvent<HTMLElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLElement>) => void;
-  onClick?: (event: MouseEvent<HTMLElement>) => void;
-  onContextMenu?: (event: MouseEvent<HTMLElement>) => void;
   ref?: Ref<HTMLElement>;
 }
 
-const normalise = (text: string) => text.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+const FOCUSABLE =
+  'a[href], button, input, select, textarea, summary, iframe, [tabindex], [contenteditable]:not([contenteditable="false"])';
 
-/**
- * True when the tooltip only repeats the trigger's name (a square button's `aria-label`, or its
- * text): describing it again would make screen readers say the same words twice.
- */
-function repeatsName(content: ReactNode, own: ChildProps): boolean {
-  if (typeof content !== "string") return false;
-  const name = own["aria-label"] ?? (typeof own.children === "string" ? own.children : undefined);
-  return name !== undefined && normalise(name) === normalise(content);
-}
+const isEmpty = (node: ReactNode) =>
+  node === null || node === undefined || node === false || node === "";
 
 function setRef<T>(ref: Ref<T> | undefined, node: T | null) {
   if (typeof ref === "function") ref(node);
@@ -97,17 +94,22 @@ function setRef<T>(ref: Ref<T> | undefined, node: T | null) {
 }
 
 /**
- * A few words in an ink box that describe a control. It opens on hover after a short delay and on
- * keyboard focus at once, and closes on blur, pointer leave or Escape. The pointer can move onto the
- * tooltip without closing it. On touch, a long press opens it and a tap elsewhere closes it.
- * The tooltip renders in a portal and flips at the viewport edge.
+ * A few words in an ink box that describe a control, or with a `title`, a raised paper box with
+ * a heading and a short supporting text. It opens on hover after a short delay, at once on
+ * keyboard focus, and on a touch long press. It stays while the pointer (on the trigger or the
+ * tooltip) or keyboard focus remains, and closes on Escape, blur, a press on the trigger or a
+ * press elsewhere. Neighbouring tooltips open at once inside a `TooltipProvider` (or the built-in
+ * default group). It renders in a portal and flips at the viewport edge.
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip(
   {
     content,
+    title,
+    variant: variantProp,
     placement = "top",
-    openDelay = 300,
-    closeDelay = 0,
+    openDelay: openDelayProp,
+    closeDelay: closeDelayProp,
+    disabled = false,
     open: openProp,
     defaultOpen = false,
     onOpenChange,
@@ -118,7 +120,13 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
 ) {
   const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange);
   const id = useId();
-  const floatingState = useFloating<HTMLElement, HTMLDivElement>({ open, placement });
+  const group = useDelayGroup(id);
+  const openDelay = openDelayProp ?? group.timing.openDelay;
+  const closeDelay = closeDelayProp ?? group.timing.closeDelay;
+  const rich = (variantProp ?? (isEmpty(title) ? "plain" : "rich")) === "rich";
+  const inactive = disabled || isEmpty(content);
+  const shown = open && !inactive;
+
   const {
     reference,
     floating,
@@ -127,40 +135,62 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     style,
     positioned,
     placement: resolved,
-  } = floatingState;
+  } = useFloating<HTMLElement, HTMLDivElement>({ open: shown, placement });
 
-  const timer = useRef(0);
-  const pressTimer = useRef(0);
-  const longPressed = useRef(false);
-  const pointerFocus = useRef(false);
-  const settleTimer = useRef(0);
-  const latest = useRef(setOpen);
-  latest.current = setOpen;
+  const { getTriggerProps, contentProps, dismiss, instant } = useHoverIntent({
+    open: shown,
+    setOpen,
+    openDelay,
+    closeDelay,
+    touch: "long-press",
+    disabled: inactive,
+    group,
+  });
 
-  const clear = () => {
-    window.clearTimeout(timer.current);
-  };
-  const schedule = (next: boolean, delay: number) => {
-    clear();
-    if (delay <= 0) latest.current(next);
-    else
-      timer.current = window.setTimeout(() => {
-        latest.current(next);
-      }, delay);
-  };
-  useEffect(
-    () => () => {
-      window.clearTimeout(timer.current);
-      window.clearTimeout(pressTimer.current);
-      window.clearTimeout(settleTimer.current);
-    },
-    [],
-  );
+  useDismiss(shown, dismiss, [reference, floating]);
 
-  useDismiss(open, () => {
-    clear();
-    setOpen(false);
-  }, [reference, floating]);
+  // Describe the trigger unless the tooltip only repeats its name (resolved from the DOM, so
+  // aria-labelledby, labels and nested text count). A rich tooltip always adds information.
+  const [repeats, setRepeats] = useState(false);
+  useIsomorphicLayoutEffect(() => {
+    const trigger = reference.current;
+    const bubble = floating.current;
+    if (!shown || !trigger || !bubble) return;
+    setRepeats(!rich && repeatsName(trigger, bubble.textContent));
+  });
+
+  // Development checks on the trigger, once per tooltip.
+  const checkedTrigger = useRef(false);
+  useEffect(() => {
+    const trigger = reference.current;
+    if (inactive || checkedTrigger.current || !trigger) return;
+    checkedTrigger.current = true;
+    if (trigger.getAttribute("title")) {
+      devWarn(
+        "Tooltip",
+        "the trigger has a native `title`, so two tooltips would show. Remove the `title`.",
+      );
+    } else if (!accessibleName(trigger).name.trim()) {
+      devWarn(
+        "Tooltip",
+        "the trigger has no accessible name; a tooltip is not a name. Give it an `aria-label` with the same words.",
+      );
+    }
+  });
+
+  // Development check on the box: a tooltip is never focused, so nothing in it can be reached.
+  const checkedContent = useRef(false);
+  useEffect(() => {
+    const bubble = floating.current;
+    if (!shown || checkedContent.current || !bubble) return;
+    if (bubble.querySelector(FOCUSABLE)) {
+      checkedContent.current = true;
+      devWarn(
+        "Tooltip",
+        "the tooltip holds a link, button or other focusable element that no one can reach. Use a Popover or a HoverCard.",
+      );
+    }
+  });
 
   const child = children as ReactElement<ChildProps>;
   const own = child.props;
@@ -181,90 +211,21 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     [setFloating, ref],
   );
 
-  const isTouch = (event: PointerEvent) => event.pointerType === "touch";
-  const settle = () => {
-    // Focus from a press lands before pointerup; clearing later keeps keyboard focus working
-    // in engines that never focus a pressed button. A long press's click lands just after.
-    window.clearTimeout(settleTimer.current);
-    settleTimer.current = window.setTimeout(() => {
-      pointerFocus.current = false;
-      longPressed.current = false;
-    }, SETTLE_MS);
-  };
-  const cancelPress = () => {
-    window.clearTimeout(pressTimer.current);
-  };
+  if (inactive) return children;
 
   const trigger = cloneElement(child, {
+    ...getTriggerProps(own),
     ref: setTrigger,
     "aria-describedby":
-      open && !repeatsName(content, own)
+      shown && !repeats
         ? [own["aria-describedby"], id].filter(Boolean).join(" ")
         : own["aria-describedby"],
-    onPointerEnter: (event: PointerEvent<HTMLElement>) => {
-      own.onPointerEnter?.(event);
-      if (!isTouch(event)) schedule(true, openDelay);
-    },
-    onPointerLeave: (event: PointerEvent<HTMLElement>) => {
-      own.onPointerLeave?.(event);
-      cancelPress();
-      if (!isTouch(event)) schedule(false, Math.max(closeDelay, HOVER_GRACE_MS));
-    },
-    onPointerDown: (event: PointerEvent<HTMLElement>) => {
-      own.onPointerDown?.(event);
-      // Focus that follows a press is not keyboard focus; hover already handles the mouse.
-      pointerFocus.current = true;
-      window.clearTimeout(settleTimer.current);
-      longPressed.current = false;
-      if (!isTouch(event)) return;
-      cancelPress();
-      pressTimer.current = window.setTimeout(() => {
-        longPressed.current = true;
-        clear();
-        latest.current(true);
-      }, LONG_PRESS_MS);
-    },
-    onPointerUp: (event: PointerEvent<HTMLElement>) => {
-      own.onPointerUp?.(event);
-      cancelPress();
-      settle();
-    },
-    onPointerCancel: (event: PointerEvent<HTMLElement>) => {
-      own.onPointerCancel?.(event);
-      cancelPress();
-      settle();
-    },
-    onContextMenu: (event: MouseEvent<HTMLElement>) => {
-      own.onContextMenu?.(event);
-      // The long-press must not also raise the native context menu.
-      if (longPressed.current) event.preventDefault();
-    },
-    onClick: (event: MouseEvent<HTMLElement>) => {
-      // The click that ends a long press only revealed the tooltip; it is not an activation.
-      if (longPressed.current) {
-        longPressed.current = false;
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
-      own.onClick?.(event);
-    },
-    onFocus: (event: FocusEvent<HTMLElement>) => {
-      own.onFocus?.(event);
-      if (!pointerFocus.current) schedule(true, 0);
-      pointerFocus.current = false;
-    },
-    onBlur: (event: FocusEvent<HTMLElement>) => {
-      own.onBlur?.(event);
-      pointerFocus.current = false;
-      schedule(false, 0);
-    },
   });
 
   return (
     <>
       {trigger}
-      {open ? (
+      {shown ? (
         <Portal anchor={reference}>
           <div
             ref={setBubble}
@@ -272,16 +233,25 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
             role="tooltip"
             data-state={positioned ? "open" : "pending"}
             data-placement={resolved.split("-")[0]}
+            data-instant={instant || undefined}
             style={style}
-            className={cx("ol-floating", "ol-tooltip", className)}
-            onPointerEnter={(event) => {
-              if (!isTouch(event)) clear();
-            }}
-            onPointerLeave={(event) => {
-              if (!isTouch(event)) schedule(false, Math.max(closeDelay, HOVER_GRACE_MS));
-            }}
+            className={cx("ol-floating", "ol-tooltip", rich && "ol-tooltip--rich", className)}
+            {...contentProps}
           >
-            {content}
+            {rich ? (
+              <>
+                {isEmpty(title) ? null : (
+                  <span className="ol-tooltip__title">
+                    {title}
+                    {/* Keeps the title and body apart when read as one description. */}
+                    <span className="ol-sr">. </span>
+                  </span>
+                )}
+                <div className="ol-tooltip__body">{content}</div>
+              </>
+            ) : (
+              content
+            )}
           </div>
         </Portal>
       ) : null}
