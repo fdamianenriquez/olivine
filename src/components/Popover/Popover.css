@@ -30,12 +30,27 @@
   letter-spacing: var(--text-h3-tracking);
 }
 
+/* Without a close button the title keeps the body's inset on both sides. */
+.ol-popover__head--bare {
+  padding-inline-end: var(--space-4);
+}
+
 .ol-popover__body {
   padding: var(--space-4);
   font-family: var(--text-ui-family);
   font-size: var(--text-ui-size);
   line-height: var(--text-body-leading);
   color: var(--ink-2);
+}
+
+/* Footer: one or two actions, right-aligned under a hairline. */
+.ol-popover__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-top: var(--stroke-hair) solid var(--rule);
 }
 
 @media (forced-colors: active) {

@@ -9,6 +9,7 @@ import {
   type Ref,
   useCallback,
   useId,
+  useRef,
   useState,
 } from "react";
 
@@ -52,6 +53,18 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, "titl
   onOpenChange?: (open: boolean) => void;
   /** Accessible name when there is no `title`. A `title` names the dialog by itself. */
   "aria-label"?: string;
+  /**
+   * A footer row under a hairline for one or two actions, right-aligned. Use `ghost` Buttons at
+   * size `s`. Tab order: close button, body, actions.
+   */
+  actions?: ReactNode;
+  /**
+   * Shows the close button in the title row. With `false`, the popover is dismissed by an
+   * action, Escape or a press outside; for an action to close it, control `open` and set it to
+   * `false` from the action. Focus then returns to the trigger.
+   * @default true
+   */
+  showClose?: boolean;
 }
 
 const TABBABLE =
@@ -73,8 +86,8 @@ function assign<T>(ref: Ref<T> | undefined, node: T | null) {
 }
 
 /**
- * A raised panel with a title row, toggled by clicking its trigger. It is a non-modal dialog:
- * focus moves into the panel on open, Escape and the close button close it and return focus to
+ * A raised panel with a title row and an optional row of actions, toggled by clicking its
+ * trigger. It is a non-modal dialog: focus moves into the panel on open, Escape and the close button close it and return focus to
  * the trigger, an outside press closes it without moving focus, and tabbing past the last control
  * closes it and carries on from the trigger. The `ref` points to the panel.
  */
@@ -87,9 +100,13 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     open: openProp,
     defaultOpen = false,
     onOpenChange,
+    actions,
+    showClose = true,
     className,
     id: idProp,
     onKeyDown,
+    onFocus,
+    onBlur,
     style: styleProp,
     ...rest
   },
@@ -139,9 +156,27 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
     [setOpen, reference],
   );
 
+  // Focus inside the panel when it closes some other way (an action that sets a controlled `open`
+  // to false) would fall to the page when the panel unmounts: hand it back to the trigger. The
+  // panel is removed without a blur, so focus is tracked while it moves in and out.
+  const focusInside = useRef(false);
+  const wasOpen = useRef(open);
+  useIsomorphicLayoutEffect(() => {
+    const closed = wasOpen.current && !open;
+    wasOpen.current = open;
+    if (!closed || !focusInside.current) return;
+    focusInside.current = false;
+    const active = document.activeElement;
+    if (!active || active === document.body || !active.isConnected) {
+      reference.current?.focus({ preventScroll: true });
+    }
+  }, [open, reference]);
+
   useDismiss(
     open,
     (reason) => {
+      // An outside press never moves focus.
+      if (reason === "outside") focusInside.current = false;
       close(reason === "escape");
     },
     [reference, floating],
@@ -201,20 +236,32 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover
             style={{ ...styleProp, ...style }}
             className={cx("ol-floating", "ol-popover", `ol-popover--${placement}`, className)}
             onKeyDown={onPanelKeyDown}
+            onFocus={(event) => {
+              onFocus?.(event);
+              focusInside.current = true;
+            }}
+            onBlur={(event) => {
+              onBlur?.(event);
+              const next = event.relatedTarget as Node | null;
+              if (next && !event.currentTarget.contains(next)) focusInside.current = false;
+            }}
           >
             {title ? (
-              <div className="ol-popover__head">
+              <div className={cx("ol-popover__head", !showClose && "ol-popover__head--bare")}>
                 <span id={titleId} className="ol-popover__title">
                   {title}
                 </span>
-                <CloseButton
-                  onClick={() => {
-                    close(true);
-                  }}
-                />
+                {showClose ? (
+                  <CloseButton
+                    onClick={() => {
+                      close(true);
+                    }}
+                  />
+                ) : null}
               </div>
             ) : null}
             <div className="ol-popover__body">{content}</div>
+            {actions ? <div className="ol-popover__foot">{actions}</div> : null}
           </div>
         </Portal>
       ) : null}
