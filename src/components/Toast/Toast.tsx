@@ -84,7 +84,7 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"
 
 function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
   if (typeof ref === "function") ref(value);
-  else if (ref) ref.current = value;
+  else if (ref) (ref as { current: T | null }).current = value;
 }
 
 function isEmpty(node: ReactNode) {
