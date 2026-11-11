@@ -291,12 +291,19 @@ const ToolbarAction = forwardRef<HTMLButtonElement, ToolbarActionProps>(function
     }
   }, [iconOnly, icon]);
 
+  // `onClick` is not public, but a wrapper such as Tooltip injects one through cloneElement.
+  const injected = (rest as { onClick?: (event: MouseEvent<HTMLButtonElement>) => void }).onClick;
   const common = {
     ...rest,
     ref,
     variant: danger ? ("danger" as const) : variant,
     className: cx("ol-toolbar__action", className),
-    onClick: onAction,
+    // A wrapper's own click handler runs first (Tooltip swallows the click that ends a touch
+    // long press by preventing it); the action runs only when that click was not cancelled.
+    onClick: (event: MouseEvent<HTMLButtonElement>) => {
+      injected?.(event);
+      if (!event.defaultPrevented) onAction?.(event);
+    },
   };
   return glyphOnly ? (
     <Button {...common} square aria-label={label}>
