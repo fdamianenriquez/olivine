@@ -15,6 +15,7 @@ import { Root } from "../Root";
 import { SegmentedControl } from "../SegmentedControl";
 import { SplitButton } from "../SplitButton";
 import { ToggleButton } from "../ToggleButton";
+import { Tooltip } from "../Tooltip";
 import { Toolbar, type ToolbarProps } from "./Toolbar";
 
 afterEach(() => vi.restoreAllMocks());
@@ -961,5 +962,40 @@ describe("Toolbar", () => {
     rerender(<Page orientation="vertical" />);
     expect(tool("Copy")).toHaveFocus();
     expect(tool("Copy")).toHaveAttribute("tabindex", "0");
+  });
+});
+
+describe("Toolbar.Action inside a Tooltip", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("does not run the action on the click that ends a touch long press", () => {
+    vi.useFakeTimers();
+    const onAction = vi.fn();
+    render(
+      <Root>
+        <Toolbar aria-label="Edit">
+          <Tooltip content="Delete">
+            <Toolbar.Action
+              label="Delete"
+              icon={<span aria-hidden="true">×</span>}
+              iconOnly
+              onAction={onAction}
+            />
+          </Tooltip>
+        </Toolbar>
+      </Root>,
+    );
+    const button = screen.getByRole("button", { name: "Delete" });
+    fireEvent.pointerDown(button, { pointerType: "touch", button: 0 });
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    fireEvent.pointerUp(button, { pointerType: "touch", button: 0 });
+    fireEvent.click(button);
+    expect(onAction).not.toHaveBeenCalled();
+    fireEvent.click(button);
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 });
