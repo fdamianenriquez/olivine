@@ -17,15 +17,109 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Hover bridge: a transparent strip over the gap between the box and its trigger, so the pointer
+ * never crosses dead space on its way onto the tooltip. It is as deep as the floating gap.
+ */
+.ol-tooltip::before {
+  content: "";
+  position: absolute;
+}
+
+.ol-tooltip[data-placement="top"]::before,
+.ol-tooltip[data-placement="bottom"]::before {
+  left: 0;
+  right: 0;
+  height: var(--space-1);
+}
+
+.ol-tooltip[data-placement="top"]::before {
+  top: 100%;
+}
+
+.ol-tooltip[data-placement="bottom"]::before {
+  bottom: 100%;
+}
+
+.ol-tooltip[data-placement="left"]::before,
+.ol-tooltip[data-placement="right"]::before {
+  top: 0;
+  bottom: 0;
+  width: var(--space-1);
+}
+
+.ol-tooltip[data-placement="left"]::before {
+  left: 100%;
+}
+
+.ol-tooltip[data-placement="right"]::before {
+  right: 100%;
+}
+
+/* Rich: the raised paper surface of a Popover, at the lighter press shadow. */
+.ol-tooltip--rich {
+  --kbd-fill: var(--paper);
+  --kbd-ink: var(--ink-2);
+  --kbd-line: var(--rule);
+
+  display: grid;
+  gap: var(--space-1);
+  max-width: min(var(--popover-width), 100vw);
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper-3);
+  color: var(--ink);
+  border: var(--stroke-hair) solid var(--rule);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-press);
+  overflow-wrap: normal;
+}
+
+.ol-tooltip__title {
+  font-family: var(--text-label-family);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-leading);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  color: var(--ink);
+}
+
+.ol-tooltip__body {
+  font-family: var(--text-ui-family);
+  font-size: var(--text-ui-size);
+  line-height: var(--text-body-leading);
+  font-weight: var(--text-ui-weight);
+  letter-spacing: var(--text-ui-tracking);
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
 /* Hidden until the first position is known, so it never flashes at 0,0. */
 .ol-tooltip[data-state="pending"] {
   opacity: 0;
+}
+
+/*
+ * Entrance only, once positioned: a plain tooltip fades (an effect), a rich one settles into
+ * place. A tooltip opened at once inside a warm group appears without motion. There is no exit:
+ * it vanishes at once on Escape, blur, or when the next tooltip of the group opens.
+ */
+.ol-tooltip[data-state="open"]:not([data-instant]) {
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
+.ol-tooltip--rich[data-state="open"]:not([data-instant]) {
+  animation: ol-settle var(--dur-m) var(--ease-standard) backwards;
 }
 
 @media (forced-colors: active) {
   .ol-tooltip {
     border: var(--stroke-hair) solid CanvasText;
     background: Canvas;
+    color: CanvasText;
+  }
+
+  .ol-tooltip__title,
+  .ol-tooltip__body {
     color: CanvasText;
   }
 }
