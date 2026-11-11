@@ -532,7 +532,8 @@
  * data-state="open" (or none) unrolls on insertion; "closing" rolls back up (see usePresence).
  * Vertical, away from the trigger: data-side="bottom" (default) or "top"; no rod (Modal, menus).
  * Horizontal, from a screen edge: .ol-kakejiku--from-right or --from-left; the rod (jiku) sits
- * just outside the moving edge and stays after unrolling (Offcanvas).
+ * just outside the moving edge and stays after unrolling (Offcanvas). The logical
+ * --from-end / --from-start equal --from-right / --from-left in LTR and swap under :dir(rtl).
  */
 :where(.ol-kakejiku) {
   position: relative;
@@ -557,52 +558,160 @@
 }
 
 .ol-kakejiku--from-right::after,
-.ol-kakejiku--from-left::after {
+.ol-kakejiku--from-left::after,
+.ol-kakejiku--from-end::after,
+.ol-kakejiku--from-start::after {
   content: "";
   position: absolute;
   pointer-events: none;
+  border: 0 solid var(--ol-rod-color, var(--ink));
 }
 
-.ol-kakejiku--from-right::after {
+/* Panel on the right: the rod hangs off its left edge. --from-end in LTR. */
+.ol-kakejiku--from-right::after,
+.ol-kakejiku--from-end::after {
   inset: 0 0 0 calc(var(--stroke-heavy) * -1);
-  border-left: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
+  border-left-width: var(--stroke-heavy);
 }
 
-.ol-kakejiku--from-left::after {
+/* Panel on the left: the rod hangs off its right edge. --from-start in LTR. */
+.ol-kakejiku--from-left::after,
+.ol-kakejiku--from-start::after {
   inset: 0 calc(var(--stroke-heavy) * -1) 0 0;
-  border-right: var(--stroke-heavy) solid var(--ol-rod-color, var(--ink));
+  border-right-width: var(--stroke-heavy);
 }
 
-.ol-kakejiku--from-right:not([data-state="closing"]) {
+/* Right to left, the rod hangs off the other edge (the motion swaps below). */
+.ol-kakejiku--from-end:where(:dir(rtl))::after {
+  inset: 0 calc(var(--stroke-heavy) * -1) 0 0;
+  border-width: 0 var(--stroke-heavy) 0 0;
+}
+
+.ol-kakejiku--from-start:where(:dir(rtl))::after {
+  inset: 0 0 0 calc(var(--stroke-heavy) * -1);
+  border-width: 0 0 0 var(--stroke-heavy);
+}
+
+.ol-kakejiku--from-right:not([data-state="closing"]),
+.ol-kakejiku--from-end:not([data-state="closing"]) {
   animation-name: ol-unroll-left;
 }
 
-.ol-kakejiku--from-right:not([data-state="closing"])::after {
+.ol-kakejiku--from-right:not([data-state="closing"])::after,
+.ol-kakejiku--from-end:not([data-state="closing"])::after {
   animation: ol-rod-left-in var(--dur-l) var(--ease-move) backwards;
 }
 
-.ol-kakejiku--from-right[data-state="closing"] {
+.ol-kakejiku--from-right[data-state="closing"],
+.ol-kakejiku--from-end[data-state="closing"] {
   animation-name: ol-roll-right;
 }
 
-.ol-kakejiku--from-right[data-state="closing"]::after {
+.ol-kakejiku--from-right[data-state="closing"]::after,
+.ol-kakejiku--from-end[data-state="closing"]::after {
   animation: ol-rod-right-out var(--dur-l) var(--ease-move) forwards;
 }
 
-.ol-kakejiku--from-left:not([data-state="closing"]) {
+.ol-kakejiku--from-left:not([data-state="closing"]),
+.ol-kakejiku--from-start:not([data-state="closing"]) {
   animation-name: ol-unroll-right;
 }
 
-.ol-kakejiku--from-left:not([data-state="closing"])::after {
+.ol-kakejiku--from-left:not([data-state="closing"])::after,
+.ol-kakejiku--from-start:not([data-state="closing"])::after {
   animation: ol-rod-right-in var(--dur-l) var(--ease-move) backwards;
 }
 
-.ol-kakejiku--from-left[data-state="closing"] {
+.ol-kakejiku--from-left[data-state="closing"],
+.ol-kakejiku--from-start[data-state="closing"] {
   animation-name: ol-roll-left;
 }
 
-.ol-kakejiku--from-left[data-state="closing"]::after {
+.ol-kakejiku--from-left[data-state="closing"]::after,
+.ol-kakejiku--from-start[data-state="closing"]::after {
   animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
+}
+
+/*
+ * Right to left: --from-end unrolls from the left edge and --from-start from the right, so the
+ * clip and the rod's travel swap (its side swaps above). :where() adds no specificity, so these
+ * win over the LTR rules above by order and lose to data-state="closed" below. Without :dir(), the dir
+ * attribute on the element or an ancestor (Portal copies it) stands in.
+ */
+.ol-kakejiku--from-end:where(:dir(rtl)):not([data-state="closing"]) {
+  animation-name: ol-unroll-right;
+}
+
+.ol-kakejiku--from-end:where(:dir(rtl)):not([data-state="closing"])::after {
+  animation: ol-rod-right-in var(--dur-l) var(--ease-move) backwards;
+}
+
+.ol-kakejiku--from-end:where(:dir(rtl))[data-state="closing"] {
+  animation-name: ol-roll-left;
+}
+
+.ol-kakejiku--from-end:where(:dir(rtl))[data-state="closing"]::after {
+  animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
+}
+
+.ol-kakejiku--from-start:where(:dir(rtl)):not([data-state="closing"]) {
+  animation-name: ol-unroll-left;
+}
+
+.ol-kakejiku--from-start:where(:dir(rtl)):not([data-state="closing"])::after {
+  animation: ol-rod-left-in var(--dur-l) var(--ease-move) backwards;
+}
+
+.ol-kakejiku--from-start:where(:dir(rtl))[data-state="closing"] {
+  animation-name: ol-roll-right;
+}
+
+.ol-kakejiku--from-start:where(:dir(rtl))[data-state="closing"]::after {
+  animation: ol-rod-right-out var(--dur-l) var(--ease-move) forwards;
+}
+
+@supports not selector(:dir(rtl)) {
+  .ol-kakejiku--from-end:where([dir="rtl"], [dir="rtl"] *)::after {
+    inset: 0 calc(var(--stroke-heavy) * -1) 0 0;
+    border-width: 0 var(--stroke-heavy) 0 0;
+  }
+
+  .ol-kakejiku--from-start:where([dir="rtl"], [dir="rtl"] *)::after {
+    inset: 0 0 0 calc(var(--stroke-heavy) * -1);
+    border-width: 0 0 0 var(--stroke-heavy);
+  }
+
+  .ol-kakejiku--from-end:where([dir="rtl"], [dir="rtl"] *):not([data-state="closing"]) {
+    animation-name: ol-unroll-right;
+  }
+
+  .ol-kakejiku--from-end:where([dir="rtl"], [dir="rtl"] *):not([data-state="closing"])::after {
+    animation: ol-rod-right-in var(--dur-l) var(--ease-move) backwards;
+  }
+
+  .ol-kakejiku--from-end:where([dir="rtl"], [dir="rtl"] *)[data-state="closing"] {
+    animation-name: ol-roll-left;
+  }
+
+  .ol-kakejiku--from-end:where([dir="rtl"], [dir="rtl"] *)[data-state="closing"]::after {
+    animation: ol-rod-left-out var(--dur-l) var(--ease-move) forwards;
+  }
+
+  .ol-kakejiku--from-start:where([dir="rtl"], [dir="rtl"] *):not([data-state="closing"]) {
+    animation-name: ol-unroll-left;
+  }
+
+  .ol-kakejiku--from-start:where([dir="rtl"], [dir="rtl"] *):not([data-state="closing"])::after {
+    animation: ol-rod-left-in var(--dur-l) var(--ease-move) backwards;
+  }
+
+  .ol-kakejiku--from-start:where([dir="rtl"], [dir="rtl"] *)[data-state="closing"] {
+    animation-name: ol-roll-right;
+  }
+
+  .ol-kakejiku--from-start:where([dir="rtl"], [dir="rtl"] *)[data-state="closing"]::after {
+    animation: ol-rod-right-out var(--dur-l) var(--ease-move) forwards;
+  }
 }
 
 /*
@@ -615,7 +724,9 @@
 }
 
 .ol-kakejiku--from-right[data-state="closed"]::after,
-.ol-kakejiku--from-left[data-state="closed"]::after {
+.ol-kakejiku--from-left[data-state="closed"]::after,
+.ol-kakejiku--from-end[data-state="closed"]::after,
+.ol-kakejiku--from-start[data-state="closed"]::after {
   animation: none;
 }
 
