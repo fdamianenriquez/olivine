@@ -37,3 +37,17 @@
 .ol-toaststack > .ol-toast {
   pointer-events: auto;
 }
+
+/* Toasts leave toward the stack's edge. */
+.ol-toaststack--tr > .ol-toast,
+.ol-toaststack--br > .ol-toast {
+  --ol-toast-exit-x: var(--ol-motion-slide);
+}
+
+.ol-toaststack--bl > .ol-toast {
+  --ol-toast-exit-x: calc(var(--ol-motion-slide) * -1);
+}
+
+.ol-toaststack--tc > .ol-toast {
+  --ol-toast-exit-y: calc(var(--ol-motion-slide) * -1);
+}

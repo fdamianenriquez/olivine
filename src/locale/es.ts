@@ -111,6 +111,8 @@ export const es: OlivineLabels = {
   meter: { good: "Bien", fair: "Regular", poor: "Mal" },
   meterValue: (value, state) => (state ? `${value}, ${state}` : value),
   banner: { label: "Anuncio" },
+  notifications: "Notificaciones",
+  toastActionHint: (key) => `Pulsa ${key} para ir a la acción`,
   alertDialog: { confirm: "Confirmar", cancel: "Cancelar", caution: "Atención" },
   prevMonth: "Mes anterior",
   nextMonth: "Mes siguiente",

@@ -1,6 +1,11 @@
 .ol-toast {
   --ol-tone: var(--olivo);
 
+  /* Where the exit slides to; ToastStack points it at its edge. */
+  --ol-toast-exit-x: 0;
+  --ol-toast-exit-y: 0;
+
+  position: relative;
   display: flex;
   flex-direction: column;
   pointer-events: auto;
@@ -10,7 +15,7 @@
   color: var(--ink);
   border: var(--stroke-hair) solid var(--rule);
   box-shadow: var(--shadow-block);
-  animation: ol-toast-in var(--motion-slow);
+  animation: ol-settle var(--dur-s) var(--ease-effect);
 }
 
 .ol-toast--accent {
@@ -72,6 +77,31 @@
   padding: var(--space-3) var(--space-4) var(--space-4);
 }
 
+/* With a seal: the message on the left, the seal on the right, top-aligned. */
+.ol-toast__body--seal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-4);
+  align-items: start;
+}
+
+.ol-toast__body--seal > :not(.ol-toast__seal) {
+  grid-column: 1;
+}
+
+.ol-toast__seal {
+  /* The seal drops once the frame has settled. */
+  --ol-hanko-delay: calc(var(--dur-s) + var(--dur-s));
+
+  display: flex;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+
+  /* The seal is sized in em: kanji at the kanji size. */
+  font-size: var(--text-kanji-size);
+  line-height: var(--text-kanji-leading);
+}
+
 .ol-toast__title {
   margin: 0;
   font-family: var(--text-h3-family);
@@ -89,21 +119,88 @@
   color: var(--ink-2);
 }
 
+.ol-toast__action {
+  display: flex;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
 .ol-toast__timer {
   height: var(--stroke-bold);
   background: var(--ink);
   transform-origin: left;
+
+  /* A clock, not a movement: the drain is linear on purpose. */
   animation: ol-toast-drain var(--ol-toast-duration) linear forwards;
+}
+
+/* The countdown still runs; the bar just stays full instead of draining. Enter, exit and the
+   seal collapse through the motion tokens. */
+@media (prefers-reduced-motion: reduce) {
+  .ol-toast__timer {
+    animation: none;
+  }
+}
+
+.ol-reduce-motion .ol-toast__timer {
+  animation: none;
 }
 
 .ol-toast[data-state="paused"] .ol-toast__timer {
   animation-play-state: paused;
 }
 
-@keyframes ol-toast-in {
-  from {
+/* A paused drain never finishes, and the exit waits for every animation inside: drop it. */
+.ol-toast[data-state="closing"] .ol-toast__timer {
+  animation: none;
+  opacity: 0;
+}
+
+/* ---------- Swipe: direct manipulation, then a run-out or a return ---------- */
+
+.ol-toast--swipe-x {
+  touch-action: pan-y;
+}
+
+.ol-toast--swipe-y {
+  touch-action: pan-x;
+}
+
+.ol-toast[data-swipe] {
+  transform: translate(var(--ol-swipe-x, 0), var(--ol-swipe-y, 0));
+  transition: transform var(--dur-s) var(--ease-standard);
+}
+
+.ol-toast[data-swipe="drag"] {
+  transition: none;
+  user-select: none;
+}
+
+/* ---------- Exit: a short slide toward the stack's edge ---------- */
+
+.ol-toast[data-state="closing"] {
+  animation: ol-toast-out var(--dur-s) var(--ease-move) forwards;
+}
+
+/* A swiped toast continues from where the finger left it. */
+.ol-toast[data-state="closing"][data-swipe="out"] {
+  animation-name: ol-toast-swipe-out;
+}
+
+@keyframes ol-toast-out {
+  to {
     opacity: 0;
-    transform: translate(6px, 6px);
+    transform: translate(var(--ol-toast-exit-x), var(--ol-toast-exit-y));
+  }
+}
+
+@keyframes ol-toast-swipe-out {
+  from {
+    transform: translate(var(--ol-swipe-x, 0), var(--ol-swipe-y, 0));
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(var(--ol-swipe-end-x, 0), var(--ol-swipe-end-y, 0));
   }
 }
 
@@ -114,17 +211,6 @@
 
   to {
     transform: scaleX(0);
-  }
-}
-
-/* The countdown still runs; the bar just stays full instead of draining. */
-@media (prefers-reduced-motion: reduce) {
-  .ol-toast {
-    animation: none;
-  }
-
-  .ol-toast__timer {
-    animation: none;
   }
 }
 
