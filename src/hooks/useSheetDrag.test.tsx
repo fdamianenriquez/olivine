@@ -80,9 +80,18 @@ describe("useSheetDrag", () => {
     expect(panel()).toHaveAttribute("data-index", "1");
     expect(panel()).toHaveAttribute("data-swipe", "return");
     expect(panel().style.getPropertyValue("--ol-swipe-y")).toBe("0px");
-    fireEvent.click(handle());
+    fireEvent.click(handle(), { detail: 1 });
     expect(onClick).not.toHaveBeenCalled();
-    fireEvent.click(handle());
+    fireEvent.click(handle(), { detail: 1 });
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("never swallows a keyboard click after a drag that ended without a click", () => {
+    render(<Sheet />);
+    act(() => {
+      drag(handle(), -210, "touch");
+    });
+    fireEvent.click(handle(), { detail: 0 });
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 

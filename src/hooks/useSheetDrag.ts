@@ -230,9 +230,11 @@ export function useSheetDrag({
       onDown("handle", event);
     },
     onClickCapture: (event: ReactMouseEvent) => {
-      // The click that ends a drag on the handle is not a press of the button.
+      // The click that ends a drag on the handle is not a press of the button. A keyboard click
+      // (detail 0) is always a press, even if a drag ended without a click of its own.
       if (!swallowClick.current) return;
       swallowClick.current = false;
+      if (event.detail === 0) return;
       event.preventDefault();
       event.stopPropagation();
     },
