@@ -107,6 +107,17 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     }
   }, [open, unnamed]);
 
+  const hasFooter = footer != null && footer !== false;
+  const escapeOnly = !closeButton && !closeOnScrim && !hasFooter;
+  useEffect(() => {
+    if (open && escapeOnly) {
+      devWarn(
+        "Modal",
+        "only Escape can close this dialog. Keep `closeButton`, allow `closeOnScrim` or put an action in `footer`.",
+      );
+    }
+  }, [open, escapeOnly]);
+
   if (!mounted) return null;
 
   const showClose = closeButton && onClose !== undefined;
@@ -168,7 +179,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
               </div>
             )}
             <div className="ol-modal__body">{children}</div>
-            {footer != null && footer !== false && <div className="ol-modal__foot">{footer}</div>}
+            {hasFooter && <div className="ol-modal__foot">{footer}</div>}
           </div>
         </div>
       </Portal>
