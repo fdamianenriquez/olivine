@@ -195,12 +195,16 @@ button.ol-offcanvas__handle:hover,
  * The bottom sheet unrolls upward from the screen edge rather than from the bottom of its box,
  * which a lower snap point moves below the screen.
  */
+.ol-offcanvas--bottom.ol-kakejiku {
+  --ol-kakejiku-start: calc(100% - var(--ol-sheet-rest, 0px));
+}
+
 .ol-offcanvas--bottom.ol-kakejiku:not([data-state="closing"]) {
-  animation-name: ol-offcanvas-unroll-up;
+  animation-name: ol-unroll-up;
 }
 
 .ol-offcanvas--bottom.ol-kakejiku[data-state="closing"] {
-  animation-name: ol-offcanvas-roll-down;
+  animation-name: ol-roll-down;
 }
 
 /* A swiped panel continues from where the finger left it; the rod leaves with it. */
@@ -214,32 +218,6 @@ button.ol-offcanvas__handle:hover,
 
 .ol-offcanvas--bottom.ol-kakejiku[data-state="closing"][data-swipe="out"] {
   animation-name: ol-offcanvas-swipe-out-y;
-}
-
-@keyframes ol-offcanvas-unroll-up {
-  from {
-    clip-path: inset(
-      calc(100% - var(--ol-sheet-rest, 0px)) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
-        var(--ol-kakejiku-o)
-    );
-  }
-
-  to {
-    clip-path: inset(var(--ol-kakejiku-o));
-  }
-}
-
-@keyframes ol-offcanvas-roll-down {
-  from {
-    clip-path: inset(var(--ol-kakejiku-o));
-  }
-
-  to {
-    clip-path: inset(
-      calc(100% - var(--ol-sheet-rest, 0px)) var(--ol-kakejiku-o) var(--ol-kakejiku-o)
-        var(--ol-kakejiku-o)
-    );
-  }
 }
 
 @keyframes ol-offcanvas-swipe-out {
