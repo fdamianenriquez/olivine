@@ -277,6 +277,30 @@ describe("Modal", () => {
     warn.mockRestore();
   });
 
+  it("warns in development when only Escape can close the dialog", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { rerender } = render(
+      <Modal open title="Locked" closeButton={false} closeOnScrim={false}>
+        x
+      </Modal>,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("only Escape"));
+    warn.mockClear();
+    rerender(
+      <Modal
+        open
+        title="Locked"
+        closeButton={false}
+        closeOnScrim={false}
+        footer={<button>Done</button>}
+      >
+        x
+      </Modal>,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   describe("nested", () => {
     function Nested() {
       const [outer, setOuter] = useState(false);

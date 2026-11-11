@@ -34,11 +34,6 @@
   color: var(--ink-2);
 }
 
-/* Long labels wrap instead of overflowing; the primary action stays last. */
-.ol-alertdialog .ol-modal__foot {
-  flex-wrap: wrap;
-}
-
 /* The tag fill is a background colour; keep it a visible, bordered word. */
 @media (forced-colors: active) {
   .ol-alertdialog__tag {

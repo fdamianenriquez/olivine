@@ -84,8 +84,10 @@
   color: var(--ink-2);
 }
 
+/* Long labels wrap instead of overflowing; the primary action stays last. */
 .ol-modal__foot {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-6);
