@@ -215,9 +215,10 @@ export const NonModal: Story = {
 };
 
 /**
- * Non-modal on a page with a sticky header (declared as `scroll-padding-top`) and a control
- * right beside the card. Tab past the card's last button goes to the target and on into the
- * page; Escape still ends the tour from there, and focus stays where it is.
+ * Non-modal on a page with a sticky header (declared as `scroll-padding-top` on the scrolling
+ * container) and a control right below the target, under the card. Tab past the card's last
+ * button goes to the target and on into the page; Escape still ends the tour from there, and
+ * focus stays where it is.
  */
 export const NonModalStickyHeader: Story = {
   render: function Render() {
@@ -253,8 +254,9 @@ export const NonModalStickyHeader: Story = {
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
             gap: "var(--space-3)",
-            flexWrap: "wrap",
             padding: "var(--space-8) var(--space-6)",
             paddingBottom: "100vh",
           }}

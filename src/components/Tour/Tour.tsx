@@ -171,6 +171,48 @@ function findStep(steps: readonly TourStep[], from: number, dir: 1 | -1): number
   return null;
 }
 
+type Side = "top" | "right" | "bottom" | "left";
+
+const SCROLLS = /(auto|scroll|overlay)/;
+
+/**
+ * The visible box a target scrolls within, in viewport px: its nearest scrolling ancestor's
+ * padding box (or the viewport), clipped to the viewport and inset by that scroller's
+ * scroll-padding.
+ */
+function scrollPort(target: Element): Record<Side, number> {
+  const root = document.documentElement;
+  let scroller: Element = root;
+  for (let node = target.parentElement; node && node !== root; node = node.parentElement) {
+    if (node === document.body) continue;
+    const style = getComputedStyle(node);
+    if (SCROLLS.test(style.overflowY + style.overflowX)) {
+      scroller = node;
+      break;
+    }
+  }
+  const box = { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth };
+  // A scroller with no layout box (never rendered) does not clip.
+  if (scroller !== root && (scroller.clientWidth > 0 || scroller.clientHeight > 0)) {
+    const r = scroller.getBoundingClientRect();
+    const top = r.top + scroller.clientTop;
+    const left = r.left + scroller.clientLeft;
+    box.top = Math.max(box.top, top);
+    box.left = Math.max(box.left, left);
+    box.bottom = Math.min(box.bottom, top + scroller.clientHeight);
+    box.right = Math.min(box.right, left + scroller.clientWidth);
+  }
+  const style = getComputedStyle(scroller);
+  const pad = (side: Side) =>
+    Number.parseFloat(style.getPropertyValue(`scroll-padding-${side}`)) || 0;
+  return {
+    top: box.top + pad("top"),
+    left: box.left + pad("left"),
+    bottom: box.bottom - pad("bottom"),
+    right: box.right - pad("right"),
+  };
+}
+
 function assign<T>(ref: Ref<T> | undefined, node: T | null) {
   if (typeof ref === "function") ref(node);
   else if (ref) (ref as { current: T | null }).current = node;
@@ -324,17 +366,16 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
       return;
     }
     const rect = target.getBoundingClientRect();
-    // A sticky header is declared as the root's scroll-padding or the target's scroll-margin.
-    const root = getComputedStyle(document.documentElement);
+    // A sticky header is declared as the scroller's scroll-padding or the target's scroll-margin.
+    const port = scrollPort(target);
     const own = getComputedStyle(target);
-    const inset = (side: "top" | "right" | "bottom" | "left") =>
-      (Number.parseFloat(root.getPropertyValue(`scroll-padding-${side}`)) || 0) +
-      (Number.parseFloat(own.getPropertyValue(`scroll-margin-${side}`)) || 0);
+    const margin = (side: Side) =>
+      Number.parseFloat(own.getPropertyValue(`scroll-margin-${side}`)) || 0;
     const inView =
-      rect.top >= inset("top") &&
-      rect.left >= inset("left") &&
-      rect.bottom <= window.innerHeight - inset("bottom") &&
-      rect.right <= window.innerWidth - inset("right");
+      rect.top >= port.top + margin("top") &&
+      rect.left >= port.left + margin("left") &&
+      rect.bottom <= port.bottom - margin("bottom") &&
+      rect.right <= port.right - margin("right");
     if (inView) return;
     target.scrollIntoView({
       block: rect.height > window.innerHeight ? "start" : "center",
