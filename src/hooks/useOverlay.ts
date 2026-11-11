@@ -94,6 +94,13 @@ export interface OverlayOptions {
    * @default true
    */
   restoreFocus?: boolean;
+  /**
+   * `false` for a non-modal layer (a standard sheet): no scroll lock, no inert page, no focus
+   * trap and no initial focus. Escape closes it only while focus is inside it, and focus goes
+   * back on close only if it was inside.
+   * @default true
+   */
+  modal?: boolean;
 }
 
 /**
@@ -109,6 +116,7 @@ export function useOverlay({
   open,
   onClose,
   restoreFocus = true,
+  modal = true,
 }: OverlayOptions): (node: HTMLElement | null) => void {
   const [dialog, setDialog] = useState<HTMLElement | null>(null);
   const isTop = useLayer(open && dialog !== null);
@@ -126,6 +134,30 @@ export function useOverlay({
   useIsomorphicLayoutEffect(() => {
     if (!open || !dialog) return;
     const previous = document.activeElement as HTMLElement | null;
+
+    if (!modal) {
+      // The dialog may already be detached when this cleans up, so track focus as it moves.
+      let inside = dialog.contains(document.activeElement);
+      const onFocusIn = (event: FocusEvent) => {
+        inside = dialog.contains(event.target as Node | null);
+      };
+      const onEscape = (event: KeyboardEvent) => {
+        if (event.key !== "Escape" || !isTop() || !close.current) return;
+        if (event.defaultPrevented || isImeKey(event)) return;
+        if (!dialog.contains(document.activeElement)) return;
+        event.preventDefault();
+        close.current();
+      };
+      document.addEventListener("keydown", onEscape);
+      document.addEventListener("focusin", onFocusIn);
+      return () => {
+        document.removeEventListener("keydown", onEscape);
+        document.removeEventListener("focusin", onFocusIn);
+        if (restoreFocus && inside && previous?.isConnected)
+          previous.focus({ preventScroll: true });
+      };
+    }
+
     const unlock = lockScroll();
     const restoreInert = inertSiblings(dialog);
 
@@ -180,7 +212,7 @@ export function useOverlay({
       unlock();
       if (restoreFocus && previous?.isConnected) previous.focus({ preventScroll: true });
     };
-  }, [open, dialog, restoreFocus]);
+  }, [open, dialog, restoreFocus, modal]);
 
   return ref;
 }

@@ -4,10 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useOverlay } from "./useOverlay";
 
-function Demo({ onClose }: { onClose?: () => void }) {
+function Demo({ onClose, modal }: { onClose?: () => void; modal?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useOverlay({
     open,
+    ...(modal === undefined ? {} : { modal }),
     onClose: () => {
       onClose?.();
       setOpen(false);
@@ -166,5 +167,32 @@ describe("useOverlay nesting and portal layers", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(outside).toHaveAttribute("inert");
     outside.remove();
+  });
+});
+
+describe("useOverlay non-modal", () => {
+  it("leaves focus, scroll and the page alone and closes on Escape only from inside", () => {
+    const onClose = vi.fn();
+    render(<Demo onClose={onClose} modal={false} />);
+    const trigger = screen.getByText("open");
+    trigger.focus();
+    fireEvent.click(trigger);
+
+    expect(trigger).toHaveFocus();
+    expect(document.body.style.overflow).toBe("");
+    expect(screen.getByRole("main").closest("[inert]")).toBeNull();
+
+    fireEvent.keyDown(trigger, { key: "Escape" });
+    expect(onClose).not.toHaveBeenCalled();
+
+    const last = screen.getByText("last");
+    last.focus();
+    fireEvent.keyDown(last, { key: "Tab" });
+    expect(last).toHaveFocus();
+
+    fireEvent.keyDown(last, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(trigger).toHaveFocus();
   });
 });
