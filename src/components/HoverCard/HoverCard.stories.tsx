@@ -160,7 +160,7 @@ export const Themes: Story = {
           theme={theme}
           style={{ minHeight: 300, padding: "var(--space-4)", background: "var(--paper)" }}
         >
-          <HoverCard {...args} defaultOpen />
+          <HoverCard {...args} open />
         </Root>
       ))}
     </div>
