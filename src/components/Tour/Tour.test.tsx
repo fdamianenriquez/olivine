@@ -615,6 +615,19 @@ describe("Tour", () => {
       Reflect.deleteProperty(Element.prototype, "scrollIntoView");
     });
 
+    it("reads the scroll-padding of the target's nearest scroller, not only the root's", () => {
+      const scroll = vi.fn();
+      Element.prototype.scrollIntoView = scroll;
+      render(
+        <div style={{ overflow: "auto", scrollPaddingTop: "200px" }}>
+          <span id="inner">Inner</span>
+          <Tour steps={[{ target: "#inner", title: "Inner" }]} defaultOpen />
+        </div>,
+      );
+      expect(scroll).toHaveBeenCalledTimes(1);
+      Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+    });
+
     it("does not scroll a target already in view", () => {
       const scroll = vi.fn();
       Element.prototype.scrollIntoView = scroll;
