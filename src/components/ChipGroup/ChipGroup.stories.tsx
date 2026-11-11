@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import { REDUCE_MOTION_CLASS } from "../../motion";
 import { Avatar } from "../Avatar";
-import { Button } from "../Button";
 import { Chip } from "../Chip";
 import { Field } from "../Field";
 import { Root } from "../Root";
@@ -196,24 +195,19 @@ function UndoList() {
         const removed = list[index];
         if (!removed) return;
         setList((prev) => prev.filter((p) => p.value !== value));
-        const id = toast.show({
+        toast.show({
           title: `${removed.label} removed`,
-          description: (
-            <Button
-              size="s"
-              variant="outline"
-              onClick={() => {
-                setList((prev) => {
-                  const next = [...prev];
-                  next.splice(Math.min(index, next.length), 0, removed);
-                  return next;
-                });
-                toast.dismiss(id);
-              }}
-            >
-              Undo
-            </Button>
-          ),
+          action: {
+            label: "Undo",
+            ariaLabel: `Undo removing ${removed.label}`,
+            onClick: () => {
+              setList((prev) => {
+                const next = [...prev];
+                next.splice(Math.min(index, next.length), 0, removed);
+                return next;
+              });
+            },
+          },
         });
       }}
       // The toast says it; the group stays silent.
@@ -229,13 +223,12 @@ function UndoList() {
 }
 
 /**
- * The app side of removal: update the list, offer an undo. ToastStack has no action slot yet, so
- * this story puts the Undo button in the toast's description.
+ * The app side of removal: update the list, offer an undo through the toast's `action`.
  */
 export const RemoveWithUndo: Story = {
   name: "Remove with undo toast",
   render: () => (
-    <ToastProvider duration={8000}>
+    <ToastProvider>
       <UndoList />
     </ToastProvider>
   ),

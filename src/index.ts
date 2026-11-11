@@ -318,15 +318,26 @@ export {
   type TimePickerProps,
   type TimeValue,
 } from "./components/TimePicker";
-export { Toast, type ToastProps, type ToastTone } from "./components/Toast";
 export {
+  Toast,
+  type ToastCloseReason,
+  type ToastPriority,
+  type ToastProps,
+  type ToastTone,
+} from "./components/Toast";
+export {
+  type ToastAction,
   type ToastApi,
   type ToastOptions,
+  type ToastPatch,
+  type ToastPromiseStep,
+  type ToastPromiseSteps,
   ToastProvider,
   type ToastProviderProps,
   ToastStack,
   type ToastStackPosition,
   type ToastStackProps,
+  type ToastStepOptions,
   useToast,
 } from "./components/ToastStack";
 export {

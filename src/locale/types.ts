@@ -116,6 +116,10 @@ export interface OlivineLabels {
   meterValue: (value: string, state?: string) => string;
   /** Banner: default accessible name of the region when it has no title. */
   banner: { label: string };
+  /** ToastStack: name of the notifications landmark. */
+  notifications: string;
+  /** Toast: hidden hint in a toast with an action; `key` is the hotkey label, e.g. "F6". */
+  toastActionHint: (key: string) => string;
   /** AlertDialog: default button labels and the word shown on a danger confirmation. */
   alertDialog: { confirm: string; cancel: string; caution: string };
   /** Calendar navigation buttons. */

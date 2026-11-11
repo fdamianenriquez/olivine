@@ -1,4 +1,12 @@
-export type { ToastApi, ToastOptions } from "./ToastContext";
+export type {
+  ToastAction,
+  ToastApi,
+  ToastOptions,
+  ToastPatch,
+  ToastPromiseStep,
+  ToastPromiseSteps,
+  ToastStepOptions,
+} from "./ToastContext";
 export { useToast } from "./ToastContext";
 export type { ToastProviderProps } from "./ToastProvider";
 export { ToastProvider } from "./ToastProvider";
