@@ -411,6 +411,20 @@ describe("Meter", () => {
       warn.mockRestore();
     });
 
+    it("warns for long compact notation, which writes words", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      render(
+        <Meter
+          value={1200}
+          max={5000}
+          label="Visits"
+          formatOptions={{ notation: "compact", compactDisplay: "long" }}
+        />,
+      );
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("digits and symbols only"));
+      warn.mockRestore();
+    });
+
     it("warns when format returns an element and no valueText is given", () => {
       const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
       render(<Meter value={40} label="Disk" format={(v) => <b>{v}</b>} />);
@@ -447,5 +461,15 @@ describe("Meter", () => {
       );
       expect(await runAxe(container)).toHaveNoViolations();
     });
+  });
+
+  it("puts aria-describedby and aria-details on the meter, not the wrapper", () => {
+    const { container } = render(
+      <Meter value={0.5} label="Load" aria-describedby="hint" aria-details="more" />,
+    );
+    const node = screen.getByRole("meter");
+    expect(node).toHaveAttribute("aria-describedby", "hint");
+    expect(node).toHaveAttribute("aria-details", "more");
+    expect(container.firstElementChild).not.toHaveAttribute("aria-describedby");
   });
 });

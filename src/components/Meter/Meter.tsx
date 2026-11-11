@@ -105,7 +105,8 @@ function wordyFormat(options: Intl.NumberFormatOptions | undefined): boolean {
   return (
     options.style === "unit" ||
     options.currencyDisplay === "name" ||
-    options.currencyDisplay === "code"
+    options.currencyDisplay === "code" ||
+    (options.notation === "compact" && options.compactDisplay === "long")
   );
 }
 
@@ -142,6 +143,8 @@ export const Meter = forwardRef<HTMLDivElement, MeterProps>(function Meter(
     className,
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-details": ariaDetails,
     ...rest
   },
   ref,
@@ -153,7 +156,13 @@ export const Meter = forwardRef<HTMLDivElement, MeterProps>(function Meter(
   const { state, fraction } = reading;
 
   const options = formatOptions ?? PERCENT;
-  const formatter = useMemo(() => new Intl.NumberFormat(tag, options), [tag, options]);
+  // Keyed by content, so an inline options object does not rebuild the formatter every render.
+  const optionsKey = JSON.stringify(options);
+  const formatter = useMemo(
+    () => new Intl.NumberFormat(tag, options),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `optionsKey` stands for `options`.
+    [tag, optionsKey],
+  );
   const plain = formatter.format(options.style === "percent" ? fraction : reading.value);
   const shown = format ? format(reading.value) : plain;
   const spokenValue = valueText ?? (isText(shown) ? String(shown) : plain);
@@ -249,6 +258,8 @@ export const Meter = forwardRef<HTMLDivElement, MeterProps>(function Meter(
         role="meter"
         aria-label={ariaLabel}
         aria-labelledby={name}
+        aria-describedby={ariaDescribedBy}
+        aria-details={ariaDetails}
         aria-valuemin={reading.min}
         aria-valuemax={reading.max}
         aria-valuenow={reading.value}
