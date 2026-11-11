@@ -1,2 +1,7 @@
-export type { OffcanvasPlacement, OffcanvasProps } from "./Offcanvas";
+export type {
+  OffcanvasPlacement,
+  OffcanvasProps,
+  OffcanvasSnapPoint,
+  OffcanvasSnapReason,
+} from "./Offcanvas";
 export { Offcanvas } from "./Offcanvas";

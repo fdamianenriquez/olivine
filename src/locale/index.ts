@@ -40,6 +40,7 @@ export function makeLabels(
     meter: { ...base.meter, ...labels.meter },
     banner: { ...base.banner, ...labels.banner },
     alertDialog: { ...base.alertDialog, ...labels.alertDialog },
+    offcanvas: { ...base.offcanvas, ...labels.offcanvas },
   };
 }
 

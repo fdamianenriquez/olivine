@@ -114,6 +114,11 @@ export const es: OlivineLabels = {
   notifications: "Notificaciones",
   toastActionHint: (key) => `Pulsa ${key} para ir a la acción`,
   alertDialog: { confirm: "Confirmar", cancel: "Cancelar", caution: "Atención" },
+  offcanvas: {
+    expand: "Ampliar panel",
+    collapse: "Contraer panel",
+    size: (index, total) => `Tamaño ${String(index)} de ${String(total)}`,
+  },
   prevMonth: "Mes anterior",
   nextMonth: "Mes siguiente",
   prevYear: "Año anterior",

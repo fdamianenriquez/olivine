@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
@@ -16,7 +16,16 @@ const meta = {
     docs: {
       description: {
         component:
-          "Offcanvas is a panel that slides in from an edge for navigation, filters or a cart. It traps focus and closes on Escape or a scrim click.\n\n- `end` is the default; `start` and `end` flip in right-to-left languages.\n- Use `bottom` for short, thumb-reachable content on small screens.",
+          'Offcanvas is a panel that slides in from an edge for navigation, filters or a cart. On `placement="bottom"` it is a **bottom sheet**: it can have a drag handle, snap points and swipe-to-dismiss. It is modal by default (scrim, inert page, focus trap, scroll lock); with `modal={false}` it is a standard sheet that sits beside the page. It renders in a portal, closes on Escape, and unrolls on open and rolls back up on close (kakejiku, with a rod on the moving edge for `start` and `end`).\n\n' +
+          "- `end` is the default; `start` and `end` follow the writing direction.\n" +
+          '- `snapPoints` are stops of the sheet\'s visible height: a share of the available height (0 to 1), `px` or `rem`, or `"content"`. The tallest sets the box; lower points move it down.\n' +
+          "- The handle is a button: click, Enter or Space cycle the points, ArrowUp / ArrowDown step, Home / End jump. Drag it with any pointer; the head and body drag with touch and pen.\n" +
+          "- A non-modal sheet does not move focus when it opens: the app moves focus into it from the trigger (a ref on the sheet and `focus()`), so a keyboard user who opened it lands inside. Escape then closes it and focus goes back.\n" +
+          "- A touch or pen swipe toward the edge dismisses (`closeOnSwipe`); the close button and Escape always remain.\n" +
+          "- Travel between points is a translate that stops dead; reduced motion makes it instant, and a drag still follows the finger.\n" +
+          "- Safe-area insets pad the panel and `100dvh` sets the available height (add `viewport-fit=cover` to the page).\n\n" +
+          '**Do** — use `bottom` for short, thumb-reachable content on small screens. Give a sheet with snap points a title. Put the primary action inside the sheet at the lowest point that shows it. Use `"content"` as the lowest point for a summary. Pad the page under a non-modal sheet.\n\n' +
+          "**Don't** — put a blocking decision in a sheet (use `AlertDialog`). Use a sheet for desktop navigation (use `Sidebar`). Hide the only way to a function behind a drag. Set `closeButton={false}` without another way out. Nest forms with software-keyboard fields in a lower snap point.",
       },
     },
   },
@@ -26,8 +35,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function Demo(props: Partial<OffcanvasProps>) {
-  const [open, setOpen] = useState(false);
+const FILTERS = ["Identity", "Interiors", "Print", "Packaging", "Signage", "Type", "Web", "Motion"];
+
+function Demo({
+  startOpen = false,
+  label = "Open panel",
+  ...props
+}: Partial<OffcanvasProps> & { startOpen?: boolean; label?: string }) {
+  const [open, setOpen] = useState(startOpen);
   const close = () => {
     setOpen(false);
   };
@@ -38,12 +53,13 @@ function Demo(props: Partial<OffcanvasProps>) {
           setOpen(true);
         }}
       >
-        Open panel
+        {label}
       </Button>
       <Offcanvas title="Filters" {...props} open={open} onClose={close}>
         <div style={{ display: "grid", gap: "var(--space-4)" }}>
-          <Checkbox label="Identity" defaultChecked />
-          <Checkbox label="Interiors" />
+          {FILTERS.map((name, i) => (
+            <Checkbox key={name} label={name} defaultChecked={i === 0} />
+          ))}
           <Button variant="solid" block arrow onClick={close}>
             Apply
           </Button>
@@ -59,11 +75,79 @@ export const Start: Story = { render: () => <Demo placement="start" /> };
 
 export const Bottom: Story = { render: () => <Demo placement="bottom" /> };
 
+/** Three stops: the content's own height, half the screen, and the full available height. */
+export const BottomSheetSnapPoints: Story = {
+  name: "Bottom sheet with snap points",
+  render: () => <Demo placement="bottom" snapPoints={["content", 0.5, 1]} startOpen />,
+};
+
+function NonModalDemo() {
+  const [open, setOpen] = useState(false);
+  const sheet = useRef<HTMLDivElement>(null);
+  // The sheet does not take focus itself; move it in once the sheet has mounted.
+  useEffect(() => {
+    if (open) sheet.current?.focus();
+  }, [open]);
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        Show results
+      </Button>
+      <Offcanvas
+        ref={sheet}
+        title="Results"
+        placement="bottom"
+        modal={false}
+        snapPoints={["10rem", 0.6]}
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        <div style={{ display: "grid", gap: "var(--space-4)" }}>
+          {FILTERS.map((name) => (
+            <Checkbox key={name} label={name} />
+          ))}
+        </div>
+      </Offcanvas>
+    </div>
+  );
+}
+
+/**
+ * A standard sheet: no scrim, the page stays live, and the sheet does not move focus. The trigger
+ * moves focus into it with a ref and `focus()`, so a keyboard user lands inside.
+ */
+export const NonModal: Story = {
+  name: "Non-modal",
+  render: () => <NonModalDemo />,
+};
+
+export const RightToLeft: Story = {
+  name: "Right to left",
+  render: () => (
+    <div dir="rtl" style={{ display: "flex", gap: "var(--space-3)" }}>
+      <Demo placement="start" label="Start" />
+      <Demo placement="end" label="End" />
+      <Demo placement="bottom" snapPoints={[0.4, 1]} label="Bottom" />
+    </div>
+  ),
+};
+
 export const Placements: Story = {
   render: () => (
     <div style={{ display: "flex", gap: "var(--space-3)" }}>
       {(["start", "end", "bottom"] as const).map((placement) => (
-        <Demo key={placement} placement={placement} title={`Placement ${placement}`} />
+        <Demo
+          key={placement}
+          placement={placement}
+          title={`Placement ${placement}`}
+          label={placement}
+        />
       ))}
     </div>
   ),
@@ -74,7 +158,8 @@ export const Themes: Story = {
     <div style={{ display: "flex", gap: "var(--space-4)" }}>
       {(["washi", "sumi"] as const).map((theme) => (
         <Root key={theme} theme={theme} style={{ padding: "var(--space-6)" }}>
-          <Demo />
+          <Demo label={theme} />
+          <Demo placement="bottom" snapPoints={[0.4, 1]} label={`${theme} sheet`} />
         </Root>
       ))}
     </div>
@@ -86,7 +171,7 @@ export const Locales: Story = {
     <div style={{ display: "flex", gap: "var(--space-4)" }}>
       {(["en", "es", "ja"] as const).map((locale) => (
         <Root key={locale} locale={locale}>
-          <Demo />
+          <Demo placement="bottom" snapPoints={[0.4, 1]} label={locale} />
         </Root>
       ))}
     </div>
