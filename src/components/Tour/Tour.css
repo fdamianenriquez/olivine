@@ -1,0 +1,229 @@
+/*
+ * Tour: a Popover card pointed at a target. Modal: a scrim with a square hole (clip-path) over
+ * the target. Non-modal: a hairline frame drawn around the target.
+ */
+
+/* The hole's edges, set at runtime. Registered so the polygon slides between steps. */
+@property --ol-tour-x1 {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-tour-y1 {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-tour-x2 {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --ol-tour-y2 {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.ol-tour-layer {
+  /* Room between the target and the hole's edge (or the frame). */
+  --ol-tour-pad: var(--space-2);
+}
+
+/* ---------- Mask (modal) ---------- */
+
+.ol-tour__mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--scrim);
+
+  /* The viewport, minus the hole: the even-odd rule cuts the inner rectangle out. */
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 0,
+    var(--ol-tour-x1) var(--ol-tour-y1),
+    var(--ol-tour-x2) var(--ol-tour-y1),
+    var(--ol-tour-x2) var(--ol-tour-y2),
+    var(--ol-tour-x1) var(--ol-tour-y2),
+    var(--ol-tour-x1) var(--ol-tour-y1)
+  );
+
+  /* Jo: the scrim fades in with the hole already in place. */
+  animation: ol-fade-in var(--dur-s) var(--ease-effect) backwards;
+}
+
+/* Only between steps does the hole slide; while following a scroll it never trails. */
+.ol-tour__mask[data-moving] {
+  transition:
+    --ol-tour-x1 var(--dur-m) var(--ease-move),
+    --ol-tour-y1 var(--dur-m) var(--ease-move),
+    --ol-tour-x2 var(--dur-m) var(--ease-move),
+    --ol-tour-y2 var(--dur-m) var(--ease-move);
+}
+
+/* ---------- Frame (non-modal) ---------- */
+
+.ol-tour__spot,
+.ol-tour__edge {
+  position: fixed;
+  top: var(--ol-tour-y1);
+  left: var(--ol-tour-x1);
+  z-index: var(--z-overlay);
+  width: calc(var(--ol-tour-x2) - var(--ol-tour-x1));
+  height: calc(var(--ol-tour-y2) - var(--ol-tour-y1));
+  pointer-events: none;
+}
+
+.ol-tour__spot {
+  --ol-draw-color: var(--ink);
+}
+
+.ol-tour__spot[hidden] {
+  display: none;
+}
+
+/* The hole's edge exists only for forced colours (see below). */
+.ol-tour__edge {
+  display: none;
+}
+
+/* The hairline is drawn clockwise when the step starts (replayed on every step). */
+.ol-tour__spot::before {
+  animation:
+    ol-draw-top var(--dur-m) var(--ease-move) backwards,
+    ol-draw-right var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.25) backwards;
+}
+
+.ol-tour__spot::after {
+  animation:
+    ol-draw-bottom var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.5) backwards,
+    ol-draw-left var(--dur-m) var(--ease-move) calc(var(--dur-m) * 0.75) backwards;
+}
+
+/* ---------- Card (a Popover) ---------- */
+
+.ol-tour {
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  max-height: var(--ol-float-available-height, calc(100dvh - 2 * var(--space-4)));
+  color: var(--ink);
+
+  /* Kyū: the card settles beside the hole once the scrim is in. */
+  animation: ol-settle var(--dur-m) var(--ease-effect) var(--dur-s) backwards;
+}
+
+/* After the first step change the card only settles briefly in its new place. */
+.ol-tour[data-moved] {
+  animation: ol-settle var(--dur-s) var(--ease-effect) backwards;
+}
+
+/* A step with no target (or `center`): the card sits in the middle of the viewport. */
+.ol-tour.ol-tour--center {
+  inset: 0;
+  height: fit-content;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  margin: auto;
+}
+
+.ol-popover.ol-tour:focus-visible {
+  outline-offset: calc(-1 * var(--stroke-bold));
+}
+
+.ol-tour__head {
+  flex: none;
+  align-items: flex-start;
+}
+
+.ol-tour__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* "02 / 05": figures in the figure face, the current one in ink. */
+.ol-tour__count {
+  margin: 0;
+  letter-spacing: var(--text-figure-xs-tracking);
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  color: var(--ink-2);
+}
+
+.ol-tour__count b {
+  font-weight: inherit;
+  color: var(--ink);
+}
+
+.ol-tour__title {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  overflow-wrap: break-word;
+}
+
+.ol-tour__body {
+  min-height: 0;
+  overflow: auto;
+  overflow-wrap: break-word;
+}
+
+/* Skip at the start edge, Back and Next at the end; Skip takes its own row when narrow. */
+.ol-tour__foot {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-top: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tour__nav {
+  display: flex;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+/* ---------- Exit ---------- */
+
+.ol-tour-layer[data-state="closing"] > * {
+  pointer-events: none;
+  animation: ol-fade-out var(--dur-s) var(--ease-effect) forwards;
+}
+
+.ol-tour-layer[data-state="closing"] > .ol-tour__spot::before,
+.ol-tour-layer[data-state="closing"] > .ol-tour__spot::after {
+  animation: none;
+}
+
+@media (forced-colors: active) {
+  /* The scrim turns opaque; the hole still shows the target. */
+  .ol-tour__mask {
+    background: Canvas;
+  }
+
+  .ol-tour__spot {
+    --ol-draw-color: CanvasText;
+  }
+
+  .ol-tour__edge:not([hidden]) {
+    display: block;
+    outline: var(--stroke-hair) solid CanvasText;
+  }
+
+  .ol-tour__foot {
+    border-color: CanvasText;
+  }
+}
