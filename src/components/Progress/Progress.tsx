@@ -56,6 +56,8 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
     className,
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+    "aria-details": ariaDetails,
     ...rest
   },
   ref,
@@ -107,6 +109,8 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
         role="progressbar"
         aria-label={ariaLabel}
         aria-labelledby={name}
+        aria-describedby={ariaDescribedBy}
+        aria-details={ariaDetails}
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={now}

@@ -145,4 +145,14 @@ describe("Progress", () => {
     );
     expect(await runAxe(container)).toHaveNoViolations();
   });
+
+  it("puts aria-describedby and aria-details on the progressbar, not the wrapper", () => {
+    const { container } = render(
+      <Progress value={50} label="Upload" aria-describedby="hint" aria-details="more" />,
+    );
+    const node = screen.getByRole("progressbar");
+    expect(node).toHaveAttribute("aria-describedby", "hint");
+    expect(node).toHaveAttribute("aria-details", "more");
+    expect(container.firstElementChild).not.toHaveAttribute("aria-describedby");
+  });
 });
