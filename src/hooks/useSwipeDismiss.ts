@@ -6,6 +6,8 @@ import {
   useState,
 } from "react";
 
+import { CONTROLS, DISMISS_THRESHOLD, FLICK_VELOCITY, FLICK_WINDOW, SLOP } from "./gesture";
+
 /** The edge an element is swiped toward to dismiss it. */
 export type SwipeDirection = "left" | "right" | "up" | "down";
 
@@ -52,15 +54,6 @@ export interface SwipeDismiss<T extends HTMLElement> {
   };
 }
 
-/** Movement in px before a press becomes a swipe (or is given up to scrolling). */
-const SLOP = 8;
-/** A release later than this after the last move counts as a stop, not a flick. */
-const FLICK_WINDOW = 100;
-
-/** Presses on controls never start a swipe. */
-const CONTROLS =
-  "button, a[href], input, select, textarea, label, summary, [contenteditable]:not([contenteditable='false']), [role='button'], [role='link'], [data-swipe-ignore]";
-
 interface Drag {
   id: number;
   x: number;
@@ -101,8 +94,8 @@ export function useSwipeDismiss<T extends HTMLElement = HTMLElement>({
   direction,
   onDismiss,
   onSwipingChange,
-  threshold = 0.4,
-  velocity = 0.5,
+  threshold = DISMISS_THRESHOLD,
+  velocity = FLICK_VELOCITY,
   pointerTypes = ["touch", "pen"],
 }: SwipeDismissOptions): SwipeDismiss<T> {
   const [phase, setPhase] = useState<SwipePhase>("idle");
