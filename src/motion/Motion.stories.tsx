@@ -577,7 +577,7 @@ export const Kakejiku: Story = {
     docs: {
       description: {
         story:
-          '`.ol-kakejiku` unrolls with a clip-path; `data-state="closing"` rolls it back. Vertical unrolls (Modal, menus) have no rod. `--from-right` / `--from-left` unroll from a screen edge (emakimono) with a 3px rod just outside the moving edge, which stays after unrolling (Offcanvas). Components keep it mounted and `inert` while it rolls up with an internal presence hook (`usePresence`, not exported from the package root; used here only to drive the demo).',
+          '`.ol-kakejiku` unrolls with a clip-path; `data-state="closing"` rolls it back. Vertical unrolls (Modal, menus) have no rod. `--from-right` / `--from-left` unroll from a screen edge (emakimono) with a 3px rod just outside the moving edge, which stays after unrolling (Offcanvas). `--ol-kakejiku-start` (default `100%`), set on the element itself, is the inset the fully rolled scroll starts from and ends at: a bottom sheet resting below its box sets `calc(100% - var(--ol-sheet-rest, 0px))` so it unrolls from the screen edge. Components keep it mounted and `inert` while it rolls up with an internal presence hook (`usePresence`, not exported from the package root; used here only to drive the demo).',
       },
     },
   },
