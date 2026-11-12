@@ -97,6 +97,7 @@
     forced-color-adjust: none;
   }
 
+  .ol-carousel__tick:hover,
   .ol-carousel__tick[aria-current="true"] {
     background-image: linear-gradient(Highlight, Highlight);
   }

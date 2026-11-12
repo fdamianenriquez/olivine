@@ -336,8 +336,20 @@
     border-inline-start-color: CanvasText;
   }
 
-  .ol-timepicker__btn:is(:hover, [aria-expanded="true"]),
-  .ol-timepicker__opt:hover {
+  .ol-timepicker__btn:is(:hover, [aria-expanded="true"]) {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background: Highlight;
+  }
+
+  /* Hover is an outline, not the fill, so a hovered cell never looks picked. */
+  .ol-timepicker__opt:hover:not([aria-selected="true"], [aria-disabled="true"], :focus-visible) {
+    outline: var(--stroke-hair) solid CanvasText;
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+
+  .ol-timepicker__seg:focus,
+  .ol-timepicker__opt[aria-selected="true"] {
     forced-color-adjust: none;
     color: HighlightText;
     background: Highlight;
@@ -349,16 +361,9 @@
    * system ring like every other focused control.
    */
   .ol-timepicker__btn:is(:hover, [aria-expanded="true"]):focus-visible,
-  .ol-timepicker__opt:is(:hover, [aria-selected="true"]):not([aria-disabled="true"]):focus-visible {
+  .ol-timepicker__opt[aria-selected="true"]:not([aria-disabled="true"]):focus-visible {
     outline-color: HighlightText;
     box-shadow: none;
-  }
-
-  .ol-timepicker__seg:focus,
-  .ol-timepicker__opt[aria-selected="true"] {
-    forced-color-adjust: none;
-    color: HighlightText;
-    background: Highlight;
   }
 
   .ol-timepicker[data-disabled] .ol-timepicker__box,
