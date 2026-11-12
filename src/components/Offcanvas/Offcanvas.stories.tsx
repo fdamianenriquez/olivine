@@ -27,7 +27,10 @@ const meta = {
           "- Safe-area insets pad the panel and `100dvh` sets the available height (add `viewport-fit=cover` to the page).\n" +
           "- A bottom sheet stands on the software keyboard: it follows the visual viewport, its height cap shrinks to fit, and the field being typed in stays in view.\n" +
           "- At the tallest point an overflowing body scrolls; a pull down that starts at the top of its content drags the sheet down instead, to a lower point or out.\n" +
-          "- A modal sheet's scrim fades as it is dragged below its lowest point, and comes back if the sheet is released and stays.\n\n" +
+          "- A modal sheet's scrim fades as it is dragged below its lowest point, and comes back if the sheet is released and stays.\n" +
+          "- While a sheet with snap points is dragged, hairline ticks on both of its edges mark where each point would stop it.\n" +
+          '- `onClose(reason)` says how the panel was dismissed: `"escape"`, `"close"`, `"scrim"` or `"swipe"`.\n' +
+          "- `Offcanvas.SwipeArea` renders nothing: while enabled, a touch or pen swipe inward that starts within `depth` of a screen edge calls `onOpen`. The gesture is claimed only once it moves inward, so taps, long presses, selection, sliders, hover and screen-reader exploration near the edge stay with the page, and a mouse never swipes. It is a shortcut and never the only way in: keep a visible button that opens the same panel. System edge gestures (back on iOS and Android, the home indicator) usually win at the very edge of the screen, and content with its own horizontal gestures at that edge (a carousel, a map) competes with it.\n\n" +
           '**Do** — use `bottom` for short, thumb-reachable content on small screens. Give a sheet with snap points a title. Put the primary action inside the sheet at the lowest point that shows it. Use `"content"` as the lowest point for a summary. Pad the page under a non-modal sheet.\n\n' +
           "**Don't** — put a blocking decision in a sheet (use `AlertDialog`). Use a sheet for desktop navigation (use `Sidebar`). Hide the only way to a function behind a drag. Set `closeButton={false}` without another way out. Nest forms with software-keyboard fields in a lower snap point.",
       },
@@ -173,6 +176,77 @@ function NonModalDemo() {
 export const NonModal: Story = {
   name: "Non-modal",
   render: () => <NonModalDemo />,
+};
+
+function SwipeDemo() {
+  const [panel, setPanel] = useState<"start" | "bottom" | null>(null);
+  const close = () => {
+    setPanel(null);
+  };
+  return (
+    <div style={{ display: "flex", gap: "var(--space-3)" }}>
+      {/* The buttons stay: the swipe is a shortcut, never the only way in. */}
+      <Button
+        onClick={() => {
+          setPanel("start");
+        }}
+      >
+        Menu
+      </Button>
+      <Button
+        onClick={() => {
+          setPanel("bottom");
+        }}
+      >
+        Filters
+      </Button>
+      <Offcanvas.SwipeArea
+        placement="start"
+        disabled={panel !== null}
+        onOpen={() => {
+          setPanel("start");
+        }}
+      />
+      <Offcanvas.SwipeArea
+        placement="bottom"
+        disabled={panel !== null}
+        onOpen={() => {
+          setPanel("bottom");
+        }}
+      />
+      <Offcanvas open={panel === "start"} placement="start" title="Menu" onClose={close}>
+        <div style={{ display: "grid", gap: "var(--space-4)" }}>
+          {FILTERS.slice(0, 4).map((name) => (
+            <Checkbox key={name} label={name} />
+          ))}
+        </div>
+      </Offcanvas>
+      <Offcanvas
+        open={panel === "bottom"}
+        placement="bottom"
+        snapPoints={["content", 1]}
+        title="Filters"
+        onClose={close}
+      >
+        <div style={{ display: "grid", gap: "var(--space-4)" }}>
+          {FILTERS.map((name) => (
+            <Checkbox key={name} label={name} />
+          ))}
+        </div>
+      </Offcanvas>
+    </div>
+  );
+}
+
+/**
+ * On a touch screen, swipe in from the start edge for the menu, or up from the bottom edge for
+ * the filters. Nothing is drawn and nothing near the edges is covered; the buttons stay, as the
+ * swipe is only a shortcut. System edge gestures (back, the home indicator) usually win at the
+ * very edge, and content with its own horizontal gestures there competes with the swipe.
+ */
+export const SwipeToOpen: Story = {
+  name: "Swipe to open",
+  render: () => <SwipeDemo />,
 };
 
 export const RightToLeft: Story = {

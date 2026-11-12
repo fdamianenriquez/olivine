@@ -181,10 +181,12 @@ export {
 export { NumberField, type NumberFieldProps } from "./components/NumberField";
 export {
   Offcanvas,
+  type OffcanvasCloseReason,
   type OffcanvasPlacement,
   type OffcanvasProps,
   type OffcanvasSnapPoint,
   type OffcanvasSnapReason,
+  type OffcanvasSwipeAreaProps,
 } from "./components/Offcanvas";
 export { Pagination, type PaginationProps } from "./components/Pagination";
 export { type PinCharset, PinInput, type PinInputProps } from "./components/PinInput";

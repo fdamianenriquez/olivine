@@ -24,6 +24,7 @@ import { devWarn } from "../../utils/dev";
 import { CloseButton } from "../CloseButton";
 import { Portal } from "../Portal";
 import { VisuallyHidden } from "../VisuallyHidden";
+import { OffcanvasSwipeArea } from "./OffcanvasSwipeArea";
 import {
   distinct,
   indexOfPoint,
@@ -43,6 +44,12 @@ export type OffcanvasPlacement = "end" | "start" | "bottom";
  */
 export type OffcanvasSnapReason = "drag" | "handle" | "keyboard" | "focus";
 
+/**
+ * Why the user dismissed the panel: Escape, the close button, a click on the scrim, or a touch
+ * or pen swipe toward the edge.
+ */
+export type OffcanvasCloseReason = "escape" | "close" | "scrim" | "swipe";
+
 export interface OffcanvasOwnProps {
   /**
    * Whether the panel is shown. When it turns `false` the panel rolls back up, inert, and
@@ -50,10 +57,11 @@ export interface OffcanvasOwnProps {
    */
   open: boolean;
   /**
-   * Called on Escape, on the close button, on a scrim click and on a swipe dismiss. Without it
-   * the panel cannot be dismissed by the user and the close button is hidden.
+   * Called with the reason when the user dismisses the panel: Escape (`"escape"`), the close
+   * button (`"close"`), a scrim click (`"scrim"`) or a swipe toward the edge (`"swipe"`). Without
+   * it the panel cannot be dismissed by the user and the close button is hidden.
    */
-  onClose?: () => void;
+  onClose?: (reason: OffcanvasCloseReason) => void;
   /** Heading of the panel. It also names the dialog; give `aria-label` without one. */
   title?: ReactNode;
   /**
@@ -146,7 +154,7 @@ function sameGeometry(a: Geometry | null, b: Geometry): boolean {
  * a scrim, an inert page, a focus trap and a scroll lock. On `bottom` it is a bottom sheet with
  * an optional drag handle, snap points and swipe-to-dismiss.
  */
-export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Offcanvas(
+const OffcanvasRoot = forwardRef<HTMLDivElement, OffcanvasProps>(function Offcanvas(
   {
     open,
     onClose,
@@ -191,7 +199,15 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
   const prevSnap = useRef(snap);
   const labels = useLabels().offcanvas;
 
-  const overlayRef = useOverlay({ open, onClose, modal });
+  const overlayRef = useOverlay({
+    open,
+    onClose: onClose
+      ? () => {
+          onClose("escape");
+        }
+      : undefined,
+    modal,
+  });
   // Destructured: the React Compiler would treat the whole object as a ref.
   const { mounted, state, setElement } = usePresence<HTMLDivElement>(open);
   const [panel, setPanel] = useState<HTMLDivElement | null>(null);
@@ -377,7 +393,7 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
       request(target, "drag");
     },
     onDismiss: () => {
-      onClose?.();
+      onClose?.("swipe");
     },
     // Called once the pointer has moved, with the direction. An overflowing body at the tallest
     // point scrolls, except for a pull down that starts at the top of its content.
@@ -399,7 +415,7 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     direction:
       swipesSide && state === "open" ? ((placement === "end") !== rtl ? "right" : "left") : false,
     onDismiss: () => {
-      onClose?.();
+      onClose?.("swipe");
     },
   });
   const phase = bottom ? sheetPhase : swipe.phase;
@@ -644,7 +660,14 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
               {title}
             </h2>
           )}
-          {showClose && <CloseButton onClick={onClose} data-autofocus={modal ? "" : undefined} />}
+          {showClose && (
+            <CloseButton
+              onClick={() => {
+                onClose("close");
+              }}
+              data-autofocus={modal ? "" : undefined}
+            />
+          )}
         </div>
       )}
       <div
@@ -663,6 +686,18 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
         <VisuallyHidden role="status" className="ol-offcanvas__status">
           {status}
         </VisuallyHidden>
+      )}
+      {/* The rail: a hairline at the height of each point, shown while the sheet is dragged. */}
+      {snapping && geometry && (
+        <span className="ol-offcanvas__rail" aria-hidden="true">
+          {points.map((point) => (
+            <span
+              key={point.px}
+              className="ol-offcanvas__mark"
+              style={{ insetBlockStart: `${String(tallest - point.px)}px` }}
+            />
+          ))}
+        </span>
       )}
     </div>
   );
@@ -687,7 +722,7 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
               const started = pressedScrim.current;
               pressedScrim.current = false;
               if (!open || !closeOnScrim || !started) return;
-              if (event.target === event.currentTarget) onClose?.();
+              if (event.target === event.currentTarget) onClose?.("scrim");
             }}
           >
             {panelEl}
@@ -699,3 +734,9 @@ export const Offcanvas = forwardRef<HTMLDivElement, OffcanvasProps>(function Off
     </>
   );
 });
+
+/**
+ * Offcanvas with its part attached: `Offcanvas.SwipeArea`, an edge strip that opens the panel
+ * with a touch or pen swipe inward.
+ */
+export const Offcanvas = Object.assign(OffcanvasRoot, { SwipeArea: OffcanvasSwipeArea });

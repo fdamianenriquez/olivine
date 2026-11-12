@@ -281,13 +281,80 @@ button.ol-offcanvas__handle:hover,
   }
 }
 
+/*
+ * The rail (shoji): while a sheet with snap points is dragged, a hairline tick on both of its
+ * edges marks the height of each point. The rail cancels the sheet's own translate so the ticks
+ * stay where the sheet would stop; it follows the travel with the same duration and curve, so it
+ * also stands still while the sheet settles and the ticks fade.
+ */
+.ol-offcanvas__rail {
+  position: absolute;
+  inset-inline: 0;
+
+  /* From the border box: a point's height includes the top border, where the sheet stops. */
+  inset-block-start: calc(-1 * var(--stroke-hair));
+  height: var(--ol-sheet-height, 100%);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(calc(-1 * (var(--ol-sheet-rest, 0px) + var(--ol-swipe-y, 0px))));
+  transition: opacity var(--dur-s) var(--ease-effect);
+}
+
+.ol-offcanvas--bottom[data-travel] .ol-offcanvas__rail {
+  transition:
+    opacity var(--dur-s) var(--ease-effect),
+    transform var(--dur-m) var(--ease-move);
+}
+
+.ol-offcanvas--bottom[data-travel="release"] .ol-offcanvas__rail {
+  transition:
+    opacity var(--dur-s) var(--ease-effect),
+    transform var(--dur-m) var(--ease-standard);
+}
+
+.ol-offcanvas[data-swipe="drag"] .ol-offcanvas__rail {
+  opacity: 1;
+  transition: opacity var(--dur-s) var(--ease-effect);
+}
+
+/* A swipe-out takes the marks away at once; the sheet is leaving, not stopping. */
+.ol-offcanvas[data-swipe="out"] .ol-offcanvas__rail {
+  transition: none;
+  opacity: 0;
+}
+
+.ol-offcanvas__mark {
+  position: absolute;
+  inset-inline: 0;
+  height: var(--stroke-hair);
+}
+
+.ol-offcanvas__mark::before,
+.ol-offcanvas__mark::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: var(--space-4);
+  background: var(--rule);
+}
+
+.ol-offcanvas__mark::before {
+  inset-inline-start: 0;
+}
+
+.ol-offcanvas__mark::after {
+  inset-inline-end: 0;
+}
+
 @media (forced-colors: active) {
   .ol-offcanvas,
   .ol-offcanvas__head {
     border-color: CanvasText;
   }
 
-  .ol-offcanvas__handle::before {
+  .ol-offcanvas__handle::before,
+  .ol-offcanvas__mark::before,
+  .ol-offcanvas__mark::after {
     background: CanvasText;
   }
 }
