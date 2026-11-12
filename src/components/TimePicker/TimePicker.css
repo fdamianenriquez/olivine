@@ -373,6 +373,12 @@
     color: GrayText;
   }
 
+  /* A disabled selected option stays marked: a GrayText inset ring (outlines survive forced colours). */
+  .ol-timepicker__opt[aria-disabled="true"][aria-selected="true"]:not(:focus-visible) {
+    outline: var(--stroke-hair) solid GrayText;
+    outline-offset: calc(var(--stroke-hair) * -1);
+  }
+
   /* A disabled field never takes the Highlight fill; its text and glyph read as GrayText. */
   .ol-timepicker[data-disabled] .ol-timepicker__seg,
   .ol-timepicker[data-disabled] .ol-timepicker__colon,

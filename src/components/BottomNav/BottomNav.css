@@ -207,7 +207,8 @@
     forced-color-adjust: none;
   }
 
-  .ol-bottomnav__item::before {
+  .ol-bottomnav__item[aria-current="page"]::before {
+    forced-color-adjust: none;
     background: Highlight;
   }
 }
