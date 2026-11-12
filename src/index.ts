@@ -14,7 +14,13 @@ export {
 } from "./components/AlertDialog";
 export * from "./components/Avatar";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";
-export { Banner, type BannerLive, type BannerProps, type BannerTone } from "./components/Banner";
+export {
+  Banner,
+  type BannerLive,
+  type BannerProps,
+  type BannerTone,
+  type BannerVariant,
+} from "./components/Banner";
 export {
   BOTTOM_NAV_MAX_ITEMS,
   BOTTOM_NAV_MIN_ITEMS,

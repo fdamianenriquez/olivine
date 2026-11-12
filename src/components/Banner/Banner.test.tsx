@@ -61,7 +61,11 @@ function Controlled(props: Partial<BannerProps>) {
   );
 }
 
-const css = readFileSync("src/components/Banner/Banner.css", "utf8");
+const fullCss = readFileSync("src/components/Banner/Banner.css", "utf8");
+const PROMO_MARK = '/* ===== variant="promo"';
+// The status strip's rules; the promo section is checked on its own.
+const css = fullCss.slice(0, fullCss.indexOf(PROMO_MARK));
+const promoCss = fullCss.slice(fullCss.indexOf(PROMO_MARK));
 
 describe("Banner", () => {
   describe("structure", () => {
@@ -907,6 +911,434 @@ describe("Banner", () => {
       expect(await runAxe(container)).toHaveNoViolations();
       finish();
       await flush();
+    });
+  });
+
+  describe('variant="promo"', () => {
+    const promoActions = (
+      <>
+        <Button size="s">Reserve one</Button>
+        <Button size="s" variant="ghost">
+          See the build
+        </Button>
+      </>
+    );
+
+    describe("structure and semantics", () => {
+      it("is a labelled section named by the localised tag, not a live region", () => {
+        const { container } = render(<Banner variant="promo">The slab is back.</Banner>);
+        const el = screen.getByRole("region", { name: "New" });
+        expect(el.tagName).toBe("SECTION");
+        expect(el).toBe(container.querySelector(".ol-banner"));
+        expect(el).toHaveClass("ol-banner", "ol-banner--promo");
+        expect(el).not.toHaveAttribute("role");
+        expect(screen.queryByRole("status")).toBeNull();
+        expect(screen.queryByRole("alert")).toBeNull();
+        expect(container.querySelector(".ol-banner__tag")).toHaveTextContent("New");
+      });
+
+      it("ignores tone: no tone class or attribute, the same tag for every tone", () => {
+        for (const tone of TONES) {
+          const { container, unmount } = render(
+            <Banner variant="promo" tone={tone}>
+              Body
+            </Banner>,
+          );
+          const el = container.querySelector(".ol-banner");
+          expect(el).toHaveClass("ol-banner--promo");
+          expect(el).not.toHaveClass(`ol-banner--${tone}`);
+          expect(el).not.toHaveAttribute("data-tone");
+          expect(el?.querySelector(".ol-banner__tag")).toHaveTextContent("New");
+          unmount();
+        }
+      });
+
+      it("ignores live: it stays a section", () => {
+        render(
+          <Banner variant="promo" live="assertive">
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region", { name: "New" }).tagName).toBe("SECTION");
+        expect(screen.queryByRole("alert")).toBeNull();
+      });
+
+      it("lets tag override the word, and the name follows it", () => {
+        render(
+          <Banner variant="promo" tag="Sale">
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region", { name: "Sale" })).toBeInTheDocument();
+        expect(document.querySelector(".ol-banner__tag")).toHaveTextContent("Sale");
+      });
+
+      it("falls back to the localised tag when tag is empty, so a promo is always tagged", () => {
+        render(
+          <Banner variant="promo" tag="">
+            Body
+          </Banner>,
+        );
+        expect(document.querySelector(".ol-banner__tag")).toHaveTextContent("New");
+        expect(document.querySelector(".ol-banner")).not.toHaveClass("ol-banner--untagged");
+      });
+
+      it("uses label as the name, and a title names the section instead", () => {
+        const { rerender } = render(
+          <Banner variant="promo" label="Guitar news">
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region", { name: "Guitar news" })).toBeInTheDocument();
+        rerender(
+          <Banner variant="promo" title="Kaichi slab">
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region", { name: "Kaichi slab" })).toBeInTheDocument();
+      });
+
+      it("renders up to two actions on the strip and keeps the ref and native props", () => {
+        const ref = createRef<HTMLDivElement>();
+        render(
+          <Banner variant="promo" ref={ref} className="x" id="promo" actions={promoActions}>
+            Body
+          </Banner>,
+        );
+        const el = screen.getByRole("region", { name: "New" });
+        expect(ref.current).toBe(el);
+        expect(el).toHaveClass("x");
+        expect(el).toHaveAttribute("id", "promo");
+        const actions = el.querySelector(".ol-banner__actions");
+        expect(actions).toContainElement(screen.getByRole("button", { name: "Reserve one" }));
+        expect(actions).toContainElement(screen.getByRole("button", { name: "See the build" }));
+        expect(screen.getByRole("button", { name: "See the build" })).toHaveClass("ol-btn--ghost");
+      });
+
+      it("keeps the development warning for more than two actions", () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(noop);
+        render(
+          <Banner
+            variant="promo"
+            actions={
+              <>
+                <Button size="s">One</Button>
+                <Button size="s">Two</Button>
+                <a href="#three">Three</a>
+              </>
+            }
+          >
+            Body
+          </Banner>,
+        );
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("Banner: 3 actions"));
+      });
+
+      it("leaves a status banner untouched with variant='status'", () => {
+        render(
+          <Banner variant="status" tone="danger">
+            Body
+          </Banner>,
+        );
+        const el = screen.getByRole("region", { name: "Announcement" });
+        expect(el.tagName).toBe("DIV");
+        expect(el).toHaveClass("ol-banner--danger");
+        expect(el).not.toHaveClass("ol-banner--promo");
+      });
+    });
+
+    describe("never sticky", () => {
+      it("warns in development when sticky is set, and adds no sticky class or offset", () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(noop);
+        render(
+          <Banner variant="promo" sticky>
+            Body
+          </Banner>,
+        );
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('variant="promo" is never sticky'),
+        );
+        const el = screen.getByRole("region", { name: "New" });
+        expect(el).not.toHaveClass("ol-banner--sticky");
+        expect(document.documentElement.style.getPropertyValue("--ol-sticky-offset")).toBe("");
+        expect(el.style.getPropertyValue("--ol-sticky-top")).toBe("");
+      });
+
+      it("does not warn without sticky", () => {
+        const warn = vi.spyOn(console, "warn").mockImplementation(noop);
+        render(<Banner variant="promo">Body</Banner>);
+        expect(warn).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("dismiss and keyboard", () => {
+      it("shows the close button only with onClose, named by the localised dismiss", () => {
+        const { rerender } = render(<Banner variant="promo">Body</Banner>);
+        expect(screen.queryByRole("button")).toBeNull();
+        rerender(
+          <Banner variant="promo" onClose={noop}>
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("button", { name: "Dismiss" })).toHaveClass("ol-banner__close");
+      });
+
+      it("is not a tab stop; Tab goes through the actions, then close, in order", async () => {
+        const user = userEvent.setup();
+        render(
+          <Banner variant="promo" actions={promoActions} onClose={noop}>
+            Body
+          </Banner>,
+        );
+        await user.tab();
+        expect(screen.getByRole("button", { name: "Reserve one" })).toHaveFocus();
+        await user.tab();
+        expect(screen.getByRole("button", { name: "See the build" })).toHaveFocus();
+        await user.tab();
+        expect(screen.getByRole("button", { name: "Dismiss" })).toHaveFocus();
+      });
+
+      it("closes from the keyboard with Enter", async () => {
+        const user = userEvent.setup();
+        const onClose = vi.fn();
+        render(
+          <Banner variant="promo" onClose={onClose}>
+            Body
+          </Banner>,
+        );
+        await user.tab();
+        await user.keyboard("{Enter}");
+        await waitFor(() => {
+          expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+        });
+        expect(onClose).toHaveBeenCalledOnce();
+      });
+
+      it("rolls up (kakejiku, inert) before it unmounts, then calls onExited", async () => {
+        const onExited = vi.fn();
+        const onClose = vi.fn();
+        const { rerender } = render(
+          <Banner variant="promo" open onClose={onClose} onExited={onExited}>
+            Body
+          </Banner>,
+        );
+        const region = screen.getByRole("region", { name: "New" });
+        const finish = holdExit(region);
+        rerender(
+          <Banner variant="promo" open={false} onClose={onClose} onExited={onExited}>
+            Body
+          </Banner>,
+        );
+        await flush();
+        expect(region).toHaveAttribute("data-state", "closing");
+        expect(region).toHaveClass("ol-kakejiku", "ol-banner--promo");
+        expect(region).toHaveAttribute("inert");
+        finish();
+        await waitFor(() => {
+          expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+        });
+        expect(onExited).toHaveBeenCalledOnce();
+      });
+
+      it("pressing close rolls an uncontrolled promo up and calls onClose", async () => {
+        const user = userEvent.setup();
+        const onClose = vi.fn();
+        render(
+          <Banner variant="promo" onClose={onClose}>
+            Body
+          </Banner>,
+        );
+        await user.click(screen.getByRole("button", { name: "Dismiss" }));
+        expect(onClose).toHaveBeenCalledOnce();
+        await waitFor(() => {
+          expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+        });
+      });
+
+      it("moves focus on after the close, as a status banner does", async () => {
+        const user = userEvent.setup();
+        render(
+          <>
+            <Banner variant="promo" onClose={noop}>
+              Body
+            </Banner>
+            <a href="#next">Next</a>
+          </>,
+        );
+        await user.click(screen.getByRole("button", { name: "Dismiss" }));
+        await waitFor(() => {
+          expect(screen.getByRole("link", { name: "Next" })).toHaveFocus();
+        });
+      });
+
+      it("closes at once under reduced motion", async () => {
+        const user = userEvent.setup();
+        const onClose = vi.fn();
+        render(
+          <div className="ol-reduce-motion">
+            <Banner variant="promo" onClose={onClose}>
+              Body
+            </Banner>
+          </div>,
+        );
+        await user.click(screen.getByRole("button", { name: "Dismiss" }));
+        await waitFor(() => {
+          expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+        });
+        expect(onClose).toHaveBeenCalledOnce();
+      });
+    });
+
+    describe("appear", () => {
+      it("is still at load, unrolls on a client-only mount with appear", () => {
+        const { unmount } = render(<Banner variant="promo">Body</Banner>);
+        expect(screen.getByRole("region")).not.toHaveClass("ol-kakejiku");
+        unmount();
+        render(
+          <Banner variant="promo" appear>
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region")).toHaveClass("ol-kakejiku");
+      });
+
+      it("never animates with animated={false}", () => {
+        render(
+          <Banner variant="promo" appear animated={false}>
+            Body
+          </Banner>,
+        );
+        expect(screen.getByRole("region")).not.toHaveClass("ol-kakejiku");
+      });
+    });
+
+    describe("CSS", () => {
+      it("is a full maple block with on-maple text and hairlines", () => {
+        expect(promoCss).toMatch(
+          /\.ol-banner--promo \{\s*color: var\(--on-maple\);\s*background: var\(--maple\);\s*\}/,
+        );
+        expect(promoCss).toMatch(
+          /\.ol-banner__tag \{[^}]*border-inline-end: var\(--stroke-hair\) solid var\(--on-maple\)/,
+        );
+        expect(promoCss).toMatch(
+          /\.ol-banner__close \{[^}]*border-inline-start: var\(--stroke-hair\) solid var\(--on-maple\)/,
+        );
+        // `rule` and `olivo` fail on maple: neither appears outside the forced-colours block.
+        const screenCss = promoCss.slice(0, promoCss.indexOf("@media (forced-colors: active)"));
+        expect(screenCss.replace(/\/\*[\s\S]*?\*\//g, "")).not.toMatch(/var\(--(rule|olivo|shu)\)/);
+      });
+
+      it("keeps links in the message on-maple, hover included", () => {
+        expect(promoCss).toMatch(
+          /a:not\(\.ol-btn\),\s*\.ol-banner--promo a:not\(\.ol-btn\):hover \{\s*color: var\(--on-maple\);/,
+        );
+      });
+
+      it("inverts actions to ink on hover, and keeps ghost transparent", () => {
+        expect(promoCss).toMatch(
+          /\.ol-banner--promo \.ol-btn:hover,\s*\.ol-banner--promo \.ol-banner__close:hover \{[^}]*color: var\(--on-ink\);[^}]*background: var\(--ink\)/,
+        );
+        expect(promoCss).toMatch(
+          /\.ol-btn--ghost:hover \{[^}]*border-color: var\(--on-maple\);[^}]*background: transparent/,
+        );
+      });
+
+      it("shows the inset focus band in on-maple (on-ink over an ink hover), never the ring", () => {
+        expect(promoCss).toMatch(
+          /\.ol-banner--promo :is\(a, button\):focus-visible \{\s*outline: none;\s*border-color: var\(--on-maple\);\s*box-shadow: inset 0 0 0 var\(--stroke-bold\) var\(--on-maple\);/,
+        );
+        expect(promoCss).toMatch(
+          /:hover:focus-visible \{\s*box-shadow: inset 0 0 0 var\(--stroke-bold\) var\(--on-ink\)/,
+        );
+        // The forced-colours fallback is a real outline.
+        expect(promoCss.slice(promoCss.indexOf("@media (forced-colors: active)"))).toMatch(
+          /focus-visible \{\s*outline: var\(--stroke-bold\) solid CanvasText/,
+        );
+      });
+
+      it("wraps the message and moves the actions below at 30rem of its own width", () => {
+        expect(promoCss).toMatch(/@container \(max-width: 30rem\)/);
+        expect(promoCss).toMatch(/"tag body close"\s*"actions actions actions"/);
+        expect(fullCss).toMatch(/container-type: inline-size/);
+      });
+
+      it("rolls up over --dur-m on the shared kakejiku and stops under reduced motion", () => {
+        expect(promoCss).toMatch(
+          /\.ol-banner--promo\.ol-kakejiku\[data-state="closing"\] \{\s*animation-duration: var\(--dur-m\);/,
+        );
+        const media = promoCss.slice(promoCss.indexOf("@media (prefers-reduced-motion: reduce)"));
+        expect(media).toMatch(/animation: none/);
+        // No keyframes of its own: unroll and roll are the shared ones (--dur-l, --ease-move).
+        expect(promoCss).not.toMatch(/@keyframes|transition/);
+        const motion = readFileSync("src/styles/motion.css", "utf8");
+        expect(motion).toMatch(
+          /\.ol-kakejiku:not\(\[data-state="closing"\]\) \{\s*animation: ol-unroll-down var\(--dur-l\) var\(--ease-move\)/,
+        );
+      });
+
+      it("uses only tokens, never sticks and adds no shadow other than the focus band", () => {
+        const bare = promoCss.replace(/\/\*[\s\S]*?\*\//g, "");
+        expect(bare).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|\d+(ms|s|px)\b/i);
+        expect(bare).not.toMatch(/position:\s*(sticky|fixed)|shadow-block|shadow-press/);
+        expect(bare.match(/box-shadow/g)).toHaveLength(3);
+      });
+    });
+
+    describe("locale", () => {
+      it.each([
+        ["en", "New", "Dismiss"],
+        ["es", "Novedad", "Descartar"],
+        ["ja", "新着", "閉じる"],
+      ] as const)("localises tag, section name and close in %s", (locale, word, dismiss) => {
+        const { container } = render(
+          <Root locale={locale}>
+            <Banner variant="promo" onClose={noop}>
+              Body
+            </Banner>
+          </Root>,
+        );
+        expect(container.querySelector(".ol-banner__tag")).toHaveTextContent(word);
+        expect(screen.getByRole("region", { name: word })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: dismiss })).toBeInTheDocument();
+      });
+    });
+
+    describe("axe", () => {
+      it.each(["washi", "sumi"] as const)("has no violations in %s", async (theme) => {
+        const { container } = render(
+          <div data-theme={theme}>
+            <Navbar brand="Shirakaba" links={[{ label: "Shop", href: "#shop" }]} />
+            <Banner variant="promo" actions={promoActions} onClose={noop}>
+              The Kaichi chambered slab is back: twelve built this spring in Matsumoto.
+            </Banner>
+            <main>Content</main>
+          </div>,
+        );
+        expect(await runAxe(container)).toHaveNoViolations();
+      });
+
+      it("has no violations while rolling up (inert) or with a link and a title", async () => {
+        const { container, rerender } = render(
+          <main>
+            <Banner variant="promo" open title="Kaichi" onClose={noop}>
+              Back in <a href="#slab">the shop</a>.
+            </Banner>
+          </main>,
+        );
+        expect(await runAxe(container)).toHaveNoViolations();
+        const finish = holdExit(screen.getByRole("region"));
+        rerender(
+          <main>
+            <Banner variant="promo" open={false} title="Kaichi" onClose={noop}>
+              Back in <a href="#slab">the shop</a>.
+            </Banner>
+          </main>,
+        );
+        await flush();
+        expect(await runAxe(container)).toHaveNoViolations();
+        finish();
+        await flush();
+      });
     });
   });
 });

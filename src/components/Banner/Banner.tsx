@@ -21,12 +21,27 @@ import { CloseButton } from "../CloseButton";
 
 export type BannerTone = "neutral" | "info" | "success" | "warning" | "danger";
 
+/**
+ * `status`: a state of the page, coloured by `tone`. `promo`: an announcement, a full maple strip
+ * under the Navbar.
+ */
+export type BannerVariant = "status" | "promo";
+
 /** `off`: a named region, not announced. `polite`: `role="status"`. `assertive`: `role="alert"`. */
 export type BannerLive = "off" | "polite" | "assertive";
 
 export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "role"> {
   /**
-   * Status of the message. Colours the bottom hairline and the word tag; the text stays ink.
+   * `promo` turns the strip into an announcement, not a state: a full `maple` block with all
+   * content in `on-maple` and the localised tag ("New", "Novedad", 新着) in place of the status
+   * word. A promo ignores `tone` and `live`, is never sticky (it scrolls away; the Navbar stays
+   * sticky), is a labelled `<section>` rather than a live region, and rolls up on dismiss. Show
+   * at most one per page, with up to two actions (`Button size="s"` outline, then ghost).
+   * @default "status"
+   */
+  variant?: BannerVariant;
+  /**
+   * Status of the message. Ignored by `variant="promo"`. Colours the bottom hairline and the word tag; the text stays ink.
    * It never chooses the role: use `live` for that.
    * @default "neutral"
    */
@@ -35,7 +50,8 @@ export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
   title?: ReactNode;
   /**
    * Replaces the localised word tag (Info, Done, Note, Error). The four status tones show a
-   * word by default; `neutral` shows one only when this is set.
+   * word by default; `neutral` shows one only when this is set. A promo always shows a tag and
+   * defaults to the localised "New".
    */
   tag?: ReactNode;
   /** The message: one or two lines of phrasing content (text, links). */
@@ -66,7 +82,7 @@ export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
   live?: BannerLive;
   /**
    * Accessible name of the region when there is no `title`. Defaults to the localised
-   * "Announcement". Give each banner on a page its own name.
+   * "Announcement" (a promo: its tag word). Give each banner on a page its own name.
    */
   label?: string;
   /**
@@ -84,6 +100,7 @@ export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
    */
   animated?: boolean;
   /**
+   * Not for `variant="promo"`, which never sticks (setting it logs a development warning).
    * Keeps the strip at the top of the page while scrolling, for a message the reader needs while
    * they work (connection lost, session ending). Sticky only when the viewport is at least 720 by
    * 480 CSS px, so phones and zoomed pages scroll it away. Stacks with a sticky Navbar by itself
@@ -170,14 +187,22 @@ function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
  * when it first mounts on the client. A banner present at load simply appears. It rolls back up
  * when it closes. Only `clip-path` animates: the content below moves in one step.
  *
+ * `variant="promo"` is the announcement strip: full maple, an `on-maple` tag word and focus
+ * band, rolled up (`--dur-m`) when dismissed.
+ *
  * ```tsx
  * <Banner tone="warning" title="Maintenance" onClose={remember}>
  *   The shop is read-only on Sunday from 02:00 to 04:00.
+ * </Banner>
+ *
+ * <Banner variant="promo" actions={<Button size="s">Reserve one</Button>} onClose={remember}>
+ *   The Kaichi chambered slab is back.
  * </Banner>
  * ```
  */
 export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
   {
+    variant = "status",
     tone = "neutral",
     title,
     tag,
@@ -232,8 +257,9 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
   const [unrollOnMount] = useState(() => appear && clientMount);
 
   // A sticky banner stacks with other sticky chrome and publishes its height for scroll-padding.
+  const promo = variant === "promo";
   const [stickyNode, setStickyNode] = useState<HTMLDivElement | null>(null);
-  useStickyChrome(stickyNode, sticky);
+  useStickyChrome(stickyNode, sticky && !promo);
 
   const setRoot = useCallback(
     (node: HTMLDivElement | null) => {
@@ -246,6 +272,12 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
   );
 
   useEffect(() => {
+    if (promo && sticky) {
+      devWarn("Banner", 'variant="promo" is never sticky; `sticky` is ignored.');
+    }
+  }, [promo, sticky]);
+
+  useEffect(() => {
     if (!DEV || !actionsRef.current) return;
     const count = actionsRef.current.querySelectorAll("button, a[href]").length;
     if (count > 2) {
@@ -255,27 +287,42 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
 
   if (!mounted) return null;
 
-  const word = tag ?? (tone === "neutral" ? null : t.tags[tone]);
-  const hasTag = word !== null && word !== false && word !== "";
-  const role = ROLES[live];
-  const named = role === "region";
+  const blank = (node: ReactNode) =>
+    node === null || node === undefined || node === false || node === "";
+  const word = promo
+    ? blank(tag)
+      ? t.banner.promo
+      : tag
+    : (tag ?? (tone === "neutral" ? null : t.tags[tone]));
+  const hasTag = !blank(word);
+  // A promo is a plain labelled section (not live), named by its tag word unless `label` says
+  // otherwise; a status banner is a region, status or alert by `live`.
+  const role = promo ? undefined : ROLES[live];
+  const named = promo || role === "region";
+  const fallbackName = promo
+    ? typeof word === "string" || typeof word === "number"
+      ? String(word)
+      : t.banner.promo
+    : t.banner.label;
+  // Only `section` and `div` render here; both are typed as the div the ref expects.
+  const Element = (promo ? "section" : "div") as "div";
 
   return (
-    <div
+    <Element
       ref={setRoot}
       role={role}
       aria-labelledby={named && title ? titleId : undefined}
       aria-label={
-        named && !title ? (label === undefined || label === "" ? t.banner.label : label) : undefined
+        named && !title ? (label === undefined || label === "" ? fallbackName : label) : undefined
       }
-      data-tone={tone}
+      data-tone={promo ? undefined : tone}
       data-state={state}
       {...rest}
       className={cx(
         "ol-banner",
-        `ol-banner--${tone}`,
+        promo ? "ol-banner--promo" : `ol-banner--${tone}`,
         !hasTag && "ol-banner--untagged",
-        sticky && "ol-banner--sticky",
+        sticky && !promo && "ol-banner--sticky",
         animated && (moved || unrollOnMount) && "ol-kakejiku",
         className,
       )}
@@ -312,6 +359,6 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
           />
         ) : null}
       </div>
-    </div>
+    </Element>
   );
 });
