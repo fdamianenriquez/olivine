@@ -255,17 +255,16 @@
 }
 
 @media (forced-colors: active) {
-  /* The current item is marked by its edge bar, so the focus outline stays distinct. */
+  /*
+   * The current item keeps its own fill and edge bar; the focus ring keeps the system colour.
+   * Other rows follow the system colours (their ink hover becomes Canvas), so the ring is never
+   * recoloured: on the current row the on-ink band still separates it from the ink fill.
+   */
   .ol-rail__item[aria-current="page"] {
     forced-color-adjust: none;
   }
 
   .ol-rail__item[aria-current="page"]::before {
     background: Highlight;
-  }
-
-  .ol-rail__item:hover:focus-visible {
-    outline-color: HighlightText;
-    box-shadow: none;
   }
 }
