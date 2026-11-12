@@ -109,7 +109,7 @@ export const es: OlivineLabels = {
   },
   theme: "Tema",
   themes: { washi: "Claro", sumi: "Oscuro", auto: "Auto" },
-  meter: { good: "Bien", fair: "Regular", poor: "Mal" },
+  meter: { good: "Bueno", fair: "Regular", poor: "Bajo" },
   meterValue: (value, state) => (state ? `${value}, ${state}` : value),
   banner: { label: "Anuncio", promo: "Novedad" },
   notifications: "Notificaciones",

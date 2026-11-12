@@ -238,7 +238,7 @@ describe("Meter", () => {
         <Meter value={10} label="Batería" low={20} high={50} optimum={100} locale="en" />
       </Root>,
     );
-    expect(valuetext()).toBe("10%, Mal");
+    expect(valuetext()).toBe("10%, Bajo");
   });
 
   it("names the meter from aria-label or aria-labelledby, which win over label", () => {
