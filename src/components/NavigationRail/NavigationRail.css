@@ -265,6 +265,7 @@
   }
 
   .ol-rail__item[aria-current="page"]::before {
+    forced-color-adjust: none;
     background: Highlight;
   }
 }
