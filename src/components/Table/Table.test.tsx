@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, useState } from "react";
@@ -675,3 +677,575 @@ describe("Table alignment, empty and sticky header", () => {
     }
   });
 });
+
+describe("Table loading", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const status = () => screen.getByRole("status");
+
+  it("shows skeleton rows on a first load, hidden from assistive technology, without empty", () => {
+    const { container } = render(
+      <Selectable rows={[]} loading caption="Orders" empty={<p>No orders</p>} />,
+    );
+    const skeletons = container.querySelectorAll("tbody tr.ol-table__skeleton");
+    expect(skeletons).toHaveLength(5);
+    skeletons.forEach((tr) => {
+      expect(tr).toHaveAttribute("aria-hidden", "true");
+      expect(tr.querySelector("input, button, a")).toBeNull();
+    });
+    expect(container.querySelectorAll("tbody .ol-ph")).toHaveLength(15);
+    expect(screen.queryByText("No orders")).not.toBeInTheDocument();
+    expect(screen.getByRole("table")).toHaveAttribute("aria-busy", "true");
+    expect(box("Select all rows")).toBeDisabled();
+    expect(container.querySelector(".ol-table__busy")).toBeNull();
+  });
+
+  it("honours loadingRows", () => {
+    const { container } = render(<Table columns={columns} rows={[]} loading loadingRows={2} />);
+    expect(container.querySelectorAll("tr.ol-table__skeleton")).toHaveLength(2);
+  });
+
+  it("keeps the rows and shows the busy bar on a refresh", () => {
+    const { container } = render(<Table columns={columns} rows={rows} loading />);
+    expect(screen.getByText("Oak shelf")).toBeInTheDocument();
+    expect(container.querySelector("tr.ol-table__skeleton")).toBeNull();
+    const bar = container.querySelector(".ol-table__busy");
+    expect(bar).toHaveAttribute("aria-hidden", "true");
+    expect(bar?.parentElement).toHaveClass("ol-tablewrap");
+    expect(screen.getByRole("table")).toHaveAttribute("aria-busy", "true");
+  });
+
+  it("disables nothing while loading", async () => {
+    const user = userEvent.setup();
+    const onSortChange = vi.fn();
+    const onSelectionChange = vi.fn();
+    render(
+      <Selectable loading onSortChange={onSortChange} onSelectionChange={onSelectionChange} />,
+    );
+    const sortButton = screen.getByRole("button", { name: /Qty/ });
+    expect(sortButton).toBeEnabled();
+    await user.click(sortButton);
+    expect(onSortChange).toHaveBeenCalled();
+    await user.click(box("Select Oak shelf"));
+    expect(onSelectionChange).toHaveBeenLastCalledWith(["001"]);
+  });
+
+  it("removes aria-busy when loading is false", () => {
+    render(<Table columns={columns} rows={rows} loading={false} />);
+    expect(screen.getByRole("table")).not.toHaveAttribute("aria-busy");
+  });
+
+  it("has no status region for a table that never passes loading", () => {
+    render(<Table columns={columns} rows={rows} />);
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("announces the start and the end of a load", () => {
+    const { rerender } = render(<Table columns={columns} rows={[]} loading />);
+    expect(status()).toHaveTextContent("Loading");
+    rerender(<Table columns={columns} rows={rows} loading={false} />);
+    expect(status()).toHaveTextContent("3 rows loaded");
+    rerender(<Table columns={columns} rows={rows} loading />);
+    expect(status()).toHaveTextContent("Loading");
+    rerender(<Table columns={columns} rows={rows.slice(0, 1)} loading={false} />);
+    expect(status()).toHaveTextContent("1 row loaded");
+  });
+
+  it("says nothing when a load ends with no rows, and nothing for an idle table", () => {
+    const { rerender } = render(<Table columns={columns} rows={rows} loading={false} />);
+    expect(status()).toHaveTextContent("");
+    rerender(<Table columns={columns} rows={[]} loading />);
+    expect(status()).toHaveTextContent("Loading");
+    rerender(<Table columns={columns} rows={[]} loading={false} />);
+    expect(status()).toHaveTextContent("");
+  });
+
+  it.each([
+    ["es", "Cargando", "3 filas cargadas", "1 fila cargada"],
+    ["ja", "読み込み中", "3行を読み込みました", "1行を読み込みました"],
+  ] as const)("translates the announcements in %s", (locale, start, many, one) => {
+    const { rerender } = render(
+      <Root locale={locale}>
+        <Table columns={columns} rows={[]} loading />
+      </Root>,
+    );
+    expect(status()).toHaveTextContent(start);
+    rerender(
+      <Root locale={locale}>
+        <Table columns={columns} rows={rows} loading={false} />
+      </Root>,
+    );
+    expect(status()).toHaveTextContent(many);
+    rerender(
+      <Root locale={locale}>
+        <Table columns={columns} rows={rows} loading />
+      </Root>,
+    );
+    rerender(
+      <Root locale={locale}>
+        <Table columns={columns} rows={rows.slice(0, 1)} loading={false} />
+      </Root>,
+    );
+    expect(status()).toHaveTextContent(one);
+  });
+
+  it("has no axe violations on a first load and a refresh, in both themes", async () => {
+    for (const theme of ["washi", "sumi"] as const) {
+      const { container, unmount } = render(
+        <Root theme={theme}>
+          <Selectable rows={[]} loading caption="Orders loading" columns={footed} />
+          <Selectable loading caption="Orders refreshing" columns={footed} maxHeight={200} />
+        </Root>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+      unmount();
+    }
+  });
+});
+
+const footed: TableColumn<Order>[] = [
+  { key: "item", label: "Item", rowHeader: true, sortable: true, footer: "Total" },
+  { key: "qty", label: "Qty", numeric: true, sortable: true, footer: (rs) => sum(rs) },
+  { key: "id", label: "No." },
+];
+
+const sum = (rs: readonly Order[]) => rs.reduce((n, r) => n + r.qty, 0);
+
+describe("Table footer", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const foot = (container: HTMLElement) => container.querySelector("tfoot");
+
+  it("renders one totals row after the body, with string and function forms", () => {
+    const { container } = render(<Table columns={footed} rows={rows} data-testid="t" />);
+    const tfoot = foot(container);
+    expect(tfoot).toHaveClass("ol-table__foot");
+    expect(tfoot?.previousElementSibling?.tagName).toBe("TBODY");
+    expect(tfoot?.querySelectorAll("tr")).toHaveLength(1);
+    const total = screen.getByRole("rowheader", { name: "Total" });
+    expect(total.tagName).toBe("TH");
+    expect(total).toHaveAttribute("scope", "row");
+    expect(within(tfoot as HTMLElement).getByText("19")).toHaveClass("ol-num");
+    const cells = tfoot?.querySelectorAll("td, th") ?? [];
+    expect(cells).toHaveLength(3);
+    expect(cells[2]?.tagName).toBe("TD");
+    expect(cells[2]).toBeEmptyDOMElement();
+    expect(screen.getByTestId("t")).toHaveClass("ol-table--footed");
+  });
+
+  it("passes the rows as displayed, after a client sort", async () => {
+    const user = userEvent.setup();
+    const seen = vi.fn((rs: readonly Order[]) => rs.map((r) => r.item).join(","));
+    const cols: TableColumn<Order>[] = [
+      { key: "item", label: "Item", footer: seen },
+      { key: "qty", label: "Qty", numeric: true, sortable: true },
+    ];
+    render(<Table columns={cols} rows={rows} />);
+    await user.click(screen.getByRole("button", { name: /Qty/ }));
+    expect(seen).toHaveBeenLastCalledWith([rows[1], rows[2], rows[0]]);
+    expect(screen.getByText("Steel hook,Washi lamp,Oak shelf")).toBeInTheDocument();
+  });
+
+  it("leaves the select column's footer cell empty", () => {
+    const { container } = render(<Selectable columns={footed} />);
+    const first = foot(container)?.querySelector("tr > :first-child");
+    expect(first?.tagName).toBe("TD");
+    expect(first).toHaveClass("ol-table__select");
+    expect(first).toBeEmptyDOMElement();
+  });
+
+  it("is omitted with no rows, and shows placeholders on a first load", () => {
+    const { container, rerender } = render(
+      <Table columns={footed} rows={[]} empty={<p>No orders</p>} />,
+    );
+    expect(foot(container)).toBeNull();
+    rerender(<Table columns={footed} rows={[]} loading />);
+    const tr = foot(container)?.querySelector("tr");
+    expect(tr).toHaveAttribute("aria-hidden", "true");
+    expect(tr?.querySelectorAll(".ol-ph")).toHaveLength(2);
+    expect(screen.queryByText("Total")).not.toBeInTheDocument();
+  });
+
+  it("keeps the footer as it is on a refresh", () => {
+    render(<Table columns={footed} rows={rows} loading />);
+    expect(screen.getByRole("rowheader", { name: "Total" })).toBeInTheDocument();
+  });
+
+  it("has no hover, selection or action on the footer row", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    const onSelectionChange = vi.fn();
+    const { container } = render(
+      <Selectable
+        columns={footed}
+        onRowAction={onRowAction}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    const tr = foot(container)?.querySelector("tr") as HTMLElement;
+    expect(tr).not.toHaveClass("ol-table__row");
+    expect(tr).not.toHaveAttribute("aria-selected");
+    await user.click(screen.getByText("Total"));
+    expect(onRowAction).not.toHaveBeenCalled();
+    expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+
+  it("keeps the footer height as scroll padding in a sticky table", () => {
+    const observe = vi.fn();
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe = observe;
+        disconnect = vi.fn();
+        unobserve = vi.fn();
+      },
+    );
+    const { unmount } = render(
+      <Table columns={footed} rows={rows} caption="Orders" maxHeight={200} data-testid="t" />,
+    );
+    const region = screen.getByRole("region", { name: "Orders" });
+    expect(screen.getByTestId("t")).toHaveClass("ol-table--sticky", "ol-table--footed");
+    expect(observe).toHaveBeenCalledWith(region.querySelector("tfoot"));
+    expect(region.style.getPropertyValue("--ol-table-foot")).toMatch(/px$/);
+    unmount();
+    vi.unstubAllGlobals();
+  });
+
+  it("has no axe violations, plain and sticky, in both themes", async () => {
+    for (const theme of ["washi", "sumi"] as const) {
+      const { container, unmount } = render(
+        <Root theme={theme}>
+          <Table columns={footed} rows={rows} caption="Totals" bordered />
+          <Selectable
+            columns={footed}
+            caption="Sticky totals"
+            maxHeight={200}
+            defaultSelectedKeys={["002"]}
+          />
+        </Root>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+      unmount();
+    }
+  });
+});
+
+describe("Table row headers", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders the column's cells as th scope=row", () => {
+    render(<Table columns={footed} rows={rows} />);
+    const oak = screen.getByRole("rowheader", { name: "Oak shelf" });
+    expect(oak.tagName).toBe("TH");
+    expect(oak).toHaveAttribute("scope", "row");
+    expect(oak).toHaveClass("ol-table__rowheader");
+    expect(screen.getAllByRole("rowheader")).toHaveLength(4);
+    // Column headers keep their look and role.
+    expect(screen.getAllByRole("columnheader")).toHaveLength(3);
+    expect(screen.getByRole("columnheader", { name: /Item/ })).not.toHaveClass(
+      "ol-table__rowheader",
+    );
+  });
+
+  it("names selection controls by rowLabel, then the row header, then position", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { rerender } = render(<Selectable columns={footed} rowLabel={(r) => `order ${r.id}`} />);
+    expect(box("Select order 001")).toBeInTheDocument();
+    rerender(<Table columns={footed} rows={rows} rowKey={byId} selectionMode="multiple" />);
+    expect(box("Select Oak shelf")).toBeInTheDocument();
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("rowLabel"));
+    const blank = [{ ...rows[0], item: "" } as Order];
+    rerender(<Table columns={footed} rows={blank} rowKey={byId} selectionMode="multiple" />);
+    expect(box("Select row 1")).toBeInTheDocument();
+  });
+
+  it("names controls by a numeric row-header value", () => {
+    const cols: TableColumn<Order>[] = [{ key: "qty", label: "Qty", rowHeader: true }];
+    render(<Table columns={cols} rows={rows} rowKey={byId} selectionMode="single" />);
+    expect(screen.getByRole("radio", { name: "Select 10" })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["es", "Seleccionar Oak shelf", "Seleccionar fila 1"],
+    ["ja", "Oak shelfを選択", "1行目を選択"],
+  ] as const)("translates the row-header names in %s", (locale, named, fallback) => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <Root locale={locale}>
+        <Table columns={footed} rows={rows} rowKey={byId} selectionMode="multiple" />
+        <Table columns={columns} rows={rows} rowKey={byId} selectionMode="multiple" />
+      </Root>,
+    );
+    expect(box(named)).toBeInTheDocument();
+    expect(box(fallback)).toBeInTheDocument();
+  });
+
+  it("takes the selected-row style on the row header", async () => {
+    const user = userEvent.setup();
+    render(<Selectable columns={footed} hover />);
+    await user.click(box("Select Steel hook"));
+    const th = screen.getByRole("rowheader", { name: "Steel hook" });
+    expect(th.closest("tr")).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("has no axe violations with a selected row header, in both themes", async () => {
+    for (const theme of ["washi", "sumi"] as const) {
+      const { container, unmount } = render(
+        <Root theme={theme}>
+          <Selectable columns={footed} caption="Orders" defaultSelectedKeys={["001"]} striped />
+        </Root>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+      unmount();
+    }
+  });
+});
+
+describe("Table row actions", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const action = (name: string) => screen.getByRole("button", { name });
+
+  it("fires on a row click with the key and the row", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    render(<Table columns={columns} rows={rows} rowKey={byId} onRowAction={onRowAction} />);
+    await user.click(screen.getByText("#002"));
+    expect(onRowAction).toHaveBeenCalledTimes(1);
+    expect(onRowAction).toHaveBeenCalledWith("002", rows[1]);
+  });
+
+  it("wraps the first column, or the first row-header column, in a button", () => {
+    const { rerender } = render(<Table columns={columns} rows={rows} onRowAction={vi.fn()} />);
+    expect(action("Oak shelf")).toHaveClass("ol-table__action");
+    expect(action("Oak shelf")).toHaveAttribute("type", "button");
+    const late: TableColumn<Order>[] = [
+      { key: "id", label: "No." },
+      { key: "item", label: "Item", rowHeader: true },
+    ];
+    rerender(<Table columns={late} rows={rows} onRowAction={vi.fn()} />);
+    expect(action("Oak shelf").closest("th")).toHaveAttribute("scope", "row");
+    expect(screen.queryByRole("button", { name: "001" })).not.toBeInTheDocument();
+  });
+
+  it("fires exactly once from the button with a click, Enter and Space", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    render(<Table columns={columns} rows={rows} rowKey={byId} onRowAction={onRowAction} />);
+    await user.click(action("Oak shelf"));
+    expect(onRowAction).toHaveBeenCalledTimes(1);
+    action("Washi lamp").focus();
+    await user.keyboard("{Enter}");
+    expect(onRowAction).toHaveBeenCalledTimes(2);
+    expect(onRowAction).toHaveBeenLastCalledWith("003", rows[2]);
+    await user.keyboard(" ");
+    expect(onRowAction).toHaveBeenCalledTimes(3);
+  });
+
+  it("ignores clicks on links, buttons, checkboxes and text selections", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    const onOpen = vi.fn();
+    const withLinks: TableColumn<Order>[] = [
+      ...columns,
+      {
+        key: "open",
+        label: "Open",
+        render: (r) => (
+          <>
+            <a href={`#${r.id}`}>View {r.item}</a>
+            <button type="button" onClick={onOpen}>
+              Ship {r.item}
+            </button>
+          </>
+        ),
+      },
+    ];
+    render(<Selectable columns={withLinks} onRowAction={onRowAction} />);
+    await user.click(screen.getByRole("link", { name: "View Oak shelf" }));
+    await user.click(screen.getByRole("button", { name: "Ship Oak shelf" }));
+    await user.click(box("Select Oak shelf"));
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(onRowAction).not.toHaveBeenCalled();
+    const cell = screen.getByText("#002");
+    vi.spyOn(window, "getSelection").mockReturnValue({
+      isCollapsed: false,
+      anchorNode: cell.firstChild,
+    } as unknown as Selection);
+    await user.click(cell);
+    expect(onRowAction).not.toHaveBeenCalled();
+  });
+
+  it("ignores selectOnRowClick with a warning: the click is the action", async () => {
+    const user = userEvent.setup();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const onRowAction = vi.fn();
+    const onSelectionChange = vi.fn();
+    render(
+      <Selectable
+        selectOnRowClick
+        onRowAction={onRowAction}
+        onSelectionChange={onSelectionChange}
+        data-testid="t"
+      />,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("selectOnRowClick"));
+    expect(screen.getByTestId("t")).not.toHaveClass("ol-table--rowselect");
+    await user.click(screen.getByText("#001"));
+    expect(onRowAction).toHaveBeenCalledWith("001", rows[0]);
+    expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+
+  it("turns hover on by default and honours hover={false}", () => {
+    const { rerender } = render(
+      <Table columns={columns} rows={rows} onRowAction={vi.fn()} data-testid="t" />,
+    );
+    expect(screen.getByTestId("t")).toHaveClass("ol-table--hover", "ol-table--action");
+    rerender(
+      <Table columns={columns} rows={rows} onRowAction={vi.fn()} hover={false} data-testid="t" />,
+    );
+    expect(screen.getByTestId("t")).not.toHaveClass("ol-table--hover");
+    rerender(<Table columns={columns} rows={rows} data-testid="t" />);
+    expect(screen.getByTestId("t")).not.toHaveClass("ol-table--hover", "ol-table--action");
+  });
+
+  it("ignores a click on the select cell around the checkbox", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    const onSelectionChange = vi.fn();
+    render(<Selectable onRowAction={onRowAction} onSelectionChange={onSelectionChange} />);
+    const cell = box("Select Oak shelf").closest("td");
+    if (!cell) throw new Error("no select cell");
+    await user.click(cell);
+    expect(onRowAction).not.toHaveBeenCalled();
+  });
+
+  it("warns when an action button has no text", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const iconOnly: TableColumn<Order>[] = [
+      { key: "item", label: "Item", render: () => <span aria-hidden="true" /> },
+    ];
+    render(<Table columns={iconOnly} rows={rows} onRowAction={vi.fn()} />);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no text"));
+  });
+
+  it("still fires for a disabled row", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    render(<Selectable disabledKeys={["003"]} onRowAction={onRowAction} />);
+    await user.click(screen.getByText("#003"));
+    expect(onRowAction).toHaveBeenCalledWith("003", rows[2]);
+  });
+
+  it("leaves rows without role or tabindex, and skeleton rows inert", async () => {
+    const user = userEvent.setup();
+    const onRowAction = vi.fn();
+    const { container, rerender } = render(
+      <Table columns={columns} rows={rows} onRowAction={onRowAction} />,
+    );
+    container.querySelectorAll("tbody tr").forEach((tr) => {
+      expect(tr).not.toHaveAttribute("role");
+      expect(tr).not.toHaveAttribute("tabindex");
+    });
+    rerender(<Table columns={columns} rows={[]} loading onRowAction={onRowAction} />);
+    const skeleton = container.querySelector<HTMLElement>("tr.ol-table__skeleton");
+    if (!skeleton) throw new Error("no skeleton row");
+    expect(skeleton.querySelector("button")).toBeNull();
+    await user.click(skeleton);
+    expect(onRowAction).not.toHaveBeenCalled();
+  });
+
+  it("reaches each action button with Tab after the row's control", async () => {
+    const user = userEvent.setup();
+    render(<Selectable columns={footed} onRowAction={vi.fn()} />);
+    box("Select Oak shelf").focus();
+    await user.tab();
+    expect(action("Oak shelf")).toHaveFocus();
+    await user.tab();
+    expect(box("Select Steel hook")).toHaveFocus();
+  });
+
+  it("warns when the action cell holds a link or button", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const linked: TableColumn<Order>[] = [
+      { key: "item", label: "Item", render: (r) => <a href={`#${r.id}`}>{r.item}</a> },
+    ];
+    render(<Table columns={linked} rows={rows} onRowAction={vi.fn()} />);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("row-action cell"));
+  });
+
+  it("has no axe violations with action rows, selected and not, in both themes", async () => {
+    for (const theme of ["washi", "sumi"] as const) {
+      const { container, unmount } = render(
+        <Root theme={theme}>
+          <Table columns={footed} rows={rows} caption="Open an order" onRowAction={vi.fn()} />
+          <Selectable
+            columns={footed}
+            caption="Select or open"
+            onRowAction={vi.fn()}
+            defaultSelectedKeys={["001"]}
+          />
+        </Root>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+      unmount();
+    }
+  });
+});
+
+describe("Table CSS", () => {
+  const css = readFileSync("src/components/Table/Table.css", "utf8").replace(/\s+/g, " ");
+  const hovered = ".ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover";
+  const forced = css.slice(css.indexOf("@media (forced-colors: active)"));
+
+  it("draws the on-ink band under the focus ring in hover-inverted rows too", () => {
+    expect(css).toMatch(
+      new RegExp(
+        `${escape(hovered)} :focus-visible[^{]*\\{ box-shadow: 0 0 0 var\\(--focus-offset\\) var\\(--on-ink\\);`,
+      ),
+    );
+  });
+
+  it("keeps the ring in HighlightText in hovered rows in forced colours", () => {
+    expect(forced).toMatch(
+      new RegExp(
+        `${escape(hovered)} :focus-visible \\{ outline-color: HighlightText; box-shadow: none;`,
+      ),
+    );
+  });
+
+  it("resets badges in hovered rows in forced colours", () => {
+    expect(forced).toMatch(
+      new RegExp(`${escape(hovered)} \\) \\.ol-badge \\{ background: Canvas;`),
+    );
+  });
+
+  it("keeps the busy bar's Highlight gradient in forced colours", () => {
+    expect(forced).toMatch(/\.ol-table__busy::after \{ forced-color-adjust: none;/);
+  });
+
+  it("stops the busy pulse under reduced motion and uses motion tokens only", () => {
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\) \{ \.ol-table__busy::after \{ animation: none;/,
+    );
+    expect(css).toContain("animation: ol-table-busy var(--motion-sweep) infinite;");
+  });
+
+  it("gives the action button a 24px target in both axes", () => {
+    expect(css).toMatch(
+      /\.ol-table__action \{[^}]*min-block-size: var\(--target-min\);[^}]*min-inline-size: var\(--target-min\);/,
+    );
+  });
+});
+
+function escape(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

@@ -30,6 +30,7 @@ export const en: OlivineLabels = {
   tableSelectAll: "Select all rows",
   tableSelectRow: (label) => `Select ${label}`,
   tableRowFallback: (n) => `row ${String(n)}`,
+  tableLoaded: (n) => (n === 1 ? "1 row loaded" : `${String(n)} rows loaded`),
   tableSelectColumn: "Select",
   splitterResize: (label) => (label ? `Resize ${label}` : "Resize"),
   splitterCollapsed: "Collapsed",

@@ -30,6 +30,7 @@ export const ja: OlivineLabels = {
   tableSelectAll: "すべての行を選択",
   tableSelectRow: (label) => `${label}を選択`,
   tableRowFallback: (n) => `${String(n)}行目`,
+  tableLoaded: (n) => `${String(n)}行を読み込みました`,
   tableSelectColumn: "選択",
   splitterResize: (label) => (label ? `${label}のサイズを変更` : "サイズを変更"),
   splitterCollapsed: "折りたたみ済み",

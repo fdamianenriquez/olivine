@@ -30,6 +30,7 @@ export const es: OlivineLabels = {
   tableSelectAll: "Seleccionar todas las filas",
   tableSelectRow: (label) => `Seleccionar ${label}`,
   tableRowFallback: (n) => `fila ${String(n)}`,
+  tableLoaded: (n) => (n === 1 ? "1 fila cargada" : `${String(n)} filas cargadas`),
   tableSelectColumn: "Seleccionar",
   splitterResize: (label) => (label ? `Cambiar tamaño de ${label}` : "Cambiar tamaño"),
   splitterCollapsed: "Contraído",
