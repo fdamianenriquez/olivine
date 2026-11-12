@@ -65,7 +65,12 @@
   padding: 0 var(--space-1);
 }
 
-/* Filled tones keep a visible border and text colour when the system palette replaces ours. */
+/*
+ * Forced colours. Two UA behaviours break the plain system-colour rules:
+ * - text gets a Canvas backplate, so Canvas text on a CanvasText fill disappears;
+ * - a background that is not a system colour (the dot's `currentcolor`) is forced to Canvas.
+ * Filled tones and the dot opt out of the adjustment and use system colours only.
+ */
 @media (forced-colors: active) {
   .ol-badge {
     border-color: CanvasText;
@@ -73,14 +78,18 @@
     background: Canvas;
   }
 
+  /* `forced-color-adjust` is inherited: children of a filled badge must use `currentcolor`. */
   .ol-badge--solid,
   .ol-badge--accent,
   .ol-badge--olivo {
+    forced-color-adjust: none;
+    border-color: CanvasText;
     background: CanvasText;
     color: Canvas;
   }
 
   .ol-badge--dot::before {
+    forced-color-adjust: none;
     background: currentcolor;
   }
 }
