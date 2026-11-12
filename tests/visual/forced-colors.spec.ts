@@ -18,6 +18,10 @@ const STORIES = [
   "navigation-bottomnav--five-items",
   "forms-timepicker--open",
   "forms-timepicker--states",
+  "forms-listbox--multiple",
+  "navigation-treeview--checkboxes",
+  "forms-calendar--range",
+  "actions-chip--filter",
 ] as const;
 
 const PALETTES = [
