@@ -1227,9 +1227,9 @@ describe("Tour progress", () => {
     const css = readFileSync(join(__dirname, "Tour.css"), "utf8");
     const motion = readFileSync(join(__dirname, "../../styles/motion.css"), "utf8");
 
-    it("lights blocks in olivo over hairline rule blocks, square, from tokens", () => {
+    it("lights blocks in ink over hairline rule blocks, square, from tokens", () => {
       expect(css).toMatch(/\.ol-tour__seg \{[^}]*border: var\(--stroke-hair\) solid var\(--rule\)/);
-      expect(css).toMatch(/\.ol-tour__seg--on \{[^}]*background: var\(--olivo\)/);
+      expect(css).toMatch(/\.ol-tour__seg--on \{[^}]*background: var\(--ink\)/);
       expect(css).not.toMatch(/\.ol-tour__seg[^{]*\{[^}]*border-radius/);
     });
 
