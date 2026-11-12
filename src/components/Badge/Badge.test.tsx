@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -162,5 +164,37 @@ describe("Badge count context", () => {
       </Badge>,
     );
     expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+describe("Badge forced colours", () => {
+  const css = readFileSync("src/components/Badge/Badge.css", "utf8").replace(
+    /\/\*[\s\S]*?\*\//g,
+    "",
+  );
+  const forced = css.slice(css.indexOf("@media (forced-colors: active)"));
+
+  function rule(selector: string): string {
+    const start = forced.indexOf(selector);
+    expect(start).toBeGreaterThan(-1);
+    return forced.slice(start, forced.indexOf("}", start));
+  }
+
+  it("opts filled tones out of the text backplate and fills them with system colours", () => {
+    const filled = rule(".ol-badge--olivo {");
+    expect(forced).toMatch(/\.ol-badge--solid,\s*\.ol-badge--accent,\s*\.ol-badge--olivo \{/);
+    expect(filled).toMatch(/forced-color-adjust: none/);
+    expect(filled).toMatch(/background: CanvasText/);
+    expect(filled).toMatch(/color: Canvas;/);
+  });
+
+  it("keeps the background-only dot painted", () => {
+    const dot = rule(".ol-badge--dot::before {");
+    expect(dot).toMatch(/forced-color-adjust: none/);
+    expect(dot).toMatch(/background: currentcolor/);
+  });
+
+  it("uses only system colours inside the forced-colours block", () => {
+    expect(forced).not.toMatch(/var\(--/);
   });
 });
