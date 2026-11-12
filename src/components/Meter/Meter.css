@@ -1,6 +1,8 @@
 /* Meter: a reading on a ruled ink gauge. The fill and the needle move with one transform driven
    by --ol-meter-n (0–1), stepped with the print curve; nothing moves on mount. Status colour
-   lives only in the state Badge: fill, needle and blocks stay ink in every band. */
+   lives only in the state Badge: fill, needle and blocks stay ink in every band.
+   Vertical: the gauge is --ol-meter-length tall (set on the meter or a parent), the fill rises from
+   the bottom, and the reading, gauge, label and Badge stack in that order. */
 .ol-meter {
   display: flex;
   flex-direction: column;
@@ -47,14 +49,28 @@
   letter-spacing: var(--text-figure-m-tracking);
 }
 
+/* ---------- Gauge: the track with its optional bands and scale ---------- */
+
+.ol-meter__gauge {
+  --ol-meter-gap: var(--space-1); /* between blocks */
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ol-meter__gauge--ruled {
+  gap: var(--space-1);
+}
+
 /* ---------- Bar: hairline box, ink fill, needle ---------- */
 
 .ol-meter__track {
   --ol-meter-shift: calc((var(--ol-meter-n, 0) - 1) * 100%);
-  --ol-meter-height: var(--space-2);
+  --ol-meter-thickness: var(--space-2);
 
   position: relative;
-  height: var(--ol-meter-height);
+  height: var(--ol-meter-thickness);
   border: var(--stroke-hair) solid var(--rule);
 
   /* The needle sticks out above and below; only the inline axis is clipped. */
@@ -62,11 +78,11 @@
 }
 
 .ol-meter--s .ol-meter__track {
-  --ol-meter-height: var(--space-1);
+  --ol-meter-thickness: var(--space-1);
 }
 
 .ol-meter--l .ol-meter__track {
-  --ol-meter-height: var(--space-4);
+  --ol-meter-thickness: var(--space-4);
 }
 
 .ol-meter__track:dir(rtl) {
@@ -104,21 +120,21 @@
 /* ---------- Segments: a row of ink blocks ---------- */
 
 .ol-meter--segments .ol-meter__track {
-  --ol-meter-height: var(--space-4);
+  --ol-meter-thickness: var(--space-4);
 
   display: grid;
   grid-template-columns: repeat(var(--ol-seg, 10), 1fr);
-  gap: var(--space-1);
+  gap: var(--ol-meter-gap);
   border: 0;
   overflow-x: visible;
 }
 
 .ol-meter--segments.ol-meter--s .ol-meter__track {
-  --ol-meter-height: var(--space-3);
+  --ol-meter-thickness: var(--space-3);
 }
 
 .ol-meter--segments.ol-meter--l .ol-meter__track {
-  --ol-meter-height: var(--space-6);
+  --ol-meter-thickness: var(--space-6);
 }
 
 .ol-meter__seg {
@@ -158,6 +174,270 @@
   border-inline-start: var(--stroke-hair) solid var(--rule);
 }
 
+/* ---------- Bands: regions split at low and high; the optimum region is a bold ink line ---------- */
+
+.ol-meter__zones {
+  position: relative;
+  height: var(--stroke-bold);
+}
+
+.ol-meter__zone {
+  --a: calc(var(--ol-pa, 0) * 1%);
+  --b: calc(var(--ol-pb, 0) * 1%);
+
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: calc(var(--a) + var(--stroke-bold)) calc(100% - var(--b) + var(--stroke-bold));
+  height: var(--stroke-hair);
+  margin-block-start: calc(var(--stroke-hair) / -2);
+  background: var(--rule);
+}
+
+.ol-meter--segments .ol-meter__zone {
+  --a: clamp(
+    0%,
+    calc(
+      var(--ol-ka, 0) * (100% + var(--ol-meter-gap)) / var(--ol-seg, 10) - var(--ol-meter-gap) / 2
+    ),
+    100%
+  );
+  --b: clamp(
+    0%,
+    calc(
+      var(--ol-kb, 0) * (100% + var(--ol-meter-gap)) / var(--ol-seg, 10) - var(--ol-meter-gap) / 2
+    ),
+    100%
+  );
+}
+
+.ol-meter__zone--optimum {
+  height: var(--stroke-bold);
+  margin-block-start: calc(var(--stroke-bold) / -2);
+  background: var(--ink);
+}
+
+/* ---------- Ruler: hairline marks at min, low, high and max, numerals in the figure face ---------- */
+
+.ol-meter__ruler {
+  position: relative;
+  height: calc(var(--space-2) + var(--space-1) + var(--text-figure-xs-size));
+}
+
+.ol-meter__mark {
+  --at: calc(var(--ol-p, 0) * 1%);
+
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: clamp(
+    0%,
+    calc(var(--at) - var(--stroke-hair) / 2),
+    calc(100% - var(--stroke-hair))
+  );
+  width: var(--stroke-hair);
+  height: var(--space-2);
+  background: var(--rule);
+}
+
+.ol-meter--segments .ol-meter__mark {
+  --at: clamp(
+    0%,
+    calc(
+      var(--ol-k, 0) * (100% + var(--ol-meter-gap)) / var(--ol-seg, 10) - var(--ol-meter-gap) / 2
+    ),
+    100%
+  );
+}
+
+.ol-meter__num {
+  position: absolute;
+  inset-block-start: calc(var(--space-2) + var(--space-1));
+  inset-inline-start: 0;
+  color: var(--ink);
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  letter-spacing: var(--text-figure-xs-tracking);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform: translateX(var(--ol-num-shift, -50%));
+}
+
+.ol-meter__ruler:dir(rtl) {
+  --ol-num-shift: 50%;
+}
+
+.ol-meter__mark--min .ol-meter__num {
+  transform: none;
+}
+
+.ol-meter__mark--max .ol-meter__num {
+  inset-inline: auto 0;
+  transform: none;
+}
+
+/* A numeral that would overlap a more important one: the tick stays, the number goes. */
+.ol-meter__num[data-hidden] {
+  visibility: hidden;
+}
+
+/* ---------- Vertical: fills from the bottom; reading, gauge, label, Badge ---------- */
+
+.ol-meter--vertical {
+  display: inline-flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.ol-meter--vertical .ol-meter__gauge,
+.ol-meter--vertical .ol-meter__gauge--ruled {
+  flex-direction: row;
+  gap: var(--space-1);
+  height: var(--ol-meter-length, var(--space-32));
+}
+
+.ol-meter--vertical.ol-meter--s .ol-meter__gauge {
+  height: var(--ol-meter-length, var(--space-24));
+}
+
+.ol-meter--vertical.ol-meter--l .ol-meter__gauge {
+  height: var(--ol-meter-length, calc(var(--space-32) + var(--space-16)));
+}
+
+.ol-meter.ol-meter--vertical .ol-meter__track {
+  width: var(--ol-meter-thickness);
+  height: auto;
+
+  /* The needle sticks out left and right; only the block axis is clipped. */
+  overflow: visible clip;
+}
+
+.ol-meter--vertical.ol-meter--s .ol-meter__track {
+  --ol-meter-thickness: var(--space-1);
+}
+
+.ol-meter--vertical.ol-meter--l .ol-meter__track {
+  --ol-meter-thickness: var(--space-3);
+}
+
+.ol-meter--vertical.ol-meter--segments .ol-meter__track {
+  --ol-meter-thickness: var(--space-3);
+
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--ol-meter-gap);
+  overflow-y: visible;
+}
+
+.ol-meter--vertical.ol-meter--segments.ol-meter--s .ol-meter__track {
+  --ol-meter-thickness: var(--space-2);
+}
+
+.ol-meter--vertical.ol-meter--segments.ol-meter--l .ol-meter__track {
+  --ol-meter-thickness: var(--space-4);
+}
+
+.ol-meter--vertical .ol-meter__seg {
+  flex: 1;
+}
+
+/* Fill and needle layer anchor to the bottom and span the length minus the needle. */
+.ol-meter--vertical .ol-meter__fill,
+.ol-meter--vertical .ol-meter__hand {
+  inset-block: auto 0;
+  width: auto;
+  height: calc(100% - var(--stroke-heavy));
+  transform: translateY(calc((1 - var(--ol-meter-n, 0)) * 100%));
+}
+
+.ol-meter--vertical .ol-meter__fill {
+  inset-inline: 0;
+}
+
+.ol-meter--vertical .ol-meter__hand {
+  inset-inline: calc(var(--space-1) * -1 - var(--stroke-hair));
+}
+
+.ol-meter--vertical .ol-meter__needle {
+  inset-block: auto 100%;
+  inset-inline: 0;
+  width: auto;
+  height: var(--stroke-heavy);
+}
+
+.ol-meter--vertical .ol-meter__value {
+  font-family: var(--text-figure-m-family);
+  font-size: var(--text-figure-m-size);
+  line-height: var(--text-figure-m-leading);
+  font-weight: var(--text-figure-m-weight);
+  letter-spacing: var(--text-figure-m-tracking);
+}
+
+.ol-meter--vertical.ol-meter--s .ol-meter__value {
+  font-family: var(--text-figure-xs-family);
+  font-size: var(--text-figure-xs-size);
+  line-height: var(--text-figure-xs-leading);
+  font-weight: var(--text-figure-xs-weight);
+  letter-spacing: var(--text-figure-xs-tracking);
+}
+
+.ol-meter--vertical.ol-meter--l .ol-meter__value {
+  font-family: var(--text-figure-l-family);
+  font-size: var(--text-figure-l-size);
+  line-height: var(--text-figure-l-leading);
+  font-weight: var(--text-figure-l-weight);
+  letter-spacing: var(--text-figure-l-tracking);
+}
+
+.ol-meter--vertical .ol-meter__zones {
+  width: var(--stroke-bold);
+  height: auto;
+}
+
+.ol-meter--vertical .ol-meter__zone {
+  inset-block: calc(100% - var(--b) + var(--stroke-bold)) calc(var(--a) + var(--stroke-bold));
+  inset-inline: 50% auto;
+  width: var(--stroke-hair);
+  height: auto;
+  margin-block-start: 0;
+  margin-inline-start: calc(var(--stroke-hair) / -2);
+}
+
+.ol-meter--vertical .ol-meter__zone--optimum {
+  width: var(--stroke-bold);
+  height: auto;
+  margin-inline-start: calc(var(--stroke-bold) / -2);
+}
+
+/* The scale sits on the inline-end side of the gauge, wide enough for a four-digit numeral. */
+.ol-meter--vertical .ol-meter__ruler {
+  flex: none;
+  width: var(--space-12);
+  height: auto;
+}
+
+.ol-meter--vertical .ol-meter__mark {
+  inset-block: auto
+    clamp(0%, calc(var(--at) - var(--stroke-hair) / 2), calc(100% - var(--stroke-hair)));
+  inset-inline: 0 auto;
+  width: var(--space-2);
+  height: var(--stroke-hair);
+}
+
+.ol-meter--vertical .ol-meter__num {
+  inset-block: auto 0;
+  inset-inline: calc(var(--space-2) + var(--space-1)) auto;
+  transform: translateY(50%);
+}
+
+.ol-meter--vertical .ol-meter__mark--min .ol-meter__num {
+  transform: none;
+}
+
+.ol-meter--vertical .ol-meter__mark--max .ol-meter__num {
+  transform: translateY(100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ol-meter__fill,
   .ol-meter__hand {
@@ -188,5 +468,11 @@
   .ol-meter__band,
   .ol-meter__tick {
     border-color: CanvasText;
+  }
+
+  .ol-meter__zone,
+  .ol-meter__mark {
+    background: CanvasText;
+    forced-color-adjust: none;
   }
 }

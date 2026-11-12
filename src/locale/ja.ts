@@ -111,7 +111,7 @@ export const ja: OlivineLabels = {
   },
   theme: "テーマ",
   themes: { washi: "ライト", sumi: "ダーク", auto: "自動" },
-  meter: { good: "良好", fair: "普通", poor: "不良" },
+  meter: { good: "良好", fair: "注意", poor: "不良" },
   meterValue: (value, state) => (state ? `${value}、${state}` : value),
   banner: { label: "お知らせ" },
   notifications: "通知",

@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
 
 import { render, screen } from "@testing-library/react";
+import { act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { renderToString } from "react-dom/server";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { runAxe } from "../../test/axe";
 import { Root } from "../Root";
@@ -13,6 +15,14 @@ import { Meter } from "./Meter";
 const meter = () => screen.getByRole("meter");
 const valuetext = () => meter().getAttribute("aria-valuetext");
 const lit = (container: Element) => container.querySelectorAll(".ol-meter__seg--on").length;
+const css = () => readFileSync("src/components/Meter/Meter.css", "utf8");
+const marks = (container: Element) => [
+  ...container.querySelectorAll<HTMLElement>(".ol-meter__mark"),
+];
+const markKeys = (container: Element) =>
+  marks(container).map((m) => /ol-meter__mark--(\w+)/.exec(m.className)?.[1]);
+const numerals = (container: Element) =>
+  [...container.querySelectorAll<HTMLElement>(".ol-meter__num")].map((n) => n.textContent);
 const printed = (container: Element) => [...container.querySelectorAll(".ol-print-block")];
 
 describe("readMeter", () => {
@@ -210,7 +220,7 @@ describe("Meter", () => {
         <Meter value={72} label="ディスク" low={60} optimum={0} />
       </Root>,
     );
-    expect(valuetext()).toBe("72%、普通");
+    expect(valuetext()).toBe("72%、注意");
     rerender(
       <Root locale="ja">
         <Meter value={90} label="電池" low={20} high={50} optimum={100} />
@@ -372,6 +382,18 @@ describe("Meter", () => {
       expect(css).not.toMatch(/(^|[^-\w])\d+px/m);
     });
 
+    it("hides a pruned numeral with visibility so its tick stays", () => {
+      const css = readFileSync("src/components/Meter/Meter.css", "utf8");
+      expect(css).toMatch(/\.ol-meter__num\[data-hidden\]\s*\{\s*visibility: hidden;/);
+    });
+
+    it("draws marks, zones and the track in system colours under forced colours", () => {
+      const css = readFileSync("src/components/Meter/Meter.css", "utf8");
+      const block = css.slice(css.indexOf("@media (forced-colors: active)"));
+      expect(block).toMatch(/CanvasText/);
+      expect(block).toMatch(/Highlight/);
+    });
+
     it("mirrors the fill and needle in right-to-left text", () => {
       const css = readFileSync("src/components/Meter/Meter.css", "utf8");
       expect(css).toMatch(
@@ -471,5 +493,402 @@ describe("Meter", () => {
     expect(node).toHaveAttribute("aria-describedby", "hint");
     expect(node).toHaveAttribute("aria-details", "more");
     expect(container.firstElementChild).not.toHaveAttribute("aria-describedby");
+  });
+});
+
+describe("Meter vertical and scale", () => {
+  const banded = { value: 52, low: 40, high: 60, optimum: 50, label: "Humidity" } as const;
+
+  it("keeps the role and values, never sets aria-orientation, and adds one class", () => {
+    const { rerender } = render(<Meter {...banded} data-testid="m" />);
+    const horizontal = [...meter().attributes].map((a) => a.name).sort();
+    expect(horizontal).not.toContain("aria-orientation");
+    rerender(<Meter {...banded} data-testid="m" orientation="vertical" showScale showBands />);
+    expect(meter().getAttribute("aria-orientation")).toBeNull();
+    expect([...meter().attributes].map((a) => a.name).sort()).toEqual(horizontal);
+    expect(valuetext()).toBe("52%, Good");
+    expect(screen.getByTestId("m")).toHaveClass("ol-meter--vertical");
+    expect(screen.getByRole("meter", { name: "Humidity" })).toBeInTheDocument();
+  });
+
+  it("stays horizontal by default, with no new class", () => {
+    render(<Meter {...banded} data-testid="m" orientation="horizontal" />);
+    expect(screen.getByTestId("m").className).toBe("ol-meter");
+  });
+
+  it("reads value, gauge, label, Badge from top to bottom", () => {
+    render(<Meter {...banded} data-testid="m" orientation="vertical" />);
+    const root = screen.getByTestId("m");
+    expect([...root.children].map((c) => c.className.split(" ")[0])).toEqual([
+      "ol-meter__value",
+      "ol-meter__gauge",
+      "ol-label",
+      "ol-badge",
+    ]);
+    expect(root.querySelector(".ol-meter__top")).toBeNull();
+    expect(screen.getByRole("meter", { name: "Humidity" })).toBeInTheDocument();
+  });
+
+  it("leaves out the reading, label and Badge that are not wanted", () => {
+    render(
+      <Meter
+        value={30}
+        aria-label="Quiet"
+        orientation="vertical"
+        showValue={false}
+        data-testid="m"
+      />,
+    );
+    expect([...screen.getByTestId("m").children].map((c) => c.className)).toEqual([
+      "ol-meter__gauge",
+    ]);
+  });
+
+  it("draws the same fill and needle, driven by one fraction", () => {
+    const { container } = render(<Meter value={25} label="Level" orientation="vertical" />);
+    expect(meter().children).toHaveLength(2);
+    expect(meter().style.getPropertyValue("--ol-meter-n")).toBe("0.25");
+    expect(container.querySelector(".ol-meter__fill")).toBeInTheDocument();
+    expect(container.querySelector(".ol-meter__needle")).toBeInTheDocument();
+  });
+
+  it("rises from the bottom: a vertical shift anchored to the block end, not flipped by text direction", () => {
+    const sheet = css();
+    expect(sheet).toMatch(
+      /\.ol-meter--vertical \.ol-meter__fill,\s*\.ol-meter--vertical \.ol-meter__hand\s*\{[^}]*inset-block: auto 0;[^}]*transform: translateY\(calc\(\(1 - var\(--ol-meter-n, 0\)\) \* 100%\)\)/,
+    );
+    // the right-to-left shift belongs to the horizontal gauge only
+    expect(sheet).not.toMatch(/ol-meter--vertical[^{]*:dir\(rtl\)\s*\{[^}]*shift/);
+    expect(sheet).toMatch(/column-reverse/);
+    expect(sheet).toMatch(/height: var\(--ol-meter-length, var\(--space-32\)\)/);
+  });
+
+  it("keeps block order bottom-up in segments, so new blocks still print upward", () => {
+    const { container, rerender } = render(
+      <Meter value={30} label="Level" variant="segments" orientation="vertical" />,
+    );
+    const all = [...container.querySelectorAll(".ol-meter__seg")];
+    expect(all.slice(0, 3).every((b) => b.classList.contains("ol-meter__seg--on"))).toBe(true);
+    rerender(<Meter value={60} label="Level" variant="segments" orientation="vertical" />);
+    expect(printed(container).map((b) => all.indexOf(b))).toEqual([3, 4, 5]);
+  });
+
+  it("draws no ticks or bands in a vertical meter unless asked", () => {
+    const { container } = render(<Meter {...banded} orientation="vertical" />);
+    expect(
+      container.querySelector(".ol-meter__scale, .ol-meter__ruler, .ol-meter__zones"),
+    ).toBeNull();
+  });
+
+  it("keeps the plain horizontal ticks without showScale, and swaps them for the ruler with it", () => {
+    const { container, rerender } = render(<Meter {...banded} />);
+    expect(container.querySelector(".ol-meter__scale")).toBeInTheDocument();
+    rerender(<Meter {...banded} showScale />);
+    expect(container.querySelector(".ol-meter__scale")).toBeNull();
+    expect(container.querySelector(".ol-meter__ruler")).toBeInTheDocument();
+  });
+
+  describe("showScale", () => {
+    it("prints min, low, high and max in priority order", () => {
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(markKeys(container)).toEqual(["max", "min", "low", "high"]);
+      expect(numerals(container)).toEqual(["100%", "0%", "40%", "60%"]);
+    });
+
+    it("prints only the ends for a neutral meter, and with no bands", () => {
+      const { container } = render(<Meter value={64} label="Score" showScale />);
+      expect(markKeys(container)).toEqual(["max", "min"]);
+      expect(container.querySelector(".ol-meter__zones")).toBeNull();
+    });
+
+    it("prints nothing when off", () => {
+      const { container } = render(<Meter {...banded} />);
+      expect(container.querySelector(".ol-meter__num")).toBeNull();
+    });
+
+    it("skips a threshold that sits on another mark", () => {
+      const { container } = render(
+        <Meter value={5} label="Disk" low={0} high={100} optimum={50} showScale />,
+      );
+      expect(markKeys(container)).toEqual(["max", "min"]);
+    });
+
+    it("does not mark thresholds that were not passed", () => {
+      const { container } = render(<Meter value={5} label="Disk" optimum={50} showScale />);
+      expect(markKeys(container)).toEqual(["max", "min"]);
+    });
+
+    it("positions marks as a percentage of the range", () => {
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(marks(container).map((m) => m.style.getPropertyValue("--ol-p"))).toEqual([
+        "100",
+        "0",
+        "40",
+        "60",
+      ]);
+    });
+
+    it("writes numerals with format, formatOptions and the locale", () => {
+      const { container, rerender } = render(
+        <Meter
+          value={9}
+          max={16}
+          low={6}
+          high={10}
+          optimum={8}
+          label="Moisture"
+          showScale
+          formatOptions={{ maximumFractionDigits: 0 }}
+        />,
+      );
+      expect(numerals(container)).toEqual(["16", "0", "6", "10"]);
+      rerender(
+        <Meter
+          value={9}
+          max={16}
+          low={6}
+          high={10}
+          optimum={8}
+          label="Moisture"
+          showScale
+          format={(v) => `${String(v)} u`}
+        />,
+      );
+      expect(numerals(container)).toEqual(["16 u", "0 u", "6 u", "10 u"]);
+      rerender(
+        <Root locale="es">
+          <Meter {...banded} showScale />
+        </Root>,
+      );
+      expect(numerals(container)).toEqual(["100\u00a0%", "0\u00a0%", "40\u00a0%", "60\u00a0%"]);
+      rerender(
+        <Root locale="ja">
+          <Meter {...banded} showScale />
+        </Root>,
+      );
+      expect(numerals(container)).toEqual(["100%", "0%", "40%", "60%"]);
+    });
+
+    it("hides the scale from assistive technology and adds no words", () => {
+      const { container } = render(<Meter {...banded} showScale showBands />);
+      expect(container.querySelector(".ol-meter__ruler")).toHaveAttribute("aria-hidden", "true");
+      expect(container.querySelector(".ol-meter__zones")).toHaveAttribute("aria-hidden", "true");
+      expect(meter().children).toHaveLength(2);
+      expect(valuetext()).toBe("52%, Good");
+    });
+
+    it("snaps marks to the block edge in segments, and the numeral keeps the true value", () => {
+      const { container } = render(
+        <Meter
+          value={9}
+          max={16}
+          low={6}
+          high={10}
+          optimum={8}
+          label="Moisture"
+          variant="segments"
+          showScale
+          formatOptions={{ maximumFractionDigits: 0 }}
+        />,
+      );
+      expect(marks(container).map((m) => m.style.getPropertyValue("--ol-k"))).toEqual([
+        "10",
+        "0",
+        "4",
+        "6",
+      ]);
+      expect(numerals(container)).toEqual(["16", "0", "6", "10"]);
+      expect(css()).toMatch(
+        /\(100% \+ var\(--ol-meter-gap\)\) \/ var\(--ol-seg, 10\) - var\(--ol-meter-gap\) \/ 2/,
+      );
+    });
+
+    it("mirrors in right-to-left text through logical offsets", () => {
+      const sheet = css();
+      expect(sheet).toMatch(/\.ol-meter__ruler:dir\(rtl\)\s*\{\s*--ol-num-shift: 50%/);
+      expect(sheet).toMatch(/\.ol-meter__mark \{[^}]*inset-inline-start: clamp/);
+    });
+  });
+
+  describe("numeral pruning", () => {
+    class FakeResizeObserver {
+      static all: FakeResizeObserver[] = [];
+      constructor(private readonly callback: () => void) {
+        FakeResizeObserver.all.push(this);
+      }
+      observe = () => undefined;
+      disconnect = () => undefined;
+      fire() {
+        this.callback();
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- restored as a whole below
+    const original = Element.prototype.getBoundingClientRect;
+    afterEach(() => {
+      Element.prototype.getBoundingClientRect = original;
+      FakeResizeObserver.all = [];
+      vi.unstubAllGlobals();
+    });
+
+    /** Places each numeral by its text; `width` is the size along both axes. */
+    function layout(at: Record<string, number>, size = 20) {
+      Element.prototype.getBoundingClientRect = function (this: Element) {
+        const where = at[this.textContent];
+        if (!this.classList.contains("ol-meter__num") || where == null) return new DOMRect();
+        return new DOMRect(where, where, size, size);
+      };
+    }
+    const hidden = (container: Element) =>
+      [...container.querySelectorAll<HTMLElement>(".ol-meter__num")]
+        .filter((n) => n.hasAttribute("data-hidden"))
+        .map((n) => n.textContent);
+
+    it("shows every numeral when nothing can be measured", () => {
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(hidden(container)).toEqual([]);
+    });
+
+    it("hides a numeral that overlaps a more important one and keeps its tick", () => {
+      layout({ "100%": 300, "0%": 0, "40%": 10, "60%": 40 });
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(hidden(container)).toEqual(["40%"]);
+      expect(marks(container)).toHaveLength(4);
+    });
+
+    it("prefers max over min over low over high when all overlap", () => {
+      layout({ "100%": 0, "0%": 2, "40%": 4, "60%": 6 });
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(hidden(container)).toEqual(["0%", "40%", "60%"]);
+    });
+
+    it("compares a numeral with the ones that stay, not with the ones already hidden", () => {
+      // low hides under min; high would touch low, but low is not kept
+      layout({ "100%": 500, "0%": 0, "40%": 5, "60%": 30 });
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(hidden(container)).toEqual(["40%"]);
+    });
+
+    it("measures again on resize", () => {
+      vi.stubGlobal("ResizeObserver", FakeResizeObserver);
+      layout({ "100%": 300, "0%": 0, "40%": 100, "60%": 200 });
+      const { container } = render(<Meter {...banded} showScale />);
+      expect(hidden(container)).toEqual([]);
+      layout({ "100%": 300, "0%": 0, "40%": 5, "60%": 200 });
+      act(() => {
+        FakeResizeObserver.all.forEach((o) => {
+          o.fire();
+        });
+      });
+      expect(hidden(container)).toEqual(["40%"]);
+      layout({ "100%": 300, "0%": 0, "40%": 100, "60%": 200 });
+      act(() => {
+        FakeResizeObserver.all.forEach((o) => {
+          o.fire();
+        });
+      });
+      expect(hidden(container)).toEqual([]);
+    });
+
+    it("renders on the server without measuring", () => {
+      const html = renderToString(<Meter {...banded} orientation="vertical" showScale showBands />);
+      expect(html).toContain("ol-meter__num");
+      expect(html).not.toContain("data-hidden");
+    });
+  });
+
+  describe("showBands", () => {
+    const zones = (container: Element) => [
+      ...container.querySelectorAll<HTMLElement>(".ol-meter__zone"),
+    ];
+
+    it("splits the range at low and high; the region of optimum is the bold line", () => {
+      const { container } = render(<Meter {...banded} showBands />);
+      expect(zones(container)).toHaveLength(3);
+      expect(zones(container).map((z) => z.classList.contains("ol-meter__zone--optimum"))).toEqual([
+        false,
+        true,
+        false,
+      ]);
+      expect(zones(container)[1]?.style.getPropertyValue("--ol-pa")).toBe("40");
+      expect(zones(container)[1]?.style.getPropertyValue("--ol-pb")).toBe("60");
+    });
+
+    it("marks the end region as optimum when optimum sits there", () => {
+      const { container } = render(
+        <Meter value={30} label="Battery" low={20} high={50} optimum={100} showBands />,
+      );
+      expect(zones(container).map((z) => z.classList.contains("ol-meter__zone--optimum"))).toEqual([
+        false,
+        false,
+        true,
+      ]);
+    });
+
+    it("drops empty regions and draws one bold line for optimum alone", () => {
+      const { container } = render(<Meter value={30} label="Disk" optimum={50} showBands />);
+      expect(zones(container)).toHaveLength(1);
+      expect(zones(container)[0]).toHaveClass("ol-meter__zone--optimum");
+    });
+
+    it("draws nothing for a neutral meter", () => {
+      const { container } = render(<Meter value={30} label="Score" showBands />);
+      expect(container.querySelector(".ol-meter__zones")).toBeNull();
+    });
+
+    it("snaps the regions to block edges in segments", () => {
+      const { container } = render(<Meter {...banded} variant="segments" showBands />);
+      const mid = zones(container)[1];
+      expect(mid?.style.getPropertyValue("--ol-ka")).toBe("4");
+      expect(mid?.style.getPropertyValue("--ol-kb")).toBe("6");
+    });
+  });
+
+  it("sizes the thickness per orientation without changing the horizontal sizes", () => {
+    const sheet = css();
+    expect(sheet).toMatch(/\.ol-meter__track \{[^}]*--ol-meter-thickness: var\(--space-2\)/);
+    expect(sheet).toMatch(
+      /\.ol-meter--l \.ol-meter__track \{\s*--ol-meter-thickness: var\(--space-4\)/,
+    );
+    expect(sheet).toMatch(
+      /\.ol-meter--vertical\.ol-meter--l \.ol-meter__track \{\s*--ol-meter-thickness: var\(--space-3\)/,
+    );
+    expect(sheet).not.toMatch(/--ol-meter-height/);
+    expect(sheet).toMatch(/var\(--ol-meter-length, var\(--space-24\)\)/);
+    expect(sheet).toMatch(
+      /var\(--ol-meter-length, calc\(var\(--space-32\) \+ var\(--space-16\)\)\)/,
+    );
+  });
+
+  it("uses only tokens in the new rules", () => {
+    expect(css()).not.toMatch(/#[0-9a-f]{3,8}\b|\d+(ms|s)\b/i);
+    expect(css()).not.toMatch(/(^|[^-\w])\d+px/m);
+  });
+
+  describe("axe", () => {
+    it.each([
+      ["vertical bar", { orientation: "vertical" }],
+      ["vertical segments", { orientation: "vertical", variant: "segments" }],
+      ["vertical scale", { orientation: "vertical", showScale: true }],
+      ["vertical scale and bands", { orientation: "vertical", showScale: true, showBands: true }],
+      [
+        "vertical segments scale",
+        { orientation: "vertical", variant: "segments", showScale: true, showBands: true },
+      ],
+      ["horizontal scale and bands", { showScale: true, showBands: true }],
+      ["small vertical", { orientation: "vertical", size: "s", showScale: true }],
+      ["large vertical", { orientation: "vertical", size: "l", showScale: true }],
+    ] as const)("has no violations: %s", async (_, props) => {
+      const { container } = render(<Meter {...banded} {...props} />);
+      expect(await runAxe(container)).toHaveNoViolations();
+    });
+
+    it("has no violations in right-to-left text", async () => {
+      const { container } = render(
+        <div dir="rtl">
+          <Meter {...banded} orientation="vertical" showScale showBands />
+        </div>,
+      );
+      expect(await runAxe(container)).toHaveNoViolations();
+    });
   });
 });
