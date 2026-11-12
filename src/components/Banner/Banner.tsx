@@ -8,9 +8,11 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 
 import { useControllable } from "../../hooks/useControllable";
+import { useStickyChrome } from "../../hooks/useStickyChrome";
 import { useLabels } from "../../locale";
 import { type PresenceOptions, usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
@@ -76,10 +78,30 @@ export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title
   /** Called once the roll-up has ended and the banner has unmounted. */
   onExited?: () => void;
   /**
-   * Unroll when `open` turns true after the first render and roll up on close.
+   * Unroll when `open` turns true after the first render (or on the first client mount with
+   * `appear`) and roll up on close. The master switch: `false` also turns `appear` off.
    * @default true
    */
   animated?: boolean;
+  /**
+   * Keeps the strip at the top of the page while scrolling, for a message the reader needs while
+   * they work (connection lost, session ending). Sticky only when the viewport is at least 720 by
+   * 480 CSS px, so phones and zoomed pages scroll it away. Stacks with a sticky Navbar by itself
+   * and publishes the space it takes, so focus and in-page links stop below it. Page-level
+   * banners only: leave it off inside a Card, Modal or Sheet. On a long page, pass `returnFocus`:
+   * by default a dismiss moves focus to the next focusable element after the banner, which may be
+   * far above where the reader is. Server-rendered, the first stuck frame uses `top: 0` until
+   * hydration measures the stack.
+   * @default false
+   */
+  sticky?: boolean;
+  /**
+   * Also unroll when the banner first mounts on the client, after the page is interactive (read
+   * from storage, shown after an event). A banner in the server-rendered page never unrolls, with
+   * or without it: render a banner known at load in the first paint and leave this off.
+   * @default false
+   */
+  appear?: boolean;
 }
 
 const ROLES: Record<BannerLive, "region" | "status" | "alert"> = {
@@ -122,6 +144,18 @@ function focusNextAfter(node: HTMLElement): boolean {
   return false;
 }
 
+const subscribeNothing = () => () => undefined;
+const onClient = () => true;
+const onServer = () => false;
+
+/**
+ * True on a client render that is not hydrating server markup. During hydration React uses the
+ * server snapshot, so a banner present in the server HTML reads false.
+ */
+function useClientMount(): boolean {
+  return useSyncExternalStore(subscribeNothing, onClient, onServer);
+}
+
 function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
   if (typeof ref === "function") ref(node);
   else if (ref) (ref as { current: T | null }).current = node;
@@ -129,12 +163,12 @@ function assignRef<T>(ref: Ref<T> | undefined, node: T | null) {
 
 /**
  * A page-wide message in a ruled strip under the Navbar: a status word, the message, up to two
- * actions and an optional dismiss. It sits in the page flow (never sticky), stays until the
- * reader acts or dismisses it, and never takes focus.
+ * actions and an optional dismiss. It sits in the page flow (or sticks to the top with `sticky`),
+ * stays until the reader acts or dismisses it, and never takes focus.
  *
- * The strip unrolls (kakejiku) only when `open` turns true after the first render, so a banner
- * present at load, or one mounted later with `{show && <Banner />}`, simply appears. It rolls
- * back up when it closes. Only `clip-path` animates: the content below moves in one step.
+ * The strip unrolls (kakejiku) when `open` turns true after the first render, or, with `appear`,
+ * when it first mounts on the client. A banner present at load simply appears. It rolls back up
+ * when it closes. Only `clip-path` animates: the content below moves in one step.
  *
  * ```tsx
  * <Banner tone="warning" title="Maintenance" onClose={remember}>
@@ -157,6 +191,8 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
     returnFocus,
     onExited,
     animated = true,
+    sticky = false,
+    appear = false,
     className,
     ...rest
   },
@@ -190,10 +226,20 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
     setMoved(true);
   }
 
+  // `appear` reads "client mount, not hydration" once, on the first render, and keeps it, so the
+  // hydrated banner does not start to unroll when the snapshot switches to the client value.
+  const clientMount = useClientMount();
+  const [unrollOnMount] = useState(() => appear && clientMount);
+
+  // A sticky banner stacks with other sticky chrome and publishes its height for scroll-padding.
+  const [stickyNode, setStickyNode] = useState<HTMLDivElement | null>(null);
+  useStickyChrome(stickyNode, sticky);
+
   const setRoot = useCallback(
     (node: HTMLDivElement | null) => {
       nodeRef.current = node;
       setElement(node);
+      setStickyNode(node);
       assignRef(ref, node);
     },
     [setElement, ref],
@@ -229,7 +275,8 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
         "ol-banner",
         `ol-banner--${tone}`,
         !hasTag && "ol-banner--untagged",
-        animated && moved && "ol-kakejiku",
+        sticky && "ol-banner--sticky",
+        animated && (moved || unrollOnMount) && "ol-kakejiku",
         className,
       )}
     >

@@ -15,7 +15,7 @@ const meta = {
     layout: "fullscreen",
     docs: {
       description: {
-        component: `Banner is a page-wide message in a ruled strip under the Navbar: a status word, the message, up to two actions and an optional dismiss. It sits in the page flow (never sticky, never over content), stays until the reader acts or dismisses it, and never takes focus. Use \`Alert\` for a message tied to a section, \`Toast\` for brief feedback, \`AlertDialog\` when an answer is required.
+        component: `Banner is a page-wide message in a ruled strip under the Navbar: a status word, the message, up to two actions and an optional dismiss. It sits in the page flow (never over content), stays until the reader acts or dismisses it, and never takes focus. Use \`Alert\` for a message tied to a section, \`Toast\` for brief feedback, \`AlertDialog\` when an answer is required.
 
 - Do place it before the page content, directly under the Navbar (or above it for a site-wide notice), and render it in the first paint when it is known at load.
 - Do keep the message to one or two lines of plain words and one primary action; put the detail behind a "Learn more" link. More than two actions log a development warning.
@@ -23,11 +23,15 @@ const meta = {
 - Do give each banner on a page its own \`label\` or \`title\` when there is more than one.
 - Don't use a banner for field errors or a result tied to one place (\`Alert\`), or for brief feedback (\`Toast\`).
 - Don't show more than one banner at a time: merge related messages or show the one with the highest priority; two stacked banners share one hairline and are the limit.
-- Don't make it sticky or fixed: it would cover focused content and eat the viewport on phones. If an app must, wrap it itself and add \`scroll-padding-top\`.
-- Don't use \`maple\`, \`shu\` or colour alone for meaning: the tag word carries the status.
+- Do use \`sticky\` only for a message the reader needs while they work (connection lost, session ending, maintenance running), and keep it to one or two lines and one action.
+- Don't use \`sticky\` for a policy notice or a long message, and don't wrap a Banner in your own \`position: fixed\`: it would cover focused content and eat the viewport. The built-in sticky switches itself off on small screens and sets the scroll-padding for you.
+- Don't use colour alone for meaning: the tag word carries the status. \`shu\` is not used.
 - Don't omit \`onClose\` on a banner that is not important to keep (demo, policy notice); do omit it for a problem the reader must fix before going on.
+- Don't set \`appear\` for a banner that is known at load: render it in the first paint with no motion; use \`appear\` for one that mounts after the page is interactive (read from storage, shown after an event).
 
-**Motion.** The strip unrolls (kakejiku) only when \`open\` turns true after the first render: keep \`<Banner open={condition}>\` mounted and flip \`open\`. A banner present at load, or one mounted later with \`{condition && <Banner />}\`, simply appears. It rolls back up on close, then unmounts. Only \`clip-path\` animates, so the content below moves in one step. Reduced motion makes both instant; \`animated={false}\` turns the motion off for everyone.
+**Sticky.** \`sticky\` keeps the strip at the top of the page while scrolling. It is sticky only when the viewport is at least 720 by 480 CSS px, so phones and zoomed pages scroll it away. It stacks under or over a sticky Navbar by itself and publishes the height of the stuck chrome as \`--ol-sticky-offset\` on the root, which sets the page's \`scroll-padding\` so focus and in-page links stop below it. For a scroll container that is not the page, add \`.ol-has-sticky\` to it. Page-level banners only. On a long page, give a dismissible sticky banner a \`returnFocus\` near the reader's place: by default focus moves to the next focusable element after the banner, which may scroll the page far up. Server-rendered, the first stuck frame uses \`top: 0\` until hydration measures the stack.
+
+**Motion.** The strip unrolls (kakejiku) when \`open\` turns true after the first render (keep \`<Banner open={condition}>\` mounted and flip \`open\`), or when it first mounts on the client with \`appear\` (\`{condition && <Banner appear />}\`). A banner in the server-rendered page never unrolls, with or without \`appear\`; without it, one mounted later simply appears. It rolls back up on close, then unmounts. Only \`clip-path\` animates, so the content below moves in one step. Reduced motion makes both instant; \`animated={false}\` turns the motion off for everyone, \`appear\` included.
 
 **Focus.** Dismissing moves focus to the next focusable element after the banner (or \`returnFocus\`), so it is never dropped.`,
       },
@@ -214,6 +218,150 @@ export const UnderStickyNavbar: Story = {
       </main>
     </div>
   ),
+};
+
+const longPage = (
+  <>
+    {Array.from({ length: 4 }, (_, section) => (
+      <section key={section} aria-labelledby={`sticky-s${String(section + 1)}`}>
+        <h2 id={`sticky-s${String(section + 1)}`}>Section {section + 1}</h2>
+        {Array.from({ length: 5 }, (_, i) => (
+          <p key={i}>
+            Birch stools, oak benches and cedar crates are made to order in the workshop. Scroll:
+            the strip and the Navbar stay at the top, one under the other, and focus never lands
+            beneath them.
+          </p>
+        ))}
+        <p>
+          <Button size="s" variant="outline">
+            Save draft {section + 1}
+          </Button>
+        </p>
+      </section>
+    ))}
+  </>
+);
+
+const renderSticky = () => (
+  <div>
+    <Navbar
+      brand="Shirakaba"
+      sticky
+      links={[
+        { label: "Shop", href: "#shop", active: true },
+        { label: "Journal", href: "#journal" },
+      ]}
+    />
+    <Banner sticky tone="danger" title="Connection lost" actions={<Button size="s">Retry</Button>}>
+      Changes are saved on this device until the connection returns.
+    </Banner>
+    <main style={page}>
+      <p>
+        <Link href="#sticky-s3">Jump to section 3</Link>
+      </p>
+      {longPage}
+    </main>
+  </div>
+);
+
+/**
+ * The page itself scrolls. Both stick and stack; the root gets `--ol-sticky-offset`, so the jump
+ * link and Tab (try Shift+Tab back up from a lower button) stop below the strip. Narrower than
+ * 720px or shorter than 480px, the banner scrolls away and only the Navbar stays.
+ */
+export const Sticky: Story = {
+  name: "Sticky under a sticky Navbar",
+  render: renderSticky,
+};
+
+/**
+ * Under 720 by 480 CSS px (here a phone) the banner is static and scrolls away with the page;
+ * only the Navbar stays, and the scroll-padding counts the Navbar alone.
+ */
+export const StickyOnPhone: Story = {
+  name: "Sticky on a phone (static)",
+  parameters: { viewport: { defaultViewport: "mobile1" } },
+  render: renderSticky,
+};
+
+/** A site-wide notice above the Navbar: the banner sticks at 0 and the Navbar stacks below it. */
+export const StickyAboveNavbar: Story = {
+  name: "Sticky above a sticky Navbar",
+  render: () => (
+    <div>
+      <Banner sticky tone="warning" title="Maintenance running" onClose={noop}>
+        The shop is read-only until 04:00.
+      </Banner>
+      <Navbar
+        brand="Shirakaba"
+        sticky
+        links={[
+          { label: "Shop", href: "#shop", active: true },
+          { label: "Journal", href: "#journal" },
+        ]}
+      />
+      <main style={page}>
+        <p>
+          <Link href="#sticky-s3">Jump to section 3</Link>
+        </p>
+        {longPage}
+      </main>
+    </div>
+  ),
+};
+
+/**
+ * The first banner is known at load: it is in the first paint, without \`appear\`, and does not
+ * unroll. The button mounts a second one with \`appear\`, which unrolls on that first client mount;
+ * "Close banner" (or the dismiss) sets \`open\` to false, so it rolls back up and unmounts in
+ * \`onExited\`.
+ */
+export const Appear: Story = {
+  render: function Render() {
+    const [mounted, setMounted] = useState(false);
+    const [open, setOpen] = useState(false);
+    return (
+      <div>
+        <Banner tone="neutral" title="Demo shop">
+          Known at load: in the first paint, no motion.
+        </Banner>
+        {mounted ? (
+          <Banner
+            appear
+            open={open}
+            tone="info"
+            title="New this week"
+            live="polite"
+            onClose={() => {
+              setOpen(false);
+            }}
+            onExited={() => {
+              setMounted(false);
+            }}
+          >
+            Mounted after an event with appear: it unrolls once.
+          </Banner>
+        ) : null}
+        <div style={page}>
+          <Button
+            size="s"
+            onClick={() => {
+              // While it rolls up the press does nothing; the button stays enabled so it keeps focus.
+              if (mounted && !open) return;
+              if (mounted) {
+                setOpen(false);
+              } else {
+                setMounted(true);
+                setOpen(true);
+              }
+            }}
+          >
+            {mounted ? "Close banner" : "Mount banner"}
+          </Button>
+        </div>
+      </div>
+    );
+  },
 };
 
 export const Stacked: Story = {
