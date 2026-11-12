@@ -4,7 +4,7 @@ import { type ReactNode, type SyntheticEvent, useState } from "react";
 
 import {
   Accordion,
-  Alert,
+  Banner,
   Button,
   Card,
   Checkbox,
@@ -150,7 +150,6 @@ function Shirakaba() {
       setCfg((c) => ({ ...c, [key]: value }));
     };
   const [step, setStep] = useState(0);
-  const [banner, setBanner] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [terms, setTerms] = useState(false);
@@ -195,23 +194,11 @@ function Shirakaba() {
 
   return (
     <div className="sg-page">
-      {banner && (
-        <div className="sg-demo">
-          <Container>
-            <Alert
-              tone="warning"
-              tag="Demo"
-              title="Demonstration site"
-              onClose={() => {
-                setBanner(false);
-              }}
-            >
-              Sitio de demostración. Shirakaba Gakki is a fictional brand made to show the Olivine
-              component library. No guitars are sold, no data is stored and no payments are taken.
-            </Alert>
-          </Container>
-        </div>
-      )}
+      {/* Site-wide notice, so it sits above the Navbar (Banner guideline). It closes itself. */}
+      <Banner tone="neutral" tag="Demo" title="Demonstration site" onClose={dismissDemoNotice}>
+        Sitio de demostración. Shirakaba Gakki is a fictional brand made to show the Olivine
+        component library. No guitars are sold, no data is stored and no payments are taken.
+      </Banner>
 
       <Navbar
         sticky
@@ -982,6 +969,9 @@ function Shirakaba() {
 }
 
 /** The whole Shirakaba Gakki demo site. Demo code: not exported from the library. */
+// The demo stores nothing, so dismissing the notice needs no side effect.
+const dismissDemoNotice = () => undefined;
+
 export function ShirakabaPage() {
   return (
     <Root locale="en">
