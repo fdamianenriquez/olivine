@@ -1,7 +1,8 @@
 /*
- * Banner: a full-width ruled strip in the page flow. Only the bottom edge is ruled, so a Navbar
- * above (its own bottom rule) or a second banner below share one line. The layout follows the
- * banner's own width (container query), so it also works inside a Card, Modal or Sheet.
+ * Banner: a full-width ruled strip in the page flow (sticky at the top with --sticky). Only the
+ * bottom edge is ruled, so a Navbar above (its own bottom rule) or a second banner below share
+ * one line. The layout follows the banner's own width (container query), so it also works inside
+ * a Card, Modal or Sheet.
  */
 .ol-banner {
   /* The unroll's clip leaves room for focus rings. */
@@ -127,6 +128,21 @@
 
   .ol-banner__close {
     grid-column: 4;
+  }
+}
+
+/*
+ * Sticky: only where there is room for it. Custom properties cannot be used in media queries:
+ * 720px is the --bp-md token value and 480px the --bp-sm value, used here as a minimum height (no
+ * height breakpoint token exists). Below either, the strip scrolls away with the page, which also
+ * covers browser zoom. It stays opaque with only its bottom hairline; `top` is set by
+ * useStickyChrome when other sticky chrome (a Navbar) sits above.
+ */
+@media (width >= 720px) and (height >= 480px) {
+  .ol-banner--sticky {
+    position: sticky;
+    top: var(--ol-sticky-top, 0);
+    z-index: var(--z-sticky);
   }
 }
 

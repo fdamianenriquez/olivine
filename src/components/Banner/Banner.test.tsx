@@ -2,12 +2,15 @@ import { readFileSync } from "node:fs";
 
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createRef, useState } from "react";
+import { createRef, StrictMode, useState } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { stubNoAnimations } from "../../test/animations";
 import { runAxe } from "../../test/axe";
 import { Button } from "../Button";
+import { Navbar } from "../Navbar";
 import { Root } from "../Root";
 import { Banner, type BannerProps, type BannerTone } from "./Banner";
 
@@ -552,7 +555,11 @@ describe("Banner", () => {
     it("uses only tokens and the shared kakejiku class", () => {
       expect(css).not.toMatch(/@keyframes|animation|transition|prefers-reduced-motion/);
       expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|\d+(ms|s)\b/i);
-      expect(css).not.toMatch(/(^|[^-\w])\d+px/m);
+      // The only px literals are the breakpoint values of the sticky media query (and its comment).
+      const noQueries = css
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/@media \(width >= 720px\) and \(height >= 480px\)/, "");
+      expect(noQueries).not.toMatch(/(^|[^-\w])\d+px/m);
       expect(css).toMatch(/--ol-motion-overhang: var\(--space-2\)/);
       const motion = readFileSync("src/styles/motion.css", "utf8");
       expect(motion).toMatch(/\.ol-kakejiku\[data-state="closing"\]/);
@@ -567,10 +574,30 @@ describe("Banner", () => {
       expect(screenCss).not.toMatch(/border-(top|block|inline)|(^|\s)border:\s*var/m);
     });
 
-    it("stacks below 40rem of its own width and is never sticky", () => {
+    it("stacks below 40rem of its own width and is never fixed", () => {
       expect(css).toMatch(/container-type: inline-size/);
       expect(css).toMatch(/@container \(min-width: 40rem\)/);
-      expect(css).not.toMatch(/position:\s*(sticky|fixed)/);
+      expect(css).not.toMatch(/position:\s*fixed/);
+    });
+
+    it("is sticky only in a viewport at least 720 wide and 480 tall", () => {
+      const query = "@media (width >= 720px) and (height >= 480px) {";
+      expect(css).toContain(query);
+      const block = css.slice(css.indexOf(query), css.indexOf("}\n}", css.indexOf(query)) + 3);
+      expect(block).toMatch(
+        /\.ol-banner--sticky \{\s*position: sticky;\s*top: var\(--ol-sticky-top, 0\);\s*z-index: var\(--z-sticky\);\s*\}/,
+      );
+      // Nowhere else: under the query the strip is static and scrolls away.
+      const outside = css.replace(block, "");
+      expect(outside).not.toMatch(/position:\s*sticky|ol-banner--sticky/);
+      // Opaque, bottom hairline only, no shadow.
+      expect(css).not.toMatch(/box-shadow|shadow-block/);
+      expect(/\.ol-banner \{[^}]*\}/.exec(css)?.[0]).toMatch(/background: var\(--paper-2\)/);
+    });
+
+    it("lets the sticky position win over the zero-specificity kakejiku position", () => {
+      const motion = readFileSync("src/styles/motion.css", "utf8");
+      expect(motion).toMatch(/:where\(\.ol-kakejiku\) \{\s*position: relative;/);
     });
 
     it("keeps the tag a bordered word in forced colours", () => {
@@ -579,6 +606,211 @@ describe("Banner", () => {
         /\.ol-banner__tag \{[^}]*border: var\(--stroke-hair\) solid CanvasText/,
       );
       expect(css).not.toMatch(/maple|shu/);
+    });
+  });
+
+  describe("sticky", () => {
+    const root = () => document.documentElement;
+    const top = (el: Element | null) =>
+      (el as HTMLElement | null)?.style.getPropertyValue("--ol-sticky-top");
+    // jsdom has no layout and does not load the stylesheets: stand in for the media query with an
+    // inline `position: sticky`, and give each strip a height.
+    const stuck = { position: "sticky" } as const;
+    function mockHeights(heights: Record<string, number>) {
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+        this: HTMLElement,
+      ) {
+        const key = Object.keys(heights).find((cls) => this.classList.contains(cls));
+        return { height: key ? heights[key] : 0 } as DOMRect;
+      });
+    }
+
+    it("adds the sticky modifier only with sticky", () => {
+      const { container, rerender } = render(<Banner>Body</Banner>);
+      expect(container.querySelector(".ol-banner")).not.toHaveClass("ol-banner--sticky");
+      rerender(<Banner sticky>Body</Banner>);
+      expect(container.querySelector(".ol-banner")).toHaveClass("ol-banner--sticky");
+    });
+
+    it("stacks under a sticky Navbar and publishes the total offset", () => {
+      mockHeights({ "ol-navbar": 56, "ol-banner": 72 });
+      const { container, unmount } = render(
+        <>
+          <Navbar brand="Shirakaba" sticky style={stuck} />
+          <Banner sticky style={stuck} title="Connection lost">
+            Body
+          </Banner>
+        </>,
+      );
+      expect(top(container.querySelector(".ol-navbar"))).toBe("0px");
+      expect(top(container.querySelector(".ol-banner"))).toBe("56px");
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("128px");
+      unmount();
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("");
+    });
+
+    it("stacks above a sticky Navbar when it comes first", () => {
+      mockHeights({ "ol-navbar": 56, "ol-banner": 72 });
+      const { container, unmount } = render(
+        <>
+          <Banner sticky style={stuck} title="Site notice">
+            Body
+          </Banner>
+          <Navbar brand="Shirakaba" sticky style={stuck} />
+        </>,
+      );
+      expect(top(container.querySelector(".ol-banner"))).toBe("0px");
+      expect(top(container.querySelector(".ol-navbar"))).toBe("72px");
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("128px");
+      unmount();
+    });
+
+    it("adds nothing while static (a small viewport)", () => {
+      mockHeights({ "ol-navbar": 56, "ol-banner": 72 });
+      const { unmount } = render(
+        <>
+          <Navbar brand="Shirakaba" sticky style={stuck} />
+          <Banner sticky title="Connection lost">
+            Body
+          </Banner>
+        </>,
+      );
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("56px");
+      unmount();
+    });
+
+    it("keeps its space during the roll-up, then unregisters and cleans the root variable", async () => {
+      mockHeights({ "ol-banner": 72 });
+      const { rerender } = render(
+        <Banner sticky style={stuck} open onClose={noop}>
+          Body
+        </Banner>,
+      );
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("72px");
+      const finish = holdExit(screen.getByRole("region"));
+      rerender(
+        <Banner sticky style={stuck} open={false} onClose={noop}>
+          Body
+        </Banner>,
+      );
+      await flush();
+      expect(screen.getByRole("region", { hidden: true })).toHaveAttribute("data-state", "closing");
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("72px");
+      finish();
+      await waitFor(() => {
+        expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+      });
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("");
+    });
+
+    it("does not register without sticky", () => {
+      mockHeights({ "ol-banner": 72 });
+      const { container, unmount } = render(<Banner style={stuck}>Body</Banner>);
+      expect(top(container.querySelector(".ol-banner"))).toBe("");
+      expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("");
+      unmount();
+    });
+
+    it("keeps the kakejiku unroll on a sticky strip", async () => {
+      const user = userEvent.setup();
+      render(<Controlled sticky />);
+      await user.click(screen.getByRole("button", { name: "Dismiss" }));
+      await waitFor(() => {
+        expect(screen.queryByRole("region", { hidden: true })).toBeNull();
+      });
+      await user.click(screen.getByRole("button", { name: "Show again" }));
+      const banner = screen.getByRole("region");
+      expect(banner).toHaveClass("ol-banner--sticky", "ol-kakejiku");
+    });
+  });
+
+  describe("appear", () => {
+    it("unrolls on a client-only first mount", () => {
+      render(<Banner appear>Body</Banner>);
+      expect(screen.getByRole("region")).toHaveClass("ol-kakejiku");
+    });
+
+    it("keeps the old behaviour without appear", () => {
+      render(<Banner>Body</Banner>);
+      expect(screen.getByRole("region")).not.toHaveClass("ol-kakejiku");
+    });
+
+    it("is turned off by animated={false}", () => {
+      render(
+        <Banner appear animated={false}>
+          Body
+        </Banner>,
+      );
+      expect(screen.getByRole("region")).not.toHaveClass("ol-kakejiku");
+    });
+
+    it("unrolls under StrictMode's double render", () => {
+      render(
+        <StrictMode>
+          <Banner appear>Body</Banner>
+        </StrictMode>,
+      );
+      expect(screen.getByRole("region")).toHaveClass("ol-kakejiku");
+    });
+
+    it("never unrolls a banner in server markup, during or after hydration", async () => {
+      const page = (
+        <Banner appear sticky title="Connection lost">
+          Body
+        </Banner>
+      );
+      const html = renderToString(page);
+      expect(html).not.toContain("ol-kakejiku");
+      expect(html).toContain("ol-banner--sticky");
+
+      const container = document.createElement("div");
+      container.innerHTML = html;
+      document.body.append(container);
+      const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+      const recoverable = vi.fn();
+      let hydrated: ReturnType<typeof hydrateRoot> | undefined;
+      await act(async () => {
+        hydrated = hydrateRoot(container, page, { onRecoverableError: recoverable });
+        await Promise.resolve();
+      });
+      expect(error).not.toHaveBeenCalled();
+      expect(recoverable).not.toHaveBeenCalled();
+      const banner = container.querySelector(".ol-banner");
+      expect(banner).not.toHaveClass("ol-kakejiku");
+      // A later render (snapshot now on the client value) still does not start the unroll.
+      await act(async () => {
+        hydrated?.render(
+          <Banner appear sticky title="Connection lost">
+            Body changed
+          </Banner>,
+        );
+        await Promise.resolve();
+      });
+      expect(container.querySelector(".ol-banner")).not.toHaveClass("ol-kakejiku");
+      act(() => {
+        hydrated?.unmount();
+      });
+      container.remove();
+    });
+
+    it("unrolls in 1ms under reduced motion: the unroll runs on --dur-l, which both switches zero", () => {
+      render(
+        <div className="ol-reduce-motion">
+          <Banner appear>Body</Banner>
+        </div>,
+      );
+      const banner = screen.getByRole("region");
+      expect(banner).toBeVisible();
+      expect(banner).toHaveClass("ol-kakejiku");
+      const motion = readFileSync("src/styles/motion.css", "utf8");
+      expect(motion).toMatch(
+        /\.ol-kakejiku:not\(\[data-state="closing"\]\) \{\s*animation: ol-unroll-down var\(--dur-l\)/,
+      );
+      expect(motion).toMatch(/\.ol-reduce-motion \{[^}]*--dur-l: 1ms;/);
+      const media = motion.slice(motion.indexOf("@media (prefers-reduced-motion: reduce)"));
+      expect(media).toMatch(
+        /^@media \(prefers-reduced-motion: reduce\) \{\s*:root \{[^}]*--dur-l: 1ms;/,
+      );
     });
   });
 
@@ -633,6 +865,22 @@ describe("Banner", () => {
           <Banner live={live} tone="warning" onClose={noop}>
             Body text
           </Banner>,
+        );
+        expect(await runAxe(container)).toHaveNoViolations();
+      },
+    );
+
+    it.each(["washi", "sumi"] as const)(
+      "has no violations sticky under a sticky Navbar, with appear, in %s",
+      async (theme) => {
+        const { container } = render(
+          <div data-theme={theme}>
+            <Navbar brand="Shirakaba" sticky links={[{ label: "Shop", href: "#shop" }]} />
+            <Banner sticky appear tone="danger" title="Connection lost" onClose={noop}>
+              Body text
+            </Banner>
+            <main>Content</main>
+          </div>,
         );
         expect(await runAxe(container)).toHaveNoViolations();
       },
