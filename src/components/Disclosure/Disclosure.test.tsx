@@ -477,6 +477,57 @@ describe("Disclosure", () => {
       expect(screen.getByRole("group")).toHaveClass("ol-kakejiku");
     });
 
+    it("reveals instantly after an earlier toggle cycle", async () => {
+      const user = userEvent.setup();
+      setup({ findable: true });
+      await user.click(trigger());
+      expect(screen.getByRole("group")).toHaveClass("ol-kakejiku");
+      await user.click(trigger());
+      const panel = screen.getByRole("group", { hidden: true });
+      await waitFor(() => {
+        expect(panel).toHaveAttribute("hidden", "until-found");
+      });
+      fireEvent(panel, new Event("beforematch"));
+      expect(trigger()).toHaveAttribute("aria-expanded", "true");
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).not.toHaveClass("ol-kakejiku");
+    });
+
+    it("drops the instant reveal when a controlled parent ignores it, so a later open unrolls", () => {
+      const onOpenChange = vi.fn();
+      const view = (open: boolean) => (
+        <Disclosure summary="Shipping and returns" findable open={open} onOpenChange={onOpenChange}>
+          Orders ship.
+        </Disclosure>
+      );
+      const { rerender } = render(view(false));
+      const panel = screen.getByRole("group", { hidden: true });
+      fireEvent(panel, new Event("beforematch"));
+      expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true);
+      expect(trigger()).toHaveAttribute("aria-expanded", "false");
+      rerender(view(true));
+      expect(trigger()).toHaveAttribute("aria-expanded", "true");
+      expect(panel).toHaveAttribute("data-state", "open");
+      expect(panel).toHaveClass("ol-kakejiku");
+    });
+
+    it("sets hidden=until-found again when a re-render closes it", async () => {
+      const view = (open: boolean) => (
+        <Disclosure summary="Shipping and returns" findable open={open}>
+          Orders ship.
+        </Disclosure>
+      );
+      const { rerender } = render(view(true));
+      const panel = screen.getByRole("group");
+      expect(panel).not.toHaveAttribute("hidden");
+      rerender(view(false));
+      await waitFor(() => {
+        expect(panel).toHaveAttribute("hidden", "until-found");
+      });
+      expect(screen.getByRole("group", { hidden: true })).toBe(panel);
+      expect(panel).toHaveAttribute("data-state", "closed");
+    });
+
     it("keeps hidden=until-found across a re-render with new children while closed", () => {
       const { rerender } = render(
         <Disclosure summary="Shipping and returns" findable>

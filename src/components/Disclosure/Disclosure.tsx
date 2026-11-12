@@ -31,8 +31,8 @@ export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDivElement>, "c
    * Closed panel uses `hidden="until-found"` so find-in-page and `#fragment` links reveal it.
    * Implies `keepMounted`. Only where the browser supports it. The reveal is instant (no
    * unroll). The browser has already removed `hidden` when `beforematch` fires, so a controlled
-   * parent must accept `onOpenChange(true)`; one that ignores it leaves the panel showing while
-   * `open` is false.
+   * parent must accept `onOpenChange(true)`, synchronously in the handler (a later update replays
+   * the unroll); one that ignores it leaves the panel showing while `open` is false.
    */
   findable?: boolean;
 }
@@ -95,6 +95,13 @@ export const Disclosure = forwardRef<HTMLDivElement, DisclosureProps>(function D
     setMoved(!instant);
     setInstant(false);
   }
+
+  // A controlled parent may ignore the reveal request, so `open` never changes and the flag above
+  // is never consumed. Clear it once that render has committed, so a later open still unrolls.
+  // The instant reveal therefore needs the parent to update `open` synchronously in `onOpenChange`.
+  useIsomorphicLayoutEffect(() => {
+    if (instant) setInstant(false);
+  }, [instant]);
 
   // React renders `hidden` as a boolean attribute (React 18 and 19 alike), so `until-found` is
   // set on the element itself. Layout effect: it replaces the plain `hidden` React just wrote
