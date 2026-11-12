@@ -174,6 +174,18 @@
   scroll-padding-bottom: calc(var(--control-xl) + var(--space-6) * 2);
 }
 
+/* Sticky page chrome (a sticky Navbar or Banner) publishes its height as --ol-sticky-offset on the
+ * root: focus moves, in-page links and scrollIntoView stop below it. Zero specificity, so an app's
+ * own html { scroll-padding-block-start } wins. */
+:where(:root:has(.ol-banner--sticky, .ol-navbar--sticky)) {
+  scroll-padding-block-start: var(--ol-sticky-offset, 0);
+}
+
+/* A scroll container (not the page) under sticky chrome. */
+.ol-has-sticky {
+  scroll-padding-block-start: var(--ol-sticky-offset, 0);
+}
+
 /* A scroll container under a BottomNav: content and focused items stop above the bar. A minimum:
  * a bar with two-line labels or large text is taller and covers a little more. */
 .ol-has-bottomnav {
@@ -187,7 +199,7 @@
  * Pair it with `html { scroll-padding-block-start: var(--ol-anchor-offset) }` so controls reached
  * by Tab are not hidden under the same chrome either. */
 .ol-anchor {
-  scroll-margin-block-start: var(--ol-anchor-offset, var(--control-xl));
+  scroll-margin-block-start: var(--ol-anchor-offset, var(--ol-sticky-offset, var(--control-xl)));
 }
 
 /* Scrollbar skin for any native scroller (ScrollArea, Table region, …): a square thumb drawn as a

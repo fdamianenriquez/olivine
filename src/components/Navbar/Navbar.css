@@ -9,7 +9,9 @@
 
 .ol-navbar--sticky {
   position: sticky;
-  top: 0;
+
+  /* Set by useStickyChrome when a sticky Banner sits above. */
+  top: var(--ol-sticky-top, 0);
   z-index: var(--z-sticky);
 }
 

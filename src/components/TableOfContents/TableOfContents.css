@@ -10,10 +10,15 @@
  */
 .ol-toc--sticky {
   position: sticky;
-  inset-block-start: var(--ol-toc-top, var(--ol-anchor-offset, var(--space-6)));
+  inset-block-start: var(
+    --ol-toc-top,
+    var(--ol-anchor-offset, var(--ol-sticky-offset, var(--space-6)))
+  );
   display: flex;
   flex-direction: column;
-  max-block-size: calc(100dvh - var(--ol-toc-top, var(--ol-anchor-offset, var(--space-6))) * 2);
+  max-block-size: calc(
+    100dvh - var(--ol-toc-top, var(--ol-anchor-offset, var(--ol-sticky-offset, var(--space-6)))) * 2
+  );
   background: var(--paper);
 }
 
