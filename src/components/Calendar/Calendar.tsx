@@ -24,6 +24,7 @@ import {
 } from "../../locale";
 import { prefersReducedMotion, useReducedMotion } from "../../motion";
 import { cx } from "../../utils/cx";
+import { isRtl } from "../../utils/isRtl";
 import { Button } from "../Button";
 import {
   addDays,
@@ -50,18 +51,6 @@ import {
   type Weekday,
   weekdayNames,
 } from "./dates";
-
-/**
- * Right-to-left by the same rule the stylesheet uses (`:dir(rtl)`), so keys and arrow glyphs
- * never disagree. Read at key time. Falls back to the nearest `dir` where `:dir()` is unsupported.
- */
-function isRtl(element: Element): boolean {
-  try {
-    return element.matches(":dir(rtl)");
-  } catch {
-    return element.closest<HTMLElement>("[dir]")?.dir === "rtl";
-  }
-}
 
 /** Imperative handle of a {@link Calendar}, for pickers that open it. */
 export interface CalendarHandle {

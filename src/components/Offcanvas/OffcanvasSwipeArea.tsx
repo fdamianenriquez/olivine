@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { CONTROLS, FLICK_VELOCITY, FLICK_WINDOW, SLOP } from "../../hooks/gesture";
+import { isRtl } from "../../utils/isRtl";
 import type { OffcanvasPlacement } from "./Offcanvas";
 
 /** Inward travel in px that opens the panel without a flick. */
@@ -60,14 +61,6 @@ function measureBand(depth: string, side: Side): number {
   const rect = probe.getBoundingClientRect();
   probe.remove();
   return side === "bottom" ? rect.height : rect.width;
-}
-
-/** The writing direction where the press starts (a `dir` subtree or `Root` wins over `<html>`). */
-function isRtl(from: EventTarget | null): boolean {
-  const node = from instanceof Element ? from : document.documentElement;
-  const computed = getComputedStyle(node).direction;
-  const direction = computed !== "" ? computed : node.closest("[dir]")?.getAttribute("dir");
-  return direction === "rtl";
 }
 
 /**

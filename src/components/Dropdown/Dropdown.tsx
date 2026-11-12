@@ -3,6 +3,7 @@ import { forwardRef, type ReactNode, useCallback, useState } from "react";
 import { type MenuCloseReason, useMenu } from "../../hooks/useMenu";
 import { useMenuPosition } from "../../hooks/useMenuPosition";
 import { cx } from "../../utils/cx";
+import { isRtl } from "../../utils/isRtl";
 import { Button, type ButtonProps } from "../Button";
 import { toolbarMenu, useToolbar } from "../Toolbar/ToolbarContext";
 import {
@@ -122,7 +123,7 @@ export const Dropdown = forwardRef<HTMLButtonElement, DropdownProps>(function Dr
     (node: HTMLButtonElement | null) => {
       setTrigger(node);
       setAnchor(node);
-      if (node) setRtl(getComputedStyle(node).direction === "rtl");
+      if (node) setRtl(isRtl(node));
       if (typeof ref === "function") ref(node);
       else if (ref) ref.current = node;
     },

@@ -13,6 +13,7 @@ import { useRovingFocus } from "../../hooks/useRovingFocus";
 import { useInkWipe } from "../../motion";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { isRtl } from "../../utils/isRtl";
 import { Button } from "../Button";
 import { useToolbar } from "../Toolbar/ToolbarContext";
 
@@ -188,7 +189,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
       const index = cells.indexOf(current);
       if (index < 0) return;
       let forward = event.key === "ArrowDown" || event.key === "ArrowRight";
-      if (vertical && getComputedStyle(current).direction === "rtl") {
+      if (vertical && isRtl(current)) {
         forward = !forward;
       }
       const target = cells[(index + (forward ? 1 : -1) + cells.length) % cells.length];

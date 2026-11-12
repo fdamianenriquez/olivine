@@ -16,6 +16,7 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { useLabels, useLocaleTag } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { isRtl } from "../../utils/isRtl";
 import {
   clampPair,
   gapFor,
@@ -180,12 +181,6 @@ const SingleRange = forwardRef<HTMLInputElement, RangeProps>(function SingleRang
 
 type Thumb = 0 | 1;
 const THUMBS: readonly Thumb[] = [0, 1];
-
-/** Right-to-left when the computed direction or the nearest `dir` says so. */
-function isRtl(element: Element): boolean {
-  if (getComputedStyle(element).direction === "rtl") return true;
-  return element.closest("[dir]")?.getAttribute("dir") === "rtl";
-}
 
 /** Sets an input's value past React's tracker, so React reports the event that follows. */
 function setNativeValue(input: HTMLInputElement, value: string): void {

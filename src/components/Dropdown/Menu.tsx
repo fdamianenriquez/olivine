@@ -19,6 +19,7 @@ import {
 } from "../../hooks/useMenu";
 import { type MenuPosition, useMenuPosition } from "../../hooks/useMenuPosition";
 import { cx } from "../../utils/cx";
+import { isRtl } from "../../utils/isRtl";
 import { Kbd, type Shortcut, toAriaKeyShortcuts } from "../Kbd";
 import { useResolvedKbdPlatform } from "../Kbd/useKbdPlatform";
 import { Portal } from "../Portal";
@@ -427,7 +428,7 @@ function MenuSubmenu({ parent, item, lead }: SubmenuProps) {
       row.current = node;
       setTrigger(node);
       setAnchor(node);
-      if (node) setRtl(getComputedStyle(node).direction === "rtl");
+      if (node) setRtl(isRtl(node));
     },
     [setTrigger, setAnchor],
   );
@@ -530,8 +531,7 @@ function MenuSubmenu({ parent, item, lead }: SubmenuProps) {
         "aria-expanded": false,
         // A disabled row swallows the open key, so it never reads as the root's arrow-out.
         onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
-          const forward =
-            getComputedStyle(event.currentTarget).direction === "rtl" ? "ArrowLeft" : "ArrowRight";
+          const forward = isRtl(event.currentTarget) ? "ArrowLeft" : "ArrowRight";
           if (event.key === forward) event.preventDefault();
         },
       }
