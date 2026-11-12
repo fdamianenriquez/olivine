@@ -5,6 +5,12 @@ export {
   type AlertDialogCloseReason,
   type AlertDialogProps,
   type AlertDialogTone,
+  type ConfirmCloseReason,
+  type ConfirmFn,
+  type ConfirmOptions,
+  ConfirmProvider,
+  type ConfirmProviderProps,
+  useConfirm,
 } from "./components/AlertDialog";
 export * from "./components/Avatar";
 export { Badge, type BadgeProps, type BadgeTone } from "./components/Badge";

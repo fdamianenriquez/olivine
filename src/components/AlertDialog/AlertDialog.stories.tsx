@@ -1,12 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { REDUCE_MOTION_CLASS } from "../../motion";
 import { Alert } from "../Alert";
 import { Button } from "../Button";
+import { Dropdown } from "../Dropdown";
 import { Modal } from "../Modal";
 import { Root } from "../Root";
 import { AlertDialog, type AlertDialogProps } from "./AlertDialog";
+import { useConfirm } from "./ConfirmContext";
+import { ConfirmProvider } from "./ConfirmProvider";
 
 const meta = {
   title: "Overlays/AlertDialog",
@@ -18,7 +21,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'AlertDialog is a modal confirmation that needs an answer. It is a Modal announced as `alertdialog`, with no close button and no scrim dismissal: Cancel and Escape are the ways out, and Cancel has focus when it opens.\n\n- Do write the title as the question and the confirm label as the action ("Delete 3 files?" / "Delete").\n- Do use `tone="danger"` for actions that destroy or cannot be undone; the word tag and the label carry the meaning, not the colour.\n- Don\'t use it for forms or content (use Modal), for messages that need no answer (use Alert or Toast), or when Undo is possible (use a Toast with Undo).',
+          'AlertDialog is a modal confirmation that needs an answer. It is a Modal announced as `alertdialog`, with no close button and no scrim dismissal: Cancel and Escape are the ways out, and Cancel has focus when it opens.\n\n- Do write the title as the question and the confirm label as the action ("Delete 3 files?" / "Delete").\n- Do use `tone="danger"` for actions that destroy or cannot be undone; the word tag and the label carry the meaning, not the colour.\n- Don\'t use it for forms or content (use Modal), for messages that need no answer (use Alert or Toast), or when Undo is possible (use a Toast with Undo).\n\n**From code.** Wrap the app once in `ConfirmProvider` (inside `Root`) and call `useConfirm()`: `if (await confirm({ title, description, tone, confirmLabel }))` resolves `true` on confirm and `false` on Cancel or Escape. Confirms queue one at a time. A `signal` ends a confirm wherever it is and rejects with `signal.reason`; ignore `AbortError` where you catch it. A confirm started in an effect is rejected by the effect cleanup that StrictMode runs in development, so tie it to a signal aborted in that cleanup. Never await a confirm inside another confirm\'s `onConfirm`: it queues behind the first and can never start.',
       },
     },
   },
@@ -264,5 +267,230 @@ export const Locales: Story = {
         </Root>
       ))}
     </div>
+  ),
+};
+
+/** Shows how the last confirm ended. */
+function Outcome({ value }: { value: string }) {
+  return (
+    <output className="ol-label" style={{ display: "block", marginTop: "var(--space-3)" }}>
+      {value}
+    </output>
+  );
+}
+
+function isAbort(error: unknown): boolean {
+  return (
+    error instanceof DOMException && (error.name === "AbortError" || error.name === "TimeoutError")
+  );
+}
+
+function MenuRow() {
+  const confirm = useConfirm();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const [outcome, setOutcome] = useState("Nothing asked yet.");
+  return (
+    <div>
+      <Dropdown
+        ref={trigger}
+        label="Kaichi slab"
+        items={[
+          { label: "Rename" },
+          { divider: true },
+          {
+            label: "Delete",
+            danger: true,
+            onSelect: () => {
+              void confirm({
+                title: "Delete the Kaichi slab?",
+                description: "It leaves the catalogue and every open order.",
+                tone: "danger",
+                confirmLabel: "Delete",
+                // The menu item is gone by the time the dialog closes.
+                returnFocus: () => trigger.current,
+                onConfirm: () => wait(1200),
+              }).then((ok) => {
+                setOutcome(ok ? "Deleted." : "Kept.");
+              });
+            },
+          },
+        ]}
+      />
+      <Outcome value={outcome} />
+    </div>
+  );
+}
+
+/**
+ * `useConfirm()` from a Dropdown item: the handler awaits the answer, `onConfirm` runs the work
+ * while the dialog is pending, and `returnFocus` sends focus back to the menu button.
+ */
+export const ConfirmFromMenu: Story = {
+  render: () => (
+    <ConfirmProvider>
+      <MenuRow />
+    </ConfirmProvider>
+  ),
+};
+
+function QueueDemo() {
+  const confirm = useConfirm();
+  const [log, setLog] = useState<string[]>([]);
+  const ask = (title: string) =>
+    confirm({ title, confirmLabel: "Publish" }).then((ok) => {
+      setLog((lines) => [...lines, `${title} ${ok ? "yes" : "no"}`]);
+    });
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          void ask("Publish the catalogue?");
+          void ask("Publish the price list?");
+          void ask("Publish the lookbook?");
+        }}
+      >
+        Ask three times
+      </Button>
+      <Outcome value={log.length ? log.join(" · ") : "Nothing asked yet."} />
+    </div>
+  );
+}
+
+/** Three confirms at once queue first in, first out; each opens after the previous has rolled up. */
+export const ConfirmQueue: Story = {
+  render: () => (
+    <ConfirmProvider>
+      <QueueDemo />
+    </ConfirmProvider>
+  ),
+};
+
+function HungDemo() {
+  const confirm = useConfirm();
+  const [outcome, setOutcome] = useState("Nothing asked yet.");
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          confirm({
+            title: "Send the invoice?",
+            confirmLabel: "Send",
+            // The work never answers; the deadline closes the dialog after five seconds.
+            signal: AbortSignal.timeout(5000),
+            onConfirm: () => new Promise(() => undefined),
+          }).then(
+            (ok) => {
+              setOutcome(ok ? "Sent." : "Not sent.");
+            },
+            (error: unknown) => {
+              if (!isAbort(error)) throw error;
+              setOutcome("No answer from the server: the dialog closed after five seconds.");
+            },
+          );
+        }}
+      >
+        Send invoice
+      </Button>
+      <Outcome value={outcome} />
+    </div>
+  );
+}
+
+/**
+ * A pending confirm cannot be cancelled by the user, so long work gets a deadline:
+ * `signal: AbortSignal.timeout(ms)` closes the dialog and rejects the confirm.
+ */
+export const ConfirmHungRequest: Story = {
+  render: () => (
+    <ConfirmProvider>
+      <HungDemo />
+    </ConfirmProvider>
+  ),
+};
+
+function EffectDemo() {
+  const confirm = useConfirm();
+  const [asking, setAsking] = useState(false);
+  const [outcome, setOutcome] = useState("Nothing asked yet.");
+  useEffect(() => {
+    if (!asking) return;
+    // Tie the confirm to this effect: its cleanup (and StrictMode's rehearsal of it) ends it.
+    const controller = new AbortController();
+    confirm({
+      title: "Leave without saving?",
+      description: "The note on this order has not been saved.",
+      confirmLabel: "Leave",
+      signal: controller.signal,
+    }).then(
+      (ok) => {
+        setOutcome(ok ? "Left." : "Stayed.");
+        setAsking(false);
+      },
+      (error: unknown) => {
+        if (!isAbort(error)) throw error;
+      },
+    );
+    return () => {
+      controller.abort();
+    };
+  }, [asking, confirm]);
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          setAsking(true);
+        }}
+      >
+        Leave the order
+      </Button>
+      <Outcome value={outcome} />
+    </div>
+  );
+}
+
+/**
+ * A confirm started in an effect passes a signal aborted in the effect's cleanup and ignores the
+ * `AbortError`; in development StrictMode runs that cleanup once, and the second run asks again.
+ */
+export const ConfirmInEffect: Story = {
+  render: () => (
+    <ConfirmProvider>
+      <EffectDemo />
+    </ConfirmProvider>
+  ),
+};
+
+function JapaneseDemo() {
+  const confirm = useConfirm();
+  const [outcome, setOutcome] = useState("まだ確認していません。");
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          void confirm({
+            title: LOCALE_DEMO.ja.title,
+            description: LOCALE_DEMO.ja.text,
+            tone: "danger",
+            confirmLabel: LOCALE_DEMO.ja.action,
+          }).then((ok) => {
+            setOutcome(ok ? "削除しました。" : "削除しませんでした。");
+          });
+        }}
+      >
+        ファイルを削除
+      </Button>
+      <Outcome value={outcome} />
+    </div>
+  );
+}
+
+/** The provider sits inside `Root locale="ja"`: Cancel and the Caution word come from Japanese. */
+export const ConfirmJapanese: Story = {
+  render: () => (
+    <Root locale="ja">
+      <ConfirmProvider>
+        <JapaneseDemo />
+      </ConfirmProvider>
+    </Root>
   ),
 };

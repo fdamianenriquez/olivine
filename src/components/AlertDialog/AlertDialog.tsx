@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
@@ -41,7 +42,8 @@ export interface AlertDialogOwnProps {
    * Runs on confirm. When it returns a promise the dialog is pending until it settles: confirm
    * shows its loading state, Cancel and Escape do nothing. Once it resolves, `onClose("confirm")`
    * is called. If it rejects, the dialog stays open, focus returns to confirm and the error is
-   * reported as an uncaught error; catch it here to show a message instead.
+   * reported as an uncaught error; catch it here to show a message instead. If `open` turns
+   * `false` while it is pending, its late result is ignored.
    */
   onConfirm?: () => unknown;
   /** Called with the reason the dialog should close. Set `open` to `false` here. */
@@ -62,6 +64,11 @@ export interface AlertDialogOwnProps {
    * @default "s"
    */
   size?: "s" | "m";
+  /**
+   * Called once the dialog has rolled up and unmounted after closing (at once with reduced
+   * motion). Use it to open the next dialog without two scrims overlapping.
+   */
+  onExited?: () => void;
   /** Extra class names on the dialog element. */
   className?: string;
 }
@@ -106,6 +113,7 @@ export const AlertDialog = forwardRef<HTMLDivElement, AlertDialogProps>(function
     initialFocus = "cancel",
     pending,
     size = "s",
+    onExited,
     className,
     ...rest
   },
@@ -118,6 +126,19 @@ export const AlertDialog = forwardRef<HTMLDivElement, AlertDialogProps>(function
   // Synchronous guard: a second click before the re-render must not run onConfirm again.
   const running = useRef(false);
   const [waiting, setWaiting] = useState(false);
+  // Bumped when the dialog closes: a confirm started before that is stale and its result ignored.
+  const run = useRef(0);
+  // Closed while pending: drop the pending state at once, so a reopened dialog is not stuck.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (!open) setWaiting(false);
+  }
+  useIsomorphicLayoutEffect(() => {
+    if (open) return;
+    run.current += 1;
+    running.current = false;
+  }, [open]);
   const busy = pending ?? waiting;
   const wasBusy = useRef(busy);
   const closeRef = useRef(onClose);
@@ -174,13 +195,16 @@ export const AlertDialog = forwardRef<HTMLDivElement, AlertDialogProps>(function
     }
     running.current = true;
     setWaiting(true);
+    const current = run.current;
     result.then(
       () => {
+        if (run.current !== current) return;
         running.current = false;
         setWaiting(false);
         closeRef.current("confirm");
       },
       (error: unknown) => {
+        if (run.current !== current) return;
         running.current = false;
         setWaiting(false);
         report(error);
@@ -188,7 +212,10 @@ export const AlertDialog = forwardRef<HTMLDivElement, AlertDialogProps>(function
     );
   };
 
-  const describedBy = rest["aria-describedby"] ?? descId;
+  const hasText = children != null && children !== false && children !== "";
+  // Only point at the description when it says something (the message or the Caution word).
+  const describedBy =
+    rest["aria-describedby"] ?? (hasText || tone === "danger" ? descId : undefined);
 
   return (
     <Modal
@@ -197,6 +224,7 @@ export const AlertDialog = forwardRef<HTMLDivElement, AlertDialogProps>(function
       role="alertdialog"
       aria-describedby={describedBy}
       open={open}
+      {...(onExited ? { onExited } : null)}
       title={title}
       size={size}
       closeButton={false}
