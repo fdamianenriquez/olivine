@@ -20,7 +20,7 @@ const meta = {
       description: {
         component: `Calendar is a ruled month grid with poster numerals, like a Japanese wall calendar. Today carries a vermilion seal ring and its numeral in shu; the chosen day is inked; a range is a maple band between two inked ends. The month title opens a twelve-month grid; in Japanese the era year (令和) sits under the month.
 
-Keyboard follows the APG date grid: ←/→ day, ↑/↓ week, Home/End ends of the week, Page Up/Down month (Shift: year), Enter/Space pick. Days of the neighbouring months are context only. A new month prints in one pass (mokuhanga); with reduced motion it is instant.
+Keyboard follows the APG date grid: ←/→ day (swapped in RTL), ↑/↓ week, Home/End ends of the week, Page Up/Down month (Shift: year), Enter/Space pick. Days of the neighbouring months are context only. A new month prints in one pass (mokuhanga); with reduced motion it is instant.
 
 - Do disable days that can't be booked (\`min\`, \`max\`, \`isDateUnavailable\`) rather than erroring after the pick.
 - Do let the locale decide the week start; set \`weekStartsOn\` only when the product needs it.
@@ -184,6 +184,23 @@ function MonthGridDemo() {
   }, []);
   return <Calendar ref={ref} today={TODAY} defaultValue={d(8, 14)} defaultFocusedDate={TODAY} />;
 }
+
+export const RightToLeft: Story = {
+  name: "Right to left",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Under `dir="rtl"` the week runs from the right, ← moves to the next day and → to the previous one, Home and End stay on the first and last day of the week, and the month arrows point along the reading order.',
+      },
+    },
+  },
+  render: () => (
+    <div dir="rtl">
+      <Calendar today={TODAY} defaultValue={d(10, 12)} />
+    </div>
+  ),
+};
 
 export const MonthGridOpen: Story = {
   name: "Month grid open",
