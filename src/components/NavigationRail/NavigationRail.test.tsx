@@ -301,6 +301,12 @@ describe("NavigationRail", () => {
       const forced = css.slice(css.indexOf("@media (forced-colors: active)"));
       expect(forced).not.toMatch(/aria-current="page"\] \{[^}]*outline/);
     });
+
+    it("keeps the system focus ring colour on hovered rows in forced colours", () => {
+      // Hovered rows other than the current one become Canvas, so a HighlightText ring would vanish.
+      const forced = css.slice(css.indexOf("@media (forced-colors: active)"));
+      expect(forced).not.toMatch(/\.ol-rail__item[^{]*:focus-visible[^{]*\{[^}]*outline-color/);
+    });
   });
 
   describe("motion", () => {
