@@ -181,6 +181,12 @@
     border-color: HighlightText;
   }
 
+  /* The ring sits on the Highlight fill of its neighbour: HighlightText, drawn inside the cell. */
+  .ol-chip--selected :is(.ol-chip__main, .ol-chip__remove):focus-visible {
+    outline-color: HighlightText;
+    outline-offset: calc(var(--stroke-bold) * -1);
+  }
+
   /* The × hover opts out of forced colours (CloseButton), so paint it with system colours. */
   .ol-chip .ol-close.ol-chip__remove:not(:disabled):hover {
     background: ButtonText;

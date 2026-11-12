@@ -332,10 +332,16 @@ button.ol-cal__day[data-selected]:hover {
   }
 
   .ol-cal__day[data-selected],
+  button.ol-cal__day[data-selected]:hover,
   .ol-cal__mon[aria-selected="true"] {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+
+  /* The paper gap under the ring is a token colour that survives forced-color-adjust: none. */
+  .ol-cal__day[data-selected]:focus-visible {
+    box-shadow: none;
   }
 
   /* Gradients are dropped in forced colours: strike the numeral instead. */

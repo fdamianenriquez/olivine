@@ -260,10 +260,6 @@
    * Other rows follow the system colours (their ink hover becomes Canvas), so the ring is never
    * recoloured: on the current row the on-ink band still separates it from the ink fill.
    */
-  .ol-rail__item[aria-current="page"] {
-    forced-color-adjust: none;
-  }
-
   .ol-rail__item[aria-current="page"]::before {
     forced-color-adjust: none;
     background: Highlight;

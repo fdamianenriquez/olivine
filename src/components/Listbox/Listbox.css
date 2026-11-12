@@ -229,6 +229,10 @@
     background: none;
   }
 
+  .ol-listbox__option[aria-selected="true"] .ol-listbox__mark {
+    color: HighlightText;
+  }
+
   .ol-listbox__option[data-highlighted]:not([aria-selected="true"]) {
     background: none;
     outline: var(--stroke-hair) solid CanvasText;

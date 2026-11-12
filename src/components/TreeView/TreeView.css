@@ -296,6 +296,15 @@
     outline-offset: calc(var(--stroke-bold) * -2);
   }
 
+  /* The check keeps ButtonText on Canvas; on the Highlight fill it pairs with HighlightText. */
+  .ol-tree__item[aria-selected="true"] .ol-tree__check {
+    border-color: HighlightText;
+  }
+
+  .ol-tree__item[aria-selected="true"] .ol-tree__check::after {
+    background: HighlightText;
+  }
+
   .ol-tree__item[aria-disabled="true"]:not([aria-selected="true"]) {
     color: GrayText;
     background: none;
