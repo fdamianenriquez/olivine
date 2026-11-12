@@ -155,6 +155,83 @@ describe("Calendar", () => {
       expect(focusedIso()).toBe("2026-10-25"); // Sunday
     });
 
+    it("swaps Left and Right in a right-to-left context, keeping Up and Down by week", async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Calendar today={TODAY} />
+        </div>,
+      );
+      day("2026-10-22").focus();
+      await user.keyboard("{ArrowRight}");
+      expect(focusedIso()).toBe("2026-10-21");
+      await user.keyboard("{ArrowLeft}{ArrowLeft}");
+      expect(focusedIso()).toBe("2026-10-23");
+      await user.keyboard("{ArrowDown}");
+      expect(focusedIso()).toBe("2026-10-30");
+      await user.keyboard("{ArrowUp}");
+      expect(focusedIso()).toBe("2026-10-23");
+      expect(tabStops()).toHaveLength(1);
+    });
+
+    it("has no axe violations in RTL and names the month buttons by their labels alone", async () => {
+      const { container } = render(
+        <div dir="rtl">
+          <Calendar today={TODAY} />
+        </div>,
+      );
+      const prev = screen.getByRole("button", { name: "Previous month" });
+      const next = screen.getByRole("button", { name: "Next month" });
+      expect(prev).toHaveAccessibleName("Previous month");
+      expect(next).toHaveAccessibleName("Next month");
+      for (const button of [prev, next]) {
+        expect(must(button.querySelector(".ol-cal__arrow"))).toHaveAttribute("aria-hidden", "true");
+      }
+      expect(await runAxe(container)).toHaveNoViolations();
+    });
+
+    it("reads the direction at key time, so a later dir change is followed", async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <div dir="ltr">
+          <Calendar today={TODAY} />
+        </div>,
+      );
+      day("2026-10-22").focus();
+      await user.keyboard("{ArrowRight}");
+      expect(focusedIso()).toBe("2026-10-23");
+      must(container.firstElementChild).setAttribute("dir", "rtl");
+      await user.keyboard("{ArrowRight}");
+      expect(focusedIso()).toBe("2026-10-22");
+    });
+
+    it("keeps Home and End on the first and last day of the week in RTL", async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Calendar today={TODAY} weekStartsOn={6} />
+        </div>,
+      );
+      day("2026-10-22").focus();
+      await user.keyboard("{Home}");
+      expect(focusedIso()).toBe("2026-10-17"); // Saturday
+      await user.keyboard("{End}");
+      expect(focusedIso()).toBe("2026-10-23"); // Friday
+    });
+
+    it("moves across a month boundary with the swapped arrows in RTL", async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Calendar today={TODAY} defaultValue={d(10, 31)} />
+        </div>,
+      );
+      day("2026-10-31").focus();
+      await user.keyboard("{ArrowLeft}");
+      expect(focusedIso()).toBe("2026-11-01");
+      expect(title()).toBe("November 2026");
+    });
+
     it("changes month with Page Up and Page Down, and year with Shift", async () => {
       const user = userEvent.setup();
       render(<Calendar today={TODAY} />);
@@ -474,6 +551,23 @@ describe("Calendar", () => {
       await user.keyboard("{Enter}");
       expect(title()).toBe("January 2026");
       expect(focusedIso()).toBe("2026-01-22");
+    });
+
+    it("swaps Left and Right in the month grid in RTL", async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Calendar today={TODAY} />
+        </div>,
+      );
+      await user.click(toggle());
+      expect(screen.getByRole("option", { name: "Oct 2026" })).toHaveFocus();
+      await user.keyboard("{ArrowRight}");
+      expect(screen.getByRole("option", { name: "Sep 2026" })).toHaveFocus();
+      await user.keyboard("{ArrowLeft}{ArrowLeft}");
+      expect(screen.getByRole("option", { name: "Nov 2026" })).toHaveFocus();
+      await user.keyboard("{ArrowUp}");
+      expect(screen.getByRole("option", { name: "Aug 2026" })).toHaveFocus();
     });
 
     it("steps by year in the month grid", async () => {

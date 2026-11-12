@@ -51,6 +51,18 @@ import {
   weekdayNames,
 } from "./dates";
 
+/**
+ * Right-to-left by the same rule the stylesheet uses (`:dir(rtl)`), so keys and arrow glyphs
+ * never disagree. Read at key time. Falls back to the nearest `dir` where `:dir()` is unsupported.
+ */
+function isRtl(element: Element): boolean {
+  try {
+    return element.matches(":dir(rtl)");
+  } catch {
+    return element.closest<HTMLElement>("[dir]")?.dir === "rtl";
+  }
+}
+
 /** Imperative handle of a {@link Calendar}, for pickers that open it. */
 export interface CalendarHandle {
   /** Moves focus to the focused day (the selected day or today on first open). */
@@ -283,14 +295,15 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calen
   const onGridKeyDown = (event: KeyboardEvent<HTMLTableElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.nativeEvent.isComposing) return;
     const offset = dayOfWeekIndex(focused, ws);
-    // Left and Right follow the grid's visual order in LTR; RTL layouts are not swapped yet.
+    // Left and Right follow the grid's visual order: in RTL, Right is the previous day.
+    const forward = isRtl(event.currentTarget) ? -1 : 1;
     let next: Date | null = null;
     switch (event.key) {
       case "ArrowLeft":
-        next = addDays(focused, -1);
+        next = addDays(focused, -forward);
         break;
       case "ArrowRight":
-        next = addDays(focused, 1);
+        next = addDays(focused, forward);
         break;
       case "ArrowUp":
         next = addDays(focused, -7);
@@ -371,13 +384,15 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calen
 
   const onMonthsKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.nativeEvent.isComposing) return;
+    // The month grid mirrors in RTL too, so Left and Right swap the same way.
+    const forward = isRtl(event.currentTarget) ? -1 : 1;
     let next = monthIndex;
     switch (event.key) {
       case "ArrowLeft":
-        next -= 1;
+        next -= forward;
         break;
       case "ArrowRight":
-        next += 1;
+        next += forward;
         break;
       case "ArrowUp":
         next -= 3;
@@ -465,7 +480,9 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calen
               step(-1);
             }}
           >
-            ←
+            <span className="ol-cal__arrow" aria-hidden="true">
+              ←
+            </span>
           </Button>
           <Button
             square
@@ -476,7 +493,9 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calen
               step(1);
             }}
           >
-            →
+            <span className="ol-cal__arrow" aria-hidden="true">
+              →
+            </span>
           </Button>
         </div>
       </div>

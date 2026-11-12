@@ -342,6 +342,25 @@ describe("DatePicker", () => {
   });
 
   describe("docked", () => {
+    it('swaps the day arrows when opened under dir="rtl" (portalled with the anchor\'s dir)', async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Single defaultValue={d(10, 23)} />
+        </div>,
+      );
+      await user.click(trigger());
+      const dialog = screen.getByRole("dialog", { name: "Workshop visit" });
+      expect(dialog.closest("[dir]")).toHaveAttribute("dir", "rtl");
+      await waitFor(() => {
+        expect(focusedIso()).toBe("2026-10-23");
+      });
+      await user.keyboard("{ArrowRight}");
+      expect(focusedIso()).toBe("2026-10-22");
+      await user.keyboard("{ArrowLeft}{ArrowLeft}");
+      expect(focusedIso()).toBe("2026-10-24");
+    });
+
     it("opens a dialog with the calendar and moves focus to today's day", async () => {
       const user = userEvent.setup();
       render(<Single />);
@@ -580,6 +599,25 @@ describe("DatePicker", () => {
   });
 
   describe("modal", () => {
+    it('swaps the day arrows when opened under dir="rtl" (portalled with the anchor\'s dir)', async () => {
+      const user = userEvent.setup();
+      render(
+        <div dir="rtl">
+          <Single mode="modal" defaultValue={d(10, 23)} />
+        </div>,
+      );
+      await user.click(trigger());
+      const dialog = screen.getByRole("dialog", { name: "Workshop visit" });
+      expect(dialog.closest("[dir]")).toHaveAttribute("dir", "rtl");
+      await waitFor(() => {
+        expect(focusedIso()).toBe("2026-10-23");
+      });
+      await user.keyboard("{ArrowRight}");
+      expect(focusedIso()).toBe("2026-10-22");
+      await user.keyboard("{ArrowLeft}{ArrowLeft}");
+      expect(focusedIso()).toBe("2026-10-24");
+    });
+
     it("opens a modal dialog with the chosen date set large, and nothing changes until OK", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();

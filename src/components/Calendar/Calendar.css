@@ -75,7 +75,16 @@
 
 /* Adjacent boxes share borders, as in ButtonGroup. */
 .ol-cal__nav > .ol-btn + .ol-btn {
-  margin-left: calc(var(--stroke-hair) * -1);
+  margin-inline-start: calc(var(--stroke-hair) * -1);
+}
+
+/* The arrows point along the reading order: previous at the inline start, next at the end. */
+.ol-cal__arrow {
+  display: inline-block;
+}
+
+.ol-cal__arrow:dir(rtl) {
+  transform: scaleX(-1);
 }
 
 .ol-cal__nav > .ol-btn:hover,
@@ -252,6 +261,15 @@ button.ol-cal__day[data-selected]:hover {
   --ol-cal-offset: calc(var(--ol-motion-kento) * -3);
 }
 
+/* In RTL the next month enters from the inline end, which is the left. */
+.ol-cal__body[data-dir="1"]:dir(rtl) {
+  --ol-cal-offset: calc(var(--ol-motion-kento) * -3);
+}
+
+.ol-cal__body[data-dir="-1"]:dir(rtl) {
+  --ol-cal-offset: calc(var(--ol-motion-kento) * 3);
+}
+
 /* ---------- Month grid ---------- */
 
 .ol-cal__months {
@@ -259,7 +277,7 @@ button.ol-cal__day[data-selected]:hover {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: calc(var(--control-m) * 7);
   border-top: var(--stroke-hair) solid var(--rule);
-  border-left: var(--stroke-hair) solid var(--rule);
+  border-inline-start: var(--stroke-hair) solid var(--rule);
 }
 
 .ol-cal__mon {
@@ -267,7 +285,7 @@ button.ol-cal__day[data-selected]:hover {
   height: calc(var(--control-m) * 1.5);
   padding: 0;
   border: 0;
-  border-right: var(--stroke-hair) solid var(--rule);
+  border-inline-end: var(--stroke-hair) solid var(--rule);
   border-bottom: var(--stroke-hair) solid var(--rule);
   border-radius: var(--radius-0);
   background: transparent;
