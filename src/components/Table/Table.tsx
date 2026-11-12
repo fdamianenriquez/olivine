@@ -16,8 +16,9 @@ import {
 import { useControllable } from "../../hooks/useControllable";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
-import { devWarn } from "../../utils/dev";
+import { DEV, devWarn } from "../../utils/dev";
 import { Checkbox } from "../Checkbox";
+import { Placeholder } from "../Placeholder";
 import { Radio } from "../Radio";
 import { addKeys, headerState, keyRange, removeKeys, type TableKey, toggleKey } from "./selection";
 
@@ -59,6 +60,18 @@ export interface TableColumn<Row> {
    * row's colour, since muted tones (`ink-2`, `ink-3`) fall below contrast on ink.
    */
   render?: (row: Row) => ReactNode;
+  /**
+   * The cell in the totals row. Any column with a `footer` adds one `tfoot` row; columns without
+   * it get an empty cell. The function form receives the rows as displayed (the loaded page, after
+   * a client-side sort), never all results: pass a total over all results as a plain node.
+   */
+  footer?: ReactNode | ((rows: readonly Row[]) => ReactNode);
+  /**
+   * Renders the column's cells as row headers (`th scope="row"`): use it on the cell that names the
+   * row. The first row-header column also names each row's selection control (after `rowLabel`)
+   * and holds the row-action button.
+   */
+  rowHeader?: boolean;
 }
 
 export interface TableProps<Row> extends Omit<React.ComponentPropsWithoutRef<"table">, "children"> {
@@ -79,7 +92,8 @@ export interface TableProps<Row> extends Omit<React.ComponentPropsWithoutRef<"ta
   striped?: boolean;
   /**
    * Rows invert to ink on hover. Only meaningful when rows are interactive. In a selectable table
-   * unselected rows fill with paper-2 instead, since selected rows are ink.
+   * unselected rows fill with paper-2 instead, since selected rows are ink. Defaults to on when
+   * `onRowAction` is set, off otherwise.
    */
   hover?: boolean;
   /** Tighter cell padding and smaller text. */
@@ -114,12 +128,14 @@ export interface TableProps<Row> extends Omit<React.ComponentPropsWithoutRef<"ta
   disabledKeys?: readonly TableKey[];
   /**
    * Names each row's selection control ("Select Oak shelf"). Give it whenever `selectionMode` is
-   * on; without it the control is named by its position ("Select row 2").
+   * on; without it the control is named by the first `rowHeader` column's value (a string or
+   * number), else by its position ("Select row 2").
    */
   rowLabel?: (row: Row, index: number) => string;
   /**
    * Clicking a row also toggles it (clicks on links, buttons and form controls, and text
-   * selections, are ignored). The control is always the keyboard route.
+   * selections, are ignored). The control is always the keyboard route. Ignored when
+   * `onRowAction` is set: the row click is then the action.
    * @default false
    */
   selectOnRowClick?: boolean;
@@ -139,6 +155,25 @@ export interface TableProps<Row> extends Omit<React.ComponentPropsWithoutRef<"ta
    * `announce="polite"` when it appears after a search or filter. Default: nothing.
    */
   empty?: ReactNode;
+  /**
+   * Marks the table busy (`aria-busy`). With no rows it shows `loadingRows` skeleton rows instead
+   * of `empty`; with rows it keeps them and shows a thin bar at the top of the region. Nothing is
+   * disabled. The change is announced ("Loading", then "12 rows loaded"). Turn it off on error too.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * How many skeleton rows a first load (`loading` with no rows) shows.
+   * @default 5
+   */
+  loadingRows?: number;
+  /**
+   * Called when a row is activated: a click or tap on the row (clicks on links, buttons and
+   * controls, and text selections, are ignored), or Enter or Space on the built-in button that
+   * wraps the first `rowHeader` column's content (else the first column's). That cell must not
+   * hold a link or button. Selection is then by the checkbox or radio only.
+   */
+  onRowAction?: (key: TableKey, row: Row) => void;
 }
 
 const NO_KEYS: readonly TableKey[] = [];
@@ -177,6 +212,17 @@ function cellClass(c: { numeric?: boolean; align?: TableColumnAlign }): string |
   );
 }
 
+/** True for a click that lands on a control of its own, or that ends a text selection. */
+function ownClick(event: MouseEvent<HTMLTableRowElement>): boolean {
+  const row = event.currentTarget;
+  const hit = (event.target as Element).closest(INTERACTIVE);
+  if (hit && row.contains(hit)) return true;
+  const picked = window.getSelection();
+  return Boolean(
+    picked && !picked.isCollapsed && picked.anchorNode && row.contains(picked.anchorNode),
+  );
+}
+
 function shiftHeld(event: { nativeEvent: Event }): boolean {
   const native = event.nativeEvent as Partial<globalThis.MouseEvent>;
   return native.shiftKey === true;
@@ -190,7 +236,7 @@ function TableInner<Row>(
     scrollLabel,
     bordered = false,
     striped = false,
-    hover = false,
+    hover,
     dense = false,
     rowKey,
     sort,
@@ -206,6 +252,9 @@ function TableInner<Row>(
     maxHeight,
     stickyHeader = false,
     empty,
+    loading,
+    loadingRows = 5,
+    onRowAction,
     className,
     ...rest
   }: TableProps<Row>,
@@ -227,6 +276,12 @@ function TableInner<Row>(
   // The last row toggled on its own: the start of a Shift+click range.
   const anchor: { current: TableKey | null } = useRef<TableKey | null>(null);
   const [status, setStatus] = useState("");
+  const busy = loading === true;
+  const hovers = hover ?? onRowAction !== undefined;
+  const rowSelect = selectable && selectOnRowClick && !onRowAction;
+  // The first row-header column names the row; it, or the first column, holds the action button.
+  const headerColumn = columns.find((c) => c.rowHeader);
+  const actionColumn = onRowAction ? (headerColumn ?? columns[0]) : undefined;
 
   const data = useMemo(() => {
     if (controlled || !current) return rows;
@@ -246,15 +301,55 @@ function TableInner<Row>(
   const all = headerState(selected, enabled);
 
   const sticky = stickyHeader || maxHeight !== undefined;
+  const skeleton = busy && data.length === 0;
+  const footed = columns.some((c) => c.footer !== undefined) && (data.length > 0 || busy);
   const label = scrollLabel ?? (typeof caption === "string" ? caption : undefined);
 
   useEffect(() => {
     if (!selectable) return;
     if (!rowKey)
       devWarn("Table", "give `rowKey` to a selectable table: index keys change when it sorts.");
-    if (!rowLabel)
+    if (!rowLabel && !headerColumn)
       devWarn("Table", "give `rowLabel` to a selectable table so each row's control has a name.");
-  }, [selectable, rowKey, rowLabel]);
+  }, [selectable, rowKey, rowLabel, headerColumn]);
+
+  useEffect(() => {
+    if (onRowAction && selectOnRowClick)
+      devWarn(
+        "Table",
+        "`selectOnRowClick` is ignored with `onRowAction`: the row click is the action.",
+      );
+  }, [onRowAction, selectOnRowClick]);
+
+  // The action button cannot wrap another control: check the cells it wraps (development only).
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!DEV || !onRowAction || !wrapRef.current) return;
+    const buttons = Array.from(wrapRef.current.querySelectorAll(".ol-table__action"));
+    if (buttons.some((button) => button.querySelector(INTERACTIVE)))
+      devWarn(
+        "Table",
+        "the row-action cell holds a link or button; with `onRowAction` keep that cell plain.",
+      );
+    if (buttons.some((button) => !button.textContent.trim()))
+      devWarn(
+        "Table",
+        "a row-action button has no text: give the action cell text that names the row (a `rowHeader` column).",
+      );
+  });
+
+  // Announce the start and the end of a load once, in the active locale. Set after mount, so a
+  // table that starts loading is announced too.
+  const wasLoading = useRef<boolean | undefined>(undefined);
+  const count = data.length;
+  useEffect(() => {
+    const was = wasLoading.current;
+    wasLoading.current = loading;
+    if (loading === undefined || Boolean(was) === busy) return;
+    setStatus(busy ? t.loading : count > 0 ? t.tableLoaded(count) : "");
+    // Only a change of `loading` speaks; a new row count while idle does not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- announce on `loading` changes only
+  }, [loading]);
 
   useEffect(() => {
     if (sticky && !label)
@@ -263,7 +358,6 @@ function TableInner<Row>(
 
   // A sticky header can cover a control scrolled into view by Tab (WCAG 2.4.11): keep its height
   // as the region's scroll padding.
-  const wrapRef = useRef<HTMLDivElement | null>(null);
   const headRef = useRef<HTMLTableSectionElement | null>(null);
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -280,6 +374,24 @@ function TableInner<Row>(
       wrap.style.removeProperty("--ol-table-head");
     };
   }, [sticky]);
+
+  // The sticky footer is its twin at the block end.
+  const footRef = useRef<HTMLTableSectionElement | null>(null);
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const foot = footRef.current;
+    if (!sticky || !footed || !wrap || !foot || typeof ResizeObserver !== "function") return;
+    const measure = () => {
+      wrap.style.setProperty("--ol-table-foot", `${String(foot.offsetHeight)}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(foot);
+    return () => {
+      observer.disconnect();
+      wrap.style.removeProperty("--ol-table-foot");
+    };
+  }, [sticky, footed]);
 
   const choose = (key: TableKey, on: boolean, range: boolean) => {
     if (disabledKeys.includes(key)) return;
@@ -308,14 +420,34 @@ function TableInner<Row>(
   };
 
   const onRowClick = (event: MouseEvent<HTMLTableRowElement>, key: TableKey) => {
-    const row = event.currentTarget;
-    const hit = (event.target as Element).closest(INTERACTIVE);
-    if (hit && row.contains(hit)) return;
-    const picked = window.getSelection();
-    if (picked && !picked.isCollapsed && picked.anchorNode && row.contains(picked.anchorNode))
-      return;
+    if (ownClick(event)) return;
     const isOn = selected.includes(key);
     choose(key, multiple ? !isOn : true, event.shiftKey);
+  };
+
+  /** A skeleton bar; shorter in numeric columns, like the figures it stands for. */
+  const skeletonBar = (c: TableColumn<Row>) =>
+    c.numeric ? <Placeholder width="60%" /> : <Placeholder />;
+
+  /** A body or footer cell: a row header (`th scope="row"`) in a `rowHeader` column. */
+  const cell = (c: TableColumn<Row>, content: ReactNode) =>
+    c.rowHeader ? (
+      <th key={c.key} scope="row" className={cx("ol-table__rowheader", cellClass(c))}>
+        {content}
+      </th>
+    ) : (
+      <td key={c.key} className={cellClass(c)}>
+        {content}
+      </td>
+    );
+
+  /** `rowLabel`, else the first row-header column's value, else the row's position. */
+  const rowName = (row: Row, i: number): string => {
+    if (rowLabel) return rowLabel(row, i);
+    const value = headerColumn ? row[headerColumn.key as keyof Row] : undefined;
+    if ((typeof value === "string" && value !== "") || typeof value === "number")
+      return String(value);
+    return t.tableRowFallback(i + 1);
   };
 
   const wrapStyle =
@@ -337,19 +469,23 @@ function TableInner<Row>(
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={label ? 0 : undefined}
     >
+      {busy && data.length > 0 ? <span className="ol-table__busy" aria-hidden="true" /> : null}
       <table
         ref={ref}
         className={cx(
           "ol-table",
           bordered && "ol-table--bordered",
           striped && "ol-table--striped",
-          hover && "ol-table--hover",
+          hovers && "ol-table--hover",
           dense && "ol-table--dense",
           selectable && "ol-table--selectable",
-          selectable && selectOnRowClick && "ol-table--rowselect",
+          rowSelect && "ol-table--rowselect",
+          onRowAction && "ol-table--action",
           sticky && "ol-table--sticky",
+          footed && "ol-table--footed",
           className,
         )}
+        aria-busy={busy || undefined}
         {...rest}
       >
         {caption ? <caption>{caption}</caption> : null}
@@ -421,18 +557,26 @@ function TableInner<Row>(
           </tr>
         </thead>
         <tbody>
-          {data.length === 0 && empty != null && empty !== false ? (
+          {data.length === 0 && !busy && empty != null && empty !== false ? (
             <tr className="ol-table__emptyrow">
               <td className="ol-table__empty" colSpan={columns.length + (selectable ? 1 : 0)}>
                 {empty}
               </td>
             </tr>
           ) : null}
+          {skeleton
+            ? Array.from({ length: Math.max(1, Math.floor(loadingRows) || 1) }, (_, i) => (
+                <tr key={i} className="ol-table__skeleton" aria-hidden="true">
+                  {selectable ? <td className="ol-table__select" /> : null}
+                  {columns.map((c) => cell(c, skeletonBar(c)))}
+                </tr>
+              ))
+            : null}
           {data.map((row, i) => {
             const key = keys[i] ?? i;
             const isOn = selectable && selected.includes(key);
             const disabled = selectable && disabledKeys.includes(key);
-            const name = t.tableSelectRow(rowLabel ? rowLabel(row, i) : t.tableRowFallback(i + 1));
+            const name = t.tableSelectRow(rowName(row, i));
             return (
               // The row click is a pointer convenience; the checkbox or radio is the keyboard route.
               <tr
@@ -441,11 +585,17 @@ function TableInner<Row>(
                 aria-selected={selectable ? isOn : undefined}
                 data-disabled={disabled ? "" : undefined}
                 onClick={
-                  selectable && selectOnRowClick && !disabled
+                  onRowAction
                     ? (event) => {
-                        onRowClick(event, key);
+                        // The select cell's padding belongs to the checkbox or radio, never the action.
+                        const inSelect = (event.target as Element).closest(".ol-table__select");
+                        if (!ownClick(event) && !inSelect) onRowAction(key, row);
                       }
-                    : undefined
+                    : rowSelect && !disabled
+                      ? (event) => {
+                          onRowClick(event, key);
+                        }
+                      : undefined
                 }
               >
                 {selectable ? (
@@ -473,17 +623,53 @@ function TableInner<Row>(
                     )}
                   </td>
                 ) : null}
-                {columns.map((c) => (
-                  <td key={c.key} className={cellClass(c)}>
-                    {c.render ? c.render(row) : (row[c.key as keyof Row] as ReactNode)}
-                  </td>
-                ))}
+                {columns.map((c) => {
+                  const content = c.render ? c.render(row) : (row[c.key as keyof Row] as ReactNode);
+                  return cell(
+                    c,
+                    c === actionColumn ? (
+                      // The keyboard and assistive-technology route to the row action.
+                      <button
+                        type="button"
+                        className="ol-table__action"
+                        onClick={() => {
+                          onRowAction?.(key, row);
+                        }}
+                      >
+                        {content}
+                      </button>
+                    ) : (
+                      content
+                    ),
+                  );
+                })}
               </tr>
             );
           })}
         </tbody>
+        {footed ? (
+          <tfoot ref={footRef} className="ol-table__foot">
+            <tr aria-hidden={skeleton || undefined}>
+              {selectable ? <td className="ol-table__select" /> : null}
+              {columns.map((c) =>
+                c.footer === undefined ? (
+                  <td key={c.key} className={cellClass(c)} />
+                ) : (
+                  cell(
+                    c,
+                    skeleton
+                      ? skeletonBar(c)
+                      : typeof c.footer === "function"
+                        ? c.footer(data)
+                        : c.footer,
+                  )
+                ),
+              )}
+            </tr>
+          </tfoot>
+        ) : null}
       </table>
-      {multiple ? (
+      {multiple || loading !== undefined ? (
         <span className="ol-sr" role="status">
           {status}
         </span>
@@ -493,8 +679,9 @@ function TableInner<Row>(
 }
 
 /**
- * A ruled data table with optional client-side sorting, row selection, a sticky header and an
- * empty row. Generic over the row type so `render` and column keys are checked.
+ * A ruled data table with optional client-side sorting, row selection, a sticky header, an empty
+ * row, a loading state, a totals footer, row headers and row actions. Generic over the row type
+ * so `render` and column keys are checked.
  */
 export const Table = forwardRef(TableInner) as <Row>(
   props: TableProps<Row> & { ref?: Ref<HTMLTableElement> },

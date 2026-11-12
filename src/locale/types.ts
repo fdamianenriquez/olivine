@@ -32,6 +32,8 @@ export interface OlivineLabels {
   tableSelectRow: (label: string) => string;
   /** Row name when a selectable Table has no `rowLabel` (1-based). */
   tableRowFallback: (n: number) => string;
+  /** Announced when a table finishes loading with rows. */
+  tableLoaded: (n: number) => string;
   /** Hidden header of a Table's radio column. */
   tableSelectColumn: string;
   /** Splitter: name of a resize handle; `label` is the panel before it. */

@@ -11,7 +11,7 @@
   max-block-size: var(--ol-table-max-height, 100%);
   min-block-size: 0;
   isolation: isolate;
-  scroll-padding-block-start: var(--ol-table-head);
+  scroll-padding-block: var(--ol-table-head, auto) var(--ol-table-foot, auto);
 }
 
 .ol-table {
@@ -22,7 +22,8 @@
   line-height: var(--text-ui-leading);
 }
 
-.ol-table th {
+/* Column headers. Row headers (`th scope="row"`) are body cells and take the rules below. */
+.ol-table :where(thead) th {
   text-align: left;
   padding: var(--space-3) var(--space-4);
   border-top: var(--stroke-hair) solid var(--rule);
@@ -36,10 +37,18 @@
   letter-spacing: var(--text-label-tracking);
 }
 
-.ol-table td {
+.ol-table td,
+.ol-table :where(tbody, tfoot) th {
   padding: var(--space-3) var(--space-4);
   border-bottom: var(--stroke-hair) solid var(--line-soft);
   vertical-align: top;
+}
+
+/* A row header is a body cell that names its row: ink, label weight, never a column header. */
+.ol-table .ol-table__rowheader {
+  text-align: left;
+  color: var(--ink);
+  font-weight: var(--text-label-weight);
 }
 
 .ol-table--bordered th,
@@ -52,26 +61,32 @@
   padding: var(--space-1) var(--space-3);
 }
 
-.ol-table--dense td {
+.ol-table--dense :is(td, tbody th, tfoot th) {
   font-size: var(--text-body-s-size);
   line-height: var(--text-body-s-leading);
 }
 
-.ol-table--striped tbody tr:nth-child(even) td {
+.ol-table--striped tbody tr:nth-child(even) :is(td, th) {
   background: var(--paper-2);
 }
 
-.ol-table tbody tr:last-child td {
+.ol-table tbody tr:last-child :is(td, th) {
+  border-bottom-color: var(--rule);
+}
+
+/* Totals: one rule above (the last body row's) and one closing rule. */
+.ol-table tfoot :is(td, th) {
+  border-top: var(--stroke-hair) solid var(--rule);
   border-bottom-color: var(--rule);
 }
 
 /* Selected rows are ink rows, as Listbox and TreeView. Selected wins over striped. */
-.ol-table .ol-table__row[aria-selected="true"] td {
+.ol-table .ol-table__row[aria-selected="true"] :is(td, th) {
   background: var(--ink);
   color: var(--on-ink);
 }
 
-.ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover td {
+.ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover :is(td, th) {
   background: var(--ink);
   color: var(--on-ink);
 }
@@ -86,7 +101,7 @@
 }
 
 /* Amounts and quantities in the figure face (typography v2), never below 16px. */
-.ol-table td.ol-num {
+.ol-table :is(td, tbody th, tfoot th).ol-num {
   text-align: right;
   font-family: var(--text-figure-xs-family);
   font-size: var(--text-figure-xs-size);
@@ -164,13 +179,96 @@
   :is(.ol-table--hover, .ol-table--rowselect).ol-table--selectable
     tbody
     .ol-table__row:not([aria-selected="true"], [data-disabled]):hover
-    td {
+    :is(td, th) {
     background: var(--paper-2);
   }
 }
 
+.ol-table--action .ol-table__row {
+  cursor: pointer;
+}
+
 .ol-table--rowselect .ol-table__row:not([data-disabled]) {
   cursor: pointer;
+}
+
+/* The row action's keyboard route: the name cell's content as an underlined button (the Link
+ * look), in the row's colour so it inverts with the row. The negative margin keeps the 24px target
+ * from making the row taller than its text line. */
+.ol-table__action {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
+  min-inline-size: var(--target-min);
+  margin-block: calc((1lh - var(--target-min)) / 2);
+  text-decoration: underline;
+  text-decoration-thickness: var(--underline-weight);
+  text-underline-offset: var(--underline-offset);
+}
+
+.ol-table__action:focus-visible {
+  outline: var(--stroke-bold) solid var(--olivo);
+  outline-offset: var(--focus-offset);
+}
+
+/* Refresh: a thin hatched olivo bar over the header's top rule (Progress's reduced-motion look).
+ * Its gaps fill and empty on the stepped sweep, so it pulses without ever disappearing. */
+.ol-table__busy {
+  position: sticky;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: calc(var(--z-raised) + 1);
+  display: block;
+  block-size: var(--stroke-bold);
+  margin-block-end: calc(-1 * var(--stroke-bold));
+  background: repeating-linear-gradient(
+    90deg,
+    var(--olivo) 0 var(--space-2),
+    transparent var(--space-2) var(--space-4)
+  );
+}
+
+.ol-table__busy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 var(--space-2),
+    var(--olivo) var(--space-2) var(--space-4)
+  );
+  opacity: 0;
+  animation: ol-table-busy var(--motion-sweep) infinite;
+}
+
+@keyframes ol-table-busy {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ol-table__busy::after {
+    animation: none;
+  }
+}
+
+/* Skeleton cells: amounts are shorter and sit at the end, like the figures they stand for, but
+ * keep the text metrics so the bars of a row line up. */
+.ol-table .ol-num > .ol-ph {
+  margin-inline-start: auto;
+  font-size: var(--text-ui-size);
+}
+
+.ol-table--dense .ol-num > .ol-ph {
+  font-size: var(--text-body-s-size);
 }
 
 .ol-table .ol-table__row[aria-selected="true"] :is(a, button) {
@@ -179,14 +277,21 @@
 
 @media (forced-colors: none) {
   /* Outline badges take their status colour from the page ground; on an ink row they keep a
-   * paper ground so the word stays legible. */
-  .ol-table__row[aria-selected="true"]
+   * paper ground so the word stays legible, selected or inverted by hover. */
+  :is(
+      .ol-table__row[aria-selected="true"],
+      .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover
+    )
     .ol-badge:not(.ol-badge--solid, .ol-badge--accent, .ol-badge--olivo) {
     background: var(--paper);
   }
 
   /* A solid badge is an ink box: on an ink row an on-ink hairline keeps its edge. */
-  .ol-table__row[aria-selected="true"] .ol-badge--solid {
+  :is(
+      .ol-table__row[aria-selected="true"],
+      .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover
+    )
+    .ol-badge--solid {
     border-color: var(--on-ink);
   }
 }
@@ -201,8 +306,9 @@
 }
 
 /* On an ink row olivo alone is too faint: an on-ink band fills the gap under the ring, for the
- * row's control and for any link or button a column renders. */
+ * row's control and for any link or button a column renders, selected or inverted by hover. */
 .ol-table .ol-table__row[aria-selected="true"] :focus-visible,
+.ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover :focus-visible,
 .ol-table .ol-table__row[aria-selected="true"] .ol-check input:focus-visible + .ol-check__box {
   box-shadow: 0 0 0 var(--focus-offset) var(--on-ink);
 }
@@ -234,19 +340,36 @@
   border-inline-start: var(--stroke-hair) solid var(--rule);
 }
 
+/* The totals stay in view at the block end; they draw both their rules, so the last body row
+ * drops its own. */
+.ol-table--sticky tfoot :is(td, th) {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--z-raised);
+  background: var(--paper);
+}
+
+.ol-table--sticky.ol-table--footed tfoot :is(td, th) {
+  border-block-start: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-table--sticky.ol-table--footed tbody tr:last-child :is(td, th) {
+  border-bottom-width: 0;
+}
+
 /* One full-width cell for the `empty` slot (an EmptyState). */
 .ol-table .ol-table__empty {
   padding: var(--space-4);
 }
 
 @media (forced-colors: active) {
-  .ol-table .ol-table__row[aria-selected="true"] td {
+  .ol-table .ol-table__row[aria-selected="true"] :is(td, th) {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
   }
 
-  .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover td {
+  .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover :is(td, th) {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
@@ -261,19 +384,38 @@
   }
 
   .ol-table .ol-table__row[aria-selected="true"] :focus-visible,
-  .ol-table .ol-table__row[aria-selected="true"] .ol-check input:focus-visible + .ol-check__box {
+  .ol-table .ol-table__row[aria-selected="true"] .ol-check input:focus-visible + .ol-check__box,
+  .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover :focus-visible {
     outline-color: HighlightText;
     box-shadow: none;
   }
 
   /* The row opts out of forced colours, so badges inside it are set back to system colours. */
-  .ol-table .ol-table__row[aria-selected="true"] .ol-badge {
+  :is(
+      .ol-table .ol-table__row[aria-selected="true"],
+      .ol-table--hover:not(.ol-table--selectable) tbody .ol-table__row:hover
+    )
+    .ol-badge {
     background: Canvas;
     color: CanvasText;
     border-color: CanvasText;
   }
 
-  .ol-table--sticky thead th {
+  .ol-table--sticky :is(thead th, tfoot td, tfoot th) {
     background: Canvas;
+  }
+
+  .ol-table__busy,
+  .ol-table__busy::after {
+    forced-color-adjust: none;
+    background: repeating-linear-gradient(
+      90deg,
+      Highlight 0 var(--space-2),
+      transparent var(--space-2) var(--space-4)
+    );
+  }
+
+  .ol-table__busy::after {
+    display: none;
   }
 }
