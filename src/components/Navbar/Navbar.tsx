@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useDismiss } from "../../hooks/useDismiss";
+import { useStickyChrome } from "../../hooks/useStickyChrome";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { Button } from "../Button";
@@ -68,9 +69,21 @@ export const Navbar = forwardRef<HTMLElement, NavbarProps>(function Navbar(
   }, []);
   useDismiss(open, onDismiss, []);
 
+  // A sticky Navbar stacks with a sticky Banner and publishes its height for scroll-padding.
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  useStickyChrome(node, sticky === true);
+  const setRef = useCallback(
+    (el: HTMLElement | null) => {
+      setNode(el);
+      if (typeof ref === "function") ref(el);
+      else if (ref) (ref as { current: HTMLElement | null }).current = el;
+    },
+    [ref],
+  );
+
   return (
     <header
-      ref={ref}
+      ref={setRef}
       className={cx(
         "ol-navbar",
         sticky && "ol-navbar--sticky",

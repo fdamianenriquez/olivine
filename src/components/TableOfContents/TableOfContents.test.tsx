@@ -864,7 +864,9 @@ describe("TableOfContents styling contract", () => {
   });
 
   it("shares the sticky offset with the headings and falls back to a space token", () => {
-    expect(css).toContain("var(--ol-toc-top, var(--ol-anchor-offset, var(--space-6)))");
+    expect(css).toContain(
+      "var(--ol-toc-top, var(--ol-anchor-offset, var(--ol-sticky-offset, var(--space-6))))",
+    );
   });
 
   it("has no class of its own for the stroke: it is the shared block indicator", () => {
