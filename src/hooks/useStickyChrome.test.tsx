@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -93,5 +95,12 @@ describe("useStickyChrome", () => {
     expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("56px");
     unmount();
     expect(root().style.getPropertyValue("--ol-sticky-offset")).toBe("");
+  });
+
+  it("keeps focus inside the stuck chrome from scrolling the page (negative scroll margin)", () => {
+    const css = readFileSync("src/styles/utilities.css", "utf8");
+    expect(css).toMatch(
+      /:where\(\.ol-banner--sticky, \.ol-navbar--sticky\) \* \{\s*scroll-margin-block-start: calc\(var\(--ol-sticky-offset, 0\) \* -1\);/,
+    );
   });
 });

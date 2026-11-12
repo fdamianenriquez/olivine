@@ -181,6 +181,13 @@
   scroll-padding-block-start: var(--ol-sticky-offset, 0);
 }
 
+/* The chrome itself lies inside that padded band: without this, focusing one of its own controls
+ * (Tab into the Navbar, focus returning there after a dismiss) would scroll the page to "reveal"
+ * a control that is already in view. */
+:where(.ol-banner--sticky, .ol-navbar--sticky) * {
+  scroll-margin-block-start: calc(var(--ol-sticky-offset, 0) * -1);
+}
+
 /* A scroll container (not the page) under sticky chrome. */
 .ol-has-sticky {
   scroll-padding-block-start: var(--ol-sticky-offset, 0);
