@@ -5,6 +5,7 @@ import { useControllable } from "../../hooks/useControllable";
 import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
+import { devWarn } from "../../utils/dev";
 
 export interface DisclosureProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   /** The trigger text. Keep it the same whether the section is open or closed. */
@@ -100,8 +101,15 @@ export const Disclosure = forwardRef<HTMLDivElement, DisclosureProps>(function D
   // is never consumed. Clear it once that render has committed, so a later open still unrolls.
   // The instant reveal therefore needs the parent to update `open` synchronously in `onOpenChange`.
   useIsomorphicLayoutEffect(() => {
-    if (instant) setInstant(false);
-  }, [instant]);
+    if (!instant) return;
+    if (!open) {
+      devWarn(
+        "Disclosure",
+        "`findable` revealed the panel but `open` stayed false, so the panel is shown while aria-expanded is false. Update `open` in `onOpenChange` (synchronously) so the state follows the browser.",
+      );
+    }
+    setInstant(false);
+  }, [instant, open]);
 
   // React renders `hidden` as a boolean attribute (React 18 and 19 alike), so `until-found` is
   // set on the element itself. Layout effect: it replaces the plain `hidden` React just wrote
