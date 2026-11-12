@@ -2,11 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useId, useState } from "react";
 
 import { REDUCE_MOTION_CLASS } from "../../motion";
+import { pad } from "../../utils/pad";
 import { Button } from "../Button";
 import { Field } from "../Field";
 import { Input } from "../Input";
 import { Root } from "../Root";
 import { Tour, type TourProps, type TourStep } from "./Tour";
+import { useTour } from "./useTour";
 
 const meta = {
   title: "Overlays/Tour",
@@ -18,7 +20,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Tour walks the reader through a screen one step at a time: a card with a counter ("02 / 05" in the figure face), a title, a few sentences and Back / Next controls, pointed at a real element of the page.\n\nBy default it is a **spotlight**: a scrim covers the page except a square window around the target, the page is inert, focus stays in the card and Escape or "Skip tour" ends the tour. With `modal={false}` the page stays usable and the target gets a drawn hairline frame. Focus starts on Next and stays on the button that was pressed; each step change is announced politely. A step whose target is not on the page is skipped. A step without `target` is shown centred.\n\nArrow keys: Right / Left go forward and back (mirrored in right-to-left), unless focus is in a text field.\n\n- Do keep a tour to three to six steps, one idea each, with the target named in the text.\n- Do start it from a visible control ("Take the tour") and store "seen" in the app.\n- Do give every step a `title`; it names the dialog.\n- Do use a centred step for a welcome or a goodbye, not for pointing at something.\n- Do prefer the modal default for anything longer than a coachmark.\n- Don\'t point at something the user must operate during the step; use `modal={false}` for that.\n- Don\'t open a tour on page load without the user\'s choice.\n- Don\'t put forms, long text or a second tour in a card; use `Modal` or a help page.\n- Don\'t rely on the spotlight to carry meaning; the step text must say what is highlighted.',
+          'Tour walks the reader through a screen one step at a time: a card with a counter ("02 / 05" in the figure face), a title, a few sentences and Back / Next controls, pointed at a real element of the page.\n\nBy default it is a **spotlight**: a scrim covers the page except a square window around the target, the page is inert, focus stays in the card and Escape or "Skip tour" ends the tour. With `modal={false}` the page stays usable and the target gets a drawn hairline frame. Focus starts on Next and stays on the button that was pressed; each step change is announced politely. A step whose target is not on the page is skipped. A step without `target` is shown centred.\n\nArrow keys: Right / Left go forward and back (mirrored in right-to-left), unless focus is in a text field.\n\n`useTour()` holds `open` and `step` for you: `const tour = useTour()`, then `<Tour {...tour.props} steps={steps} />` and `tour.start()` from a visible control. Storing that a reader has seen the tour stays in the app.\n\n`progress="segments"` adds a row of printed blocks under the counter (up to twelve steps); the counter stays and is what is read aloud.\n\n- Do keep a tour to three to six steps, one idea each, with the target named in the text.\n- Do start it from a visible control ("Take the tour") and store "seen" in the app.\n- Do give every step a `title`; it names the dialog.\n- Do use a centred step for a welcome or a goodbye, not for pointing at something.\n- Do prefer the modal default for anything longer than a coachmark.\n- Don\'t point at something the user must operate during the step; use `modal={false}` for that.\n- Don\'t open a tour on page load without the user\'s choice.\n- Don\'t put forms, long text or a second tour in a card; use `Modal` or a help page.\n- Don\'t rely on the spotlight to carry meaning; the step text must say what is highlighted.',
       },
     },
   },
@@ -325,6 +327,67 @@ export const Controlled: Story = {
       </Workbench>
     );
   },
+};
+
+/**
+ * `useTour()` holds `open` and `step`: spread `tour.props` onto the tour and call `tour.start()`
+ * from a visible control. Its callbacks hear what the reader did; remembering that the tour was
+ * seen stays in the app (here, in a state flag set when it ends). The caption under the page is
+ * the app's own copy, read from `tour.open` and `tour.step`.
+ */
+export const WithUseTour: Story = {
+  render: function Render() {
+    const targets = useTargets();
+    const [seen, setSeen] = useState(false);
+    const steps = spotlightSteps(targets);
+    const tour = useTour({
+      onOpenChange: (open, reason) => {
+        if (!open && (reason === "finish" || reason === "skip")) setSeen(true);
+      },
+    });
+    return (
+      <Workbench
+        targets={targets}
+        onStart={() => {
+          tour.start();
+        }}
+      >
+        <p className="ol-label" style={{ margin: 0, color: "var(--ink-2)" }}>
+          {tour.open
+            ? `On step ${pad(tour.step + 1)} / ${pad(steps.length)}`
+            : seen
+              ? "Tour seen"
+              : "Not started"}
+        </p>
+        <Tour {...tour.props} steps={steps} />
+      </Workbench>
+    );
+  },
+};
+
+/**
+ * `progress="segments"`: a row of blocks under the counter, one per step. The block that turns
+ * on when you go forward prints; going back turns blocks off without motion. The counter is
+ * still what is read aloud. Above twelve steps the tour shows the counter alone.
+ */
+export const Segments: Story = {
+  render: () => (
+    <Demo
+      progress="segments"
+      defaultStep={2}
+      steps={(targets) => [
+        {
+          title: "Welcome to the workbench",
+          content: "Five things to know before you build your guitar.",
+        },
+        ...spotlightSteps(targets),
+        {
+          title: "That is all",
+          content: "You can take this tour again from the button at the top of the page.",
+        },
+      ]}
+    />
+  ),
 };
 
 /** A step whose target is not on the page is skipped; the counter keeps the authored list. */
