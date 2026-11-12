@@ -166,6 +166,28 @@
   color: var(--ink);
 }
 
+/* progress="segments": one block per step under the counter, lit in olivo up to the current one. */
+.ol-tour__segments {
+  display: grid;
+  grid-template-columns: repeat(var(--ol-seg, 1), var(--space-4));
+  gap: var(--space-1);
+  height: var(--space-2);
+}
+
+.ol-tour__seg {
+  border: var(--stroke-hair) solid var(--rule);
+}
+
+.ol-tour__seg--on {
+  background: var(--olivo);
+  border-color: var(--olivo);
+}
+
+/* Newly lit blocks print one after another (.ol-print-block, motion.css). */
+.ol-tour__seg.ol-print-block {
+  animation-delay: calc(var(--ol-i, 0) * var(--stagger));
+}
+
 .ol-tour__title {
   margin: 0;
   font: inherit;
@@ -223,7 +245,14 @@
     outline: var(--stroke-hair) solid CanvasText;
   }
 
-  .ol-tour__foot {
+  .ol-tour__foot,
+  .ol-tour__seg {
     border-color: CanvasText;
+  }
+
+  .ol-tour__seg--on {
+    background: Highlight;
+    border-color: Highlight;
+    forced-color-adjust: none;
   }
 }

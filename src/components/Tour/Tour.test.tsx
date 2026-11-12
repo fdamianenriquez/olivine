@@ -1080,3 +1080,173 @@ describe("Tour", () => {
     });
   });
 });
+
+describe("Tour progress", () => {
+  const FIVE: TourStep[] = [WOOD, FINISH, ORDER, { title: "Four" }, { title: "Five" }];
+  const segs = () => [...document.querySelectorAll(".ol-tour__seg")];
+  const lit = () => segs().filter((s) => s.classList.contains("ol-tour__seg--on")).length;
+  const printing = () =>
+    segs()
+      .map((s, k) => (s.classList.contains("ol-print-block") ? k : -1))
+      .filter((k) => k >= 0);
+
+  it("shows the counter alone by default", () => {
+    setup();
+    expect(document.querySelector(".ol-tour__segments")).toBeNull();
+    expect(el(".ol-tour__count")).toBeInTheDocument();
+  });
+
+  it("adds one hidden block per step under the counter, lit up to the current one", () => {
+    setup({ progress: "segments", steps: FIVE, defaultStep: 1 });
+    const row = el(".ol-tour__segments");
+    expect(row).toHaveAttribute("aria-hidden", "true");
+    expect(row.previousElementSibling).toHaveClass("ol-tour__count");
+    expect(row.style.getPropertyValue("--ol-seg")).toBe("5");
+    expect(segs()).toHaveLength(5);
+    expect(lit()).toBe(2);
+    // The counter is what is spoken.
+    expect(el(".ol-tour__count").textContent).toBe("Step 02 /  of 05");
+  });
+
+  it("prints nothing on open, prints the newly lit block going forward and none going back", async () => {
+    const user = userEvent.setup();
+    setup({ progress: "segments", steps: FIVE });
+    expect(printing()).toEqual([]);
+    await user.click(button("Next"));
+    await waitFor(() => {
+      expect(lit()).toBe(2);
+    });
+    expect(printing()).toEqual([1]);
+    await user.click(button("Back"));
+    await waitFor(() => {
+      expect(lit()).toBe(1);
+    });
+    expect(printing()).toEqual([]);
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => {
+      expect(lit()).toBe(2);
+    });
+    expect(printing()).toEqual([1]);
+  });
+
+  it("prints a skipped step's block too, one after another", async () => {
+    const user = userEvent.setup();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    setup({
+      progress: "segments",
+      steps: [WOOD, { target: "#nowhere", title: "Gone" }, ORDER],
+    });
+    await user.click(button("Next"));
+    await waitFor(() => {
+      expect(dialog()).toHaveAccessibleName("Place the order");
+    });
+    expect(lit()).toBe(3);
+    expect(printing()).toEqual([1, 2]);
+    const blocks = segs() as HTMLElement[];
+    expect(blocks[1]?.style.getPropertyValue("--ol-i")).toBe("0");
+    expect(blocks[2]?.style.getPropertyValue("--ol-i")).toBe("1");
+    warn.mockRestore();
+  });
+
+  it("starts unprinted when reopened on a later step", async () => {
+    const user = userEvent.setup();
+    function App() {
+      const [open, setOpen] = useState(true);
+      const [step, setStep] = useState(0);
+      return (
+        <Root>
+          <Page />
+          <button
+            type="button"
+            onClick={() => {
+              setStep(3);
+              setOpen(true);
+            }}
+          >
+            Reopen
+          </button>
+          <Tour
+            steps={FIVE}
+            progress="segments"
+            open={open}
+            step={step}
+            onOpenChange={setOpen}
+            onStepChange={setStep}
+          />
+        </Root>
+      );
+    }
+    render(<App />);
+    await user.click(button("Skip tour"));
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+    await user.click(button("Reopen"));
+    await waitFor(() => {
+      expect(lit()).toBe(4);
+    });
+    expect(printing()).toEqual([]);
+  });
+
+  it("falls back to the counter above twelve steps, with a warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const many = Array.from({ length: 13 }, (_, k): TourStep => ({ title: `Step ${String(k)}` }));
+    setup({ progress: "segments", steps: many });
+    expect(document.querySelector(".ol-tour__segments")).toBeNull();
+    expect(el(".ol-tour__count")).toHaveTextContent("13");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("at most 12 steps"));
+    warn.mockRestore();
+  });
+
+  it("keeps twelve steps as blocks", () => {
+    const many = Array.from({ length: 12 }, (_, k): TourStep => ({ title: `Step ${String(k)}` }));
+    setup({ progress: "segments", steps: many });
+    expect(segs()).toHaveLength(12);
+  });
+
+  it("has no axe violations with segments, in washi and sumi", async () => {
+    const { unmount } = setup({ progress: "segments", steps: FIVE, defaultStep: 2 });
+    await waitFor(() => {
+      expect(dialog()).toHaveAttribute("data-state", "open");
+    });
+    expect(await runAxe(document.body)).toHaveNoViolations();
+    unmount();
+    render(
+      <Root theme="sumi">
+        <Page />
+        <Tour steps={FIVE} progress="segments" defaultOpen defaultStep={2} />
+      </Root>,
+    );
+    await waitFor(() => {
+      expect(dialog()).toHaveAttribute("data-state", "open");
+    });
+    expect(await runAxe(document.body)).toHaveNoViolations();
+  });
+
+  describe("styles", () => {
+    const css = readFileSync(join(__dirname, "Tour.css"), "utf8");
+    const motion = readFileSync(join(__dirname, "../../styles/motion.css"), "utf8");
+
+    it("lights blocks in olivo over hairline rule blocks, square, from tokens", () => {
+      expect(css).toMatch(/\.ol-tour__seg \{[^}]*border: var\(--stroke-hair\) solid var\(--rule\)/);
+      expect(css).toMatch(/\.ol-tour__seg--on \{[^}]*background: var\(--olivo\)/);
+      expect(css).not.toMatch(/\.ol-tour__seg[^{]*\{[^}]*border-radius/);
+    });
+
+    it("staggers printed blocks with the stagger token, collapsed under reduced motion", () => {
+      expect(css).toMatch(
+        /\.ol-tour__seg\.ol-print-block \{[^}]*animation-delay: calc\(var\(--ol-i, 0\) \* var\(--stagger\)\)/,
+      );
+      expect(motion).toMatch(/\.ol-print-block \{[^}]*var\(--dur-s\) var\(--ease-print\)/);
+      expect(motion).toMatch(
+        /prefers-reduced-motion: reduce\)\s*\{\s*:root \{[^}]*--dur-s: 1ms;[^}]*--stagger: 0ms/,
+      );
+    });
+
+    it("lights blocks with Highlight in forced colours", () => {
+      expect(css).toMatch(
+        /forced-colors: active\)[\s\S]*\.ol-tour__seg--on \{[^}]*background: Highlight;[^}]*forced-color-adjust: none/,
+      );
+    });
+  });
+});

@@ -1,5 +1,6 @@
 import {
   type ComponentPropsWithoutRef,
+  type CSSProperties,
   forwardRef,
   type KeyboardEvent,
   type ReactNode,
@@ -38,6 +39,14 @@ export type TourCloseReason = "finish" | "skip" | "escape" | "scrim" | "close" |
 
 /** Why the step changed. */
 export type TourStepReason = "next" | "prev" | "key" | "skipped";
+
+/** How the card shows where the reader is. */
+export type TourProgress = "count" | "segments";
+
+/** Above this many steps `progress="segments"` falls back to the counter alone. */
+const MAX_SEGMENTS = 12;
+/** Newly lit blocks print one after another for at most this many steps. */
+const MAX_STAGGER = 5;
 
 export interface TourStep {
   /**
@@ -125,6 +134,15 @@ export interface TourOwnProps {
    * @default true
    */
   scrollIntoView?: boolean;
+  /**
+   * `count`: the counter ("02 / 05") alone. `segments`: a row of blocks under the counter, one
+   * per step, lit up to the current one; a newly lit block prints. The counter stays (it is what
+   * is spoken; the blocks are hidden from assistive technology). Above 12 steps only the counter
+   * is shown. It mirrors Meter's `variant="segments"`: square hairline blocks, newly lit ones
+   * printed with `.ol-print-block`.
+   * @default "count"
+   */
+  progress?: TourProgress;
   /** Overrides for the built-in words. */
   labels?: Partial<TourLabels>;
 }
@@ -242,6 +260,7 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     skippable = true,
     closeButton = false,
     scrollIntoView = true,
+    progress = "count",
     labels,
     className,
     style: styleProp,
@@ -288,7 +307,6 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
   const nextRef = useRef<HTMLButtonElement>(null);
   const [surface, setSurface] = useState<HTMLDivElement | null>(null);
   const [edge, setEdge] = useState<HTMLDivElement | null>(null);
-  const announceNext = useRef(false);
   const keepFocus = useRef(false);
 
   const untitled = steps
@@ -316,7 +334,6 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     (next: number, reason: TourStepReason) => {
       if (reason !== "skipped") {
         setDir(next < index ? -1 : 1);
-        announceNext.current = true;
       }
       setStepState(next);
       onStepChange?.(next, reason);
@@ -387,6 +404,29 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
   // A step change: announce it, keep focus in the card, replay the settle and the frame.
   const shownIndex = shown ? index : null;
   const previousShown = useRef<number | null>(null);
+
+  // Segments: blocks that turn on when the reader moves forward print; nothing prints on open
+  // or when blocks go out. `at` is the last step shown while the tour is active.
+  const tooMany = progress === "segments" && total > MAX_SEGMENTS;
+  const segmented = progress === "segments" && total > 0 && !tooMany;
+  const [print, setPrint] = useState<{ at: number | null; from: number }>({ at: null, from: 0 });
+  if (!active) {
+    if (print.at !== null) setPrint({ at: null, from: 0 });
+  } else if (shownIndex !== null && shownIndex !== print.at) {
+    setPrint({
+      at: shownIndex,
+      from: print.at !== null && shownIndex > print.at ? print.at + 1 : shownIndex + 1,
+    });
+  }
+  const printFrom = active && print.at === shownIndex ? print.from : index + 1;
+  useEffect(() => {
+    if (tooMany) {
+      devWarn(
+        "Tour",
+        `progress="segments" shows at most ${String(MAX_SEGMENTS)} steps; only the counter is shown.`,
+      );
+    }
+  }, [tooMany]);
   useIsomorphicLayoutEffect(() => {
     if (shownIndex === null) {
       if (!active) previousShown.current = null;
@@ -401,17 +441,20 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
       replayAnimations(node);
     }
     if (!modal) replayAnimations(surface);
-    if (keepFocus.current && node && !node.contains(document.activeElement)) {
+    // Focus that was in the card stays there: after Back / Next / an arrow key, or when a step
+    // change made by the app (`step`, `useTour().goTo`) removed the focused control. Focus the
+    // reader moved to the page (non-modal) is left alone.
+    const focused = document.activeElement;
+    const dropped = focused === null || focused === document.body;
+    if (node && !node.contains(focused) && (keepFocus.current || dropped)) {
       nextRef.current?.focus({ preventScroll: true });
     }
     keepFocus.current = false;
-    if (announceNext.current) {
-      announceNext.current = false;
-      const head = `${stepWords.step} ${pad(shownIndex + 1)} ${stepWords.of} ${pad(total)}`;
-      const title = textOf(titleRef.current);
-      const body = textOf(bodyRef.current);
-      setAnnouncement([`${head}:`, title ? `${title}.` : "", body].filter(Boolean).join(" "));
-    }
+    // Every change after the first shown step is announced, whoever made it.
+    const head = `${stepWords.step} ${pad(shownIndex + 1)} ${stepWords.of} ${pad(total)}`;
+    const title = textOf(titleRef.current);
+    const body = textOf(bodyRef.current);
+    setAnnouncement([`${head}:`, title ? `${title}.` : "", body].filter(Boolean).join(" "));
     // A step change is the only trigger; the other values are read fresh.
   }, [shownIndex, active]);
 
@@ -596,6 +639,34 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
                   <span className="ol-sr"> {stepWords.of} </span>
                   {pad(total)}
                 </p>
+                {segmented ? (
+                  <span
+                    className="ol-tour__segments"
+                    aria-hidden="true"
+                    style={{ "--ol-seg": total } as CSSProperties}
+                  >
+                    {steps.map((_, k) => {
+                      const prints = k >= printFrom && k <= index;
+                      return (
+                        <span
+                          key={k}
+                          className={cx(
+                            "ol-tour__seg",
+                            k <= index && "ol-tour__seg--on",
+                            prints && "ol-print-block",
+                          )}
+                          style={
+                            prints
+                              ? ({
+                                  "--ol-i": Math.min(k - printFrom, MAX_STAGGER),
+                                } as CSSProperties)
+                              : undefined
+                          }
+                        />
+                      );
+                    })}
+                  </span>
+                ) : null}
                 <h2 ref={titleRef} id={titleId} className="ol-popover__title ol-tour__title">
                   {current.title}
                 </h2>
