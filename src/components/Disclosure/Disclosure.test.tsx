@@ -511,6 +511,34 @@ describe("Disclosure", () => {
       expect(panel).toHaveClass("ol-kakejiku");
     });
 
+    it("warns in development when a controlled parent ignores the reveal, not when it follows", () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      const { unmount } = render(
+        <Disclosure summary="Shipping and returns" findable open={false} onOpenChange={vi.fn()}>
+          Orders ship.
+        </Disclosure>,
+      );
+      fireEvent(screen.getByRole("group", { hidden: true }), new Event("beforematch"));
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        expect.stringContaining("[olivine] Disclosure:"),
+      );
+      unmount();
+      warn.mockClear();
+
+      function Following() {
+        const [open, setOpen] = useState(false);
+        return (
+          <Disclosure summary="Shipping and returns" findable open={open} onOpenChange={setOpen}>
+            Orders ship.
+          </Disclosure>
+        );
+      }
+      render(<Following />);
+      fireEvent(screen.getByRole("group", { hidden: true }), new Event("beforematch"));
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
+
     it("sets hidden=until-found again when a re-render closes it", async () => {
       const view = (open: boolean) => (
         <Disclosure summary="Shipping and returns" findable open={open}>
