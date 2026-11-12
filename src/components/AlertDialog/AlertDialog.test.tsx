@@ -132,6 +132,21 @@ describe("AlertDialog", () => {
     expect(screen.getByRole("button", { name: "Keep editing" })).toBeInTheDocument();
   });
 
+  it("points aria-describedby at the description only when there is one", () => {
+    const { rerender } = render(<AlertDialog open title="T" onClose={() => undefined} />);
+    expect(screen.getByRole("alertdialog")).not.toHaveAttribute("aria-describedby");
+    rerender(
+      <AlertDialog open title="T" tone="danger" confirmLabel="Delete" onClose={() => undefined} />,
+    );
+    expect(screen.getByRole("alertdialog")).toHaveAccessibleDescription("Caution");
+    rerender(
+      <AlertDialog open title="T" onClose={() => undefined}>
+        Message
+      </AlertDialog>,
+    );
+    expect(screen.getByRole("alertdialog")).toHaveAccessibleDescription("Message");
+  });
+
   it("lets a caller aria-describedby win over the generated one", () => {
     render(
       <>
