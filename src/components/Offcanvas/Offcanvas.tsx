@@ -21,6 +21,7 @@ import { useLabels } from "../../locale";
 import { usePresence } from "../../motion/usePresence";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { isRtl } from "../../utils/isRtl";
 import { CloseButton } from "../CloseButton";
 import { Portal } from "../Portal";
 import { VisuallyHidden } from "../VisuallyHidden";
@@ -286,10 +287,7 @@ const OffcanvasRoot = forwardRef<HTMLDivElement, OffcanvasProps>(function Offcan
   // Resolve the points on mount, whenever the panel or its content resizes, and on resize.
   useIsomorphicLayoutEffect(() => {
     if (!panel) return;
-    // Without a computed direction (no layout engine), the nearest dir attribute stands in.
-    const direction =
-      getComputedStyle(panel).direction || panel.closest("[dir]")?.getAttribute("dir");
-    setRtl(direction === "rtl");
+    setRtl(isRtl(panel));
     if (!bottom) return;
     measure();
     window.addEventListener("resize", measure);

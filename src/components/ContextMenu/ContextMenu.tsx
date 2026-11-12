@@ -14,6 +14,7 @@ import { type MenuCloseReason, type MenuFocusIntent, useMenu } from "../../hooks
 import { useMenuPosition } from "../../hooks/useMenuPosition";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
+import { isRtl } from "../../utils/isRtl";
 import { forwardRefAs, type PolymorphicProps } from "../../utils/polymorphic";
 import type { DropdownItem } from "../Dropdown";
 import { MenuItems, MenuPopup } from "../Dropdown/Menu";
@@ -255,7 +256,7 @@ export const ContextMenu = forwardRefAs<"div", ContextMenuOwnProps>(function Con
         element: req.element,
       });
     } else {
-      const rtl = getComputedStyle(area).direction === "rtl";
+      const rtl = isRtl(area);
       setTarget({
         anchor: pointAnchor(req.x, req.y, area),
         placement: rtl ? "left-start" : "right-start",

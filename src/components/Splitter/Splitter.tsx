@@ -28,6 +28,7 @@ import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { useLabels, useLocaleTag } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
+import { isRtl } from "../../utils/isRtl";
 import {
   collapsePanel,
   defaultSizesFor,
@@ -235,12 +236,6 @@ function collectPanels(children: ReactNode, out: PanelElement[] = []): PanelElem
     out.push(child as PanelElement);
   });
   return out;
-}
-
-/** Right-to-left when the computed direction or the nearest `dir` says so. */
-function isRtl(element: Element): boolean {
-  if (getComputedStyle(element).direction === "rtl") return true;
-  return element.closest("[dir]")?.getAttribute("dir") === "rtl";
 }
 
 interface Drag {
