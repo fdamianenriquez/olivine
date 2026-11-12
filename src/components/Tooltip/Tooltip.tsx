@@ -147,7 +147,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
     group,
   });
 
-  useDismiss(shown, dismiss, [reference, floating]);
+  useDismiss(shown, dismiss, [reference, floating], { hover: true });
 
   // Describe the trigger unless the tooltip only repeats its name. Both are read from the DOM
   // when open, so aria-labelledby, labels, nested text and ReactNode content all count, and

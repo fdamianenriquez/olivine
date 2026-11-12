@@ -16,6 +16,7 @@ import {
 
 import { type PresenceState, usePresence } from "../motion/usePresence";
 import { reveal, visibleText } from "../utils/listItems";
+import { isScrimPress, swallowNextClick } from "../utils/swallowClick";
 import { useLayer } from "./layers";
 import { useControllable } from "./useControllable";
 import { useIsomorphicLayoutEffect } from "./useFloating";
@@ -89,6 +90,20 @@ export interface UseMenuOptions {
    * @default "down"
    */
   openOnArrow?: "down" | "inline-end" | "none";
+  /**
+   * What happens to the click of a press outside that closes the menu. `swallow`: the press only
+   * dismisses, its click does not reach the page (native menus). `land`: the click goes through.
+   * A press on a scrim is always swallowed, so a menu in a dialog never closes the dialog too.
+   * Right and middle presses always land.
+   * @default "swallow"
+   */
+  outsidePress?: "swallow" | "land";
+}
+
+/** A primary press (not Ctrl+click on an Apple platform, which opens the context menu). */
+function isPrimaryPress(event: globalThis.PointerEvent): boolean {
+  if (event.button !== 0) return false;
+  return !(event.ctrlKey && /Mac|iPhone|iPad/.test(navigator.userAgent));
 }
 
 /** See `UseMenuOptions.initialFocus`. */
@@ -192,6 +207,7 @@ export function useMenu({
   initialFocus: initialFocusProp,
   ignoreOutside,
   openOnArrow = "down",
+  outsidePress = "swallow",
 }: UseMenuOptions = {}): UseMenuResult {
   const generated = useId();
   const base = idProp ?? generated;
@@ -214,7 +230,27 @@ export function useMenu({
   const [hasTrigger, setHasTrigger] = useState(false);
   const menuRef = useRef<HTMLElement | null>(null);
   const [menu, setMenuNode] = useState<HTMLElement | null>(null);
-  const { mounted, state, setElement } = usePresence(open);
+  // Why the menu last closed itself; undefined when the app closed it (`open={false}`).
+  const closedBy = useRef<MenuCloseReason | undefined>(undefined);
+  const restoreFocusRef = useRef(restoreFocus);
+  useIsomorphicLayoutEffect(() => {
+    restoreFocusRef.current = restoreFocus;
+  });
+  // The app closed the menu while focus was inside: apply `restoreFocus` as for the trigger.
+  // A close through `close()` has already moved focus (or, after an outside press, leaves it).
+  const [returnFocus] = useState(() => () => {
+    if (closedBy.current !== undefined) return;
+    const rule = restoreFocusRef.current;
+    const choice = typeof rule === "function" ? rule("trigger") : rule;
+    const target =
+      choice instanceof HTMLElement ? choice : choice === true ? triggerRef.current : null;
+    target?.focus();
+  });
+  const { mounted, state, setElement } = usePresence(open, { returnFocus });
+  // Opened by the app (`open` prop): forget why the menu last closed itself.
+  useIsomorphicLayoutEffect(() => {
+    if (open) closedBy.current = undefined;
+  }, [open]);
   const [ownFocus] = useState<MenuFocusIntent>(() => ({ mode: null }));
   const initialFocus = initialFocusProp ?? ownFocus;
 
@@ -299,6 +335,14 @@ export function useMenu({
   const setOpen = useCallback(
     (next: boolean, why?: MenuCloseReason) => {
       reason.current = next ? undefined : why;
+      closedBy.current = next ? undefined : why;
+      // A controlled parent may veto the close (keep `open` true); the reason must not then leak
+      // into a later close made by the app. An accepted close has started its exit by now.
+      if (!next) {
+        setTimeout(() => {
+          closedBy.current = undefined;
+        });
+      }
       setOpenState(next);
     },
     [setOpenState],
@@ -346,7 +390,7 @@ export function useMenu({
   }, [open, resetTyped]);
 
   // Escape closes the topmost menu only; an outside press closes the whole tree.
-  const isTop = useLayer(open);
+  const { isTop, isInAbove } = useLayer(open, () => tree.popups);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: globalThis.KeyboardEvent) => {
@@ -355,20 +399,66 @@ export function useMenu({
       // Handled: an overlay underneath (Modal, Offcanvas) stays open whatever the listener order.
       event.preventDefault();
     };
-    const onPointer = (event: globalThis.PointerEvent) => {
+    const isInside = (target: Node | null, event: globalThis.PointerEvent) => {
+      if (!target || triggerRef.current?.contains(target)) return true;
+      for (const popup of tree.popups) if (popup.contains(target)) return true;
+      if (isInAbove(target)) return true;
+      return ignoreOutsideRef.current?.(target, event) === true;
+    };
+    const swallows = (target: Node | null) =>
+      outsidePress === "swallow" || (isScrimPress(target) && isTop());
+    // A finger press is judged on release: a scroll or swipe (pointercancel) keeps the menu.
+    let touch: number | null = null;
+    const onDown = (event: globalThis.PointerEvent) => {
       const target = event.target as Node | null;
-      if (!target || triggerRef.current?.contains(target)) return;
-      for (const popup of tree.popups) if (popup.contains(target)) return;
-      if (ignoreOutsideRef.current?.(target, event)) return;
+      touch = null;
+      if (isInside(target, event)) return;
+      if (event.pointerType === "touch") {
+        touch = event.pointerId;
+        return;
+      }
+      if (isPrimaryPress(event) && swallows(target)) swallowNextClick();
       close("outside");
     };
-    document.addEventListener("keydown", onKey);
-    if (!parent) document.addEventListener("pointerdown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onPointer);
+    const onUp = (event: globalThis.PointerEvent) => {
+      if (touch === null || event.pointerId !== touch) return;
+      touch = null;
+      const target = event.target as Node | null;
+      if (isInside(target, event)) return;
+      if (swallows(target)) swallowNextClick({ released: true });
+      close("outside");
     };
-  }, [open, close, isTop, parent, tree]);
+    const onCancel = (event: globalThis.PointerEvent) => {
+      if (event.pointerId === touch) touch = null;
+    };
+    // Focus moving into an iframe reports no press to this document.
+    let blurTimer: ReturnType<typeof setTimeout> | undefined;
+    const onBlur = () => {
+      clearTimeout(blurTimer);
+      blurTimer = setTimeout(() => {
+        const active = document.activeElement;
+        if (active?.tagName !== "IFRAME") return;
+        if (triggerRef.current?.contains(active)) return;
+        for (const popup of tree.popups) if (popup.contains(active)) return;
+        close("outside");
+      });
+    };
+    document.addEventListener("keydown", onKey);
+    if (!parent) {
+      document.addEventListener("pointerdown", onDown, true);
+      document.addEventListener("pointerup", onUp, true);
+      document.addEventListener("pointercancel", onCancel, true);
+      window.addEventListener("blur", onBlur);
+    }
+    return () => {
+      clearTimeout(blurTimer);
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("pointerup", onUp, true);
+      document.removeEventListener("pointercancel", onCancel, true);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [open, close, isTop, isInAbove, parent, tree, outsidePress]);
 
   const getTriggerProps = <P extends Handlers<HTMLElement>>(user: P = {} as P): P => ({
     ...user,

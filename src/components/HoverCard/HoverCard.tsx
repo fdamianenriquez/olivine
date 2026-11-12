@@ -142,7 +142,7 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(function Hov
   });
 
   // Only the card is inside: a press on the link means "go there" and closes the card too.
-  useDismiss(open, dismiss, [floating]);
+  useDismiss(open, dismiss, [floating], { hover: true });
 
   const triggerRef = getElementRef<HTMLElement>(trigger);
   const setTrigger = useCallback(

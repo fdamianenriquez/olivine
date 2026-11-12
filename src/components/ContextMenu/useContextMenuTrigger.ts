@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useIsomorphicLayoutEffect } from "../../hooks/useFloating";
+import { swallowNextClick } from "../../utils/swallowClick";
 
 /**
  * Milliseconds a finger or pen must stay down before the menu opens. Android and iOS open their
@@ -19,10 +20,6 @@ export const LONG_PRESS_MS = 500;
 export const LONG_PRESS_TOLERANCE = 10;
 /** Milliseconds a handled menu key keeps the late `contextmenu` event of the same press in check. */
 const KEY_INTENT_MS = 100;
-/** Milliseconds after a release in which the click of that press can still arrive. */
-const CLICK_GRACE_MS = 50;
-/** Milliseconds after which a swallowing listener goes away whatever happened. */
-const CLICK_CAP_MS = 1000;
 
 /** Descendants that keep the browser's own menu by default: editable fields. */
 export const DEFAULT_NATIVE =
@@ -49,39 +46,6 @@ export function isNativeTarget(target: Node, area: Element, native: string): boo
 export function isSecondaryPress(event: globalThis.PointerEvent): boolean {
   if (event.button === 2) return true;
   return event.button === 0 && event.ctrlKey && /Mac|iPhone|iPad/.test(navigator.userAgent);
-}
-
-/**
- * Swallows the click that belongs to the press in progress, so a press that only closes a menu
- * does not also activate what is under it. The listener goes away after that click or shortly
- * after the press is released without one (a scroll gesture, a right-click).
- */
-export function swallowNextClick(): void {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const cap = setTimeout(() => {
-    stop();
-  }, CLICK_CAP_MS);
-  const stop = () => {
-    clearTimeout(timer);
-    clearTimeout(cap);
-    document.removeEventListener("click", onClick, true);
-    document.removeEventListener("pointerup", onRelease, true);
-    document.removeEventListener("pointercancel", onRelease, true);
-  };
-  function onClick(event: globalThis.MouseEvent) {
-    // A click with no detail comes from a key or assistive technology, not from the press.
-    if (event.detail === 0) return;
-    event.stopPropagation();
-    event.preventDefault();
-    stop();
-  }
-  function onRelease() {
-    clearTimeout(timer);
-    timer = setTimeout(stop, CLICK_GRACE_MS);
-  }
-  document.addEventListener("click", onClick, true);
-  document.addEventListener("pointerup", onRelease, true);
-  document.addEventListener("pointercancel", onRelease, true);
 }
 
 /** Native events already armed by an inner area, so an outer area does not arm the same press. */

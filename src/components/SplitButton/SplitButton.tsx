@@ -182,7 +182,8 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 
   const { onClick: primaryClick, className: primaryClass, ...primaryRest } = primaryProps ?? {};
   const runPrimary = (event: MouseEvent<HTMLElement>) => {
-    // A press on the primary while the menu is open closes it, then runs the action once.
+    // A key or assistive-technology activation of the primary while the menu is open closes it,
+    // then runs the action once. A pointer press there is an outside press: it only dismisses.
     if (menu.open) setOpen(false, "outside");
     (primaryClick as ((e: MouseEvent<HTMLElement>) => void) | undefined)?.(event);
     if (!event.defaultPrevented) onClick?.(event);

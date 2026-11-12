@@ -1198,7 +1198,7 @@ describe("ContextMenu", () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
-    it("stops waiting for the click of a press after one second at most", async () => {
+    it("stops waiting for the click of a press after five seconds at most", async () => {
       vi.useFakeTimers();
       const onClick = vi.fn();
       render(
@@ -1213,7 +1213,7 @@ describe("ContextMenu", () => {
       // A press that is held for a long time and never released.
       pointerDown(screen.getByRole("button", { name: "under" }));
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(1001);
+        await vi.advanceTimersByTimeAsync(5001);
       });
       fireEvent.click(screen.getByRole("button", { name: "under" }), { detail: 1 });
       expect(onClick).toHaveBeenCalledTimes(1);
