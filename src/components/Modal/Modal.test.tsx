@@ -582,6 +582,26 @@ describe("Modal", () => {
       expect(trigger).toHaveFocus();
     });
 
+    it("calls onExited once the roll-up has finished, not before", async () => {
+      const held = holdAnimations();
+      const onExited = vi.fn();
+      const { rerender } = render(
+        <Modal open title="Exit" onClose={() => undefined} onExited={onExited}>
+          Body
+        </Modal>,
+      );
+      rerender(
+        <Modal open={false} title="Exit" onClose={() => undefined} onExited={onExited}>
+          Body
+        </Modal>,
+      );
+      expect(onExited).not.toHaveBeenCalled();
+      await held.end();
+      held.restore();
+      await gone();
+      expect(onExited).toHaveBeenCalledTimes(1);
+    });
+
     it("ignores Escape and the scrim during the exit", async () => {
       const held = holdAnimations();
       const onClose = vi.fn();

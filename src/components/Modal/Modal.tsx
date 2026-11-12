@@ -50,6 +50,11 @@ export interface ModalOwnProps {
    * @default true
    */
   closeOnScrim?: boolean;
+  /**
+   * Called once the roll-up has finished and the dialog has unmounted (at once with reduced
+   * motion). Use it to open the next dialog without two scrims overlapping.
+   */
+  onExited?: () => void;
   /** Extra class names on the dialog element. */
   className?: string;
   /** Dialog body. */
@@ -73,6 +78,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     size = "m",
     footer,
     closeOnScrim = true,
+    onExited,
     className,
     children,
     ...rest
@@ -84,7 +90,10 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   const pressedScrim = useRef(false);
   const overlayRef = useOverlay({ open, onClose });
   // Destructured: the React Compiler would treat the whole object as a ref.
-  const { mounted, state, setElement } = usePresence<HTMLDivElement>(open);
+  const { mounted, state, setElement } = usePresence<HTMLDivElement>(
+    open,
+    onExited ? { onExited } : {},
+  );
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
       overlayRef(node);
