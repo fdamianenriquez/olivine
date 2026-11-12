@@ -774,18 +774,261 @@ describe("Tooltip describedby skip", () => {
 
   it("names an input button by its value and an image input by its alt", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { unmount } = render(
+      <Tooltip content="Send" defaultOpen>
+        <input type="submit" value="Send" />
+      </Tooltip>,
+    );
+    expect(tip()).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Send" })).not.toHaveAttribute("aria-describedby");
+    unmount();
+    render(
+      <Tooltip content="Search" defaultOpen>
+        <input type="image" alt="Search" src="data:," />
+      </Tooltip>,
+    );
+    expect(tip()).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Search" })).not.toHaveAttribute("aria-describedby");
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("resolves several aria-labelledby ids, including a hidden one", () => {
     render(
       <>
-        <Tooltip content="Send" defaultOpen>
-          <input type="submit" value="Send" />
-        </Tooltip>
-        <Tooltip content="Search">
-          <input type="image" alt="Search" src="data:," />
+        <span id="a">Copy</span>
+        <span id="b" hidden>
+          link
+        </span>
+        <Tooltip content="Copy link" defaultOpen>
+          <Button square aria-labelledby="a b">
+            ⧉
+          </Button>
         </Tooltip>
       </>,
     );
-    expect(screen.getByRole("button", { name: "Send" })).not.toHaveAttribute("aria-describedby");
-    expect(warn).not.toHaveBeenCalled();
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("joins inline elements into one word and keeps block elements apart", () => {
+    render(
+      <>
+        <Tooltip content="Copy" defaultOpen>
+          <Button>
+            Co<b>py</b>
+          </Button>
+        </Tooltip>
+        <Tooltip content="Co py" defaultOpen>
+          <button type="button">
+            <div>Co</div>
+            <div>py</div>
+          </button>
+        </Tooltip>
+      </>,
+    );
+    const [inline, block] = screen.getAllByRole("button");
+    expect(inline).not.toHaveAttribute("aria-describedby");
+    expect(block).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("ignores aria-hidden text in the trigger when comparing", () => {
+    render(
+      <Tooltip content="Copy" defaultOpen>
+        <Button>
+          Copy <span aria-hidden="true">link</span>
+        </Button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Copy" })).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("describes when the only matching words are aria-hidden", () => {
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <Button>
+          Copy <span aria-hidden="true">link</span>
+        </Button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Copy" })).toHaveAttribute(
+      "aria-describedby",
+      tip()?.id,
+    );
+  });
+
+  it("ignores aria-hidden parts of the tooltip content", () => {
+    render(
+      <Tooltip
+        content={
+          <>
+            <span aria-hidden="true">⧉ </span>Copy link
+          </>
+        }
+        defaultOpen
+      >
+        <Button aria-label="Copy link">⧉</Button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Copy link" })).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("compares case- and space-insensitively", () => {
+    render(
+      <Tooltip content={"  copy\n   LINK "} defaultOpen>
+        <Button aria-label="Copy link">⧉</Button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Copy link" })).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("resolves a trigger that lists itself in aria-labelledby", () => {
+    render(
+      <>
+        <span id="other">link</span>
+        <Tooltip content="Copy link" defaultOpen>
+          <Button id="me" aria-label="Copy" aria-labelledby="me other">
+            ⧉
+          </Button>
+        </Tooltip>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Copy link" })).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("falls back to the trigger's text when it lists itself with an empty aria-label", () => {
+    render(
+      <>
+        <span id="other">link</span>
+        <Tooltip content="Copy link" defaultOpen>
+          <Button id="me" aria-label="" aria-labelledby="me other">
+            Copy
+          </Button>
+        </Tooltip>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Copy link" })).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("follows the aria-labelledby id order", () => {
+    render(
+      <>
+        <span id="a">Copy</span>
+        <span id="b">link</span>
+        <Tooltip content="Copy link" defaultOpen>
+          <Button square aria-labelledby="b a">
+            ⧉
+          </Button>
+        </Tooltip>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "link Copy" })).toHaveAttribute(
+      "aria-describedby",
+      tip()?.id,
+    );
+  });
+
+  it("reads an aria-labelledby target even when it is aria-hidden", () => {
+    render(
+      <>
+        <span id="lbl" aria-hidden="true">
+          Copy link
+        </span>
+        <Tooltip content="Copy link" defaultOpen>
+          <Button square aria-labelledby="lbl">
+            ⧉
+          </Button>
+        </Tooltip>
+      </>,
+    );
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("falls through an unmatched aria-labelledby id to aria-label", () => {
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <Button square aria-labelledby="missing" aria-label="Copy link">
+          ⧉
+        </Button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button", { name: "Copy link" })).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("reads a nested aria-label on a nameable element and an image alt as separate words", () => {
+    const { unmount } = render(
+      <Tooltip content="Copy link" defaultOpen>
+        <button type="button">
+          <span role="img" aria-label="Copy" />
+          link
+        </button>
+      </Tooltip>,
+    );
+    expect(tip()).not.toBeNull();
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-describedby");
+    unmount();
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <button type="button">
+          <img alt="Copy" src="data:," />
+          link
+        </button>
+      </Tooltip>,
+    );
+    expect(tip()).not.toBeNull();
+    expect(screen.getByRole("button")).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("ignores a nested aria-label on a generic element", () => {
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <button type="button">
+          <span aria-label="Copy link">Copy</span>
+        </button>
+      </Tooltip>,
+    );
+    // Some name engines read the span's label; the safe outcome keeps the description.
+    expect(screen.getByRole("button")).toHaveAttribute("aria-describedby", tip()?.id);
+  });
+
+  it.each([
+    ["display", { display: "none" }],
+    ["visibility", { visibility: "hidden" }],
+  ] as const)("ignores text hidden by CSS %s", (_, style) => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <button type="button">
+          <span aria-hidden="true">⧉</span>
+          <span style={style}>Copy link</span>
+        </button>
+      </Tooltip>,
+    );
+    expect(screen.getByRole("button")).toHaveAttribute("aria-describedby", tip()?.id);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no accessible name"));
+    warn.mockRestore();
+  });
+
+  it("takes no name from the text of a trigger whose role is not named by content", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <Tooltip content="Copy link" defaultOpen>
+        <div role="textbox" tabIndex={0} data-testid="trigger">
+          Copy link
+        </div>
+      </Tooltip>,
+    );
+    expect(screen.getByTestId("trigger")).toHaveAttribute("aria-describedby", tip()?.id);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no accessible name"));
     warn.mockRestore();
   });
 
@@ -847,6 +1090,103 @@ describe("Tooltip development warnings", () => {
     );
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("Popover"));
     warn.mockRestore();
+  });
+
+  it("warns when the only name is a native title, with both warnings", () => {
+    const warn = spy();
+    render(
+      <Tooltip content="Copy link">
+        <button type="button" title="Copy link">
+          <span aria-hidden="true">⧉</span>
+        </button>
+      </Tooltip>,
+    );
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("native `title`"));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no accessible name"));
+    warn.mockRestore();
+  });
+
+  it("warns once per tooltip across re-renders, opening and closing", () => {
+    const warn = spy();
+    const view = (open: boolean) => (
+      <Tooltip content="Copy link" open={open}>
+        <button type="button" title="Copy link">
+          <span aria-hidden="true">⧉</span>
+        </button>
+      </Tooltip>
+    );
+    const { rerender } = render(view(false));
+    rerender(view(true));
+    rerender(view(false));
+    rerender(view(true));
+    expect(warn).toHaveBeenCalledTimes(2);
+    warn.mockRestore();
+  });
+
+  it("warns for each tooltip that needs it", () => {
+    const warn = spy();
+    render(
+      <>
+        <Tooltip content="Copy">
+          <button type="button" title="Copy">
+            Copy
+          </button>
+        </Tooltip>
+        <Tooltip content="Paste">
+          <button type="button" title="Paste">
+            Paste
+          </button>
+        </Tooltip>
+      </>,
+    );
+    expect(warn).toHaveBeenCalledTimes(2);
+    warn.mockRestore();
+  });
+
+  it("stays quiet for a trigger named by aria-labelledby", () => {
+    const warn = spy();
+    render(
+      <>
+        <span id="lbl">Copy link</span>
+        <Tooltip content="Copy link">
+          <Button square aria-labelledby="lbl">
+            ⧉
+          </Button>
+        </Tooltip>
+      </>,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("never warns in production", async () => {
+    const warn = spy();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.resetModules();
+    try {
+      const { Tooltip: ProdTooltip } = await import("./Tooltip");
+      render(
+        <ProdTooltip
+          content={
+            <>
+              See <a href="#help">help</a>
+            </>
+          }
+          defaultOpen
+        >
+          <button type="button" title="Copy link">
+            <span aria-hidden="true">⧉</span>
+          </button>
+        </ProdTooltip>,
+      );
+      expect(tip()).not.toBeNull();
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+      warn.mockRestore();
+    }
   });
 
   it("stays quiet for a named trigger with plain content", () => {

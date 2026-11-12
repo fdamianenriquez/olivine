@@ -17,10 +17,10 @@ import { useDismiss } from "../../hooks/useDismiss";
 import { useFloating, useIsomorphicLayoutEffect } from "../../hooks/useFloating";
 import { type TriggerHandlers, useHoverIntent } from "../../hooks/useHoverIntent";
 import { cx } from "../../utils/cx";
-import { devWarn } from "../../utils/dev";
+import { DEV, devWarn } from "../../utils/dev";
 import { getElementRef } from "../../utils/elementRef";
 import { Portal } from "../Portal";
-import { accessibleName, repeatsName } from "./accessibleName";
+import { accessibleName, repeatsName, textOf } from "./accessibleName";
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
 
@@ -149,32 +149,40 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
 
   useDismiss(shown, dismiss, [reference, floating]);
 
-  // Describe the trigger unless the tooltip only repeats its name (resolved from the DOM, so
-  // aria-labelledby, labels and nested text count). A rich tooltip always adds information.
+  // Describe the trigger unless the tooltip only repeats its name. Both are read from the DOM
+  // when open, so aria-labelledby, labels, nested text and ReactNode content all count, and
+  // aria-hidden parts of either are ignored. A rich tooltip always adds information.
   const [repeats, setRepeats] = useState(false);
   useIsomorphicLayoutEffect(() => {
     const trigger = reference.current;
     const bubble = floating.current;
     if (!shown || !trigger || !bubble) return;
-    setRepeats(!rich && repeatsName(trigger, bubble.textContent));
+    setRepeats(!rich && repeatsName(trigger, textOf(bubble)));
   });
 
-  // Development checks on the trigger, once per tooltip.
-  const checkedTrigger = useRef(false);
+  // Development checks on the trigger, each warned once per tooltip.
+  const warned = useRef({ title: false, name: false });
   useEffect(() => {
     const trigger = reference.current;
-    if (inactive || checkedTrigger.current || !trigger) return;
-    checkedTrigger.current = true;
-    if (trigger.getAttribute("title")) {
+    const seen = warned.current;
+    if (!DEV || inactive || !trigger || (seen.title && seen.name)) return;
+    if (!seen.title && trigger.hasAttribute("title")) {
+      seen.title = true;
       devWarn(
         "Tooltip",
         "the trigger has a native `title`, so two tooltips would show. Remove the `title`.",
       );
-    } else if (!accessibleName(trigger).name.trim()) {
-      devWarn(
-        "Tooltip",
-        "the trigger has no accessible name; a tooltip is not a name. Give it an `aria-label` with the same words.",
-      );
+    }
+    // The name is resolved once: it is either confirmed or warned about, never recomputed.
+    // A title is not a dependable name either: touch and keyboard users never see it.
+    if (!seen.name) {
+      seen.name = true;
+      if (["none", "title"].includes(accessibleName(trigger).source)) {
+        devWarn(
+          "Tooltip",
+          "the trigger has no accessible name; a tooltip is not a name. Give an icon-only trigger an `aria-label` with the same words.",
+        );
+      }
     }
   });
 
@@ -182,7 +190,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip
   const checkedContent = useRef(false);
   useEffect(() => {
     const bubble = floating.current;
-    if (!shown || checkedContent.current || !bubble) return;
+    if (!DEV || !shown || checkedContent.current || !bubble) return;
     if (bubble.querySelector(FOCUSABLE)) {
       checkedContent.current = true;
       devWarn(
