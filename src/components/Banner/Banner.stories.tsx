@@ -33,6 +33,8 @@ const meta = {
 
 **Motion.** The strip unrolls (kakejiku) when \`open\` turns true after the first render (keep \`<Banner open={condition}>\` mounted and flip \`open\`), or when it first mounts on the client with \`appear\` (\`{condition && <Banner appear />}\`). A banner in the server-rendered page never unrolls, with or without \`appear\`; without it, one mounted later simply appears. It rolls back up on close, then unmounts. Only \`clip-path\` animates, so the content below moves in one step. Reduced motion makes both instant; \`animated={false}\` turns the motion off for everyone, \`appear\` included.
 
+**Promo.** \`variant="promo"\` is an announcement, not a state: a full \`maple\` strip under the Navbar, all content in \`on-maple\`, the localised tag (New, Novedad, 新着) in place of the status word, up to two actions (\`Button size="s"\` outline, then ghost) and a dismiss. It ignores \`tone\` and \`live\`, is never sticky (a development warning if you set \`sticky\`; the Navbar stays sticky), and is a labelled \`<section>\` named by its tag, not a live region. Show at most one per page. On maple the focus ring would be 1.95:1, so focus is an inset \`on-maple\` band. At 30rem of its own width or less the message wraps and the actions move below. Unroll and roll-up are the kakejiku above; the roll-up takes \`--dur-m\`.
+
 **Focus.** Dismissing moves focus to the next focusable element after the banner (or \`returnFocus\`), so it is never dropped.`,
       },
     },
@@ -471,6 +473,230 @@ export const ForcedColors: Story = {
       <Banner tone="neutral" tag="Demo" title="Demo shop" onClose={noop}>
         Nothing you order here will be charged or shipped.
       </Banner>
+    </div>
+  ),
+};
+
+const promoActions = (
+  <>
+    <Button size="s">Reserve one</Button>
+    <Button size="s" variant="ghost">
+      See the build
+    </Button>
+  </>
+);
+
+const promoText = "The Kaichi chambered slab is back: twelve built this spring in Matsumoto.";
+
+const hero = (
+  <div
+    style={{
+      padding: "var(--space-16) var(--space-6)",
+      borderBottom: "var(--stroke-hair) solid var(--rule)",
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-display-l-size)",
+      lineHeight: "var(--text-display-l-leading)",
+    }}
+  >
+    Guitars made at
+    <br />
+    the foot of the Alps.
+  </div>
+);
+
+/** An announcement under the Navbar: a full maple strip that scrolls away; the Navbar stays. */
+export const Promo: Story = {
+  name: "Promo: on the page",
+  args: { variant: "promo", tone: "neutral", title: undefined, children: promoText },
+  render: (args) => (
+    <div>
+      <Navbar
+        brand="Shirakaba"
+        kanji="白樺楽器"
+        sticky
+        links={[
+          { label: "Workshop", href: "#workshop" },
+          { label: "Models", href: "#models", active: true },
+        ]}
+      />
+      <Banner {...args} actions={promoActions} onClose={noop} />
+      {hero}
+    </div>
+  ),
+};
+
+/** Narrow: at 30rem of its own width or less the message wraps and the actions move below. */
+export const PromoNarrow: Story = {
+  name: "Promo: narrow (390px)",
+  render: () => (
+    <div style={{ ...stack, padding: "var(--space-6)" }}>
+      {["390px", "100%"].map((width) => (
+        <div key={width} style={{ width, outline: "var(--stroke-hair) dashed var(--rule)" }}>
+          <Banner variant="promo" actions={promoActions} onClose={noop} label={`News ${width}`}>
+            {promoText}
+          </Banner>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/** One action, two actions (outline then ghost), without a close, and the message alone. */
+export const PromoActionsAndClose: Story = {
+  name: "Promo: actions and close",
+  render: () => (
+    <div style={stack}>
+      <Banner
+        variant="promo"
+        label="One action"
+        onClose={noop}
+        actions={<Button size="s">Reserve one</Button>}
+      >
+        {promoText}
+      </Banner>
+      <Banner variant="promo" label="Two actions" onClose={noop} actions={promoActions}>
+        {promoText}
+      </Banner>
+      <Banner variant="promo" label="No close" actions={promoActions}>
+        {promoText}
+      </Banner>
+      <Banner variant="promo" label="Message only" onClose={noop}>
+        {promoText}
+      </Banner>
+      <Banner variant="promo" tag="Sale" onClose={noop}>
+        A custom tag replaces the localised word, and names the section.
+      </Banner>
+    </div>
+  ),
+};
+
+export const PromoLocales: Story = {
+  name: "Promo: three languages",
+  render: () => (
+    <div style={stack}>
+      <Root locale="en">
+        <Banner variant="promo" onClose={noop} actions={promoActions}>
+          {promoText}
+        </Banner>
+      </Root>
+      <Root locale="es">
+        <Banner
+          variant="promo"
+          onClose={noop}
+          actions={
+            <>
+              <Button size="s">Reservar una</Button>
+              <Button size="s" variant="ghost">
+                Ver el proceso
+              </Button>
+            </>
+          }
+        >
+          Vuelve la Kaichi de cuerpo con cámaras: doce construidas esta primavera en Matsumoto.
+        </Banner>
+      </Root>
+      <Root locale="ja">
+        <Banner
+          variant="promo"
+          onClose={noop}
+          actions={
+            <>
+              <Button size="s">予約する</Button>
+              <Button size="s" variant="ghost">
+                製作を見る
+              </Button>
+            </>
+          }
+        >
+          開智チェンバードスラブが戻りました。今春、松本で十二本を製作。
+        </Banner>
+      </Root>
+    </div>
+  ),
+};
+
+/**
+ * On maple the olivo ring would be 1.95:1 (washi) and 1.05:1 (sumi), so focus is an inset
+ * `on-maple` band (6.13:1 / 8.41:1), on-ink while an ink hover fills the control. Tab through the
+ * strip, or use the keyboard to reach the links and the close button.
+ */
+export const PromoFocus: Story = {
+  name: "Promo: focus band",
+  render: () => (
+    <div>
+      <Banner
+        variant="promo"
+        onClose={noop}
+        actions={
+          <>
+            <Button size="s">Reserve one</Button>
+            <Button size="s" variant="ghost">
+              See the build
+            </Button>
+          </>
+        }
+      >
+        {promoText} <Link href="#journal">Read the journal</Link>
+      </Banner>
+      <p style={page}>Press Tab to move the focus band across the links, the buttons and close.</p>
+    </div>
+  ),
+  play: ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLElement>(".ol-banner__actions button")?.focus();
+  },
+};
+
+/** Kakejiku: unrolls when `open` turns true, rolls up on dismiss. Instant under reduced motion. */
+export const PromoMotion: Story = {
+  name: "Promo: motion (kakejiku)",
+  render: function Render() {
+    const [open, setOpen] = useState(true);
+    return (
+      <div>
+        <Banner
+          variant="promo"
+          open={open}
+          actions={promoActions}
+          onClose={() => {
+            setOpen(false);
+          }}
+        >
+          {promoText}
+        </Banner>
+        <div style={page}>
+          <Button
+            size="s"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            Replay unroll
+          </Button>
+          <p>
+            Press the close button to see it roll up. With prefers-reduced-motion there is no
+            animation and the strip goes at once.
+          </p>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const PromoThemes: Story = {
+  name: "Promo: both themes",
+  render: () => (
+    <div>
+      {(["washi", "sumi"] as const).map((theme) => (
+        <div
+          key={theme}
+          data-theme={theme}
+          style={{ padding: "var(--space-6) 0", background: "var(--paper)", color: "var(--ink)" }}
+        >
+          <Banner variant="promo" label={`Promo ${theme}`} actions={promoActions} onClose={noop}>
+            {promoText}
+          </Banner>
+        </div>
+      ))}
     </div>
   ),
 };

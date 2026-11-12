@@ -117,7 +117,7 @@ export interface OlivineLabels {
   /** Meter aria-valuetext: the formatted value, then the band word when there is one. */
   meterValue: (value: string, state?: string) => string;
   /** Banner: default accessible name of the region when it has no title. */
-  banner: { label: string };
+  banner: { label: string; promo: string };
   /** ToastStack: name of the notifications landmark. */
   notifications: string;
   /** Toast: hidden hint in a toast with an action; `key` is the hotkey label, e.g. "F6". */

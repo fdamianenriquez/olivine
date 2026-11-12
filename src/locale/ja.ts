@@ -113,7 +113,7 @@ export const ja: OlivineLabels = {
   themes: { washi: "ライト", sumi: "ダーク", auto: "自動" },
   meter: { good: "良好", fair: "注意", poor: "不良" },
   meterValue: (value, state) => (state ? `${value}、${state}` : value),
-  banner: { label: "お知らせ" },
+  banner: { label: "お知らせ", promo: "新着" },
   notifications: "通知",
   toastActionHint: (key) => `${key} キーで操作に移動できます`,
   alertDialog: { confirm: "OK", cancel: "キャンセル", caution: "注意" },

@@ -172,3 +172,188 @@
     color: LinkText;
   }
 }
+
+/* ===== variant="promo" =====
+ * An announcement: a full maple block with all content in on-maple. Hairlines and borders are
+ * on-maple too, because `rule` on maple is below 3:1. The strip is never sticky and ignores tone.
+ * Layout: tag cell | message | actions | close cell, one row; at 30rem of its own width or less
+ * the message wraps and the actions move below, with the close keeping the top corner.
+ */
+.ol-banner--promo {
+  color: var(--on-maple);
+  background: var(--maple);
+}
+
+.ol-banner--promo .ol-banner__inner {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "tag body actions close";
+  align-items: stretch;
+  gap: 0;
+  min-height: var(--control-m);
+  max-width: none;
+  margin-inline: 0;
+  padding: 0;
+}
+
+.ol-banner--promo .ol-banner__tag {
+  grid-area: tag;
+  place-self: stretch;
+  height: auto;
+  padding: 0 var(--space-4);
+  border-inline-end: var(--stroke-hair) solid var(--on-maple);
+  background: transparent;
+  font-weight: var(--text-h2-weight);
+  white-space: nowrap;
+}
+
+.ol-banner--promo .ol-banner__tag span {
+  color: var(--on-maple);
+}
+
+.ol-banner--promo .ol-banner__body {
+  grid-area: body;
+  align-self: center;
+  padding: var(--space-3) var(--space-4);
+  color: var(--on-maple);
+}
+
+.ol-banner--promo .ol-banner__actions {
+  grid-area: actions;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  padding: var(--space-2) var(--space-4);
+  color: var(--on-maple);
+}
+
+.ol-banner--promo .ol-banner__close {
+  grid-area: close;
+  align-self: stretch;
+  width: var(--control-m);
+  height: auto;
+  border: 0;
+  border-inline-start: var(--stroke-hair) solid var(--on-maple);
+  color: var(--on-maple);
+}
+
+/* Actions and links on maple: on-maple text and outline; hover inverts to ink as everywhere. */
+.ol-banner--promo .ol-btn {
+  border-color: var(--on-maple);
+  color: var(--on-maple);
+  background: transparent;
+}
+
+.ol-banner--promo .ol-btn--ghost {
+  border-color: transparent;
+}
+
+.ol-banner--promo .ol-btn:hover,
+.ol-banner--promo .ol-banner__close:hover {
+  border-color: var(--ink);
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+.ol-banner--promo .ol-btn--ghost:hover {
+  border-color: var(--on-maple);
+  color: var(--on-maple);
+  background: transparent;
+}
+
+/* Links in the message: on-maple (the olivo hover of a Link is 1.95:1 on maple), still underlined. */
+.ol-banner--promo a:not(.ol-btn),
+.ol-banner--promo a:not(.ol-btn):hover {
+  color: var(--on-maple);
+}
+
+/*
+ * Focus band: olivo is 1.95:1 on maple, so focus is an inset stroke-bold band in on-maple
+ * (box-shadow exception, as in Calendar and Listbox). It stays inside the control and the strip,
+ * so it needs no offset and the roll-up clip never cuts it. Hover fills the control with ink, so
+ * there the band is on-ink; a ghost hover stays transparent and keeps the on-maple band.
+ */
+.ol-banner--promo :is(a, button):focus-visible {
+  outline: none;
+  border-color: var(--on-maple);
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-maple);
+}
+
+.ol-banner--promo :is(.ol-btn:not(.ol-btn--ghost), .ol-banner__close):hover:focus-visible {
+  box-shadow: inset 0 0 0 var(--stroke-bold) var(--on-ink);
+}
+
+@container (max-width: 30rem) {
+  .ol-banner--promo .ol-banner__inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "tag body close"
+      "actions actions actions";
+  }
+
+  .ol-banner--promo .ol-banner__tag {
+    align-items: flex-start;
+    padding-top: var(--space-3);
+  }
+
+  .ol-banner--promo .ol-banner__actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 0 var(--space-4) var(--space-3);
+  }
+
+  .ol-banner--promo .ol-banner__close {
+    align-self: start;
+    height: var(--control-m);
+    border-bottom: var(--stroke-hair) solid var(--on-maple);
+  }
+
+  .ol-banner--promo .ol-banner__close:hover {
+    border-bottom-color: var(--ink);
+  }
+}
+
+/* Kakejiku: the shared unroll (when open turns true, or appear) is kept; the roll-up is quicker. */
+.ol-banner--promo.ol-kakejiku[data-state="closing"] {
+  animation-duration: var(--dur-m);
+}
+
+/* Reduced motion: no animation at all, so a dismiss unmounts at once. */
+@media (prefers-reduced-motion: reduce) {
+  .ol-banner--promo.ol-kakejiku:not([data-state="closing"]),
+  .ol-banner--promo.ol-kakejiku[data-state="closing"] {
+    animation: none;
+  }
+}
+
+/* Forced colours drop the maple fill, the on-maple colours and the box-shadow band. */
+@media (forced-colors: active) {
+  .ol-banner--promo .ol-banner__tag {
+    border: 0;
+    border-inline-end: var(--stroke-hair) solid CanvasText;
+  }
+
+  .ol-banner--promo .ol-banner__actions,
+  .ol-banner--promo .ol-btn {
+    color: ButtonText;
+  }
+
+  .ol-banner--promo .ol-banner__close {
+    border-inline-start-color: CanvasText;
+    border-bottom-color: CanvasText;
+  }
+
+  .ol-banner--promo .ol-btn:hover,
+  .ol-banner--promo .ol-banner__close:hover {
+    background: ButtonText;
+    color: ButtonFace;
+    border-color: ButtonText;
+  }
+
+  .ol-banner--promo :is(a, button):focus-visible {
+    outline: var(--stroke-bold) solid CanvasText;
+    outline-offset: calc(var(--stroke-bold) * -1);
+  }
+
+  .ol-banner--promo :is(.ol-btn, .ol-banner__close):hover:focus-visible {
+    box-shadow: none;
+  }
+}

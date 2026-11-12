@@ -111,7 +111,7 @@ export const es: OlivineLabels = {
   themes: { washi: "Claro", sumi: "Oscuro", auto: "Auto" },
   meter: { good: "Bien", fair: "Regular", poor: "Mal" },
   meterValue: (value, state) => (state ? `${value}, ${state}` : value),
-  banner: { label: "Anuncio" },
+  banner: { label: "Anuncio", promo: "Novedad" },
   notifications: "Notificaciones",
   toastActionHint: (key) => `Pulsa ${key} para ir a la acción`,
   alertDialog: { confirm: "Confirmar", cancel: "Cancelar", caution: "Atención" },
