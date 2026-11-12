@@ -166,7 +166,7 @@
   color: var(--ink);
 }
 
-/* progress="segments": one block per step under the counter, lit in olivo up to the current one. */
+/* progress="segments": one block per step under the counter, lit in ink (as Meter) up to the current one. */
 .ol-tour__segments {
   display: grid;
   grid-template-columns: repeat(var(--ol-seg, 1), var(--space-4));
@@ -179,8 +179,8 @@
 }
 
 .ol-tour__seg--on {
-  background: var(--olivo);
-  border-color: var(--olivo);
+  background: var(--ink);
+  border-color: var(--ink);
 }
 
 /* Newly lit blocks print one after another (.ol-print-block, motion.css). */
