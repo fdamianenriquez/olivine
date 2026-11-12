@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { useOverflow } from "../../hooks/useOverflow";
+import { repeatable } from "../../hooks/useStatusMessage";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
@@ -76,8 +77,6 @@ export interface CodeBlockProps extends Omit<
    */
   onCopy?: (code: string, ok: boolean) => void;
 }
-
-const NBSP = " ";
 
 /** Splits on any line ending and drops the empty line a trailing newline leaves behind. */
 function splitLines(code: string): string[] {
@@ -153,12 +152,11 @@ export const CodeBlock = forwardRef<HTMLElement, CodeBlockProps>(function CodeBl
     onCopy?.(code, ok);
   };
 
-  // A repeat of the same result gets a trailing no-break space, so it is read out again.
+  // Derived from the attempt counter, so a repeat of the same result is read out again.
   const message =
     status === "idle"
       ? ""
-      : (status === "copied" ? t.codeCopiedStatus : t.codeCopyFailedStatus) +
-        (attempt % 2 === 0 ? NBSP : "");
+      : repeatable(status === "copied" ? t.codeCopiedStatus : t.codeCopyFailedStatus, attempt);
 
   const state = (which: "idle" | "copied" | "failed", content: ReactNode) => (
     <span

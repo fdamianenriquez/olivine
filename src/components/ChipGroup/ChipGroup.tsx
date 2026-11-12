@@ -14,12 +14,12 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 
 import { useControllable } from "../../hooks/useControllable";
 import { FieldContext, useField } from "../../hooks/useFieldControl";
 import { useRovingFocus } from "../../hooks/useRovingFocus";
+import { useStatusMessage } from "../../hooks/useStatusMessage";
 import { useLabels } from "../../locale";
 import { cx } from "../../utils/cx";
 import { devWarn } from "../../utils/dev";
@@ -112,7 +112,6 @@ interface PendingRemoval {
 }
 
 const ITEM = `[${CHIP_ITEM_ATTR}]`;
-const NBSP = "\u00a0";
 const VALUE_ATTR = "data-ol-chip-value";
 
 /**
@@ -187,11 +186,10 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
     selectedSelector: '[aria-pressed="true"]',
   });
 
-  // Live region: a repeated message gets a trailing no-break space so it is read again.
-  const [message, setMessage] = useState("");
+  // Live region: a repeated message is still read out again.
+  const { message, announce: announceMessage, clear: clearMessage } = useStatusMessage();
   const say = (text: string) => {
-    if (!announce) return;
-    setMessage((prev) => (prev === text ? text + NBSP : text));
+    if (announce) announceMessage(text);
   };
 
   const pending = useRef<PendingRemoval | null>(null);
@@ -312,7 +310,7 @@ export const ChipGroup = forwardRef<HTMLDivElement, ChipGroupProps>(function Chi
     if (event.target === root) root.removeAttribute("tabindex");
     const next = event.relatedTarget as Node | null;
     if (next && root && !root.contains(next)) {
-      setMessage("");
+      clearMessage();
       pending.current = null;
     }
   };
