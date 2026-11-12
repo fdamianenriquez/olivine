@@ -476,6 +476,37 @@ describe("Popover", () => {
       expect(trigger()).toHaveFocus();
     });
 
+    it("a press on the scrim closes only the popover; the next press closes the modal", async () => {
+      const user = userEvent.setup();
+      onModalClose.mockClear();
+      renderInModal();
+      await user.click(trigger());
+      await screen.findByRole("dialog", { name: "Hint" });
+      const scrim = document.querySelector<HTMLElement>(".ol-scrim");
+      if (!scrim) throw new Error("no scrim");
+      await user.click(scrim);
+      await waitFor(() => {
+        expect(screen.queryByRole("dialog", { name: "Hint" })).toBeNull();
+      });
+      expect(onModalClose).not.toHaveBeenCalled();
+      await user.click(scrim);
+      expect(onModalClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("a press on another control in the dialog closes the popover and still lands", async () => {
+      const user = userEvent.setup();
+      renderInModal();
+      await user.click(trigger());
+      await screen.findByRole("dialog", { name: "Hint" });
+      const onLast = vi.fn();
+      screen.getByRole("button", { name: "Last" }).addEventListener("click", onLast);
+      await user.click(screen.getByRole("button", { name: "Last" }));
+      await waitFor(() => {
+        expect(screen.queryByRole("dialog", { name: "Hint" })).toBeNull();
+      });
+      expect(onLast).toHaveBeenCalledTimes(1);
+    });
+
     it("tabbing out lands on the trigger's neighbour inside the modal", async () => {
       const user = userEvent.setup();
       renderInModal();

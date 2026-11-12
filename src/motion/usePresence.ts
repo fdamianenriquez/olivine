@@ -58,7 +58,8 @@ const FALLBACK_TIMEOUT = 1000;
 /** Focuses `target` if it is in the document; true when focus landed on it. */
 function tryFocus(target: Element | null | undefined): boolean {
   if (!(target instanceof HTMLElement) || !target.isConnected) return false;
-  target.focus();
+  // Never scroll the page to a trigger that is off-screen: the focus is only a stopgap.
+  target.focus({ preventScroll: true });
   return document.activeElement === target;
 }
 
@@ -71,7 +72,8 @@ function moveFocusOut(
   if (typeof target === "function") target();
   else tryFocus(target);
   if (!node.contains(document.activeElement)) return;
-  if (target) {
+  // A function may leave focus on purpose (it decides per case); only a lost element is worth a warning.
+  if (target && typeof target !== "function") {
     devWarn("usePresence", "returnFocus could not take focus; falling back to the opener.");
   }
   if (opener && !node.contains(opener)) tryFocus(opener);

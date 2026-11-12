@@ -23,7 +23,6 @@ import {
   isNativeTarget,
   isSecondaryPress,
   LONG_PRESS_MS,
-  swallowNextClick,
   type TriggerUserHandlers,
   useContextMenuTrigger,
 } from "./useContextMenuTrigger";
@@ -231,9 +230,7 @@ export const ContextMenu = forwardRefAs<"div", ContextMenuOwnProps>(function Con
       ) {
         return true;
       }
-      // Any other press closes the menu (the hook does it next): its click must not also
-      // activate what is under it.
-      swallowNextClick();
+      // Any other press closes the menu, and the hook swallows its click.
       return false;
     },
   });

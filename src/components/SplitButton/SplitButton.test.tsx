@@ -253,7 +253,7 @@ describe("SplitButton", () => {
     expect(screen.getByRole("button", { name: "Elsewhere" })).toHaveFocus();
   });
 
-  it("pressing the primary while open closes the menu and runs the action once", async () => {
+  it("pressing the primary while open only closes the menu; the next press runs the action", async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
     const onSelect = vi.fn();
@@ -267,10 +267,15 @@ describe("SplitButton", () => {
     );
     await user.click(trigger());
     await screen.findByRole("menu");
+    // An outside press only dismisses a menu: its click does not reach the primary.
+    await user.click(primary());
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).toBeNull();
+    });
     await user.click(primary());
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(screen.queryByRole("menu")).toBeNull();
   });
 
   it("closes when the primary is clicked without a pointer press", async () => {

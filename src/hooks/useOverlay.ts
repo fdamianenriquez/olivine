@@ -119,7 +119,7 @@ export function useOverlay({
   modal = true,
 }: OverlayOptions): (node: HTMLElement | null) => void {
   const [dialog, setDialog] = useState<HTMLElement | null>(null);
-  const isTop = useLayer(open && dialog !== null);
+  const { isTop } = useLayer(open && dialog !== null, () => [dialog]);
   const close = useRef(onClose);
   useEffect(() => {
     close.current = onClose;
