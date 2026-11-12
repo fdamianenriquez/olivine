@@ -670,6 +670,7 @@ describe("Offcanvas", () => {
         drag(headOf(), 300);
       });
       expect(onClose).toHaveBeenCalledTimes(1);
+      expect(onClose).toHaveBeenCalledWith("swipe");
       const dialog = screen.getByRole("dialog");
       expect(dialog).toHaveAttribute("data-swipe", "out");
       expect(dialog.style.getPropertyValue("--ol-swipe-end-y")).toBe("384px");
@@ -1045,6 +1046,7 @@ describe("Offcanvas", () => {
         drag(dialog, 0, "touch", dx);
       });
       expect(onClose).toHaveBeenCalledTimes(1);
+      expect(onClose).toHaveBeenCalledWith("swipe");
       expect(dialog).toHaveAttribute("data-swipe", "out");
     });
 
@@ -1062,6 +1064,161 @@ describe("Offcanvas", () => {
       render(<Offcanvas open title="T" onClose={() => undefined} onPointerDown={onPointerDown} />);
       fireEvent.pointerDown(screen.getByRole("dialog"), { pointerType: "touch" });
       expect(onPointerDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("close reasons", () => {
+    it("reports Escape", () => {
+      const onClose = vi.fn();
+      render(<Offcanvas open title="T" onClose={onClose} />);
+      fireEvent.keyDown(document, { key: "Escape" });
+      expect(onClose).toHaveBeenCalledExactlyOnceWith("escape");
+    });
+
+    it("reports the close button, with no event passed on", () => {
+      const onClose = vi.fn();
+      render(<Offcanvas open title="T" onClose={onClose} />);
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      expect(onClose).toHaveBeenCalledExactlyOnceWith("close");
+    });
+
+    it("reports the scrim", () => {
+      const onClose = vi.fn();
+      render(<Offcanvas open title="T" onClose={onClose} />);
+      fireEvent.pointerDown(scrimOf());
+      fireEvent.click(scrimOf());
+      expect(onClose).toHaveBeenCalledExactlyOnceWith("scrim");
+    });
+
+    it("reports a swipe on a side panel and on a sheet", () => {
+      vi.useFakeTimers();
+      vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(320);
+      const onClose = vi.fn();
+      const { unmount } = render(<Offcanvas open title="T" onClose={onClose} />);
+      act(() => {
+        drag(screen.getByRole("dialog"), 0, "touch", 300);
+      });
+      expect(onClose).toHaveBeenCalledExactlyOnceWith("swipe");
+      unmount();
+      onClose.mockClear();
+      render(<Offcanvas open title="T" {...SHEET} onClose={onClose} />);
+      act(() => {
+        drag(headOf(), 300);
+      });
+      expect(onClose).toHaveBeenCalledExactlyOnceWith("swipe");
+    });
+
+    it("still accepts a handler that takes no reason", () => {
+      const onClose: () => void = vi.fn();
+      render(<Offcanvas open title="T" onClose={onClose} />);
+      fireEvent.keyDown(document, { key: "Escape" });
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("rail", () => {
+    const marks = () => Array.from(document.querySelectorAll<HTMLElement>(".ol-offcanvas__mark"));
+
+    it("marks each point's height from the top of the box, hidden from assistive technology", () => {
+      render(<Offcanvas open title="T" placement="bottom" snapPoints={[0.25, 0.5, 1]} />);
+      const rail = part("rail");
+      expect(rail).toHaveAttribute("aria-hidden", "true");
+      expect(marks().map((m) => m.style.insetBlockStart)).toEqual(["576px", "384px", "0px"]);
+    });
+
+    it("is only part of a sheet with two points or more", () => {
+      const { rerender } = render(
+        <Offcanvas open title="T" placement="bottom" onClose={() => undefined} />,
+      );
+      expect(document.querySelector(".ol-offcanvas__rail")).toBeNull();
+      rerender(<Offcanvas open title="T" placement="end" onClose={() => undefined} />);
+      expect(document.querySelector(".ol-offcanvas__rail")).toBeNull();
+    });
+
+    it("keeps its marks through a drag: they only change when the points are measured", () => {
+      vi.useFakeTimers();
+      render(<Offcanvas open title="T" {...SHEET} />);
+      const before = marks();
+      const dialog = screen.getByRole("dialog");
+      fireEvent.pointerDown(handleOf(), {
+        pointerId: 1,
+        pointerType: "touch",
+        button: 0,
+        clientX: 0,
+        clientY: 500,
+      });
+      fireEvent.pointerMove(handleOf(), {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: 0,
+        clientY: 400,
+      });
+      expect(dialog).toHaveAttribute("data-swipe", "drag");
+      fireEvent.pointerMove(handleOf(), {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: 0,
+        clientY: 350,
+      });
+      const during = marks();
+      expect(during).toHaveLength(2);
+      during.forEach((mark, i) => {
+        expect(mark).toBe(before[i]);
+      });
+      expect(during.map((m) => m.style.insetBlockStart)).toEqual(["384px", "0px"]);
+    });
+
+    it("shows while dragging, stands still against the sheet and uses tokens only", () => {
+      const css = readFileSync(
+        join(process.cwd(), "src/components/Offcanvas/Offcanvas.css"),
+        "utf8",
+      );
+      expect(css).toMatch(
+        /\.ol-offcanvas__rail \{[^}]*opacity: 0;[^}]*transform: translateY\(calc\(-1 \* \(var\(--ol-sheet-rest, 0px\) \+ var\(--ol-swipe-y, 0px\)\)\)\);[^}]*transition: opacity var\(--dur-s\) var\(--ease-effect\);/,
+      );
+      expect(css).toMatch(
+        /\[data-swipe="drag"\] \.ol-offcanvas__rail \{\s*opacity: 1;\s*transition: opacity var\(--dur-s\) var\(--ease-effect\);/,
+      );
+      // The counter-translate travels exactly like the sheet, so the marks never move.
+      expect(css).toMatch(
+        /\[data-travel\] \.ol-offcanvas__rail \{[^}]*transform var\(--dur-m\) var\(--ease-move\);/,
+      );
+      expect(css).toMatch(
+        /\[data-travel="release"\] \.ol-offcanvas__rail \{[^}]*transform var\(--dur-m\) var\(--ease-standard\);/,
+      );
+      expect(css).toMatch(
+        /\.ol-offcanvas__mark::after \{[^}]*\}[\s\S]*width: var\(--space-4\);|width: var\(--space-4\);\s*background: var\(--rule\);/,
+      );
+      expect(css).toMatch(/\.ol-offcanvas__mark \{[^}]*height: var\(--stroke-hair\);/);
+      // Ticks line up with the top border, where the sheet stops; a swipe-out drops them at once.
+      expect(css).toMatch(
+        /\.ol-offcanvas__rail \{[^}]*inset-block-start: calc\(-1 \* var\(--stroke-hair\)\);/,
+      );
+      expect(css).toMatch(
+        /\[data-swipe="out"\] \.ol-offcanvas__rail \{\s*transition: none;\s*opacity: 0;/,
+      );
+      expect(css).toMatch(
+        /forced-colors: active[\s\S]*\.ol-offcanvas__mark::after \{\s*background: CanvasText;/,
+      );
+    });
+
+    it("has no axe violations mid-drag", async () => {
+      render(<Offcanvas open title="T" {...SHEET} onClose={() => undefined} />);
+      fireEvent.pointerDown(handleOf(), {
+        pointerId: 1,
+        pointerType: "touch",
+        button: 0,
+        clientX: 0,
+        clientY: 500,
+      });
+      fireEvent.pointerMove(handleOf(), {
+        pointerId: 1,
+        pointerType: "touch",
+        clientX: 0,
+        clientY: 400,
+      });
+      expect(screen.getByRole("dialog")).toHaveAttribute("data-swipe", "drag");
+      expect(await runAxe(document.body)).toHaveNoViolations();
     });
   });
 
