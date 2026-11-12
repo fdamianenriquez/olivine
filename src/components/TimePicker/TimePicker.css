@@ -343,8 +343,13 @@
     background: Highlight;
   }
 
+  /*
+   * Only a cell that keeps its Highlight fill (forced-color-adjust: none) takes a HighlightText
+   * ring. A disabled cell falls back to Canvas, where HighlightText would vanish, so it keeps the
+   * system ring like every other focused control.
+   */
   .ol-timepicker__btn:is(:hover, [aria-expanded="true"]):focus-visible,
-  .ol-timepicker__opt:is(:hover, [aria-selected="true"]):focus-visible {
+  .ol-timepicker__opt:is(:hover, [aria-selected="true"]):not([aria-disabled="true"]):focus-visible {
     outline-color: HighlightText;
     box-shadow: none;
   }
@@ -366,5 +371,18 @@
     forced-color-adjust: auto;
     background: Canvas;
     color: GrayText;
+  }
+
+  /* A disabled field never takes the Highlight fill; its text and glyph read as GrayText. */
+  .ol-timepicker[data-disabled] .ol-timepicker__seg,
+  .ol-timepicker[data-disabled] .ol-timepicker__colon,
+  .ol-timepicker[data-disabled] .ol-timepicker__btn {
+    forced-color-adjust: auto;
+    color: GrayText;
+    background: Canvas;
+  }
+
+  .ol-timepicker[data-disabled] .ol-timepicker__btn {
+    border-inline-start-color: GrayText;
   }
 }
