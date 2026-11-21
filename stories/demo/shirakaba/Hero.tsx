@@ -105,7 +105,8 @@ export function Hero() {
             ))}
           </span>
           <span className="sg-col__meta">
-            <span className="sg-fig sg-fig--m">{pad(index + 1)}</span> of 03 · from{" "}
+            <span className="sg-fig sg-fig--m">{pad(index + 1)}</span>
+            <span className="sg-col__of">of 03 · from</span>
             <b className="sg-fig sg-fig--m">{yen(model.base)}</b>
           </span>
           <span className="sg-col__blurb">{model.blurb}</span>
