@@ -1,11 +1,5 @@
 // Shirakaba Gakki: a fictional catalogue. Prices are in JPY, before consumption tax.
 // Brand, models, people and prices are invented for this demo.
-import birch from "./images/birch-forest.webp";
-import frets from "./images/fret-levelling.webp";
-import hero from "./images/hero-alps.webp";
-import shed from "./images/winter-timber.webp";
-import hands from "./images/workshop-hands.webp";
-
 export type ModelId = "norikura" | "utsukushi" | "kaichi";
 
 export interface Model {
@@ -313,50 +307,247 @@ export function quote(cfg: GuitarConfig): Quote {
 
 export const yen = (amount: number): string => `¥${amount.toLocaleString("en-US")}`;
 
-export interface ImageSlot {
-  file: string;
-  /** CSS aspect-ratio, e.g. "21/9". */
-  ratio: string;
-  /** Imported image URL. Leave empty to show a labelled placeholder. */
-  src: string;
-  /** CSS object-position for the crop. */
-  pos?: string;
+/** One section of the page that has a fret on the rail. */
+export interface RailSection {
+  id: string;
+  label: string;
+  /** The fret the section sits on, 1–12. */
+  fret: number;
+}
+
+/** The seven stops of the fret rail. Frets 3, 5, 7 and 9 carry single dots; fret 12 the double dot. */
+export const RAIL: readonly RailSection[] = [
+  { id: "top", label: "Shirakaba", fret: 1 },
+  { id: "workshop", label: "Workshop", fret: 3 },
+  { id: "models", label: "Models", fret: 5 },
+  { id: "build", label: "Build", fret: 7 },
+  { id: "process", label: "Weeks", fret: 9 },
+  { id: "faq", label: "Questions", fret: 10 },
+  { id: "order", label: "Order", fret: 12 },
+];
+
+export const LEDGER = [
+  { label: "Luthiers", value: "11", unit: "" },
+  { label: "Guitars a year", value: "180", unit: "" },
+  { label: "Workshop humidity", value: "45", unit: "%" },
+  { label: "Weeks from deposit", value: "12", unit: "" },
+] as const;
+
+export const WORKSHOP_STEPS = [
+  {
+    title: "Seasoning · 6 to 18 months",
+    content:
+      "Boards rest in the north store at 40–50 % humidity. We weigh them every month; they go to the saw only once they stop losing water.",
+  },
+  {
+    title: "Cutting and carving",
+    content:
+      "Outlines are cut from templates and the contours carved by hand. The neck fits the pocket with no shims.",
+  },
+  {
+    title: "Nitro lacquer",
+    content:
+      "Thin coats, sanded between each, then three weeks of curing. Kakishibu is rubbed on by hand in four passes.",
+  },
+  {
+    title: "Setup and test",
+    content: "Fret dress, action, intonation and an hour of amplified playing before it ships.",
+  },
+] as const;
+
+/** Progress of the four benches in the "Bench 03" panel, in percent. */
+export const BENCH = [
+  { label: "Seasoning", value: 100 },
+  { label: "Cutting", value: 100 },
+  { label: "Finish", value: 45 },
+  { label: "Setup", value: 0 },
+] as const;
+
+/** A model as it hangs on the wall and stands in the hero column: a fixed example build. */
+export const SHOWCASE: Readonly<Record<ModelId, GuitarConfig>> = {
+  norikura: { ...DEFAULT_CONFIG, model: "norikura" },
+  utsukushi: {
+    ...DEFAULT_CONFIG,
+    model: "utsukushi",
+    wood: "ash",
+    finish: "kakishibu",
+    board: "pauferro",
+    pickups: "p90",
+    guard: "tort",
+    hardware: "aged",
+  },
+  kaichi: {
+    ...DEFAULT_CONFIG,
+    model: "kaichi",
+    finish: "cream",
+    neck: "roasted",
+    board: "ebony",
+    pickups: "hh",
+    guard: "none",
+    hardware: "black",
+  },
+};
+
+export interface Detail {
+  /** Photograph key, see `images.ts`. */
+  key: string;
+  no: string;
+  where: string;
+  title: string;
+  body: string;
   alt: string;
 }
 
-/** Photography slots. Each image is bundled by Vite from ./images. */
-export const IMAGES = {
-  hero: {
-    file: "hero-alps.webp",
-    ratio: "21/9",
-    src: hero,
-    pos: "8% 55%",
-    alt: "Snow on the Northern Alps at dawn, seen across the Matsumoto basin",
+export const DETAILS: readonly Detail[] = [
+  {
+    key: "det-head",
+    no: "01",
+    where: "All three models",
+    title: "Headstock, 3 + 3",
+    body: "Hard maple, a bone nut cut by hand, and the posts set wide so every string runs clear to its tuner.",
+    alt: "Macro of a maple 3+3 headstock with the kanji Shirakaba and six chrome tuners",
   },
-  hands: {
-    file: "workshop-hands.webp",
-    ratio: "4/5",
-    src: hands,
-    alt: "A luthier's hands carving the edge of a guitar body",
+  {
+    key: "det-bridge",
+    no: "02",
+    where: "Norikura",
+    title: "Vibrato, six saddles",
+    body: "Each string passes through its own saddle; the arm screws in at the treble corner and rests below the strings.",
+    alt: "Macro of a chrome vibrato bridge with six saddles on a mint pickguard",
   },
-  shed: {
-    file: "winter-timber.webp",
-    ratio: "21/9",
-    src: shed,
-    pos: "60% 50%",
-    alt: "Guitar timber stickered to dry in a wooden shed, snow outside",
+  {
+    key: "det-hardtail",
+    no: "03",
+    where: "Utsukushi",
+    title: "Hardtail, three barrels",
+    body: "An aged-nickel plate with three barrel saddles, on ash rubbed with persimmon tannin in four passes.",
+    alt: "Macro of an aged-nickel bridge plate with three barrel saddles on stained ash",
   },
-  frets: {
-    file: "fret-levelling.webp",
-    ratio: "3/2",
-    src: frets,
-    alt: "Close-up of frets being levelled on a maple neck",
+  {
+    key: "det-slot",
+    no: "04",
+    where: "Kaichi",
+    title: "One sound slot",
+    body: "The chambered body opens through a single slot that follows the lower bout, inside cream binding.",
+    alt: "Macro of a curved sound slot cut into a cream lacquered body with binding",
   },
-  birch: {
-    file: "birch-forest.webp",
-    ratio: "21/9",
-    src: birch,
-    pos: "30% 50%",
-    alt: "White birch trees in morning mist",
+];
+
+/** A stage of the twelve-week build. `from`–`to` are the weeks it covers. */
+export interface Stage {
+  from: number;
+  to: number;
+  title: string;
+  body: string;
+  /** Photograph key of the time-lapse frame, see `images.ts`. */
+  key: string;
+  alt: string;
+}
+
+/** Eight stages over twelve weeks; each has one frame from the same camera above the same bench. */
+export const STAGES: readonly Stage[] = [
+  {
+    from: 1,
+    to: 1,
+    title: "Reservation",
+    body: "You pay 30 % and we hold your place in the workshop queue.",
+    key: "w01",
+    alt: "The bench from above: a sealed envelope and a pen beside a steel rule",
   },
-} satisfies Record<string, ImageSlot>;
+  {
+    from: 2,
+    to: 2,
+    title: "Choosing the boards",
+    body: "We send photos of two or three boards so you can pick the grain.",
+    key: "w02",
+    alt: "The same bench with three blocks of timber, from pale to red-brown, side by side",
+  },
+  {
+    from: 3,
+    to: 4,
+    title: "Cutting and carving",
+    body: "Outlines from templates, contours by hand, the neck fitted with no shims.",
+    key: "w03",
+    alt: "The same bench with a roughed-out body, a paper template, a spokeshave and a drift of shavings",
+  },
+  {
+    from: 5,
+    to: 5,
+    title: "Fretwork",
+    body: "Frets pressed, levelled with a long beam and crowned one by one.",
+    key: "w05",
+    alt: "The same bench with a fretted maple neck, a steel levelling beam and a strip of masking tape",
+  },
+  {
+    from: 6,
+    to: 8,
+    title: "Nitro lacquer",
+    body: "Thin coats sanded between each, then three weeks hanging in the drying room.",
+    key: "w06",
+    alt: "The same bench with an olive-lacquered body resting on a felt pad, and a polishing cloth",
+  },
+  {
+    from: 9,
+    to: 10,
+    title: "Assembly and setup",
+    body: "Electronics, nut, action and intonation. Photos after each stage.",
+    key: "w09",
+    alt: "The same bench with the guitar assembled, a capo, an Allen key and a stack of setup cards",
+  },
+  {
+    from: 11,
+    to: 11,
+    title: "An hour of playing",
+    body: "Someone who did not build it plays it, amplified, for an hour.",
+    key: "w11",
+    alt: "The same bench with the finished olive guitar, a coiled cable and a cup of green tea",
+  },
+  {
+    from: 12,
+    to: 12,
+    title: "Test and ship",
+    body: "You pay the balance; it leaves Matsumoto insured, in a wooden crate.",
+    key: "w12",
+    alt: "The same bench with a wooden crate holding a guitar wrapped in cloth, tied with string",
+  },
+];
+
+export const FAQ = [
+  {
+    title: "Do you ship outside Japan?",
+    content:
+      "On a real site, yes — insured, in a wooden crate. Import duties are paid by the recipient.",
+  },
+  {
+    title: "Can I visit the workshop?",
+    content: "On Saturdays by appointment. Matsumoto is about three hours from Tokyo by train.",
+  },
+  {
+    title: "What if I change my mind?",
+    content:
+      "You can change options until the finish starts. The deposit is refundable before cutting.",
+  },
+  {
+    title: "Is this shop real?",
+    content:
+      "No. Shirakaba Gakki is fictional — the page shows what the Olivine library looks like on a complete site.",
+  },
+] as const;
+
+/** Alt text of the atmosphere photographs. */
+export const ALT = {
+  hands: "A maple workbench by a north window, a body blank and a roll of chisels",
+  shed: "Guitar boards standing on end to dry in a dim timber store, snow light at the window",
+  birch: "White birch trunks in fresh snow and fog",
+} as const;
+
+/** Photograph key of the studio shot of a model. */
+export const standKey = (id: ModelId): string => `stand-${id}`;
+
+/** Which pickup photograph (`sw-pu-…`) stands for each pickup layout. */
+export const SWATCH_PICKUP: Readonly<Record<string, string>> = {
+  sss: "single",
+  hss: "humbucker",
+  hh: "humbucker",
+  p90: "p90",
+};
