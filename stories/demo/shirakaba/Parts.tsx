@@ -1,88 +1,85 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 
-import type { ImageSlot } from "./data";
+import { Label, Text } from "../../../src";
+import { useSeen } from "./hooks";
 
-/** Northern Alps silhouette as seen from the Matsumoto basin: hairline only. */
-export function Ridge({ className }: { className?: string }) {
-  const peaks =
-    "0,92 40,84 70,70 96,74 128,52 150,58 176,40 196,46 222,22 236,30 252,26 270,44 300,38 334,60 360,54 392,72 420,66 452,82 480,76 520,90 560,84 600,96";
+/**
+ * The sumitsubo rule above a section title: a hairline is pulled across, then the ink snaps on.
+ * It plays once, when the rule first scrolls into view.
+ */
+export function Snap() {
+  const ref = useRef<HTMLSpanElement>(null);
+  const seen = useSeen(ref);
   return (
-    <svg viewBox="0 0 600 110" preserveAspectRatio="none" className={className} aria-hidden="true">
-      <polyline
-        points={peaks}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-      />
-      <polyline
-        points="0,104 60,96 120,100 200,88 280,96 360,90 440,100 520,94 600,102"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeDasharray="2 4"
-        vectorEffect="non-scaling-stroke"
-        opacity=".7"
-      />
-      <line
-        x1="222"
-        y1="22"
-        x2="222"
-        y2="6"
-        stroke="currentColor"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    <span ref={ref} className="sg-snap" data-in={seen ? "" : undefined} aria-hidden="true">
+      <span className="sg-snap__line" />
+      <span className="sg-snap__ink" />
+    </span>
   );
 }
 
-export interface PhotoProps {
-  img: ImageSlot;
-  className?: string;
+export interface SectionHeadProps {
+  kicker: string;
+  title: string;
+  /** Id of the heading, for `aria-labelledby` on the section. */
+  id: string;
   children?: ReactNode;
 }
 
-/** Photo slot: the image when `src` is set, otherwise a labelled placeholder with the file name. */
-export function Photo({ img, className, children }: PhotoProps) {
-  const style = { "--sg-ratio": img.ratio } as CSSProperties;
+/** Kicker, display heading and an optional lead, under the ink rule. */
+export function SectionHead({ kicker, title, id, children }: SectionHeadProps) {
   return (
-    <div className={["sg-photo", className].filter(Boolean).join(" ")} style={style}>
-      {img.src ? (
-        <img
-          className="sg-photo__img"
-          src={img.src}
-          alt={img.alt}
-          style={img.pos ? { objectPosition: img.pos } : undefined}
-          loading="lazy"
-          decoding="async"
-        />
-      ) : (
-        <div className="sg-photo__ph" role="img" aria-label={img.alt}>
-          <span className="sg-photo__tag">
-            Image · {img.file} · {img.ratio.replace("/", ":")}
-          </span>
-          <span className="sg-photo__alt">{img.alt}</span>
-        </div>
+    <div className="sg-head">
+      <Snap />
+      <Label>{kicker}</Label>
+      <Text variant="display-m" as="h2" id={id}>
+        {title}
+      </Text>
+      {children && (
+        <Text variant="body" className="sg-measure sg-head__body">
+          {children}
+        </Text>
       )}
-      {children}
     </div>
   );
 }
 
-export interface SwatchProps {
-  color: string;
-  /** Wood colour shown under a transparent finish. */
-  base?: string;
-  alpha?: number;
+export interface ShojiProps {
+  /** URL of the photograph. */
+  src: string | undefined;
+  alt: string;
+  /** CSS object-position of the crop. */
+  pos?: string;
+  className?: string;
+  /** Names the frame for assistive technology when it holds text over the photograph. */
+  label?: string;
+  children?: ReactNode;
 }
 
-/** Small finish or wood swatch for radio labels. The colours are content, not UI. */
-export function Swatch({ color, base, alpha = 1 }: SwatchProps) {
+/**
+ * A photograph behind a 12 × 6 grid of panes. Text sits on solid `paper` panes (`sg-void`) laid on
+ * the grid, so its contrast never depends on the image.
+ */
+export function Shoji({ src, alt, pos, className, label, children }: ShojiProps) {
   return (
-    <span className="sg-swatch" aria-hidden="true">
-      {base && <span style={{ background: base }} />}
-      <span style={{ background: color, opacity: alpha }} />
-    </span>
+    <div
+      className={["sg-shoji", className].filter(Boolean).join(" ")}
+      role={label ? "group" : undefined}
+      aria-label={label}
+    >
+      <div className="sg-shoji__photo">
+        {src && (
+          <img
+            className="sg-shoji__img"
+            src={src}
+            alt={alt}
+            style={pos ? { objectPosition: pos } : undefined}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+      </div>
+      <div className="sg-shoji__grid">{children}</div>
+    </div>
   );
 }
