@@ -1788,11 +1788,16 @@
   display: flex;
   gap: var(--space-2);
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .sg-col__meta .sg-fig {
   font-size: var(--text-figure-m-size);
   color: var(--ink);
+}
+
+.sg-col__of {
+  white-space: nowrap;
 }
 
 .sg-col__blurb {
