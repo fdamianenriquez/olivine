@@ -85,7 +85,7 @@ export function useSeen(ref: RefObject<Element | null>, rootMargin = "0px 0px -1
  * The index of the list item that crosses the middle of the viewport. `refs` holds one element
  * per item, in order.
  */
-export function useCrossing(refs: RefObject<(HTMLElement | null)[]>, count: number): number {
+export function useCrossing(refs: RefObject<(HTMLElement | null)[] | null>, count: number): number {
   const [index, setIndex] = useState(0);
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
@@ -97,7 +97,7 @@ export function useCrossing(refs: RefObject<(HTMLElement | null)[]>, count: numb
       },
       { rootMargin: "-45% 0px -45% 0px" },
     );
-    for (const el of refs.current.slice(0, count)) if (el) observer.observe(el);
+    for (const el of (refs.current ?? []).slice(0, count)) if (el) observer.observe(el);
     return () => {
       observer.disconnect();
     };
